@@ -1,0 +1,16 @@
+jinja2
+jsonref
+openapi_core
+pydantic
+sphinx
+wsgi_intercept
+bs4
+markdownify
+oslotest
+ruamel.yaml
+nova
+glance
+neutron
+keystone
+cinder
+octavia

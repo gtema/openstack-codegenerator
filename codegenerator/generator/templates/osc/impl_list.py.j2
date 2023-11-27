@@ -1,0 +1,130 @@
+#   Licensed under the Apache License, Version 2.0 (the "License"); you may
+#   not use this file except in compliance with the License. You may obtain
+#   a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#   License for the specific language governing permissions and limitations
+#   under the License.
+#
+
+"""{{class_name}} implementations"""
+
+import logging
+
+from openstack import utils as sdk_utils
+from osc_lib.command import command
+from osc_lib import exceptions
+from osc_lib import utils
+
+from openstackclient.i18n import _
+from {{ osc_mod_name }} import common
+
+LOG = logging.getLogger(__name__)
+
+# TODO(autogen): add required formatters
+_formatters = common._formatters
+
+
+class List{{ class_name }}(command.Lister):
+    _description = _("List {{ class_name }}s")
+
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+
+{%- for (k, _) in res._query_mapping._mapping.items() %}
+{% set attr = attrs.get(k) %}
+        parser.add_argument(
+{%- if not k.startswith('is_') %}
+            "--{{k | replace('_', '-') }}",
+{%- else -%} {# if not k.startswith #}
+            "--{{ k | replace('is_', '') }}",
+            action="store_true",
+{%- endif -%} {# if not k.startswith #}
+            help=_(
+{%- if attr is defined and attr['docs'] and attr['docs']|length > 0 %}
+{#- wrap long line with identation #}
+                "{{ attr.get('docs', '') | wordwrap(59) | replace('\n', ' \"\n                \"') }}"
+{%- elif attr is defined and attr['doc']|length == 0 %}
+                ""
+{%- elif k == "limit" %}
+                "The last {{ class_name}} ID of the previous page"
+{%- elif k == "marker" %}
+                "Maximum amount of entries to fetch in single API request"
+{%- else -%}
+                ""
+{%- endif %}
+            )
+        )
+{%- endfor %} {#- for k,_ in query_mapping #}
+
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.sdk_connection
+
+        # TODO(autogen): Define columns to show
+        columns = (
+{%- for (k, _) in attrs.items() %}
+            "{{ k }}",
+{%- endfor %}
+        )
+
+        column_headers = (
+{%- for (k, _) in attrs.items() %}
+            "{{ k.capitalize() }}",
+{%- endfor %}
+        )
+
+        query_attrs = dict()
+
+        if parsed_args.limit or parsed_args.marker:
+            # User passed explicit pagination request, switch off SDK
+            # pagination
+            query_attrs['paginated'] = False
+
+{%- for (k, _) in res._query_mapping._mapping.items() %}
+{% set attr = attrs.get(k) %}
+
+{%- if not k.startswith('is_') %}
+        if parsed_args.{{k}}:
+
+{#- Min microversion handling #}
+{%- if k in attrs and attrs[k]['attr'].min_microversion %}
+{%- set min_mv = attrs[k]['attr'].min_microversion %}
+            if not sdk_utils.supports_microversion(client, "{{ min_mv }}"):
+                msg = _(
+                    "The --{{ k }} parameter requires server support for "
+                    "API microversion {{ min_mv }}"
+                )
+                raise exceptions.CommandError(msg)
+{%- endif %}
+{#- End Min microversion handling #}
+            query_attrs["{{k}}"] = parsed_args.{{ k }}
+{%- else %}
+        if parsed_args.{{k | replace('is_', '') }}:
+            query_attrs["{{k}}"] = parsed_args.{{ k | replace('is_', '') }}
+{%- endif %}
+{%- endfor %}
+
+        data = client.search_resources(
+            resource_type="{{registry_name}}",
+            name_or_id=None,
+            filters=query_attrs
+        )
+
+        headers, attrs = utils.calculate_header_and_attrs(
+            column_headers, columns, parsed_args)
+        return (
+            headers,
+            (
+                utils.get_item_properties(
+                    s, attrs,
+                    formatters=_formatters,
+                ) for s in data
+            )
+        )
+

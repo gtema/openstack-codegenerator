@@ -1,0 +1,100 @@
+#   Licensed under the Apache License, Version 2.0 (the "License"); you may
+#   not use this file except in compliance with the License. You may obtain
+#   a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#   License for the specific language governing permissions and limitations
+#   under the License.
+#
+
+"""{{class_name}} implementations"""
+
+import logging
+
+from openstack import utils as sdk_utils
+from osc_lib.command import command
+from osc_lib import exceptions
+from osc_lib.cli import parseractions  # noqa
+from osc_lib import utils
+
+from openstackclient.i18n import _
+from {{ osc_mod_name }} import common
+
+LOG = logging.getLogger(__name__)
+
+# TODO(autogen): add required formatters
+_formatters = common._formatters
+
+
+class Unset{{ class_name }}(command.ShowOne):
+    _description = _("Unset {{ class_name }} properties")
+
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+
+        parser.add_argument(
+            "{{ resource_name }}",
+            metavar="<{{ resource_name }}>",
+            help=_(
+                "{{ resource_name }} to unset property from (name or ID)"
+            ),
+        )
+
+        parser.add_argument(
+            "--property",
+            metavar="<key>",
+            action="append",
+            default=[],
+            dest="properties",
+            help=_("Property to remove from {{ resource_name }} "
+                   "(repeat option to remove multiple properties)")
+        )
+
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.sdk_connection.{{ sdk_service_name }}
+
+        unset_props = parsed_args.properties
+        new_props = {}
+{%- for (k, v) in attrs.items() if not (v["attr"].read_only or v["attr"].create_only)  %}
+        if "{{ k | replace('is_', '') }}" in unset_props:
+            unset_props.remove("{{ k | replace('is_', '') }}")
+{%- if v["attr"].min_microversion %}
+{%- set min_mv = attrs[k]['attr'].min_microversion %}
+            if not sdk_utils.supports_microversion(client, "{{ min_mv }}"):
+                msg = _(
+                    "The --{{ k }} parameter requires server support for "
+                    "API microversion {{ min_mv }}"
+                )
+                raise exceptions.CommandError(msg)
+{%- endif %} {# microversion #}
+            new_props["{{ k }}"] = None
+{%- endfor %} {#- for k,_ in attr.items #}
+
+        if unset_props:
+            msg = _(
+                "Properties %s are not supported by {{ resource_name }}"
+            )
+            raise exceptions.CommandError(msg % unset_props)
+
+        resource = self.app.client_manager.sdk_connection.search_resources(
+            resource_type="{{ registry_name }}",
+            name_or_id=parsed_args.{{ resource_name }},
+            filters=None
+        )
+
+        data = client.update_{{ resource_name }}(
+            resource.id,
+            **new_props)
+
+        display_columns, columns = common._get_resource_columns(data)
+        data = utils.get_dict_properties(
+            data, columns, formatters=common._formatters)
+
+        return (display_columns, data)
+

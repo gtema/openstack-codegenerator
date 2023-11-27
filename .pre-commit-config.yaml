@@ -1,0 +1,84 @@
+---
+default_language_version:
+  # force all unspecified python hooks to run python3
+  python: python3
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+        args: ['--fix', 'lf']
+        exclude: '.*\.(svg)$'
+      - id: check-byte-order-marker
+      - id: check-executables-have-shebangs
+      - id: check-merge-conflict
+      - id: debug-statements
+      - id: check-yaml
+        files: .*\.(yaml|yml)$
+        exclude: '^zuul.d/.*$'
+  - repo: https://github.com/PyCQA/doc8
+    rev: v1.1.1
+    hooks:
+      - id: doc8
+  - repo: https://github.com/psf/black
+    rev: 23.3.0
+    hooks:
+      - id: black
+        args: ['-S', '-l', '79']
+        exclude: '^codegenerator/templates/.*$'
+  - repo: local
+    hooks:
+      - id: flake8
+        name: flake8
+        additional_dependencies:
+          - hacking>=6.0.1,<6.1.0
+          - flake8-import-order>=0.18.2,<0.19.0
+        language: python
+        entry: flake8
+        files: '^.*\.py$'
+        exclude: '^(doc|releasenotes|tools)/.*$'
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.4.1
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - types-decorator
+          - types-PyYAML
+          - types-requests
+          - types-simplejson
+        # keep this in-sync with '[mypy] exclude' in 'setup.cfg'
+        exclude: |
+          (?x)(
+            openstack/tests/ansible/.*
+            | openstack/tests/functional/.*
+            | openstack/tests/unit/.*
+            | openstack/tests/fixtures.py
+            | openstack/accelerator/.*
+            | openstack/baremetal/.*
+            | openstack/baremetal_introspection/.*
+            | openstack/block_storage/.*
+            | openstack/cloud/.*
+            | openstack/clustering/.*
+            | openstack/compute/.*
+            | openstack/container_infrastructure_management/.*
+            | openstack/database/.*
+            | openstack/dns/.*
+            | openstack/fixture/.*
+            | openstack/identity/.*
+            | openstack/image/.*
+            | openstack/instance_ha/.*
+            | openstack/key_manager/.*
+            | openstack/load_balancer/.*
+            | openstack/message/.*
+            | openstack/network/.*
+            | openstack/object_store/.*
+            | openstack/orchestration/.*
+            | openstack/placement/.*
+            | openstack/shared_file_system/.*
+            | openstack/workflow/.*
+            | doc/.*
+            | examples/.*
+            | releasenotes/.*
+            | codegenerator/generator/.*
+          )

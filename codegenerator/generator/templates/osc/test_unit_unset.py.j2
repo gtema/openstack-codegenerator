@@ -1,0 +1,142 @@
+#   Licensed under the Apache License, Version 2.0 (the "License"); you may
+#   not use this file except in compliance with the License. You may obtain
+#   a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#   License for the specific language governing permissions and limitations
+#   under the License.
+#
+
+from unittest import mock
+
+from openstack import utils as sdk_utils
+from {{ sdk_mod_name }} import {{ class_name }}
+from openstack.tests.unit import fakes as sdk_fakes
+from osc_lib import exceptions
+
+from {{ osc_mod_name }} import unset
+from openstackclient.tests.unit import utils as tests_utils
+
+
+class Test{{ class_name }}(tests_utils.TestCommand):
+
+    def setUp(self):
+        super().setUp()
+
+        # SDK mock
+        self.app.client_manager.sdk_connection = mock.Mock()
+        self.app.client_manager.sdk_connection.{{ sdk_service_name }} = mock.Mock()
+        self.app.client_manager.sdk_connection.{{ sdk_service_name }}.update_{{ resource_name }} = mock.Mock()
+        self.sdk_client = self.app.client_manager.sdk_connection
+
+
+class Test{{ class_name }}Unset(Test{{ class_name }}):
+
+    _fake = sdk_fakes.get_fake_resource({{ class_name }})
+
+    columns = (
+{%- for (k, _) in attrs.items() %}
+        "{{ k }}",
+{%- endfor %}
+    )
+
+    data = (
+{%- for (k, _) in attrs.items() %}
+        _fake.{{ k }},
+{%- endfor %}
+    )
+
+    def setUp(self):
+        super().setUp()
+
+        self.sdk_client.search_resources.return_value = self._fake
+        self.sdk_client.{{ sdk_service_name }}.update_{{ resource_name }}.return_value = self._fake
+
+        # Get the command object to test
+        self.cmd = unset.Unset{{ class_name }}(self.app, None)
+
+    def test_unset_no_options(self):
+
+        arglist = []
+        verifylist = []
+
+        # Missing required args should boil here
+        self.assertRaises(
+            tests_utils.ParserException, self.check_parser,
+            self.cmd, arglist, verifylist)
+
+    def test_unset_unsupported_options(self):
+
+        arglist = ["res_name", "--property", "fake-prop"]
+        verifylist = [
+            ("{{ resource_name }}", "res_name"),
+            ("properties", ["fake-prop"])
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # Unsupported propertiesshould boil here
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args
+        )
+
+    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
+    def test_unset_basic(self, mock_sm):
+        arglist = ["res_name",
+{%- for (k, v) in attrs.items() if not v["attr"].read_only and not v["attr"].create_only %}
+            "--property",
+{%- set attr=v['attr'] %}
+{%- if attr.type.__name__ == "bool" %}
+            "{{ k | replace('is_', '') }}",
+{%- else %}
+            "{{ k }}",
+{%- endif %}
+{%- endfor %} {#- for k,_ in attr.items #}
+        ]
+        verifylist = [
+            ("{{ resource_name }}", "res_name"),
+            ("properties", [
+{%- for (k, v) in attrs.items() if not v["attr"].read_only and not v["attr"].create_only %}
+{%- set attr=v['attr'] %}
+{%- if attr.type.__name__ == "bool" %}
+                "{{ k | replace('is_', '') }}",
+{%- else %}
+                "{{ k }}",
+{%- endif %} {#- if attr.type.__name #}
+{%- endfor %} {#- for k,_ in attr.items #}
+            ]),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.sdk_client.search_resources.assert_called_with(
+            resource_type="{{ registry_name }}",
+            filters=None,
+            name_or_id="res_name"
+        )
+
+        self.sdk_client.{{ sdk_service_name }}.update_{{ resource_name }}.assert_called_with(
+            self._fake.id,
+{%- for (k, v) in attrs.items() if not v["attr"].read_only and not v["attr"].create_only %}
+{%- set attr=v['attr'] %}
+{%- if attr.type.__name__ == "bool" %}
+            {{ k }}=None,
+{%- else %}
+            {{ k }}=None,
+{%- endif %} {#- if attr.type == dict #}
+{%- endfor %} {#- for k,_ in attr.items #}
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, tuple(data))
+

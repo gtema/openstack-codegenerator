@@ -1,0 +1,55 @@
+---
+- module_defaults:
+    group/openstack.cloud.openstack:
+      cloud: " {{ '{{ cloud }}' }}"
+    # Listing modules individually is required for
+    # backward compatibility with Ansible 2.9 only
+    openstack.cloud.{{ target_name }}:
+      cloud: " {{ '{{ cloud }}' }}"
+    openstack.cloud.{{ target_name }}_info:
+      cloud: " {{ '{{ cloud }}' }}"
+  block:
+    - name: List {{ registry_name }}
+      openstack.cloud.{{ target_name }}_info:
+      register: objects
+
+    - name: Assert return values of module
+      ansible.builtin.assert:
+        that:
+          - objects is not changed
+
+    - name: Create {{ registry_name }} object
+      openstack.cloud.{{ target_name }}:
+{%- for (k, v) in attrs.items() if not v["attr"].read_only %}
+        {{ k }}: {{ fake_resource[k] }}
+{%- endfor %}
+      register: obj
+
+    - name: Check created object
+      ansible.builtin.assert:
+        that:
+{%- for (k, v) in attrs.items() if not v["attr"].read_only %}
+          - obj.resource.{{ k }} == {{ fake_resource[k] }}
+{%- endfor %}
+
+    - name: Delete {{ registry_name }} object
+      openstack.cloud.{{ target_name }}:
+        name: {{ fake_resource['name'] }}
+        state: absent
+      register: obj
+
+    - name: Assert return values of module
+      ansible.builtin.assert:
+        that:
+          - obj is changed
+
+    - name: Delete {{ registry_name }} object again
+      openstack.cloud.{{ target_name }}:
+        name: {{ fake_resource['name'] }}
+        state: absent
+      register: obj
+
+    - name: Assert return values of module
+      ansible.builtin.assert:
+        that:
+          - obj is not changed

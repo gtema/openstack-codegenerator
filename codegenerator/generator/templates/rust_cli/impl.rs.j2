@@ -1,0 +1,319 @@
+{%- import 'rust_macros.j2' as macros with context -%}
+{{ macros.mod_docstring(command_description) }}
+use async_trait::async_trait;
+use clap::Args;
+use serde::{Deserialize, Serialize};
+use tracing::info;
+use http::Response;
+{%- if not result_def %}
+use http::{HeaderName, HeaderValue};
+use bytes::Bytes;
+{%- endif %}
+
+use anyhow::Result;
+
+use crate::output::OutputProcessor;
+use crate::Cli;
+use crate::OutputConfig;
+use crate::StructTable;
+use crate::{Command, error::OpenStackCliError};
+use structable_derive::StructTable;
+
+use openstack_sdk::{AsyncOpenStack, types::ServiceType};
+
+{% for mod in additional_imports | sort %}
+use {{ mod }};
+{%- endfor %}
+
+{{ macros.docstring(command_description, indent=0) }}
+#[derive(Args, Clone, Debug)]
+pub struct {{ target_class_name }}Args {
+
+{# We need path parameters in a specific order #}
+{{ macros.cli_arg_params(path_params.values()|sort(attribute="path_position")) }}
+{{ macros.cli_arg_params(query_params.values()) }}
+{{ macros.cli_arg_params(body_params.values()) }}
+{{ macros.cli_arg_params(patch_params.values()) }}
+
+{% if header_params | length > 1 and operation_type in ["set", "unset"]%}
+    /// Property to be set
+    #[arg(long, value_name="key=value", value_parser = parse_key_val::<String, String>)]
+    property: Vec<(String, String)>,
+{%- endif %}
+
+{% if operation_type == "list" %}
+    /// Total limit of entities count to return. Use this when there are too many entries.
+    #[arg(long, default_value_t=10000)]
+    max_items: usize
+{%- endif %}
+
+{% if operation_type == "download" %}
+    /// Destination filename (using "-" will print object to stdout)
+    #[arg(long)]
+    file: Option<String>,
+{% elif operation_type == "upload" %}
+    /// Source filename (using "-" will read object from stdout)
+    #[arg(long)]
+    file: Option<String>,
+{%- endif %}
+
+}
+
+pub struct {{ target_class_name }}Cmd {
+    pub args: {{ target_class_name }}Args,
+}
+
+/// {{ target_class_name }}
+#[derive(Deserialize, Debug, Clone, Serialize, StructTable)]
+pub struct {{ target_class_name }} {
+{%- if result_def %}
+{%- for k, v in result_def.items() %}
+    {{ macros.docstring(v.description, indent=4) }}
+{%- if v.param_serde_args %}
+    #[serde({{ v.param_serde_args | join(",") }})]
+{%- endif %}
+{%- if v.param_structable_args %}
+    #[structable({{ v.param_structable_args | join(",") }})]
+{%- endif %}
+    {{ v.local_name }}: {{ v.type }},
+{%- endfor %}{#- if result_def #}
+{%- elif resource_header_metadata %}
+    #[structable(title="metadata")]
+    metadata: HashMapStringString,
+{%- endif %}
+}
+
+#[async_trait]
+impl Command for {{ target_class_name }}Cmd {
+    async fn take_action(
+        &self,
+        parsed_args: &Cli,
+        client: &mut AsyncOpenStack,
+    ) -> Result<(), OpenStackCliError> {
+        info!("{{ method | title }} {{ target_class_name }} with {:?}", self.args);
+
+        let op = OutputProcessor::from_args(parsed_args);
+        op.validate_args(parsed_args)?;
+
+      {%- if operation_type == "show" and (("id" in query_params.keys() | list) or ("id" in result_def.keys() | list)) %}
+        let mut ep_builder = find::{{ sdk_struct_name  }}::builder();
+      {%- elif operation_type == "set" and method == "patch" %}
+        let mut ep_builder = find::{{ sdk_struct_name }}::builder();
+      {%- else %}
+        let mut ep_builder = {{ sdk_mod_path[-1] }}::{{ sdk_struct_name }}::builder();
+      {%- endif %}
+      // Set path parameters
+{%- for k, v in path_params.items() %}
+{%- if not v.required %}
+  {%- if k != "project_id" %}
+        if let Some(val) = &self.args.{{ v.local_name }} {
+            ep_builder.{{ v.local_name }}(val);
+        }
+  {%- else %}
+        if let Some(val) = &self.args.{{ v.local_name }} {
+            ep_builder.{{ v.local_name }}(val);
+        } else {
+            ep_builder.{{ v.local_name }}(client.get_current_project().expect("Project ID must be known").id);
+        }
+  {%- endif %}
+{%- else %}
+        ep_builder.{{ v.local_name }}(&self.args.{{ v.local_name }});
+{%- endif %}
+{%- endfor %}
+    // Set query parameters
+{%- for k, v in query_params.items() %}
+{%- if not v.required %}
+        if let Some(val) = &self.args.{{ v.local_name }} {
+{%- if v.schema.type in ["integer", "number", "boolean"] %}
+            ep_builder.{{ v.local_name }}(*val);
+{%- elif v.schema.type == "array" %}
+          ep_builder.{{ v.local_name }}(val.iter());
+{%- else %}
+          ep_builder.{{ v.local_name }}(val);
+{%- endif %}
+        }
+{%- else %}
+        ep_builder.{{ k }}(&self.args.{{k}});
+{%- endif %}
+{%- endfor %}
+      // Set body parameters
+{%- for k, v in body_params.items() %}
+    {%- if v.schema.type != "null" %}
+      {%- if not v.required %}
+        if let Some(val) = &self.args.{{ v.local_name }} {
+        {%- if v.schema.type in ["integer", "number", "boolean"] %}
+            ep_builder.{{ v.local_name }}(*val);
+        {%- elif "bool" in v.type %}
+            ep_builder.{{ v.local_name }}(*val);
+        {%- elif "u64" in v.type %}
+            ep_builder.{{ v.local_name }}(*val);
+        {%- elif v.schema.type == "array" %}
+            ep_builder.{{ v.local_name }}(val.iter().cloned());
+        {%- elif "Vec<" in v.type %}
+            ep_builder.{{ v.local_name }}(val.iter().cloned());
+        {%- elif "HashMap" in v.type %}
+            ep_builder.{{ v.local_name }}(val.iter());
+        {%- elif "Value" in v.type and v.subtype %}
+            let sub: {{ sdk_mod_path[-1] }}::{{ v.subtype }} = serde_json::from_value(val.clone())?;
+            ep_builder.{{ v.local_name }}(sub);
+        {%- elif "Value" in v.type %}
+            ep_builder.{{ v.local_name }}(val.clone());
+        {%- else %}
+            ep_builder.{{ v.local_name }}(val);
+        {%- endif %}
+        }
+{%- else %}
+        ep_builder.{{ k }}(&self.args.{{k}});
+{%- endif %}
+{%- endif %}
+{%- endfor %}
+
+{%- if header_params | length > 1 and operation_type in ["set", "unset"]%}
+        ep_builder.headers(self.args.property.iter().map(|(k, v)| {
+            (
+                Some(HeaderName::from_bytes(k.as_bytes()).expect("HeaderName is a string")),
+                HeaderValue::from_str(v.as_str()).expect("Header Value is a string"),
+            )
+        }));
+{%- endif %}
+{%- if operation_type == "upload" and body_types|length == 1 and body_types[0] != "*/*" %}
+        // The only supported media type
+        ep_builder.header("content-type", "{{ body_types[0] }}");
+{%- endif %}
+        let ep = ep_builder
+            .build()
+            .map_err(|x| OpenStackCliError::EndpointBuild(x.to_string()))?;
+
+{%- if sdk_service_name not in ["object", "object-store"] %}
+        client.discover_service_endpoint(&ServiceType::{{ sdk_service_name }}).await?;
+{%- endif %}
+
+    {%- if result_def %}
+    {#- there is result structure #}
+      {%- if operation_type == "list" %}
+{#- List operation #}
+        let data: Vec<serde_json::Value> = paged(ep, Pagination::Limit(self.args.max_items)).query_async(client).await?;
+
+        op.output_list::<{{ target_class_name }}>(data)?;
+
+      {%- elif operation_type == "show" and (("id" in query_params.keys() | list) or ("id" in result_def.keys() | list)) %}
+{#- Show/find implementation #}
+        let data = find(ep).query_async(client).await?;
+        op.output_single::<{{ target_class_name }}>(data)?;
+      {%- elif operation_type == "show" %}
+{#- Show/get implementation #}
+        let data = ep.query_async(client).await?;
+        op.output_single::<{{ target_class_name }}>(data)?;
+      {%- elif operation_type == "set" and method == "patch" %}
+{#- Patch implementation #}
+        // Patching resource requires fetching and calculating diff
+        let data: {{ target_class_name }} = find(ep).query_async(client).await?;
+        let mut new = data.clone();
+        {% for k, v in patch_params.items() %}
+        if let Some(val) = &self.args.{{ v.local_name }} {
+          {%- if v.type == "Option<Vec<String>>" %}
+            new.{{ v.local_name }} = Some(VecString(val.clone()));
+          {%- elif v.type in ["Option<bool>", "Option<u32>", "Option<f32>"]%}
+            new.{{ v.local_name }} = Some(*val);
+          {%- elif "Option" in v.type %}
+            new.{{ v.local_name }} = Some(val.into());
+          {%- else %}
+            new.{{ v.local_name }} = *val;
+          {%- endif %}
+        }
+        {%- endfor %}
+
+        let curr_json = serde_json::to_value(&data).unwrap();
+        let new_json = serde_json::to_value(&new).unwrap();
+        let patch = diff(&curr_json, &new_json);
+
+        let mut patch_ep_builder = {{ method }}::{{ sdk_struct_name }}::builder();
+        patch_ep_builder.id(&data.id);
+        patch_ep_builder.patch(patch);
+
+        let patch_ep = patch_ep_builder
+            .build()
+            .map_err(|x| OpenStackCliError::EndpointBuild(x.to_string()))?;
+        let new_data = patch_ep.query_async(client).await?;
+        op.output_single::<{{ target_class_name }}>(new_data)?;
+
+      {%- else %}
+        let data = ep.query_async(client).await?;
+        op.output_single::<{{ target_class_name }}>(data)?;
+      {%- endif %}
+    {%- elif operation_type not in ["delete", "download", "upload", "json"] %}
+      {#- there is no result structure - raw mode #}
+        let rsp: Response<Bytes> = ep.raw_query_async(client).await?;
+
+      {%- if resource_header_metadata %}
+       {#- metadata from headers for now can be only returned when there is no response struct #}
+        let mut metadata: HashMap<String, String> = HashMap::new();
+        let headers = rsp.headers();
+
+        let mut regexes: Vec<Regex> = vec![
+        {%- for hdr, spec in resource_header_metadata.items() %}
+        {%- if "*" in hdr %}
+            Regex::new(r"(?i){{ hdr | replace("*", "\.*") }}").unwrap(),
+        {%- endif %}
+        {%- endfor %}
+        ];
+
+        for (hdr, val) in headers.iter() {
+            if [
+              {%- for hdr, spec in resource_header_metadata.items() %}
+              {%- if not "*" in hdr %}
+                "{{ hdr | lower }}",
+              {%- endif %}
+              {%- endfor %}
+            ].contains(&hdr.as_str()) {
+                metadata.insert(
+                    hdr.to_string(),
+                    val.to_str().unwrap_or_default().to_string());
+            } else if !regexes.is_empty() {
+                for rex in regexes.iter() {
+                    if rex.is_match(hdr.as_str()) {
+                        metadata.insert(
+                            hdr.to_string(),
+                            val.to_str().unwrap_or_default().to_string());
+                    }
+                }
+            }
+        }
+        let data = {{ target_class_name }} {metadata: metadata.into()};
+      {%- else %}
+        let data = {{ target_class_name }} {};
+      {%- endif %}
+        // Maybe output some headers metadata
+        op.output_human::<{{ target_class_name }}>(&data)?;
+    {%- elif operation_type == "delete" %}
+        let rsp: Response<Bytes> = ep.raw_query_async(client).await?;
+    {%- elif operation_type == "download" %}
+
+        let (headers, data) = ep.download_async(client).await?;
+
+        let size: u64 = headers
+            .get("content-length")
+            .map(|x| x.to_str().expect("Header is a string"))
+            .unwrap_or("0")
+            .parse()
+            .unwrap();
+        download_file(
+            self.args.file.clone().unwrap_or(self.args.{{ last_path_parameter }}.clone()),
+            size,
+            data,
+        )
+        .await?;
+    {%- elif operation_type == "upload" %}
+        let dst = self.args.file.clone();
+        let data = build_upload_asyncread(dst).await?;
+
+        let _rsp: Response<Bytes> = ep.raw_query_read_body_async(client, data).await?;
+        // TODO: what if there is an interesting response
+    {%- elif operation_type == "json" %}
+        let rsp: Response<Bytes> = ep.raw_query_async(client).await?;
+        let data: serde_json::Value = serde_json::from_slice(rsp.body())?;
+        op.output_machine(data)?;
+    {%- endif %}
+        Ok(())
+    }
+}

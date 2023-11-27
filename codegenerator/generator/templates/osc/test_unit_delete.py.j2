@@ -1,0 +1,136 @@
+#   Licensed under the Apache License, Version 2.0 (the "License"); you may
+#   not use this file except in compliance with the License. You may obtain
+#   a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#   License for the specific language governing permissions and limitations
+#   under the License.
+#
+
+from unittest import mock
+
+from {{ sdk_mod_name }} import {{ class_name }}
+from openstack import exceptions as sdk_exceptions
+from openstack.tests.unit import fakes as sdk_fakes
+from osc_lib import exceptions
+
+from {{ osc_mod_name }} import delete
+from openstackclient.tests.unit import utils as tests_utils
+
+
+class Test{{ class_name }}(tests_utils.TestCommand):
+
+    def setUp(self):
+        super().setUp()
+
+        # SDK mock
+        self.app.client_manager.sdk_connection = mock.Mock()
+        self.app.client_manager.sdk_connection.{{ sdk_service_name }} = mock.Mock()
+        self.sdk_client = self.app.client_manager.sdk_connection
+        self.app.client_manager.sdk_connection\
+            .search_resources = mock.Mock()
+        self.app.client_manager.sdk_connection\
+            .{{ sdk_service_name }}.delete_{{ resource_name }} = mock.Mock()
+
+
+class Test{{ class_name }}Delete(Test{{ class_name }}):
+
+    _fakes = sdk_fakes.get_fake_resources({{ class_name }}, 2)
+
+    def setUp(self):
+        super().setUp()
+
+        self.sdk_client.search_resources = mock.Mock()
+
+        self.app.client_manager.sdk_connection.{{ sdk_service_name }}\
+            .delete_{{ resource_name }}.return_value = None
+
+        # Get the command object to test
+        self.cmd = delete.Delete{{ class_name }}(self.app, None)
+
+    def test_delete(self):
+        arglist = [self._fakes[0].id]
+        verifylist = [("{{ resource_name }}", arglist)]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.sdk_client.search_resources.return_value = [
+            self._fakes[0]
+        ]
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.sdk_client.search_resources.assert_called_with(
+            resource_type="{{ registry_name }}",
+            name_or_id=self._fakes[0].id
+        )
+
+        self.sdk_client.{{ sdk_service_name }}\
+            .delete_{{ resource_name }}.assert_called_with(
+                self._fakes[0].id
+            )
+        self.assertIsNone(result)
+
+    def test_delete_multiple(self):
+        arglist = []
+        for item in self._fakes:
+            arglist.append(item.id)
+        verifylist = [("{{ resource_name }}", arglist)]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.sdk_client.search_resources.side_effect = [
+            [i] for i in self._fakes
+        ]
+
+        self.cmd.take_action(parsed_args)
+
+        find_calls = [
+            mock.call(
+                resource_type="{{ registry_name }}",
+                name_or_id=i.id
+            ) for i in self._fakes
+        ]
+
+        delete_calls = [mock.call(i.id) for i in self._fakes]
+        self.sdk_client.search_resources.assert_has_calls(
+            find_calls)
+        self.sdk_client.{{ sdk_service_name }}.delete_{{ resource_name }}.assert_has_calls(
+            delete_calls)
+
+    def test_delete_multiple_exception(self):
+        arglist = [self._fakes[0].id, "missing"]
+        verifylist = [("{{ resource_name }}", [self._fakes[0].id, "missing"])]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.sdk_client.search_resources.side_effect = [
+            [self._fakes[0]], sdk_exceptions.ResourceNotFound
+        ]
+
+        try:
+            self.cmd.take_action(parsed_args)
+            self.fail("Command should have failed")
+        except exceptions.CommandError as ex:
+            self.assertEqual("1 of 2 {{ resource_name }}s failed to delete.", str(ex))
+
+        find_calls = [
+            mock.call(
+                resource_type="{{ registry_name }}",
+                name_or_id=self._fakes[0].id
+            ),
+            mock.call(
+                resource_type="{{ registry_name }}",
+                name_or_id="missing"
+            ),
+        ]
+
+        delete_calls = [mock.call(self._fakes[0].id)]
+        self.sdk_client.search_resources.assert_has_calls(
+            find_calls)
+        self.sdk_client.{{ sdk_service_name }}.delete_{{ resource_name }}.assert_has_calls(
+            delete_calls)

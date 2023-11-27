@@ -1,0 +1,66 @@
+#   Licensed under the Apache License, Version 2.0 (the "License"); you may
+#   not use this file except in compliance with the License. You may obtain
+#   a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#   License for the specific language governing permissions and limitations
+#   under the License.
+#
+
+"""show {{class_name}} implementations"""
+
+import logging
+
+from osc_lib.command import command
+from osc_lib import exceptions
+from osc_lib import utils
+
+from openstackclient.i18n import _
+from {{ osc_mod_name }} import common
+
+LOG = logging.getLogger(__name__)
+
+_formatters = common._formatters
+
+
+class Show{{ class_name }}(command.ShowOne):
+    _description = _("Show single {{ class_name }} details")
+
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+
+        parser.add_argument(
+            '{{ resource_name }}',
+            metavar="<{{ resource_name }}>",
+            help=_("{{ class_name }} to display (name or ID)")
+        )
+
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.sdk_connection
+
+        name_or_id = parsed_args.{{ resource_name }}
+        data = client.search_resources(
+            resource_type="{{ registry_name }}",
+            name_or_id=name_or_id,
+            filters=None
+        )
+        if len(data) == 1:
+            data = data[0]
+        elif len(data) == 0:
+            raise exceptions.CommandError(
+                "No {{ resource_name }} with a name or ID of '%s' exists."
+                % name_or_id
+            )
+
+        display_columns, columns = common._get_resource_columns(data)
+        data = utils.get_dict_properties(
+            data, columns, formatters=common._formatters)
+
+        return (display_columns, data)
+

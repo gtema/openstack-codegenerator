@@ -1,0 +1,67 @@
+{%- macro mod_docstring(v) %}
+{%- if v %}
+//! {{ v | wordwrap(width=75) | replace('\n', '\n//! ') }}
+{%- endif %}
+{%- endmacro %}
+
+{%- macro docstring(doc, indent=0) %}
+{#- docstring for an element #}
+{{ (' ' * indent) }}/// {{ doc | trim("\n") | wordwrap(width=79-indent-4) | replace('\n', '\n' + (' ' * indent) + '/// ') }}
+{%- endmacro %}
+
+{%- macro serde_args(k, attr) -%}
+{%- set serde_args=[
+('rename = "' + attr.name + '"') if attr.name != k else None,
+'deserialize_with="deser_ok_or_default"' if attr.default is not none and (attr.min_version is none and
+attr.max_version is none) else None,
+'default' if (attr.min_version is not none or
+attr.max_version is not none) else None
+] -%}
+{{ serde_args | reject("none") | join(',') }}
+{%- endmacro %}
+
+{%- macro arg_raw_type(attr) %}
+{%- if attr.type.__name__ == "str" or attr.type is none -%}
+String
+{%- elif attr.type.__name__ == "int" -%}
+i32
+{%- elif attr.type.__name__ == "float" -%}
+f32
+{%- elif attr.type.__name__ == "bool" -%}
+bool
+{%- elif attr.type.__name__ == "dict" -%}
+HashMapStringString
+{%- endif %}
+{%- endmacro %}
+
+{%- macro arg_type(k, attr) %}
+{%- if attr.min_version is not none or attr.max_version is not none -%}
+Option
+{%- endif -%}
+{{ arg_raw_type(attr) }}
+{%- endmacro %}
+
+{%- macro struct_field(k, v) %}
+{%- set attr=v['attr'] %}
+{%- if attr.type is none or attr.type.__name__ in
+["str", "int", "float", "bool", "dict"]
+%}
+    {{ docstring(v) }}
+    #[structable()]
+    #[serde({{ serde_args(k, attr) }})]
+    {{ k }}: {{ arg_type(k, attr) }},
+{%- endif %}
+{%- endmacro %}
+
+{%- macro cli_arg_params(params) %}
+{%- for param in params  %}
+{%- if param.schema.type != "null" %}
+{{ docstring(param.description, indent=4) }}
+{%- for macros in param.param_macros %}
+    {{ macros }}
+{%- endfor %}
+    {{ param.local_name }}: {{ param.type }},
+{%- endif %}
+{%- endfor %}
+{%- endmacro %}
+

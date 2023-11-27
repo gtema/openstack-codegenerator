@@ -1,0 +1,130 @@
+#   Licensed under the Apache License, Version 2.0 (the "License"); you may
+#   not use this file except in compliance with the License. You may obtain
+#   a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#   License for the specific language governing permissions and limitations
+#   under the License.
+#
+
+from unittest import mock
+
+from openstack import utils as sdk_utils
+from {{ sdk_mod_name }} import {{ class_name }}
+from openstack.tests.unit import fakes as sdk_fakes
+
+from {{ osc_mod_name }} import create
+from openstackclient.tests.unit import utils as tests_utils
+
+
+class Test{{ class_name }}(tests_utils.TestCommand):
+
+    def setUp(self):
+        super().setUp()
+
+        # SDK mock
+        self.app.client_manager.sdk_connection = mock.Mock()
+        self.app.client_manager.sdk_connection.{{ sdk_service_name }} = mock.Mock()
+        self.sdk_client = self.app.client_manager.sdk_connection
+        self.app.client_manager.sdk_connection.{{ sdk_service_name }}.create_{{ resource_name }} = mock.Mock()
+
+
+class Test{{ class_name }}Create(Test{{ class_name }}):
+
+    _fake = sdk_fakes.get_fake_resource({{ class_name }})
+
+    columns = (
+{%- for (k, _) in attrs.items() %}
+        "{{ k }}",
+{%- endfor %}
+    )
+
+    data = (
+{%- for (k, _) in attrs.items() %}
+        _fake.{{ k }},
+{%- endfor %}
+    )
+
+    def setUp(self):
+        super().setUp()
+
+        self.api_mock = mock.Mock()
+        self.api_mock.side_effect = [self._fake ]
+
+        self.sdk_client.{{ sdk_service_name }}.create_{{ resource_name }} = self.api_mock
+
+        # Get the command object to test
+        self.cmd = create.Create{{ class_name }}(self.app, None)
+
+    def test_create_no_options(self):
+
+        arglist = []
+        verifylist = []
+
+        # Missing required args should boil here
+        self.assertRaises(
+            tests_utils.ParserException, self.check_parser,
+            self.cmd, arglist, verifylist)
+
+    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
+    def test_create_basic(self, mock_sm):
+        arglist = ["res_name",
+{%- for (k, v) in attrs.items() if not v["attr"].read_only and k != "name" %}
+{%- set attr=v['attr'] %}
+{%- if attr.type.__name__ == "bool" %}
+            "--{{ k | replace('is_', '') }}",
+{%- elif attr.type.__name__ == "str" or attr.type is none %}
+            "--{{ k | replace('_', '-') }}", "{{ k }}_val",
+{%- elif attr.type.__name__ == "dict" %}
+            "--{{ k | replace('_', '-') }}", "{{ k }}_k={{ k }}_val",
+{%- elif attr.type.__name__ == "list" %}
+            "--{{ k | replace('_', '-') }}", "{{ k }}_v",
+{%- endif %} {#- if attr.type.__name__  #}
+{%- endfor %} {#- for k,_ in attr.items #}
+        ]
+        verifylist = [
+            ("name", "res_name"),
+{%- for (k, v) in attrs.items() if not v["attr"].read_only and k != "name" %}
+{%- set attr=v['attr'] %}
+{%- if attr.type.__name__ == "bool" %}
+            ("{{ k | replace('is_', '') }}", True),
+{%- elif attr.type.__name__ == "str" or attr.type is none %}
+            ("{{ k }}", "{{ k }}_val"),
+{%- elif attr.type.__name__ == "dict" %}
+            ("{{ k | replace('_', '-') }}", {"{{ k }}_k": "{{ k }}_val"}),
+{%- elif attr.type.__name__ == "list" %}
+            ("{{ k | replace('_', '-') }}", ["{{ k }}_v"]),
+{%- endif %} {#- if attr.type.__name #}
+{%- endfor %} {#- for k,_ in attr.items #}
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.sdk_client.{{ sdk_service_name }}.create_{{ resource_name }}.assert_called_with(
+            name="res_name",
+{%- for (k, v) in attrs.items() if not v["attr"].read_only and k != "name" %}
+{%- set attr=v['attr'] %}
+{%- if attr.type.__name__ == "bool" %}
+            {{ k }}=True,
+{%- elif attr.type.__name__ == "str" or attr.type is none %}
+            {{ k }}="{{ k }}_val",
+{%- elif attr.type.__name__ == "dict" %}
+            {{ k }}={"{{ k }}_k": "{{ k }}_val"},
+{%- elif attr.type.__name__ == "list" %}
+            {{ k }}=["{{ k }}_v"],
+{%- endif %} {#- if attr.type == dict #}
+{%- endfor %} {#- for k,_ in attr.items #}
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, tuple(data))
+

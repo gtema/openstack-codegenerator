@@ -1,0 +1,66 @@
+#   Licensed under the Apache License, Version 2.0 (the "License"); you may
+#   not use this file except in compliance with the License. You may obtain
+#   a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#   License for the specific language governing permissions and limitations
+#   under the License.
+#
+
+"""delete {{class_name}} implementations"""
+
+import logging
+
+from osc_lib.command import command
+from osc_lib import exceptions
+
+from openstackclient.i18n import _
+
+LOG = logging.getLogger(__name__)
+
+
+class Delete{{ class_name }}(command.Command):
+    _description = _("Delete {{ class_name }}(s)")
+
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+
+        parser.add_argument(
+            '{{ resource_name }}',
+            metavar="<{{ resource_name }}>",
+            nargs="+",
+            help=_("{{ class_name }} to delete (name or ID)")
+        )
+
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.sdk_connection
+
+        result = 0
+        entities = parsed_args.{{ resource_name }}
+        for item in entities:
+            try:
+                items = client.search_resources(
+                    resource_type="{{ registry_name }}",
+                    name_or_id=item
+                )
+                if len(items) == 1:
+                    LOG.debug(
+                        "Deleting {{ class_name }} with id=%s" % items[0].id)
+                    client.{{ sdk_service_name }}.delete_{{ resource_name }}(items[0].id)
+
+            except Exception as e:
+                result += 1
+                LOG.error(_("Failed to delete {{ resource_name }} with name or "
+                          "ID '%(item)s': %(e)s"), {'item': item, 'e': e})
+        if result > 0:
+            total = len(entities)
+            msg = (_("%(result)s of %(total)s {{ resource_name }}s failed "
+                   "to delete.") % {'result': result, 'total': total})
+            raise exceptions.CommandError(msg)
+

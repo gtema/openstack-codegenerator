@@ -1,0 +1,132 @@
+#   Licensed under the Apache License, Version 2.0 (the "License"); you may
+#   not use this file except in compliance with the License. You may obtain
+#   a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#   License for the specific language governing permissions and limitations
+#   under the License.
+#
+
+from unittest import mock
+
+from {{ sdk_mod_name }} import {{ class_name }}
+from openstack.tests.unit import fakes as sdk_fakes
+from openstack import utils as sdk_utils
+
+from {{ osc_mod_name }} import list
+from openstackclient.tests.unit import utils as tests_utils
+
+
+class Test{{ class_name }}(tests_utils.TestCommand):
+
+    def setUp(self):
+        super().setUp()
+
+        # SDK mock
+        self.app.client_manager.sdk_connection = mock.Mock()
+        self.app.client_manager.sdk_connection.{{ sdk_service_name }} = mock.Mock()
+        self.sdk_client = self.app.client_manager.sdk_connection
+        self.app.client_manager.sdk_connection.search_resources = mock.Mock()
+
+
+class Test{{ class_name }}List(Test{{ class_name }}):
+
+    _fake = sdk_fakes.get_fake_resource({{ class_name }})
+
+    columns = (
+{%- for (k, _) in attrs.items() %}
+        "{{ k | capitalize() }}",
+{%- endfor %}
+    )
+
+    data = ((
+{%- for (k, _) in attrs.items() %}
+        _fake.{{ k }},
+{%- endfor %}
+    ),)
+
+    def setUp(self):
+        super().setUp()
+
+        self.api_mock = mock.Mock()
+        self.api_mock.side_effect = [[self._fake], [], ]
+
+        self.sdk_client.search_resources = self.api_mock
+
+        # Get the command object to test
+        self.cmd = list.List{{ class_name }}(self.app, None)
+
+    def test_list_no_options(self):
+        arglist = []
+        verifylist = []
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.sdk_client.search_resources.assert_called_with(
+            resource_type="{{ registry_name }}",
+            filters={},
+            name_or_id=None
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, tuple(data))
+
+    def test_list_all_options(self):
+        arglist = [
+{%- for (k, _) in res._query_mapping._mapping.items() %}
+{%- set attr = attrs.get(k) %}
+{%- if not k.startswith('is_') %}
+            "--{{ k | replace('_', '-') }}", "val_{{ k }}",
+{%- else -%} {# if not k.startswith #}
+            "--{{ k | replace('is_', '') }}",
+{%- endif -%} {# if not k.startswith #}
+{%- endfor %}
+        ]
+
+        verifylist = [
+{%- for (k, _) in res._query_mapping._mapping.items() %}
+{%- set attr = attrs.get(k) %}
+{%- if not k.startswith('is_') %}
+            ("{{ k }}", "val_{{ k }}"),
+{%- else -%} {# if not k.startswith #}
+            ("{{ k | replace('is_', '') }}", True),
+{%- endif -%} {# if not k.startswith #}
+{%- endfor %}
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        with mock.patch.object(
+                sdk_utils, 'supports_microversion', return_value=True):
+            columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            "paginated": False,
+{%- for (k, _) in res._query_mapping._mapping.items() %}
+{%- if not k.startswith('is_') %}
+            "{{ k }}": "val_{{ k }}",
+{%- else -%} {# if not k.startswith #}
+            "{{ k }}": True,
+{%- endif -%} {# if not k.startswith #}
+{%- endfor %}
+        }
+
+        self.sdk_client.search_resources.assert_called_with(
+            resource_type="{{ registry_name }}",
+            filters=kwargs,
+            name_or_id=None,
+        )
+

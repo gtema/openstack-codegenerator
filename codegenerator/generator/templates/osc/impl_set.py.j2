@@ -1,0 +1,119 @@
+#   Licensed under the Apache License, Version 2.0 (the "License"); you may
+#   not use this file except in compliance with the License. You may obtain
+#   a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#   License for the specific language governing permissions and limitations
+#   under the License.
+#
+
+"""{{class_name}} implementations"""
+
+import logging
+
+from openstack import utils as sdk_utils
+from osc_lib.command import command
+from osc_lib import exceptions
+from osc_lib.cli import parseractions  # noqa
+from osc_lib import utils
+
+from openstackclient.i18n import _
+from {{ osc_mod_name }} import common
+
+LOG = logging.getLogger(__name__)
+
+# TODO(autogen): add required formatters
+_formatters = common._formatters
+
+
+class Set{{ class_name }}(command.ShowOne):
+    _description = _("Set {{ class_name }} properties")
+
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+
+        parser.add_argument(
+            "{{ resource_name }}",
+            metavar="<{{ resource_name }}>",
+            help=_(
+                "{{ resource_name }} to update (name or ID)"
+            ),
+        )
+{%- for (k, v) in attrs.items() if not v["attr"].read_only and not v["attr"].create_only %}
+{%- set attr=v['attr'] %}
+        parser.add_argument(
+            "--{{ k | replace('is_', '') | replace('_', '-') }}",
+{%- if attr.type.__name__ == "dict" %}
+            metavar='<key=value>',
+            action=parseractions.KeyValueAction,
+{%- elif attr.type.__name__ == "bool" %}
+            action='store_true',
+{%- elif attr.type.__name__ == "str" or attr.type is none %}
+            metavar="<{{ k }}>",
+{%- elif attr.type.__name__ == "list" %}
+            metavar="<{{ k }}>",
+            action='append',
+            default=[],
+            dest='{{ k }}',
+{%- endif %} {#- if attr.type == dict #}
+            help=_(
+{%- if v['docs'] and v['docs']|length > 0 %}
+{#- wrap long line with identation #}
+                "{{ v.get('docs', '') | wordwrap(59) | replace('\n', ' \"\n                \"') }}"
+{%- elif v['doc']|length == 0 %}
+                ""
+{%- endif %}
+{%- if attr.type.__name__ == "dict" %}
+                "(repeat option to set multiple properties)"
+{%- elif attr.type.__name__ == "list" %}
+                "(repeat option to set multiple entries)"
+{%- endif %} {#- if is dict #}
+            )
+        )
+{%- endfor %} {#- for k,_ in attr.items #}
+
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.sdk_connection.{{ sdk_service_name }}
+
+        args = {
+{%- for (k, v) in attrs.items() if not (v["attr"].read_only or v["attr"].min_microversion or v["attr"].create_only)  %}
+            "{{ k }}": parsed_args.{{ k | replace('is_', '') }},
+{%- endfor %} {#- for k,_ in attr.items #}
+        }
+
+{%- for (k, v) in attrs.items() if v["attr"].min_microversion -%}
+{%- set param_name = k.replace("is_", "") %}
+{%- set min_mv = v["attr"].min_microversion %}
+        if parsed_args.{{ param_name }}:
+            if not sdk_utils.supports_microversion(client, "{{ min_mv }}"):
+                msg = _(
+                    'The --{{ param_name }} parameter requires server support for '
+                    'API microversion {{ min_mv }}'
+                )
+                raise exceptions.CommandError(msg)
+            args["{{ k }}"] = parsed_args.{{ param_name }}
+
+{%- endfor %}
+
+        resource = self.app.client_manager.sdk_connection.search_resources(
+            resource_type="{{ registry_name }}",
+            name_or_id=parsed_args.{{ resource_name }},
+            filters=None
+        )
+
+        data = client.update_{{ resource_name }}(
+            resource.id,
+            **args)
+
+        display_columns, columns = common._get_resource_columns(data)
+        data = utils.get_dict_properties(
+            data, columns, formatters=common._formatters)
+
+        return (display_columns, data)
+

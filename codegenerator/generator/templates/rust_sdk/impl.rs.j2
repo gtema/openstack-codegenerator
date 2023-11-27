@@ -1,0 +1,421 @@
+{%- import 'rust_macros.j2' as macros with context -%}
+{{ macros.mod_docstring(command_description) }}
+use derive_builder::Builder;
+use http::{HeaderMap, HeaderName, HeaderValue};
+
+use crate::api::rest_endpoint_prelude::*;
+use crate::api::common::CommaSeparatedList;
+
+{% for mod in additional_imports | sort %}
+use {{ mod }};
+{%- endfor %}
+
+{% if method|lower == "patch" %}
+use json_patch::Patch;
+{%- endif %}
+
+{%- if operation_type == "list" %}
+use crate::api::Pageable;
+{%- endif %}
+
+{%- for (subtype_name, subtype) in subtypes.items() %}
+{{ macros.docstring(subtype.description, indent=4) }}
+#[derive(Debug, Deserialize, Clone, Serialize)]
+pub struct {{ subtype_name }}{{ "<'a>" if "'a" in subtype.params.values()|map(attribute="type")|join() else "" }} {
+{%- for k, param in subtype.params.items() %}
+{%- if param.schema.type != "null" %}
+{{ macros.docstring(param.description, indent=4) }}
+{%- for macros in param.param_macros %}
+    {{ macros }}
+{%- endfor %}
+    {{ param.local_name }}: {{ param.type }},
+{%- endif %}
+{% endfor %}
+}
+{%- endfor %}
+
+/// Query for {{ operation_id }} operation.
+#[derive(Debug, Builder, Clone)]
+#[builder(setter(strip_option))]
+pub struct {{ class_name }}{{ "<'a>" if static_lifetime else "" }} {
+
+{%- for k, param in params.items() %}
+{%- if param.location in ["path", "query", "body"] %}
+{%- if param.schema.type != "null" %}
+{{ macros.docstring(param.description, indent=4) }}
+{%- for macros in param.param_macros %}
+    {{ macros }}
+{%- endfor %}
+    {{ param.local_name }}: {{ param.type }},
+{%- endif %}
+{%- endif %}
+{% endfor %}
+
+{% if method|lower == "patch" %}
+    /// Patch data
+    #[builder()]
+    patch: Patch,
+{%- endif %}
+
+    #[builder(setter(name = "_headers"), default, private)]
+    _headers: Option<HeaderMap>,
+}
+
+impl{{ "<'a>" if static_lifetime else "" }} {{ class_name }}{{ "<'a>" if static_lifetime else "" }} {
+    /// Create a builder for the endpoint.
+    pub fn builder() -> {{ class_name }}Builder{{ "<'a>" if static_lifetime else "" }} {
+        {{ class_name }}Builder::default()
+    }
+}
+
+impl{{ "<'a>" if static_lifetime else "" }} {{ class_name }}Builder{{ "<'a>" if static_lifetime else "" }} {
+{%- for setter in param_setters %}
+{%- if setter.type=="csv" %}
+    {{ macros.docstring(setter.description, indent=4) }}
+    pub fn {{setter.name}}<I, T>(&mut self, iter: I) -> &mut Self
+    where
+        I: Iterator<Item = T>,
+        T: Into<{{ setter.element }}>,
+    {
+    self.{{setter.name}}
+    .get_or_insert(None)
+    .get_or_insert_with(CommaSeparatedList::new)
+    .extend(iter.map(Into::into));
+    self
+    }
+{%- elif setter.type=="list" %}
+    {{ macros.docstring(setter.description, indent=4) }}
+    pub fn {{setter.name}}<I, T>(&mut self, iter: I) -> &mut Self
+    where
+        I: Iterator<Item = T>,
+        T: Into<{{ setter.element }}>,
+    {
+    self.{{setter.name}}
+    {%- if setter.is_optional %}
+    .get_or_insert(None)
+    {%- endif %}
+    .get_or_insert_with(Vec::new)
+    .extend(iter.map(Into::into));
+    self
+    }
+{%- elif setter.type=="set" %}
+    {{ macros.docstring(setter.description, indent=4) }}
+    pub fn {{setter.name}}<I, T>(&mut self, iter: I) -> &mut Self
+    where
+        I: Iterator<Item = T>,
+        T: Into<{{ setter.element}}>,
+    {
+    self.{{setter.name}}
+    {%- if setter.is_optional %}
+    .get_or_insert(None)
+    {%- endif %}
+    .get_or_insert_with(BTreeSet::new)
+    .extend(iter.map(Into::into));
+    self
+    }
+{%- elif setter.type=="kv" %}
+    {{ macros.docstring(setter.description, indent=4) }}
+    pub fn {{ setter.name }}<I, K, V>(&mut self, iter: I) -> &mut Self
+    where
+        I: Iterator<Item = (K, V)>,
+        K: Into<{{ setter.key_type }}>,
+        V: Into<{{ setter.value_type }}>,
+    {
+    self.{{setter.name}}
+    {%- if setter.is_optional %}
+    .get_or_insert(None)
+    {%- endif %}
+    .get_or_insert_with(BTreeMap::new)
+    .extend(iter.map(|(k, v)| (k.into(), v.into())));
+    self
+    }
+{%- endif %}
+{%- endfor %}
+
+    /// Add a single header to the {{ class_name }}.
+    pub fn header(&mut self, header_name: &'static str, header_value: &'static str) -> &mut Self
+    where {
+        self._headers
+            .get_or_insert(None)
+            .get_or_insert_with(HeaderMap::new)
+            .insert(header_name, HeaderValue::from_static(header_value));
+        self
+    }
+
+    /// Add multiple headers.
+    pub fn headers<I, T>(&mut self, iter: I) -> &mut Self
+    where
+        I: Iterator<Item = T>,
+        T: Into<(Option<HeaderName>, HeaderValue)>,
+    {
+        self._headers
+            .get_or_insert(None)
+            .get_or_insert_with(HeaderMap::new)
+            .extend(iter.map(Into::into));
+        self
+    }
+}
+
+impl{{ "<'a>" if static_lifetime else "" }} RestEndpoint for {{ class_name }}{{ "<'a>" if static_lifetime else "" }} {
+    fn method(&self) -> Method {
+        Method::{{ method | upper }}
+    }
+
+    fn endpoint(&self) -> Cow<'static, str> {
+        format!(
+            "{{ url }}",
+{%- for k, v in path_params.items() %}
+                {{ k }} = self.{{ v.local_name }}.as_ref(),
+{% endfor %}
+        ).into()
+    }
+
+    fn parameters(&self) -> QueryParams {
+    {%- if query_params|length > 0 %}
+        let mut params = QueryParams::default();
+
+     {%- for k, v in query_params.items() %}
+      {%- if not v.type.startswith("BTreeSet") %}
+        params.push_opt(
+            "{{ k }}",
+          {%- if "Cow<" in v.type %}
+            self.{{ v.local_name }}.as_ref());
+          {%- else %}
+            self.{{ v.local_name }});
+          {%- endif %}
+      {%- else %}
+        params.extend(self.{{ v.local_name }}.iter().map(|value| ("{{ k }}", value)));
+      {%- endif %}
+     {%- endfor %}
+
+        params
+    {%- else %}
+        QueryParams::default()
+    {%- endif %}
+    }
+
+{% if body_params %}
+    fn body(&self) -> Result<Option<(&'static str, Vec<u8>)>, BodyError> {
+        let mut params = JsonBodyParams::default();
+
+        {% for k, v in body_params.items() %}
+        {%- if v.schema.type == "null" %}
+        params.push("{{ k }}", None::<String>);
+        {%- elif v.type.startswith("Option") %}
+        params.push_opt("{{ k }}",
+          {%- if "Cow<" in v.type or "Value" in v.type %}
+            self.{{ v.local_name }}.as_ref());
+          {%- elif subtypes.keys()|select("in", v.type)|list|length > 0 %}
+          {# type is one of subtypes #}
+            self.{{ v.local_name }}.as_ref());
+          {%- elif "HashMap" in v.type  %}
+            self.{{ v.local_name }}.as_ref());
+          {%- else %}
+            self.{{ v.local_name }});
+          {%- endif %}
+        {%- else %}
+        {%- if v.type.startswith("BTreeSet") %}
+        params.push("{{ k }}", &self.{{ v.local_name }});
+        {%- elif "Cow<" in v.type %}
+        params.push("{{ k }}", self.{{ v.local_name }}.as_ref());
+        {%- endif %}
+        {%- endif %}
+        {%- endfor %}
+
+        {%- if request_key %}
+        params.into_body_with_root_key("{{ request_key }}")
+        {%- else %}
+        params.into_body()
+        {%- endif %}
+    }
+{% elif method|lower == "patch" %}
+    fn body(&self) -> Result<Option<(&'static str, Vec<u8>)>, BodyError> {
+        Ok(Some((
+            "{{ mime_type }}",
+            serde_json::to_string(&self.patch)?.into_bytes(),
+        )))
+    }
+{%- endif %}
+
+    fn service_type(&self) -> ServiceType {
+      ServiceType::{{ sdk_service_name }}
+    }
+
+    fn response_key(&self) -> Option<Cow<'static, str>> {
+{%- if response_key %}
+        Some("{{ response_key }}".into())
+{%- else %}
+        None
+{%- endif %}
+    }
+
+{% if response_list_item_key %}
+    fn response_list_item_key(&self) -> Option<Cow<'static, str>> {
+        Some("{{ response_list_item_key }}".into())
+    }
+{%- endif %}
+
+    /// Returns headers to be set into the request
+    fn request_headers(&self) -> Option<&HeaderMap> {
+        self._headers.as_ref()
+    }
+}
+
+{#- EP is pageable if operation_type is list and there is limit or marker query parameter #}
+{%- if operation_type == "list" and "limit" in params or "marker" in params %}
+impl{{ "<'a>" if static_lifetime else "" }} Pageable for {{ class_name }}{{ "<'a>" if static_lifetime else "" }} {}
+{%- endif %}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::api::{self, Query, RawQuery};
+    use crate::types::ServiceType;
+    use crate::test::client::MockServerClient;
+    use http::{HeaderName, HeaderValue};
+    use serde::Deserialize;
+    use serde_json::json;
+    {%- if method == "patch" %}
+    use serde_json::from_value;
+    use json_patch::Patch;
+    {%- endif %}
+
+    #[test]
+    fn test_service_type() {
+        assert_eq!({{ class_name }}::builder()
+            {{ ".patch(from_value::<Patch>(json!([])).unwrap())" if method == "patch" else "" }}
+            .build().unwrap().service_type(), ServiceType::{{ sdk_service_name }});
+    }
+
+    #[test]
+    fn test_response_key() {
+{%- if response_key %}
+        assert_eq!(
+            {{ class_name }}::builder()
+                {{ ".patch(from_value::<Patch>(json!([])).unwrap())" if method == "patch" else "" }}
+                .build().unwrap().response_key().unwrap(),
+            "{{ response_key }}"
+        );
+{%- else %}
+        assert!({{ class_name }}::builder()
+            {{ ".patch(from_value::<Patch>(json!([])).unwrap())" if method == "patch" else "" }}
+            .build().unwrap().response_key().is_none())
+{%- endif %}
+    }
+
+    #[test]
+    fn endpoint() {
+        let client = MockServerClient::new();
+        let mock = client.server.mock(|when, then| {
+            when.method(httpmock::Method::{{ method | upper }})
+            .path(format!(
+                "/{{ url }}",
+    {%- for k, v in path_params.items() %}
+                    {{ k }} = "{{ k }}",
+    {%- endfor %}
+             ));
+
+            then.status(200)
+                .header("content-type", "application/json")
+{%- if method.upper() != "HEAD" %}
+                .json_body(json!({ "{{ response_key or "dummy" }}": {} }))
+{%- endif %};
+        });
+
+        let endpoint = {{ class_name }}::builder()
+{%- for k, v in path_params.items() %}
+            .{{ v.local_name }}("{{ k }}")
+{%- endfor %}
+            {{ ".patch(from_value::<Patch>(json!([])).unwrap())" if method == "patch" else "" }}
+            .build().unwrap();
+{%- if method.upper() != "HEAD" %}
+        let _: serde_json::Value = endpoint.query(&client).unwrap();
+{%- else %}
+        let _ = endpoint.raw_query(&client).unwrap();
+{%- endif %}
+        mock.assert();
+    }
+
+    #[test]
+    fn endpoint_headers() {
+        let client = MockServerClient::new();
+        let mock = client.server.mock(|when, then| {
+            when.method(httpmock::Method::{{ method|upper }})
+                .path(format!(
+                    "/{{ url }}",
+        {%- for k, v in path_params.items() %}
+                        {{ k }} = "{{ k }}",
+        {%- endfor %}
+                 ))
+                .header("foo", "bar")
+                .header("not_foo", "not_bar");
+            then.status(200)
+                .header("content-type", "application/json")
+{%- if method.upper() != "HEAD" %}
+                .json_body(json!({ "{{ response_key or "dummy" }}": {} }))
+{%- endif %};
+        });
+
+        let endpoint = {{ class_name }}::builder()
+{%- for k, v in path_params.items() %}
+            .{{ v.local_name }}("{{ k }}")
+{%- endfor %}
+            {{ ".patch(from_value::<Patch>(json!([])).unwrap())" if method == "patch" else "" }}
+            .headers(
+                [(
+                    Some(HeaderName::from_static("foo")),
+                    HeaderValue::from_static("bar"),
+                )]
+                .iter()
+                .cloned(),
+            )
+            .header("not_foo", "not_bar")
+            .build()
+            .unwrap();
+ {%- if method.upper() != "HEAD" %}
+        let _: serde_json::Value = endpoint.query(&client).unwrap();
+{%- else %}
+        let _ = endpoint.raw_query(&client).unwrap();
+{%- endif %}
+        mock.assert();
+    }
+
+{% if body_params %}
+    #[test]
+    fn endpoint_body() {
+        let endpoint = {{ class_name }}::builder()
+         {% for k, v in body_params.items() %}
+          {%- if v.type in ["Cow<'a, str>", "Option<Cow<'a, str>>"] %}
+             .{{ v.local_name }}("{{ k }}")
+          {%- elif v.schema.type in ["array"] %}
+             .{{ v.local_name }}(["{{ k }}"].iter().cloned())
+          {%- endif %}
+         {%- endfor %}
+             .build()
+             .unwrap();
+
+        let (mime, body) = endpoint.body().unwrap().unwrap();
+        assert_eq!(
+            std::str::from_utf8(&body).unwrap(),
+            json!({
+             {%- if request_key %}
+              "{{ request_key }}": {
+             {%- endif %}
+             {%- for k, v in body_params.items() %}
+               {%- if v.type in ["Cow<'a, str>", "Option<Cow<'a, str>>"] %}
+                 "{{ k }}": "{{ k }}",
+               {%- elif v.schema.type in ["array"] %}
+                 "{{ k }}": ["{{ k }}"],
+               {%- elif v.schema.type == "null" %}
+                 "{{ k }}": None::<String>,
+               {%- endif %}
+             {%- endfor %}
+             {%- if request_key %}
+             }
+             {%- endif %}
+            }).to_string()
+        );
+
+    }
+{%- endif %}
+}

@@ -1,0 +1,92 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+
+DOCUMENTATION = '''
+---
+module: {{ target_name }}_info
+description: Retrieve information about {{ registry_name }} objects within OpenStack.
+options:
+  name:
+    description: The resource name or id.
+    type: str
+  filters:
+    description:
+      - A dictionary of meta data to use for further filtering. Elements
+        of this dictionary will be matched passed to the API as query
+        parameter filters.
+    type: dict
+extends_documentation_fragment:
+  - openstack.cloud.openstack
+'''
+
+EXAMPLES = '''
+- name: List all {{ registry_name }} objects
+  openstack.cloud.{{ target_name }}_info:
+  register: objects
+'''
+
+RETURN = '''
+{{ target_name }}s:
+  description: |
+    List of {{ target_name }} objects dictionaries. A subset of the
+    dictionary keys listed below may be returned, depending on your cloud
+    provider.
+  returned: always
+  type: list
+  elements: dict
+  contains:
+{%- for (k, v) in attrs.items() %}
+{%- set attr=v['attr'] %}
+    {{ k }}:
+{%- if v['docs'] and v['docs']|length > 0 %}
+      description: "{{ v.get('docs', '') }}"
+{%- else %}
+      description: "{{ k }}"
+{%- endif %} {# if docs #}
+{%- if attr.type.__name__ == "str" or attr.type is none %}
+      type: str
+{%- else %}
+      type: {{ attr.type.__name__ }}
+{%- endif %} {# if attr.type #}
+{%- endfor %}
+
+'''
+
+from ansible_collections.openstack.cloud.plugins.module_utils.openstack import \
+    OpenStackModule
+
+
+class {{ ansible_module_name }}InfoModule(OpenStackModule):
+
+    argument_spec = dict(
+        name=dict(),
+        filters=dict(type='dict'),
+    )
+
+    module_kwargs = dict(
+        supports_check_mode=True
+    )
+
+    def run(self):
+        data = [
+            v.to_dict(computed=False)
+            for v in self.conn.search_resources(
+                resource_type="{{ registry_name }}",
+                name_or_id=self.params['name'],
+                filters=self.params['filters']
+            )
+        ]
+
+        self.exit_json(changed=False, {{ target_name }}s=data)
+
+
+def main():
+    module = {{ ansible_module_name }}InfoModule()
+    module()
+
+
+if __name__ == '__main__':
+    main()
+

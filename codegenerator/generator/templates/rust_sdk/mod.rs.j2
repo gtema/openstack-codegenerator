@@ -1,0 +1,10 @@
+{%- if mod_path|length > 2 %}
+//! `{{ url }}` REST operations of {{ service_name }}
+{%- else %}
+//! `{{ service_name|capitalize }}` Service bindings
+{%- endif %}
+
+{%- for mod in mod_list|sort %}
+pub mod {{ mod }};
+{%- endfor %}
+

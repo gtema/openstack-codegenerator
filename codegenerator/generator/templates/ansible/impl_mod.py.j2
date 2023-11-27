@@ -1,0 +1,136 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+
+DOCUMENTATION = '''
+---
+module: {{ target_name }}
+description: Manage {{ registry_name }} objects within OpenStack.
+options:
+  name:
+    description: The resource name or id.
+    type: str
+{%- for (k, v) in attrs.items() if not v["attr"].read_only and k != "name" %}
+{%- set attr=v['attr'] %}
+  {{ k }}:
+    description: {{ v.get('docs', '') }}
+    type: {% if attr.type.__name__ == "str" or attr.type is none -%}
+    str
+{%- else -%}
+    {{ attr.type.__name__ }}
+{%- endif %}
+{%- endfor %}
+extends_documentation_fragment:
+  - openstack.cloud.openstack
+'''
+
+EXAMPLES = '''
+- name: Create {{ registry_name }} object
+  openstack.cloud.{{ target_name }}:
+{%- for (k, v) in attrs.items() if not v["attr"].read_only %}
+    {{ k }}: {{ fake_resource[k] }}
+{%- endfor %}
+  register: obj
+'''
+
+RETURN = '''
+{{ target_name }}:
+  description: |
+    Dictionary describing the identified (and possibly modified) OpenStack cloud resource.
+  returned: On success when I(state) is C(present).
+  type: dict
+  contains:
+{%- for (k, v) in attrs.items() %}
+{%- set attr=v['attr'] %}
+    {{ k }}:
+{%- if v['docs'] and v['docs']|length > 0 %}
+      description: "{{ v.get('docs', '') }}"
+{%- else %}
+      description: "{{ k }}"
+{%- endif %} {# if docs #}
+{%- if attr.type.__name__ == "str" or attr.type is none %}
+      type: str
+{%- else %}
+      type: {{ attr.type.__name__ }}
+{%- endif %} {# if attr.type #}
+{%- endfor %}
+'''
+
+from ansible_collections.openstack.cloud.plugins.module_utils.openstack import \
+    OpenStackModule
+
+
+class {{ ansible_module_name }}Module(OpenStackModule):
+
+    argument_spec = dict(
+        name=dict(),
+{%- for (k, v) in attrs.items() if not v["attr"].read_only and k != "name" %}
+{%- set attr=v['attr'] %}
+        {{ k }}=dict(
+{%- if attr.type.__name__ == "str" or attr.type is none -%}
+            type='str'
+{%- else %}
+            type='{{ attr.type.__name__ }}'
+{%- endif %}
+        ),
+{%- endfor %}
+
+    )
+
+    module_kwargs = dict(
+        supports_check_mode=True
+    )
+
+    def run(self):
+        sm = StateMachine(
+            connection=self.conn,
+            service_name="{{ sdk_service_name }}",
+            type_name="{{ resource_name }}",
+            sdk=self.sdk
+        )
+
+        kwargs = dict(
+            (k, self.params[k])
+            for k in [
+                "state",
+                "timeout",
+                "wait",
+            ]
+        )
+
+        kwargs["attributes"] = dict(
+{%- for (k, v) in attrs.items() if not v["attr"].read_only and k != "name" %}
+{%- set attr=v['attr'] %}
+            {{ k }}=self.params['{{ k }}'],
+{%- endfor %}
+        )
+
+        kwargs["non_updateable_attributes"] = [
+{%- for (k, v) in attrs.items() if v["attr"].create_only or v["attr"].read_only %}
+            {{ k }},
+{%- endfor %}
+        ]
+        kwargs["updateable_attributes"] = [
+{%- for (k, v) in attrs.items() if not v["attr"].read_only %}
+            {{ k }},
+{%- endfor %}
+        ]
+
+        resource, is_changed = sm(check_mode=self.ansible.check_mode, **kwargs)
+
+        if resource is None:
+            self.exit_json(changed=is_changed)
+        else:
+            self.exit_json(changed=is_changed,
+                           resource=resource.to_dict(computed=False))
+
+
+def main():
+    module = {{ ansible_module_name }}Module()
+    module()
+
+
+if __name__ == '__main__':
+    main()
+
