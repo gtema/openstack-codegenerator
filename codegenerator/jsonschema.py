@@ -14,8 +14,8 @@
 import json
 import logging
 
-from generator.base import BaseGenerator
-from generator.common.schema import TypeSchema
+from codegenerator.base import BaseGenerator
+from codegenerator.common.schema import TypeSchema
 
 
 class JsonSchemaGenerator(BaseGenerator):

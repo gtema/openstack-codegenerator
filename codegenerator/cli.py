@@ -19,22 +19,20 @@ import logging
 from pathlib import Path
 import re
 import sys
-from typing import Optional
 
-from generator.ansible import AnsibleGenerator
-from generator import common
-from generator.jsonschema import JsonSchemaGenerator
-from generator.metadata import MetadataGenerator
-from generator.openapi_spec import OpenApiSchemaGenerator
-from generator.osc import OSCGenerator
-from generator.rust_cli import RustCliGenerator
-from generator.rust_sdk import RustSdkGenerator
-from generator.types import Metadata
-from pydantic import BaseModel, ConfigDict, Field
+from openstack import resource
 from sphinx import pycode
 import yaml
 
-from openstack import resource
+from codegenerator.ansible import AnsibleGenerator
+from codegenerator import common
+from codegenerator.jsonschema import JsonSchemaGenerator
+from codegenerator.metadata import MetadataGenerator
+from codegenerator.openapi_spec import OpenApiSchemaGenerator
+from codegenerator.osc import OSCGenerator
+from codegenerator.rust_cli import RustCliGenerator
+from codegenerator.rust_sdk import RustSdkGenerator
+from codegenerator.types import Metadata
 
 
 class ResourceProcessor:

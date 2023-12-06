@@ -25,7 +25,7 @@ from jinja2 import StrictUndefined
 class BaseGenerator:
     def __init__(self):
         self.env = Environment(
-            loader=FileSystemLoader("codegenerator/generator/templates"),
+            loader=FileSystemLoader("codegenerator/templates"),
             autoescape=select_autoescape(),
             undefined=StrictUndefined,
         )

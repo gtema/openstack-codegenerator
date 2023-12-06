@@ -15,9 +15,9 @@ from pathlib import Path
 from unittest import mock
 
 import fixtures
-from generator.common.schema import SpecSchema
-from generator.openapi.base import OpenStackServerSourceBase
-from generator.openapi.utils import merge_api_ref_doc
+from codegenerator.common.schema import SpecSchema
+from codegenerator.openapi.base import OpenStackServerSourceBase
+from codegenerator.openapi.utils import merge_api_ref_doc
 from octavia.api import root_controller
 from octavia.common import config, rpc
 from octavia.api.v2.controllers import amphora

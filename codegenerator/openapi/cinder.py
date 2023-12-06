@@ -17,10 +17,10 @@ from cinder import objects, rpc
 from cinder.api.openstack import api_version_request
 from cinder.common import config
 from cinder.tests.unit.test import Database as db_fixture
-from generator.common.schema import SpecSchema
-from generator.common.schema import TypeSchema
-from generator.openapi.base import OpenStackServerSourceBase
-from generator.openapi.utils import merge_api_ref_doc
+from codegenerator.common.schema import SpecSchema
+from codegenerator.common.schema import TypeSchema
+from codegenerator.openapi.base import OpenStackServerSourceBase
+from codegenerator.openapi.utils import merge_api_ref_doc
 from ruamel.yaml.scalarstring import LiteralScalarString
 
 CONF = config.CONF

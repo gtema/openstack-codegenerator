@@ -1,0 +1,35 @@
+{%- import 'rust_macros.j2' as macros with context -%}
+{%- with data_type = type_manager.get_root_data_type() %}
+#[derive(Debug, Builder, Clone)]
+#[builder(setter(strip_option))]
+
+pub struct {{ data_type.name }}{{ ("<" + ",".join(data_type.lifetimes) + ">") if data_type.lifetimes else ""}} {
+  {%- for field in data_type.fields.values() %}
+    {{ macros.docstring(field.description, indent=4) }}
+    {{ field.builder_macros }}
+    {{ field.local_name }}: {{ field.type_hint }},
+  {%- endfor %}
+
+{%- for k, param in params.items() %}
+{%- if param.location in ["path", "query", "body"] %}
+{%- if param.type != "null" %}
+{{ macros.docstring(param.description, indent=4) }}
+{%- for macros in param.param_macros %}
+    {{ macros }}
+{%- endfor %}
+    {{ param.local_name }}: {{ param.type }},
+{%- endif %}
+{%- endif %}
+{% endfor %}
+
+{% if method|lower == "patch" %}
+    /// Patch data
+    #[builder()]
+    patch: Patch,
+{%- endif %}
+
+    #[builder(setter(name = "_headers"), default, private)]
+    _headers: Option<HeaderMap>,
+}
+{%- endwith %}
+

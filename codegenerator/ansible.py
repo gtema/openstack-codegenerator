@@ -14,7 +14,7 @@
 import logging
 from pathlib import Path
 
-from generator.base import BaseGenerator
+from codegenerator.base import BaseGenerator
 
 from openstack.test.fakes import generate_fake_resource
 

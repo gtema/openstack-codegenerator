@@ -6,7 +6,9 @@
 
 {%- macro docstring(doc, indent=0) %}
 {#- docstring for an element #}
+{%- if doc %}
 {{ (' ' * indent) }}/// {{ doc | trim("\n") | wordwrap(width=79-indent-4) | replace('\n', '\n' + (' ' * indent) + '/// ') }}
+{%- endif %}
 {%- endmacro %}
 
 {%- macro serde_args(k, attr) -%}

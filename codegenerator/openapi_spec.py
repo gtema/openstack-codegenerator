@@ -13,7 +13,7 @@
 
 import logging
 
-from generator.base import BaseGenerator
+from codegenerator.base import BaseGenerator
 
 
 class OpenApiSchemaGenerator(BaseGenerator):
@@ -28,32 +28,32 @@ class OpenApiSchemaGenerator(BaseGenerator):
         return parser
 
     def generate_nova(self, target_dir, args):
-        from generator.openapi.nova import NovaGenerator
+        from codegenerator.openapi.nova import NovaGenerator
 
         NovaGenerator().generate(target_dir, args)
 
     def generate_cinder(self, target_dir, args):
-        from generator.openapi.cinder import CinderV3Generator
+        from codegenerator.openapi.cinder import CinderV3Generator
 
         CinderV3Generator().generate(target_dir, args)
 
     def generate_glance(self, target_dir, args):
-        from generator.openapi.glance import GlanceGenerator
+        from codegenerator.openapi.glance import GlanceGenerator
 
         GlanceGenerator().generate(target_dir, args)
 
     def generate_keystone(self, target_dir, args):
-        from generator.openapi.keystone import KeystoneGenerator
+        from codegenerator.openapi.keystone import KeystoneGenerator
 
         KeystoneGenerator().generate(target_dir, args)
 
     def generate_octavia(self, target_dir, args):
-        from generator.openapi.octavia import OctaviaGenerator
+        from codegenerator.openapi.octavia import OctaviaGenerator
 
         OctaviaGenerator().generate(target_dir, args)
 
     def generate_neutron(self, target_dir, args):
-        from generator.openapi.neutron import NeutronGenerator
+        from codegenerator.openapi.neutron import NeutronGenerator
 
         NeutronGenerator().generate(target_dir, args)
 

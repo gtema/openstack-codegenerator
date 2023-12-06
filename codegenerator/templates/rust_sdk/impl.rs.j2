@@ -23,7 +23,7 @@ use crate::api::Pageable;
 #[derive(Debug, Deserialize, Clone, Serialize)]
 pub struct {{ subtype_name }}{{ "<'a>" if "'a" in subtype.params.values()|map(attribute="type")|join() else "" }} {
 {%- for k, param in subtype.params.items() %}
-{%- if param.schema.type != "null" %}
+{%- if param.type != "null" %}
 {{ macros.docstring(param.description, indent=4) }}
 {%- for macros in param.param_macros %}
     {{ macros }}
@@ -37,11 +37,18 @@ pub struct {{ subtype_name }}{{ "<'a>" if "'a" in subtype.params.values()|map(at
 /// Query for {{ operation_id }} operation.
 #[derive(Debug, Builder, Clone)]
 #[builder(setter(strip_option))]
-pub struct {{ class_name }}{{ "<'a>" if static_lifetime else "" }} {
-
+pub struct {{ class_name }}{{ processor.get_body_lifetimes() }} {
+// {{ "<'a>" if static_lifetime else "" }} {
+{%- for k, v in processor.get_body_fields() %}
+{{ macros.docstring(v.description, indent=4) }}
+{%- for macros in v.get_macros() %}
+    {{ macros }}
+{%- endfor %}
+// {{ v.get_local_name() }}: {{ v.type_hint }};
+{%- endfor %}
 {%- for k, param in params.items() %}
 {%- if param.location in ["path", "query", "body"] %}
-{%- if param.schema.type != "null" %}
+{%- if param.type != "null" %}
 {{ macros.docstring(param.description, indent=4) }}
 {%- for macros in param.param_macros %}
     {{ macros }}
@@ -199,7 +206,7 @@ impl{{ "<'a>" if static_lifetime else "" }} RestEndpoint for {{ class_name }}{{ 
         let mut params = JsonBodyParams::default();
 
         {% for k, v in body_params.items() %}
-        {%- if v.schema.type == "null" %}
+        {%- if "type" in v.schema and v.schema.type == "null" %}
         params.push("{{ k }}", None::<String>);
         {%- elif v.type.startswith("Option") %}
         params.push_opt("{{ k }}",
@@ -387,7 +394,7 @@ mod tests {
          {% for k, v in body_params.items() %}
           {%- if v.type in ["Cow<'a, str>", "Option<Cow<'a, str>>"] %}
              .{{ v.local_name }}("{{ k }}")
-          {%- elif v.schema.type in ["array"] %}
+          {%- elif "type" in v.schema and v.schema.type in ["array"] %}
              .{{ v.local_name }}(["{{ k }}"].iter().cloned())
           {%- endif %}
          {%- endfor %}
@@ -404,9 +411,9 @@ mod tests {
              {%- for k, v in body_params.items() %}
                {%- if v.type in ["Cow<'a, str>", "Option<Cow<'a, str>>"] %}
                  "{{ k }}": "{{ k }}",
-               {%- elif v.schema.type in ["array"] %}
+               {%- elif "type" in v.schema and v.schema.type in ["array"] %}
                  "{{ k }}": ["{{ k }}"],
-               {%- elif v.schema.type == "null" %}
+               {%- elif "type" in v.schema and v.schema.type == "null" %}
                  "{{ k }}": None::<String>,
                {%- endif %}
              {%- endfor %}

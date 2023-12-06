@@ -10,12 +10,36 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 #
-import jsonref
-from openapi_core import Spec
+from typing import Any
 import re
+
+import jsonref
 import yaml
+from openapi_core import Spec
+
+# from pydantic import BaseModel, ConfigDict, Field
+
+# from codegenerator import types
+
+# from codegenerator.model import Types
 
 VERSION_RE = re.compile(r"[Vv][0-9.]*")
+
+
+def _deep_merge(
+    dict1: dict[Any, Any], dict2: dict[Any, Any]
+) -> dict[Any, Any]:
+    result = dict1.copy()
+    for key, value in dict2.items():
+        if key in result:
+            if isinstance(result[key], dict) and isinstance(value, dict):
+                result[key] = _deep_merge(result[key], value)
+                continue
+            elif isinstance(result[key], list) and isinstance(value, list):
+                result[key] = result[key] + value
+                continue
+        result[key] = value
+    return result
 
 
 OPENAPI_RUST_TYPE_MAPPING = {
@@ -48,7 +72,15 @@ OPENAPI_RUST_CLI_REQUEST_TYPE_MAPPING = {
 }
 
 
+def get_openapi_spec(path: str):
+    """Load OpenAPI spec from a file"""
+    with open(path, "r") as fp:
+        spec_data = jsonref.replace_refs(yaml.safe_load(fp))
+    return Spec.from_dict(spec_data)
+
+
 def find_openapi_operation(spec, operationId: str):
+    """Find operation by operationId in the loaded spec"""
     for path, path_spec in spec["paths"].items():
         for method, method_spec in path_spec.items():
             if not isinstance(method_spec, dict):
@@ -58,12 +90,136 @@ def find_openapi_operation(spec, operationId: str):
     raise RuntimeError("Cannot find operation %s specification" % operationId)
 
 
+def get_plural_form(resource):
+    """Get plural for of the resource"""
+    if resource[-1] == "y":
+        return resource[0:-1] + "ies"
+    if resource[-1] == "s":
+        return resource[0:-1] + "es"
+    else:
+        return resource + "s"
+
+
+def get_normalized_field_type(schema):
+    """Get a single supported type for the field/attribute
+
+    Field can be a fixed type, type can be list of few possibilties (i.e. string, integer) or it can be a oneOf
+    This method tries to get a single type ouf of those possibilities.
+    """
+    xtype = None
+    if "type" in schema:
+        xtype = schema["type"]
+    elif "oneOf" in schema:
+        # field itself is oneOf
+        # {'oneOf': [{'type': 'string', 'format': 'uuid'}, {'type': 'string', 'maxLength': 0}]}
+        oneOf = schema["oneOf"]
+        # Build a set of uniqie candidate types to figure out whether they
+        # are all same
+        types = set([x["type"] for x in oneOf])
+        if len(types) == 1:
+            # Current known case is that both are strings and only differ in
+            # format. Ignore that difference.
+            # Server side should take care of validation of the format, the
+            # client is only interested in which type is the field.
+            xtype = types.pop()
+        elif len(types) == 2 and "null" in types:
+            # {'oneOf': [{'type': 'string', 'format': 'uuid'}, {'type': 'null'}]}
+            # Here we can just replace oneOf with [string, null]
+            xtype = list(types)
+        else:
+            # TODO(gtema) generally here we could build an enum
+            raise RuntimeError(
+                "Cannot agree on the single type for %s" % (schema)
+            )
+    else:
+        raise RuntimeError("Cannot agree on the single type for %s" % (schema))
+    return xtype
+
+
+def find_resource_schema(schema: dict, parent: str = None, resource_name=None):
+    """Find the actual resource schema in the body schema
+
+    Traverse through the body schema searching for an element that represent
+    the resource itself.
+
+    a) root is an object and it contain property with the resource name
+    b) root is an object and it contain array property with name equals to
+       the plural form of the resource name
+
+    :returns: tuple of (schema, attribute name) for the match or (None, None)
+        if not found
+
+    """
+    if "type" not in schema:
+        # Response of server create is a server or reservation_id
+        raise RuntimeError("No type in %s" % schema)
+    schema_type = schema["type"]
+    if schema_type == "array":
+        if parent and parent == get_plural_form(resource_name):
+            return (schema, parent)
+        return find_resource_schema(
+            schema["items"], parent, resource_name=resource_name
+        )
+    elif schema_type == "object":
+        props = (
+            schema.properties
+            if hasattr(schema, "properties")
+            else schema.get("properties", {})
+        )
+        if not parent and resource_name in props:
+            # we are at the top level and there is property with the resource
+            # name - it is what we are searching for
+            return (props[resource_name], resource_name)
+        for name, item in props.items():
+            (r, path) = find_resource_schema(item, name, resource_name)
+            if r:
+                return (r, path)
+    return (None, None)
+
+
+def get_resource_names_from_url(path: str):
+    """Construct Resource name from the URL"""
+    path_elements = list(filter(None, path.split("/")))
+    if path_elements and VERSION_RE.match(path_elements[0]):
+        path_elements.pop(0)
+    path_resource_names = []
+
+    # if len([x for x in all_paths if x.startswith(path + "/")]) > 0:
+    #     has_subs = True
+    # else:
+    #     has_subs = False
+    for path_element in path_elements:
+        if "{" not in path_element:
+            el = path_element.replace("-", "_")
+            if el[-3:] == "ies":
+                path_resource_names.append(el[0:-3] + "y")
+            elif el[-1] == "s" and el[-3:] != "dns" and el[-6:] != "access":
+                path_resource_names.append(el[0:-1])
+            else:
+                path_resource_names.append(el)
+    if len(path_resource_names) > 1 and path_resource_names[-1] in [
+        "action",
+        "detail",
+    ]:
+        path_resource_names.pop()
+    if len(path_resource_names) == 0:
+        return ["Version"]
+    # print(f"{path} => {path_resource_names}")
+    return path_resource_names
+
+
 def get_rust_type(param: dict, required: bool = False, mapping=None):
+    """Convert json type into suitable Rust type"""
     if "schema" in param:
         schema = param["schema"]
     else:
         schema = param
-    param_type: str = schema["type"]
+    param_type = get_normalized_field_type(schema)
+    # if "type" in schema:
+    #     param_type: str = schema["type"]
+    # else:
+    #     print(schema)
+    #     raise RuntimeError("No type for %s" % param)
     if isinstance(param_type, list):
         if "null" in param_type:
             required = False
@@ -100,93 +256,6 @@ def get_rust_type(param: dict, required: bool = False, mapping=None):
     if not required:
         res = f"Option<{res}>"
     return res
-
-
-def get_openapi_spec(path: str):
-    with open(path, "r") as fp:
-        spec_data = jsonref.replace_refs(yaml.safe_load(fp))
-    return Spec.from_dict(spec_data)
-
-
-def find_resource_schema(schema: dict, parent: str = None, resource_name=None):
-    """Find the actual resource schema in the body schema
-
-    Traverse through the body schema searching for an element that represent
-    the resource itself.
-
-    a) root is an object and it contain property with the resource name
-    b) root is an object and it contain array property with name equals to
-       the plural form of the resource name
-
-    :returns: tuple of (schema, attribute name) for the match or (None, None)
-        if not found
-
-    """
-    if "type" not in schema:
-        raise RuntimeError("No type in %s" % schema)
-    schema_type = schema["type"]
-    if schema_type == "array":
-        if parent and parent == get_plural_form(resource_name):
-            return (schema, parent)
-        return find_resource_schema(
-            schema["items"], parent, resource_name=resource_name
-        )
-    elif schema_type == "object":
-        props = (
-            schema.properties
-            if hasattr(schema, "properties")
-            else schema.get("properties", {})
-        )
-        if not parent and resource_name in props:
-            # we are at the top level and there is property with the resource
-            # name - it is what we are searching for
-            return (props[resource_name], resource_name)
-        for name, item in props.items():
-            (r, path) = find_resource_schema(item, name, resource_name)
-            if r:
-                return (r, path)
-    return (None, None)
-
-
-def get_plural_form(resource):
-    """Get plural for of the resource"""
-    if resource[-1] == "y":
-        return resource[0:-1] + "ies"
-    if resource[-1] == "s":
-        return resource[0:-1] + "es"
-    else:
-        return resource + "s"
-
-
-def get_resource_names_from_url(path: str):
-    """Construct Resource name from the URL"""
-    path_elements = list(filter(None, path.split("/")))
-    if path_elements and VERSION_RE.match(path_elements[0]):
-        path_elements.pop(0)
-    path_resource_names = []
-
-    # if len([x for x in all_paths if x.startswith(path + "/")]) > 0:
-    #     has_subs = True
-    # else:
-    #     has_subs = False
-    for path_element in path_elements:
-        if "{" not in path_element:
-            el = path_element.replace("-", "_")
-            if el[-3:] == "ies":
-                path_resource_names.append(el[0:-3] + "y")
-            elif el[-1] == "s" and el[-3:] != "dns" and el[-6:] != "access":
-                path_resource_names.append(el[0:-1])
-            else:
-                path_resource_names.append(el)
-    if len(path_resource_names) > 1 and path_resource_names[-1] in [
-        "action",
-        "detail",
-    ]:
-        path_resource_names.pop()
-    if len(path_resource_names) == 0:
-        return ["Version"]
-    # print(f"{path} => {path_resource_names}")
-    return path_resource_names
 
 
 def get_rust_param_dict(param: dict, dest: str = "sdk"):
@@ -285,6 +354,7 @@ def get_rust_param_dict(param: dict, dest: str = "sdk"):
 
 
 def get_rust_sdk_subtype_name(name: str):
+    """Construct name for the subobject"""
     return "".join([x.capitalize() for x in name.split("_")])
 
 
@@ -309,6 +379,10 @@ def get_rust_sdk_sub_object_dict(name: str, obj: dict, description: str):
     lifetime = ""
     for k, v in obj.get("properties", {}).items():
         required = k in obj.get("required", [])
+        if not v:
+            # Nova create_server legacy_block_device_mapping contain
+            # no_device empty field. This is not really correct, just skip it
+            continue
         (sub_param, _, subsubtypes) = get_rust_body_element_dict(
             k, v, required, "sdk"
         )
@@ -328,7 +402,125 @@ def get_rust_sdk_sub_object_dict(name: str, obj: dict, description: str):
     return (rust_type, subtypes, additional_imports)
 
 
-class RustBodyParam:
+def get_rust_sdk_enum_dict(name: str, choices: list[dict]):
+    """Build a subtype enum representation data
+
+    :param str name: parent object name (local_name)
+    :param dict obj: openapi spec of the object
+    """
+    raise NotImplementedError
+
+
+# class EnumField:
+#    local_name: str = None
+#    remote_name: str = None
+#    kinds: dict[str, BaseType] = {}
+#    additional_imports: set = set()
+
+
+def _optional_wrap(local_type, is_optional):
+    return f"Optional<{local_type}>" if is_optional else local_type
+
+
+# class RustDataType(types.BaseType):
+#    type_hint: str
+#
+#    def __init__(self, type_):
+#        super().__init__(type_)
+#
+#        if type_.type:
+#            type__ = getattr(types.Types, type_.type)
+#            mapped_type = model_type_mapping.get(type__)
+#            self.type_hint = mapped_type
+#        if not self.type_hint:
+#            self.type_hint = "foobar"
+
+
+# model_type_mapping: dict[types, str] = {
+#    Types.integer: "i32",
+#    Types.int32: "i32",
+#    Types.number: "f32",
+#    Types.float: "f32",
+#    Types.double: "f64",
+#    Types.decimal: "i32",
+#    Types.string: "Cow<'a, str>",
+#    Types.uuid: "Cow<'a, str>",
+#    Types.boolean: "bool",
+# }
+
+
+# class RustSdkProcessor:
+#    body_model: types.BaseType = None
+#
+#    model_type_mapping: dict[types, str] = {
+#        Types.integer: "i32",
+#        Types.int32: "i32",
+#        Types.number: "f32",
+#        Types.float: "f32",
+#        Types.double: "f64",
+#        Types.decimal: "i32",
+#        Types.string: "Cow<'a, str>",
+#        Types.uuid: "Cow<'a, str>",
+#        Types.boolean: "bool",
+#    }
+#
+#    class FieldWrapper:
+#        field: Field
+#        dest_type_name: str
+#
+#        def __init__(self, field):
+#            self.field = field
+#            dt = field.data_type
+#            if dt.is_custom_type:
+#                self.dest_type_name = field.name
+#            else:
+#                if dt.type:
+#                    self.dest_type_name = RustSdkProcessor.model_type_mapping[
+#                        field.type
+#                    ]
+#
+#        def __getattr__(self, name):
+#            return getattr(self.field, name)
+#
+#        def get_macros(self):
+#            return []
+#
+#        def get_local_name(self):
+#            return self.field.name
+#
+#        def get_local_type(self):
+#            return self.field.data_type.type
+#
+#    def get_body_lifetimes(self):
+#        return ""
+#
+#    def get_body_fields(self):
+#        print(f"Body model2 is {self.body_model}")
+#        if self.body_model:
+#            print(
+#                f"Type is {self.body_model.data_type.type} {self.body_model.data_type} {Types.object}"
+#            )
+#        if (
+#            self.body_model
+#            and self.body_model.data_type.type == Types.object.name
+#        ):
+#            print("We are in the object")
+#            for field in self.body_model.data_type.children:
+#                print(f"Emiting {field}")
+#                yield (field.name, self.FieldWrapper(field))
+#        else:
+#            return []
+#
+#    def set_body_model(self, model: types.Field):
+#        self.body_model = model
+#        # loc = self._get_data_type(field.data_type)
+#
+#    def _get_data_type(self, dt: types.DataType):
+#        cls = RustDataType(dt)
+#        return cls
+
+
+class RustBodyField:
     """Holder for the data required to represent type in the body"""
 
     local_name: str = None
@@ -364,6 +556,16 @@ class RustBodyParam:
                     prop_type.remove("null")
                 if len(prop_type) == 1:
                     prop_type = prop_type[0]
+                if isinstance(prop_type, list) and "string" in prop_type:
+                    # When we have intORstring boolORstring, etc we can restrict ourselves to a non-string (api accepts string, okay, but we want to send int)
+                    prop_type.remove("string")
+                if len(prop_type) == 1:
+                    prop_type = prop_type[0]
+                else:
+                    raise RuntimeError(
+                        "Cannot decide on the field type %s:%s"
+                        % (prop.get("type"))
+                    )
             prop_types.add(prop_type)
         print(f"{self}")
         if len(prop_types) > 1:
@@ -523,134 +725,198 @@ def get_rust_body_element_dict(
         "x-openstack-sdk-name", param_name.replace("-", "_").replace(":", "_")
     )
     # rust_type = None
-    xtype = data["type"]
-    holder = RustBodyParam()
-    holder.local_name = local_name
-    holder.required = required
-    holder.param_builder_args.append("default")
-    holder.param_clap_args.append("long")
-    is_nullable = False
-    if holder.local_name == "type":
-        holder.local_name = "xtype"
-        holder.param_structable_args.append('title="type"')
-
-    if param_name != holder.local_name:
-        holder.param_serde_args.append(f'rename = "{param_name}"')
-
-    # Figure out what are we dealing with when property type is a list
-    if isinstance(xtype, list):
-        if "null" in xtype:
-            # holder.required = False
-            xtype.remove("null")
-            is_nullable = True
-        if len(xtype) == 1:
-            xtype = xtype[0]
-
-    if xtype == "string":
-        holder.param_builder_args.append("setter(into)")
-    if xtype == "array":
-        items = data["items"]
-        items_type = items["type"]
-        if items_type == "string":
-            if dest == "sdk":
-                # rust_type = "BTreeSet<Cow<'a, str>>"
-                holder.xtype = "BTreeSet<Cow<'a, str>>"
-                holder.param_builder_args.append("private")
-                holder.param_builder_args.append(
-                    f'setter(name="_{local_name}")'
+    try:
+        xtype = get_normalized_field_type(data)
+    except Exception:
+        # So we are most likely in the complex oneOf. We need to build an enum
+        oneOf = data.get("oneOf")
+        if oneOf:
+            holder = RustBodyField()
+            holder.local_name = local_name
+            holder.required = required
+            holder.param_builder_args.append("default")
+            holder.param_clap_args.append("long")
+            holder.xtype = local_name.title()
+            is_nullable = False
+            (type_name, subtypes, additional_imports) = get_rust_sdk_enum_dict(
+                name, oneOf
+            )
+            # todo
+            # Counter for giving unique suffixes to the candidates
+            cnt = 0
+            for candidate in oneOf:
+                cnt += 1
+                os_ext = candidate.get("x-openstack", {})
+                key_name = os_ext.get("key-name", f"{name}F{cnt}")
+                (dt, _setters, _subtypes) = get_rust_body_element_dict(
+                    key_name, candidate, True, dest
                 )
-                # setter_type = "set"
-                holder.param_setter = dict(
-                    name=holder.local_name,
-                    type="set",
-                    element="Cow<'a, str>",
-                    is_optional=not holder.required,
+                print(f"Result of a complex crap: {dt} {_setters} {_subtypes}")
+                if _subtypes:
+                    holder.subtypes.update(_subtypes)
+                holder.subtypes[key_name] = dt
+                if _setters:
+                    holder.param_setter.update(_setters)
+
+            if param_name != holder.local_name:
+                holder.param_serde_args.append(f'rename = "{param_name}"')
+
+            return (
+                dict(
+                    name=param_name,
+                    local_name=holder.local_name,
+                    location=param_location,
+                    type=holder.xtype,
+                    schema=data,
                     description=data.get("description"),
-                )
-                holder.additional_imports.add("std::collections::BTreeSet")
-
-            elif dest in ["cli-response", "cli-request", "cli"]:
-                holder.xtype = "Vec<String>"
-                holder.param_clap_args.append("action=clap::ArgAction::Append")
-
-            if not holder.required:
-                holder.xtype = f"Option<{holder.xtype}>"
-
-        elif items_type == "object" and dest in [
-            "cli-request",
-            "cli-response",
-            "cli",
-        ]:
-            holder.get_rust_cli_list_object_param_dict(items)
-        elif items_type == "object" and dest == "sdk":
-            holder.process_list_of_objects_sdk(items, data.get("description"))
-        if holder.xtype is None:
-            raise ValueError(
-                "Array of %s is not supported yet in %s for %s"
-                % (items_type, dest, param_name)
+                    required=holder.required,
+                    builder_args=holder.param_builder_args,
+                    param_macros=holder.struct_param_macros,
+                    param_structable_args=holder.param_structable_args,
+                    param_serde_args=holder.param_serde_args,
+                    additional_imports=holder.additional_imports,
+                    subtype=holder.subtype,
+                ),
+                holder.param_setter,
+                holder.subtypes,
             )
 
-    elif xtype == "object" and dest in ["cli-request"]:
-        holder.process_object_cli_input(data)
-    elif xtype == "object" and dest in ["cli-response", "cli"]:
-        holder.process_object_cli_response(data)
-    elif xtype == "object" and dest == "sdk":
-        holder.process_object_sdk(data)
-
+        raise RuntimeError(
+            "Cannot determine type of the %s (%s)" % (param_name, data)
+        )
     else:
-        mapping = None
-        if dest == "sdk":
-            mapping = OPENAPI_RUST_TYPE_MAPPING
-        elif dest == "cli-request":
-            mapping = OPENAPI_RUST_CLI_REQUEST_TYPE_MAPPING
+        # No exception, we can continue the normal way - a relatively straight forward object
+        holder = RustBodyField()
+        holder.local_name = local_name
+        holder.required = required
+        holder.param_builder_args.append("default")
+        holder.param_clap_args.append("long")
+        is_nullable = False
+        if holder.local_name == "type":
+            holder.local_name = "xtype"
+            holder.param_structable_args.append('title="type"')
+
+        if param_name != holder.local_name:
+            holder.param_serde_args.append(f'rename = "{param_name}"')
+
+        # Figure out what are we dealing with when property type is a list
+        if isinstance(xtype, list):
+            if "null" in xtype:
+                # holder.required = False
+                xtype.remove("null")
+                is_nullable = True
+            if len(xtype) == 1:
+                xtype = xtype[0]
+
+        if xtype == "string":
+            holder.param_builder_args.append("setter(into)")
+        if xtype == "array":
+            items = data["items"]
+            items_type = items["type"]
+            if items_type == "string":
+                if dest == "sdk":
+                    # rust_type = "BTreeSet<Cow<'a, str>>"
+                    holder.xtype = "BTreeSet<Cow<'a, str>>"
+                    holder.param_builder_args.append("private")
+                    holder.param_builder_args.append(
+                        f'setter(name="_{local_name}")'
+                    )
+                    # setter_type = "set"
+                    holder.param_setter = dict(
+                        name=holder.local_name,
+                        type="set",
+                        element="Cow<'a, str>",
+                        is_optional=not holder.required,
+                        description=data.get("description"),
+                    )
+                    holder.additional_imports.add("std::collections::BTreeSet")
+
+                elif dest in ["cli-response", "cli-request", "cli"]:
+                    holder.xtype = "Vec<String>"
+                    holder.param_clap_args.append(
+                        "action=clap::ArgAction::Append"
+                    )
+
+                if not holder.required:
+                    holder.xtype = f"Option<{holder.xtype}>"
+
+            elif items_type == "object" and dest in [
+                "cli-request",
+                "cli-response",
+                "cli",
+            ]:
+                holder.get_rust_cli_list_object_param_dict(items)
+            elif items_type == "object" and dest == "sdk":
+                holder.process_list_of_objects_sdk(
+                    items, data.get("description")
+                )
+            if holder.xtype is None:
+                raise ValueError(
+                    "Array of %s is not supported yet in %s for %s"
+                    % (items_type, dest, param_name)
+                )
+
+        elif xtype == "object" and dest in ["cli-request"]:
+            holder.process_object_cli_input(data)
+        elif xtype == "object" and dest in ["cli-response", "cli"]:
+            holder.process_object_cli_response(data)
+        elif xtype == "object" and dest == "sdk":
+            holder.process_object_sdk(data)
+
         else:
-            mapping = OPENAPI_RUST_CLI_TYPE_MAPPING
-        holder.xtype = get_rust_type(
-            data,
-            required,
-            mapping=mapping,
-            # OPENAPI_RUST_TYPE_MAPPING
-            # if dest == "sdk"
-            # else OPENAPI_RUST_CLI_TYPE_MAPPING,
+            mapping = None
+            if dest == "sdk":
+                mapping = OPENAPI_RUST_TYPE_MAPPING
+            elif dest == "cli-request":
+                mapping = OPENAPI_RUST_CLI_REQUEST_TYPE_MAPPING
+            else:
+                mapping = OPENAPI_RUST_CLI_TYPE_MAPPING
+            holder.xtype = get_rust_type(
+                data,
+                required,
+                mapping=mapping,
+                # OPENAPI_RUST_TYPE_MAPPING
+                # if dest == "sdk"
+                # else OPENAPI_RUST_CLI_TYPE_MAPPING,
+            )
+            if "NumString" in holder.xtype:
+                holder.additional_imports.add("crate::common::NumString")
+
+        if "Option" in holder.xtype:
+            holder.param_structable_args.append("optional")
+
+        if is_nullable:
+            holder.xtype = f"Option<{holder.xtype}>"
+
+        #    struct_param_macros = []
+        if dest in ["cli-request", "cli-response", "cli"]:
+            holder.struct_param_macros.append(
+                f"#[arg({', '.join(holder.param_clap_args)})]"
+            )
+        if dest == "sdk" and holder.param_builder_args:
+            holder.struct_param_macros.append(
+                f"#[builder({', '.join(holder.param_builder_args)})]"
+            )
+
+        return (
+            dict(
+                name=param_name,
+                local_name=holder.local_name,
+                location=param_location,
+                type=holder.xtype,
+                schema=data,
+                description=data.get("description"),
+                required=holder.required,
+                builder_args=holder.param_builder_args,
+                param_macros=holder.struct_param_macros,
+                param_structable_args=holder.param_structable_args,
+                param_serde_args=holder.param_serde_args,
+                additional_imports=holder.additional_imports,
+                subtype=holder.subtype,
+            ),
+            holder.param_setter,
+            holder.subtypes,
         )
-        if "NumString" in holder.xtype:
-            holder.additional_imports.add("crate::common::NumString")
-
-    if "Option" in holder.xtype:
-        holder.param_structable_args.append("optional")
-
-    if is_nullable:
-        holder.xtype = f"Option<{holder.xtype}>"
-
-    #    struct_param_macros = []
-    if dest in ["cli-request", "cli-response", "cli"]:
-        holder.struct_param_macros.append(
-            f"#[arg({', '.join(holder.param_clap_args)})]"
-        )
-    if dest == "sdk" and holder.param_builder_args:
-        holder.struct_param_macros.append(
-            f"#[builder({', '.join(holder.param_builder_args)})]"
-        )
-
-    return (
-        dict(
-            name=param_name,
-            local_name=holder.local_name,
-            location=param_location,
-            type=holder.xtype,
-            schema=data,
-            description=data.get("description"),
-            required=holder.required,
-            builder_args=holder.param_builder_args,
-            param_macros=holder.struct_param_macros,
-            param_structable_args=holder.param_structable_args,
-            param_serde_args=holder.param_serde_args,
-            additional_imports=holder.additional_imports,
-            subtype=holder.subtype,
-        ),
-        holder.param_setter,
-        holder.subtypes,
-    )
 
 
 def get_rust_sdk_mod_path(service_type: str, api_version: str, path: str):

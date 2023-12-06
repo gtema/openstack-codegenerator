@@ -3392,7 +3392,7 @@ paths:
 
         GET/HEAD /OS-INHERIT/domains/{domain_id}/groups/{group_id}
                  /roles/{role_id}/inherited_to_projects
-      operationId: 
+      operationId:
         OS-INHERIT/domains/domain_id/groups/group_id/roles/role_id/inherited_to_projects:get
       responses:
         '403':
@@ -3414,7 +3414,7 @@ paths:
         Relationship:
         `https://docs.openstack.org/api/openstack-identity/3/ext/OS-INHERIT/1.0/rel/domain\_group\_role\_inherited\_to\_projects`
 
-      operationId: 
+      operationId:
         OS-INHERIT/domains/domain_id/groups/group_id/roles/role_id/inherited_to_projects:delete
       responses:
         '403':
@@ -3434,7 +3434,7 @@ paths:
         Relationship:
         `https://docs.openstack.org/api/openstack-identity/3/ext/OS-INHERIT/1.0/rel/domain\_group\_role\_inherited\_to\_projects`
 
-      operationId: 
+      operationId:
         OS-INHERIT/domains/domain_id/groups/group_id/roles/role_id/inherited_to_projects:put
       requestBody:
         content:
@@ -3462,7 +3462,7 @@ paths:
         Relationship:
         `https://docs.openstack.org/api/openstack-identity/3/ext/OS-INHERIT/1.0/rel/domain\_group\_role\_inherited\_to\_projects`
 
-      operationId: 
+      operationId:
         OS-INHERIT/domains/domain_id/groups/group_id/roles/role_id/inherited_to_projects:head
       responses:
         '403':
@@ -3528,7 +3528,7 @@ paths:
 
         GET/HEAD /OS-INHERIT/domains/{domain_id}/users/{user_id}/roles
                  /{role_id}/inherited_to_projects
-      operationId: 
+      operationId:
         OS-INHERIT/domains/domain_id/users/user_id/roles/role_id/inherited_to_projects:get
       responses:
         '403':
@@ -3550,7 +3550,7 @@ paths:
         Relationship:
         `https://docs.openstack.org/api/openstack-identity/3/ext/OS-INHERIT/1.0/rel/domain\_user\_role\_inherited\_to\_projects`
 
-      operationId: 
+      operationId:
         OS-INHERIT/domains/domain_id/users/user_id/roles/role_id/inherited_to_projects:delete
       responses:
         '403':
@@ -3572,7 +3572,7 @@ paths:
         Relationship:
         `https://docs.openstack.org/api/openstack-identity/3/ext/OS-INHERIT/1.0/rel/domain\_user\_role\_inherited\_to\_projects`
 
-      operationId: 
+      operationId:
         OS-INHERIT/domains/domain_id/users/user_id/roles/role_id/inherited_to_projects:put
       requestBody:
         content:
@@ -3600,7 +3600,7 @@ paths:
         Relationship:
         `https://docs.openstack.org/api/openstack-identity/3/ext/OS-INHERIT/1.0/rel/domain\_user\_role\_inherited\_to\_projects`
 
-      operationId: 
+      operationId:
         OS-INHERIT/domains/domain_id/users/user_id/roles/role_id/inherited_to_projects:head
       responses:
         '403':
@@ -3666,7 +3666,7 @@ paths:
 
         GET/HEAD /OS-INHERIT/projects/{project_id}/users/{user_id}
                  /roles/{role_id}/inherited_to_projects
-      operationId: 
+      operationId:
         OS-INHERIT/projects/project_id/users/user_id/roles/role_id/inherited_to_projects:get
       responses:
         '403':
@@ -3686,7 +3686,7 @@ paths:
         Relationship:
         `https://docs.openstack.org/api/openstack-identity/3/ext/OS-INHERIT/1.0/rel/project\_user\_role\_inherited\_to\_projects`
 
-      operationId: 
+      operationId:
         OS-INHERIT/projects/project_id/users/user_id/roles/role_id/inherited_to_projects:delete
       responses:
         '403':
@@ -3706,7 +3706,7 @@ paths:
         Relationship:
         `https://docs.openstack.org/api/openstack-identity/3/ext/OS-INHERIT/1.0/rel/project\_user\_role\_inherited\_to\_projects`
 
-      operationId: 
+      operationId:
         OS-INHERIT/projects/project_id/users/user_id/roles/role_id/inherited_to_projects:put
       requestBody:
         content:
@@ -3734,7 +3734,7 @@ paths:
         Relationship:
         `https://docs.openstack.org/api/openstack-identity/3/ext/OS-INHERIT/1.0/rel/project\_user\_role\_inherited\_to\_projects`
 
-      operationId: 
+      operationId:
         OS-INHERIT/projects/project_id/users/user_id/roles/role_id/inherited_to_projects:head
       responses:
         '403':
@@ -3757,7 +3757,7 @@ paths:
 
         GET/HEAD /OS-INHERIT/projects/{project_id}/groups/{group_id}
                  /roles/{role_id}/inherited_to_projects
-      operationId: 
+      operationId:
         OS-INHERIT/projects/project_id/groups/group_id/roles/role_id/inherited_to_projects:get
       responses:
         '403':
@@ -3777,7 +3777,7 @@ paths:
         Relationship:
         `https://docs.openstack.org/api/openstack-identity/3/ext/OS-INHERIT/1.0/rel/project\_group\_role\_inherited\_to\_projects`
 
-      operationId: 
+      operationId:
         OS-INHERIT/projects/project_id/groups/group_id/roles/role_id/inherited_to_projects:delete
       responses:
         '403':
@@ -3797,7 +3797,7 @@ paths:
         Relationship:
         `https://docs.openstack.org/api/openstack-identity/3/ext/OS-INHERIT/1.0/rel/project\_group\_role\_inherited\_to\_projects`
 
-      operationId: 
+      operationId:
         OS-INHERIT/projects/project_id/groups/group_id/roles/role_id/inherited_to_projects:put
       requestBody:
         content:
@@ -3825,7 +3825,7 @@ paths:
         Relationship:
         `https://docs.openstack.org/api/openstack-identity/3/ext/OS-INHERIT/1.0/rel/project\_group\_role\_inherited\_to\_projects`
 
-      operationId: 
+      operationId:
         OS-INHERIT/projects/project_id/groups/group_id/roles/role_id/inherited_to_projects:head
       responses:
         '403':
@@ -4631,7 +4631,7 @@ paths:
     delete:
       description: |-
         DELETE operation on /v3/policies/{policy_id}/OS-ENDPOINT-POLICY/services/{service_id}/regions/{region_id}
-      operationId: 
+      operationId:
         policies/policy_id/OS-ENDPOINT-POLICY/services/service_id/regions/region_id:delete
       responses:
         '403':
@@ -7415,7 +7415,7 @@ components:
                   enum:
                     - true
                     - false
-                    - 
+                    -
       required:
         - identity
     AuthTokensPostResponse:
@@ -7490,7 +7490,7 @@ components:
           enum:
             - true
             - false
-            - 
+            -
         name:
           type: string
           minLength: 1
@@ -7523,7 +7523,7 @@ components:
           enum:
             - true
             - false
-            - 
+            -
         name:
           type: string
           minLength: 1
@@ -7555,7 +7555,7 @@ components:
           enum:
             - true
             - false
-            - 
+            -
         name:
           type: string
           minLength: 1
@@ -7592,7 +7592,7 @@ components:
                 enum:
                   - true
                   - false
-                  - 
+                  -
               name:
                 type: string
                 minLength: 1
@@ -7621,7 +7621,7 @@ components:
           enum:
             - true
             - false
-            - 
+            -
         name:
           type: string
           minLength: 1
@@ -7655,7 +7655,7 @@ components:
           enum:
             - true
             - false
-            - 
+            -
         name:
           type: string
           minLength: 1
@@ -7921,7 +7921,7 @@ components:
                     enum:
                       - true
                       - false
-                      - 
+                      -
                 additionalProperties: false
         links:
           type: object
@@ -7967,7 +7967,7 @@ components:
                     enum:
                       - true
                       - false
-                      - 
+                      -
                 additionalProperties: false
         links:
           type: object
@@ -8038,7 +8038,7 @@ components:
           enum:
             - true
             - false
-            - 
+            -
         federated:
           type: array
           items:
@@ -8081,7 +8081,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             ignore_password_expiry:
               type:
                 - boolean
@@ -8089,7 +8089,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             ignore_lockout_failure_attempts:
               type:
                 - boolean
@@ -8097,7 +8097,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             lock_password:
               type:
                 - boolean
@@ -8105,7 +8105,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             ignore_user_inactivity:
               type:
                 - boolean
@@ -8113,7 +8113,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             multi_factor_auth_rules:
               type:
                 - array
@@ -8132,7 +8132,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
           additionalProperties: false
       additionalProperties: true
       minProperties: 1
@@ -8227,7 +8227,7 @@ components:
           enum:
             - true
             - false
-            - 
+            -
         federated:
           type: array
           items:
@@ -8270,7 +8270,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             ignore_password_expiry:
               type:
                 - boolean
@@ -8278,7 +8278,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             ignore_lockout_failure_attempts:
               type:
                 - boolean
@@ -8286,7 +8286,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             lock_password:
               type:
                 - boolean
@@ -8294,7 +8294,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             ignore_user_inactivity:
               type:
                 - boolean
@@ -8302,7 +8302,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             multi_factor_auth_rules:
               type:
                 - array
@@ -8321,7 +8321,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
           additionalProperties: false
       additionalProperties: true
       required:
@@ -8524,62 +8524,62 @@ components:
       description: Response of the OS-FEDERATION/service_providers:get operation
     Os_InheritDomainsGroupsRolesInherited_To_ProjectsGetResponse:
       type: object
-      description: Response of the 
+      description: Response of the
         OS-INHERIT/domains/domain_id/groups/group_id/roles/role_id/inherited_to_projects:get
         operation
     Os_InheritDomainsGroupsRolesInherited_To_ProjectsPutRequest:
       type: object
-      description: Request of the 
+      description: Request of the
         OS-INHERIT/domains/domain_id/groups/group_id/roles/role_id/inherited_to_projects:put
         operation
     Os_InheritDomainsGroupsRolesInherited_To_ProjectsPutResponse:
       type: object
-      description: Response of the 
+      description: Response of the
         OS-INHERIT/domains/domain_id/groups/group_id/roles/role_id/inherited_to_projects:put
         operation
     Os_InheritDomainsUsersRolesInherited_To_ProjectsGetResponse:
       type: object
-      description: Response of the 
+      description: Response of the
         OS-INHERIT/domains/domain_id/users/user_id/roles/role_id/inherited_to_projects:get
         operation
     Os_InheritDomainsUsersRolesInherited_To_ProjectsPutRequest:
       type: object
-      description: Request of the 
+      description: Request of the
         OS-INHERIT/domains/domain_id/users/user_id/roles/role_id/inherited_to_projects:put
         operation
     Os_InheritDomainsUsersRolesInherited_To_ProjectsPutResponse:
       type: object
-      description: Response of the 
+      description: Response of the
         OS-INHERIT/domains/domain_id/users/user_id/roles/role_id/inherited_to_projects:put
         operation
     Os_InheritProjectsUsersRolesInherited_To_ProjectsGetResponse:
       type: object
-      description: Response of the 
+      description: Response of the
         OS-INHERIT/projects/project_id/users/user_id/roles/role_id/inherited_to_projects:get
         operation
     Os_InheritProjectsUsersRolesInherited_To_ProjectsPutRequest:
       type: object
-      description: Request of the 
+      description: Request of the
         OS-INHERIT/projects/project_id/users/user_id/roles/role_id/inherited_to_projects:put
         operation
     Os_InheritProjectsUsersRolesInherited_To_ProjectsPutResponse:
       type: object
-      description: Response of the 
+      description: Response of the
         OS-INHERIT/projects/project_id/users/user_id/roles/role_id/inherited_to_projects:put
         operation
     Os_InheritProjectsGroupsRolesInherited_To_ProjectsGetResponse:
       type: object
-      description: Response of the 
+      description: Response of the
         OS-INHERIT/projects/project_id/groups/group_id/roles/role_id/inherited_to_projects:get
         operation
     Os_InheritProjectsGroupsRolesInherited_To_ProjectsPutRequest:
       type: object
-      description: Request of the 
+      description: Request of the
         OS-INHERIT/projects/project_id/groups/group_id/roles/role_id/inherited_to_projects:put
         operation
     Os_InheritProjectsGroupsRolesInherited_To_ProjectsPutResponse:
       type: object
-      description: Response of the 
+      description: Response of the
         OS-INHERIT/projects/project_id/groups/group_id/roles/role_id/inherited_to_projects:put
         operation
     Os_Oauth1ConsumerPatchRequest:
@@ -8731,13 +8731,13 @@ components:
           enum:
             - true
             - false
-            - 
+            -
         is_domain:
           type: boolean
           enum:
             - true
             - false
-            - 
+            -
         parent_id:
           type:
             - string
@@ -8770,7 +8770,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
           additionalProperties: false
       additionalProperties: true
       minProperties: 1
@@ -8796,13 +8796,13 @@ components:
           enum:
             - true
             - false
-            - 
+            -
         is_domain:
           type: boolean
           enum:
             - true
             - false
-            - 
+            -
         parent_id:
           type:
             - string
@@ -8835,7 +8835,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
           additionalProperties: false
       additionalProperties: true
     ProjectGetResponse:
@@ -8860,13 +8860,13 @@ components:
           enum:
             - true
             - false
-            - 
+            -
         is_domain:
           type: boolean
           enum:
             - true
             - false
-            - 
+            -
         parent_id:
           type:
             - string
@@ -8899,7 +8899,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
           additionalProperties: false
       additionalProperties: true
     ProjectsGetResponse:
@@ -8929,13 +8929,13 @@ components:
                 enum:
                   - true
                   - false
-                  - 
+                  -
               is_domain:
                 type: boolean
                 enum:
                   - true
                   - false
-                  - 
+                  -
               parent_id:
                 type:
                   - string
@@ -8968,7 +8968,7 @@ components:
                     enum:
                       - true
                       - false
-                      - 
+                      -
                 additionalProperties: false
             additionalProperties: true
     ProjectsPostRequest:
@@ -8990,13 +8990,13 @@ components:
           enum:
             - true
             - false
-            - 
+            -
         is_domain:
           type: boolean
           enum:
             - true
             - false
-            - 
+            -
         parent_id:
           type:
             - string
@@ -9029,7 +9029,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
           additionalProperties: false
       additionalProperties: true
       required:
@@ -9056,13 +9056,13 @@ components:
           enum:
             - true
             - false
-            - 
+            -
         is_domain:
           type: boolean
           enum:
             - true
             - false
-            - 
+            -
         parent_id:
           type:
             - string
@@ -9095,7 +9095,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
           additionalProperties: false
       additionalProperties: true
     ProjectsTagsGetResponse:
@@ -9176,7 +9176,7 @@ components:
                     enum:
                       - true
                       - false
-                      - 
+                      -
                 additionalProperties: false
         links:
           type: object
@@ -9222,7 +9222,7 @@ components:
                     enum:
                       - true
                       - false
-                      - 
+                      -
                 additionalProperties: false
         links:
           type: object
@@ -9294,7 +9294,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
           additionalProperties: false
       additionalProperties: true
       minProperties: 1
@@ -9323,7 +9323,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
           additionalProperties: false
     RoleGetResponse:
       type: object
@@ -9350,7 +9350,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
           additionalProperties: false
     RolesGetResponse:
       type: object
@@ -9382,7 +9382,7 @@ components:
                     enum:
                       - true
                       - false
-                      - 
+                      -
                 additionalProperties: false
         links:
           type: object
@@ -9406,7 +9406,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
           additionalProperties: false
       additionalProperties: true
       required:
@@ -9436,7 +9436,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
           additionalProperties: false
     RolesImpliesGetResponse:
       type: object
@@ -9468,7 +9468,7 @@ components:
                       enum:
                         - true
                         - false
-                        - 
+                        -
                   additionalProperties: false
             implies:
               type: array
@@ -9497,7 +9497,7 @@ components:
                         enum:
                           - true
                           - false
-                          - 
+                          -
                     additionalProperties: false
     RolesImplyGetResponse:
       type: object
@@ -9529,7 +9529,7 @@ components:
                       enum:
                         - true
                         - false
-                        - 
+                        -
                   additionalProperties: false
             implies:
               type: object
@@ -9556,7 +9556,7 @@ components:
                       enum:
                         - true
                         - false
-                        - 
+                        -
                   additionalProperties: false
     RolesImplyPutRequest:
       type: object
@@ -9592,7 +9592,7 @@ components:
                       enum:
                         - true
                         - false
-                        - 
+                        -
                   additionalProperties: false
             implies:
               type: object
@@ -9619,7 +9619,7 @@ components:
                       enum:
                         - true
                         - false
-                        - 
+                        -
                   additionalProperties: false
     S3TokensGetResponse:
       type: object
@@ -9714,7 +9714,7 @@ components:
           enum:
             - true
             - false
-            - 
+            -
         federated:
           type: array
           items:
@@ -9757,7 +9757,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             ignore_password_expiry:
               type:
                 - boolean
@@ -9765,7 +9765,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             ignore_lockout_failure_attempts:
               type:
                 - boolean
@@ -9773,7 +9773,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             lock_password:
               type:
                 - boolean
@@ -9781,7 +9781,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             ignore_user_inactivity:
               type:
                 - boolean
@@ -9789,7 +9789,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             multi_factor_auth_rules:
               type:
                 - array
@@ -9808,7 +9808,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
           additionalProperties: false
       additionalProperties: true
       minProperties: 1
@@ -9841,7 +9841,7 @@ components:
           enum:
             - true
             - false
-            - 
+            -
         federated:
           type: array
           items:
@@ -9884,7 +9884,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             ignore_password_expiry:
               type:
                 - boolean
@@ -9892,7 +9892,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             ignore_lockout_failure_attempts:
               type:
                 - boolean
@@ -9900,7 +9900,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             lock_password:
               type:
                 - boolean
@@ -9908,7 +9908,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             ignore_user_inactivity:
               type:
                 - boolean
@@ -9916,7 +9916,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             multi_factor_auth_rules:
               type:
                 - array
@@ -9935,7 +9935,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
           additionalProperties: false
     UserGetResponse:
       type: object
@@ -9964,7 +9964,7 @@ components:
           enum:
             - true
             - false
-            - 
+            -
         federated:
           type: array
           items:
@@ -10007,7 +10007,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             ignore_password_expiry:
               type:
                 - boolean
@@ -10015,7 +10015,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             ignore_lockout_failure_attempts:
               type:
                 - boolean
@@ -10023,7 +10023,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             lock_password:
               type:
                 - boolean
@@ -10031,7 +10031,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             ignore_user_inactivity:
               type:
                 - boolean
@@ -10039,7 +10039,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             multi_factor_auth_rules:
               type:
                 - array
@@ -10058,7 +10058,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
           additionalProperties: false
     UsersGetResponse:
       type: object
@@ -10092,7 +10092,7 @@ components:
                 enum:
                   - true
                   - false
-                  - 
+                  -
               federated:
                 type: array
                 items:
@@ -10135,7 +10135,7 @@ components:
                     enum:
                       - true
                       - false
-                      - 
+                      -
                   ignore_password_expiry:
                     type:
                       - boolean
@@ -10143,7 +10143,7 @@ components:
                     enum:
                       - true
                       - false
-                      - 
+                      -
                   ignore_lockout_failure_attempts:
                     type:
                       - boolean
@@ -10151,7 +10151,7 @@ components:
                     enum:
                       - true
                       - false
-                      - 
+                      -
                   lock_password:
                     type:
                       - boolean
@@ -10159,7 +10159,7 @@ components:
                     enum:
                       - true
                       - false
-                      - 
+                      -
                   ignore_user_inactivity:
                     type:
                       - boolean
@@ -10167,7 +10167,7 @@ components:
                     enum:
                       - true
                       - false
-                      - 
+                      -
                   multi_factor_auth_rules:
                     type:
                       - array
@@ -10186,7 +10186,7 @@ components:
                     enum:
                       - true
                       - false
-                      - 
+                      -
                 additionalProperties: false
     UsersPostRequest:
       type: object
@@ -10212,7 +10212,7 @@ components:
           enum:
             - true
             - false
-            - 
+            -
         federated:
           type: array
           items:
@@ -10255,7 +10255,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             ignore_password_expiry:
               type:
                 - boolean
@@ -10263,7 +10263,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             ignore_lockout_failure_attempts:
               type:
                 - boolean
@@ -10271,7 +10271,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             lock_password:
               type:
                 - boolean
@@ -10279,7 +10279,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             ignore_user_inactivity:
               type:
                 - boolean
@@ -10287,7 +10287,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
             multi_factor_auth_rules:
               type:
                 - array
@@ -10306,7 +10306,7 @@ components:
               enum:
                 - true
                 - false
-                - 
+                -
           additionalProperties: false
       additionalProperties: true
       required:

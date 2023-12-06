@@ -19,10 +19,10 @@ import logging
 from pathlib import Path
 import re
 
-from generator.common.schema import ParameterSchema
-from generator.common.schema import PathSchema
-from generator.common.schema import SpecSchema
-from generator.common.schema import TypeSchema
+from codegenerator.common.schema import ParameterSchema
+from codegenerator.common.schema import PathSchema
+from codegenerator.common.schema import SpecSchema
+from codegenerator.common.schema import TypeSchema
 from openapi_core import Spec
 from ruamel.yaml.scalarstring import LiteralScalarString
 from ruamel.yaml import YAML

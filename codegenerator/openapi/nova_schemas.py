@@ -333,8 +333,8 @@ AZ_DETAIL_SCHEMA = copy.deepcopy(AZ_SCHEMA)
 AZ_DETAIL_SCHEMA["properties"]["hosts"] = {
     "type": "object",
     "description": "An object containing a list of host information. The host information is comprised of host and service objects. The service object returns three parameters representing the states of the service: active, available, and updated_at.",
-    "examples": {"JSON request":
-        {
+    "examples": {
+        "JSON request": {
             "conductor": {
                 "nova-conductor": {
                     "active": True,

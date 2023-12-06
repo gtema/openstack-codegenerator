@@ -2051,7 +2051,7 @@ components:
                         - number
                         - object
                         - string
-                        - 
+                        -
                     required:
                       type: array
                       items:
@@ -2089,7 +2089,7 @@ components:
                             - number
                             - object
                             - string
-                            - 
+                            -
                         enum:
                           type: array
                     maxItems:
@@ -2147,7 +2147,7 @@ components:
                               - number
                               - object
                               - string
-                              - 
+                              -
                           required:
                             type: array
                             items:
@@ -2185,7 +2185,7 @@ components:
                                   - number
                                   - object
                                   - string
-                                  - 
+                                  -
                               enum:
                                 type: array
                           maxItems:
@@ -2310,7 +2310,7 @@ components:
                   - number
                   - object
                   - string
-                  - 
+                  -
               required:
                 type: array
                 items:
@@ -2348,7 +2348,7 @@ components:
                       - number
                       - object
                       - string
-                      - 
+                      -
                   enum:
                     type: array
               maxItems:
@@ -2406,7 +2406,7 @@ components:
                         - number
                         - object
                         - string
-                        - 
+                        -
                     required:
                       type: array
                       items:
@@ -2444,7 +2444,7 @@ components:
                             - number
                             - object
                             - string
-                            - 
+                            -
                         enum:
                           type: array
                     maxItems:
@@ -2553,7 +2553,7 @@ components:
                   - number
                   - object
                   - string
-                  - 
+                  -
               required:
                 type: array
                 items:
@@ -2591,7 +2591,7 @@ components:
                       - number
                       - object
                       - string
-                      - 
+                      -
                   enum:
                     type: array
               maxItems:
@@ -2649,7 +2649,7 @@ components:
                         - number
                         - object
                         - string
-                        - 
+                        -
                     required:
                       type: array
                       items:
@@ -2687,7 +2687,7 @@ components:
                             - number
                             - object
                             - string
-                            - 
+                            -
                         enum:
                           type: array
                     maxItems:
@@ -2799,7 +2799,7 @@ components:
                   - number
                   - object
                   - string
-                  - 
+                  -
               required:
                 type: array
                 items:
@@ -2837,7 +2837,7 @@ components:
                       - number
                       - object
                       - string
-                      - 
+                      -
                   enum:
                     type: array
               maxItems:
@@ -2895,7 +2895,7 @@ components:
                         - number
                         - object
                         - string
-                        - 
+                        -
                     required:
                       type: array
                       items:
@@ -2933,7 +2933,7 @@ components:
                             - number
                             - object
                             - string
-                            - 
+                            -
                         enum:
                           type: array
                     maxItems:
@@ -2987,7 +2987,7 @@ components:
                   - number
                   - object
                   - string
-                  - 
+                  -
               required:
                 type: array
                 items:
@@ -3026,7 +3026,7 @@ components:
                       - number
                       - object
                       - string
-                      - 
+                      -
                   enum:
                     type: array
               maxItems:
@@ -3085,7 +3085,7 @@ components:
             - number
             - object
             - string
-            - 
+            -
         required:
           type: array
           items:
@@ -3124,7 +3124,7 @@ components:
                 - number
                 - object
                 - string
-                - 
+                -
             enum:
               type: array
         maxItems:
@@ -3168,7 +3168,7 @@ components:
             - number
             - object
             - string
-            - 
+            -
         required:
           type: array
           items:
@@ -3207,7 +3207,7 @@ components:
                 - number
                 - object
                 - string
-                - 
+                -
             enum:
               type: array
         maxItems:
@@ -3255,7 +3255,7 @@ components:
             - number
             - object
             - string
-            - 
+            -
         required:
           type: array
           items:
@@ -3294,7 +3294,7 @@ components:
                 - number
                 - object
                 - string
-                - 
+                -
             enum:
               type: array
         maxItems:
@@ -3361,7 +3361,7 @@ components:
                         - number
                         - object
                         - string
-                        - 
+                        -
                     required:
                       type: array
                       items:
@@ -3399,7 +3399,7 @@ components:
                             - number
                             - object
                             - string
-                            - 
+                            -
                         enum:
                           type: array
                     maxItems:
@@ -3491,7 +3491,7 @@ components:
                   - number
                   - object
                   - string
-                  - 
+                  -
               required:
                 type: array
                 items:
@@ -3529,7 +3529,7 @@ components:
                       - number
                       - object
                       - string
-                      - 
+                      -
                   enum:
                     type: array
               maxItems:
@@ -3605,7 +3605,7 @@ components:
                   - number
                   - object
                   - string
-                  - 
+                  -
               required:
                 type: array
                 items:
@@ -3643,7 +3643,7 @@ components:
                       - number
                       - object
                       - string
-                      - 
+                      -
                   enum:
                     type: array
               maxItems:
@@ -3723,7 +3723,7 @@ components:
                   - number
                   - object
                   - string
-                  - 
+                  -
               required:
                 type: array
                 items:
@@ -3761,7 +3761,7 @@ components:
                       - number
                       - object
                       - string
-                      - 
+                      -
                   enum:
                     type: array
               maxItems:
@@ -3931,7 +3931,7 @@ components:
               id:
                 type: string
                 description: An identifier for the image
-                pattern: 
+                pattern:
                   ^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$
               name:
                 type:
@@ -4014,7 +4014,7 @@ components:
                   - string
                 description: Format of the container
                 enum:
-                  - 
+                  -
                   - ami
                   - ari
                   - aki
@@ -4029,7 +4029,7 @@ components:
                   - string
                 description: Format of the disk
                 enum:
-                  - 
+                  -
                   - ami
                   - ari
                   - aki
@@ -4150,7 +4150,7 @@ components:
         id:
           type: string
           description: An identifier for the image
-          pattern: 
+          pattern:
             ^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$
         name:
           type:
@@ -4232,7 +4232,7 @@ components:
             - string
           description: Format of the container
           enum:
-            - 
+            -
             - ami
             - ari
             - aki
@@ -4247,7 +4247,7 @@ components:
             - string
           description: Format of the disk
           enum:
-            - 
+            -
             - ami
             - ari
             - aki
@@ -4350,7 +4350,7 @@ components:
         id:
           type: string
           description: An identifier for the image
-          pattern: 
+          pattern:
             ^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$
         name:
           type:
@@ -4432,7 +4432,7 @@ components:
             - string
           description: Format of the container
           enum:
-            - 
+            -
             - ami
             - ari
             - aki
@@ -4447,7 +4447,7 @@ components:
             - string
           description: Format of the disk
           enum:
-            - 
+            -
             - ami
             - ari
             - aki
@@ -4550,7 +4550,7 @@ components:
         id:
           type: string
           description: An identifier for the image
-          pattern: 
+          pattern:
             ^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$
         name:
           type:
@@ -4632,7 +4632,7 @@ components:
             - string
           description: Format of the container
           enum:
-            - 
+            -
             - ami
             - ari
             - aki
@@ -4647,7 +4647,7 @@ components:
             - string
           description: Format of the disk
           enum:
-            - 
+            -
             - ami
             - ari
             - aki
@@ -4754,7 +4754,7 @@ components:
             properties:
               id:
                 description: An identifier for the task
-                pattern: 
+                pattern:
                   ^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$
                 type: string
               type:
@@ -4900,7 +4900,7 @@ components:
               image_id:
                 type: string
                 description: An identifier for the image
-                pattern: 
+                pattern:
                   ^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$
               created_at:
                 type: string
@@ -4944,7 +4944,7 @@ components:
         image_id:
           type: string
           description: An identifier for the image
-          pattern: 
+          pattern:
             ^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$
         created_at:
           type: string
@@ -4972,7 +4972,7 @@ components:
         image_id:
           type: string
           description: An identifier for the image
-          pattern: 
+          pattern:
             ^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$
         created_at:
           type: string
@@ -5003,7 +5003,7 @@ components:
         image_id:
           type: string
           description: An identifier for the image
-          pattern: 
+          pattern:
             ^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$
         created_at:
           type: string
@@ -5030,7 +5030,7 @@ components:
       properties:
         id:
           description: An identifier for the task
-          pattern: 
+          pattern:
             ^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$
           type: string
         type:
@@ -5104,7 +5104,7 @@ components:
             properties:
               id:
                 description: An identifier for the task
-                pattern: 
+                pattern:
                   ^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$
                 type: string
               type:
@@ -5169,7 +5169,7 @@ components:
       properties:
         id:
           description: An identifier for the task
-          pattern: 
+          pattern:
             ^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$
           type: string
         type:

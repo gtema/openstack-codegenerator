@@ -14,12 +14,12 @@ import inspect
 import logging
 from pathlib import Path
 
-from generator.common.schema import ParameterSchema
-from generator.common.schema import PathSchema
-from generator.common.schema import SpecSchema
-from generator.common.schema import TypeSchema
-from generator.openapi.base import OpenStackServerSourceBase
-from generator.openapi.utils import merge_api_ref_doc
+from codegenerator.common.schema import ParameterSchema
+from codegenerator.common.schema import PathSchema
+from codegenerator.common.schema import SpecSchema
+from codegenerator.common.schema import TypeSchema
+from codegenerator.openapi.base import OpenStackServerSourceBase
+from codegenerator.openapi.utils import merge_api_ref_doc
 from keystone.assignment import schema as assignment_schema
 from keystone.auth import schema as auth_schema
 from keystone.identity import schema as identity_schema
@@ -148,8 +148,8 @@ DOMAIN_CONFIG_GROUP_IDENTITY = TypeSchema(
                 "type": "string",
                 "description": "The Identity backend driver.",
             },
-            "additionalProperties": True,
         },
+        "additionalProperties": True,
     }
 )
 
@@ -259,6 +259,20 @@ class KeystoneGenerator(OpenStackServerSourceBase):
                             "in": "header",
                             "name": "X-Auth-Token",
                         }
+                    },
+                    headers={
+                        "X-Auth-Token": {
+                            "description": "A valid authentication token",
+                            "schema": {"type": "string", "format": "secret"},
+                        },
+                    },
+                    parameters={
+                        "X-Auth-Token": {
+                            "in": "header",
+                            "name": "X-Auth-Token",
+                            "description": "A valid authentication token",
+                            "schema": {"type": "string", "format": "secret"},
+                        },
                     },
                 ),
             )

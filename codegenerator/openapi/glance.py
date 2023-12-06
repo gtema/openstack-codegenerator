@@ -14,9 +14,9 @@ import copy
 from pathlib import Path
 
 import routes
-from generator.common.schema import SpecSchema, TypeSchema
-from generator.openapi.base import OpenStackServerSourceBase
-from generator.openapi.utils import merge_api_ref_doc
+from codegenerator.common.schema import SpecSchema, TypeSchema
+from codegenerator.openapi.base import OpenStackServerSourceBase
+from codegenerator.openapi.utils import merge_api_ref_doc
 from glance.api.v2 import image_members
 from glance.api.v2 import images
 from glance.api.v2 import metadef_namespaces

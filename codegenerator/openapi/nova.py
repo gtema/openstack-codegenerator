@@ -12,15 +12,15 @@
 #
 from pathlib import Path
 
-from generator.common.schema import (
+from codegenerator.common.schema import (
     SpecSchema,
     TypeSchema,
     ParameterSchema,
     HeaderSchema,
 )
-from generator.openapi.base import OpenStackServerSourceBase
-from generator.openapi import nova_schemas
-from generator.openapi.utils import merge_api_ref_doc
+from codegenerator.openapi.base import OpenStackServerSourceBase
+from codegenerator.openapi import nova_schemas
+from codegenerator.openapi.utils import merge_api_ref_doc
 from nova.api.openstack import api_version_request
 from nova.api.openstack.compute import routes
 from nova.api.openstack.compute.schemas import flavor_manage

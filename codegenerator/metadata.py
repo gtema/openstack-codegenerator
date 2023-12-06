@@ -11,16 +11,19 @@
 #   under the License.
 #
 import pathlib
-import json
 import logging
+import re
 
-from generator.base import BaseGenerator
-from generator.common.schema import SpecSchema
-from generator.common import get_resource_names_from_url
-from generator.types import Metadata
-from generator.types import OperationModel
-from generator.types import OperationTargetParams
-from generator.types import ResourceModel
+from codegenerator.base import BaseGenerator
+from codegenerator.common.schema import SpecSchema
+from codegenerator.common import get_resource_names_from_url
+from codegenerator.types import Metadata
+
+# from codegenerator.types import CommandTypeEnum
+from codegenerator.types import OperationModel
+from codegenerator.types import OperationTargetParams
+from codegenerator.types import ResourceModel
+import jsonref
 from ruamel.yaml import YAML
 
 
@@ -33,7 +36,7 @@ class MetadataGenerator(BaseGenerator):
             return
         yaml = YAML(typ="safe")
         with open(path, "r") as fp:
-            spec = yaml.load(fp)
+            spec = jsonref.replace_refs(yaml.load(fp))
 
         return SpecSchema(**spec)
 
@@ -122,36 +125,64 @@ class MetadataGenerator(BaseGenerator):
                         if operation_name == "action":
                             # For action we actually have multiple independent operations
                             try:
-                                bodies = operation.requestBody["content"][
+                                body_schema = operation.requestBody["content"][
                                     "application/json"
-                                ]["schema"]["oneOf"]
+                                ]["schema"]
+                                bodies = body_schema["oneOf"]
+                                discriminator = body_schema.get(
+                                    "x-openstack", {}
+                                ).get("discriminator")
+                                if discriminator != "action":
+                                    raise RuntimeError(
+                                        "Cannot generate metadata for %s since requet body is not having action discriminator"
+                                        % path
+                                    )
                                 for body in bodies:
-                                    print(f"action {body}")
+                                    action_name = body.get(
+                                        "x-openstack", {}
+                                    ).get("action-name")
+                                    if not action_name:
+                                        action_name = list(
+                                            body["properties"].keys()
+                                        )[0]
+                                    command_name = "-".join(
+                                        re.sub(
+                                            "([A-Z][a-z]+)",
+                                            r" \1",
+                                            re.sub(
+                                                "([A-Z]+)", r" \1", action_name
+                                            ),
+                                        ).split()
+                                    ).lower()
+                                    rust_sdk_params = OperationTargetParams(
+                                        command_name=action_name,
+                                    )
+                                    rust_sdk_params.command_type = "action"
+                                    op_model = OperationModel(
+                                        operation_id=operation.operationId,
+                                        targets=dict(),
+                                    )
+
+                                    op_model.targets[
+                                        "rust-sdk"
+                                    ] = rust_sdk_params
+                                    resource_model.operations[
+                                        command_name
+                                    ] = op_model
+
                             except KeyError:
                                 raise RuntimeError(
                                     "Cannot get bodies for %s" % path
                                 )
-                        rust_sdk_params = get_rust_sdk_operation_args(
-                            operation_name
-                        )
+                        else:
+                            rust_sdk_params = get_rust_sdk_operation_args(
+                                operation_name
+                            )
 
-                        # OperationTargetParams()
-                        # if operation_name == "list_detailed":
-                        #    rust_sdk_params.command_type = "list"
-                        # elif operation_name == "get":
-                        #    rust_sdk_params.command_type = "show"
-                        # elif operation_name in ["update", "replace"]:
-                        #    rust_sdk_params.command_type = "set"
-                        # elif operation_name in ["delete_all"]:
-                        #    rust_sdk_params.command_type = "delete"
-                        # else:
-                        #    rust_sdk_params.command_type = operation_name
-                        # if operation_name != rust_sdk_params.command_type:
-                        #    rust_sdk_params.alternative_module_name = (
-                        #        operation_name
-                        #    )
-                        op_model.targets["rust-sdk"] = rust_sdk_params
-                        resource_model.operations[operation_name] = op_model
+                            op_model.targets["rust-sdk"] = rust_sdk_params
+                            resource_model.operations[
+                                operation_name
+                            ] = op_model
                     pass
         yaml = YAML()
         yaml.preserve_quotes = True

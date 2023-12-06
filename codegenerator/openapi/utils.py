@@ -14,9 +14,11 @@ import logging
 import re
 
 from bs4 import BeautifulSoup
-from generator.common.schema import TypeSchema
+from codegenerator.common.schema import TypeSchema
 from markdownify import markdownify as md
 from ruamel.yaml.scalarstring import LiteralScalarString
+
+# import jsonref
 
 
 def merge_api_ref_doc(
@@ -32,6 +34,8 @@ def merge_api_ref_doc(
     """
     with open(api_ref_src, "r") as fp:
         html_doc = fp.read()
+
+    # openapi_spec = jsonref.replace_refs(openapi_spec)
 
     soup = BeautifulSoup(html_doc, "html.parser")
     docs_title = soup.find("div", class_="docs-title")
@@ -165,17 +169,23 @@ def merge_api_ref_doc(
                     if (
                         details_child.h3
                         and "Request" in details_child.h3.strings
+                    ) or (
+                        details_child.h4
+                        and "Request" in details_child.h4.strings
                     ):
                         # Found request details
                         if not details_child.table:
                             logging.warn(
-                                "No Parameters description table found for %s in html"
-                                % url
+                                "No Parameters description table found for %s:%s in html",
+                                url,
+                                method,
                             )
 
                             continue
                         logging.debug(
-                            "Processing Request parameters for %s" % url
+                            "Processing Request parameters for %s:%s",
+                            url,
+                            method,
                         )
 
                         spec_body = (
@@ -183,96 +193,22 @@ def merge_api_ref_doc(
                             .get("application/json", {})
                             .get("schema")
                         )
-                        schema_specs = []
                         if not spec_body:
                             logging.debug(
-                                "No request body present in the spec"
+                                "No request body present in the spec for %s:%s",
+                                url,
+                                method,
                             )
                             continue
-                        if isinstance(spec_body, TypeSchema):
-                            spec_body_ref = spec_body.ref
-                            spec_body_oneOf = spec_body.oneOf
-                        else:
-                            spec_body_ref = spec_body.get("$ref")
-                            spec_body_oneOf = spec_body.get("oneOf")
-                        if spec_body_ref:
-                            candidate_schema = (
-                                openapi_spec.components.schemas.get(
-                                    spec_body_ref.split("/")[-1]
-                                )
-                            )
-                            oneOf = (
-                                candidate_schema.oneOf
-                                if isinstance(candidate_schema, TypeSchema)
-                                else candidate_schema.oneOf
-                            )
-                            if oneOf:
-                                for x in oneOf:
-                                    if not x["$ref"]:
-                                        continue
-                                    schema_specs.append(
-                                        openapi_spec.components.schemas.get(
-                                            x["$ref"].split("/")[-1]
-                                        )
-                                    )
-                            else:
-                                schema_specs.append(candidate_schema)
+                        (schema_specs, action_name) = _get_schema_candidates(
+                            openapi_spec,
+                            url,
+                            spec_body,
+                            action_name,
+                            summary,
+                            description,
+                        )
 
-                        elif spec_body_oneOf:
-                            for x in spec_body_oneOf:
-                                logging.debug(
-                                    "Analyzing %s as an operation body candidate",
-                                    x,
-                                )
-                                res = get_schema(openapi_spec, x)
-                                if url.endswith("/action"):
-                                    # For the actions we search for the
-                                    # matching entity
-                                    candidate_action_name = None
-                                    if isinstance(res, TypeSchema):
-                                        ext = res.openstack
-                                    else:
-                                        ext = res.get("x-openstack")
-                                    if ext:
-                                        candidate_action_name = ext.get(
-                                            "action-name"
-                                        )
-                                    if not candidate_action_name:
-                                        # Not able to figure out action name, abort
-                                        continue
-
-                                    if candidate_action_name and (
-                                        candidate_action_name in summary
-                                        or candidate_action_name
-                                        in "".join(description)
-                                    ):
-                                        # This is an action we are hopefully interested in
-                                        # Now we can have single schema or multiple (i.e. microversions)
-                                        if isinstance(res, TypeSchema):
-                                            itms = res.oneOf
-                                        elif isinstance(res, dict):
-                                            itms = res.get("oneOf")
-                                        if itms:
-                                            for itm in itms:
-                                                schema_specs.append(
-                                                    get_schema(
-                                                        openapi_spec, itm
-                                                    )
-                                                )
-                                        schema_specs.append(res)
-                                        # Set the action name. Since
-                                        # Request normally comes before
-                                        # the response we can reuse it
-                                        # later.
-                                        action_name = candidate_action_name
-                                        res.description = LiteralScalarString(
-                                            md("".join(description))
-                                        )
-
-                                        break
-                                else:
-                                    # this is not an action, just add it to schemas
-                                    schema_specs.append(res)
                         _doc_process_operation_table(
                             details_child.table.tbody,
                             openapi_spec,
@@ -280,20 +216,35 @@ def merge_api_ref_doc(
                             schema_specs,
                             doc_source_param_mapping,
                         )
+                    # Neutron sometimes has h4 instead of h3 and "Response Parameters" instead of "Response"
                     elif (
                         details_child.h3
-                        and "Response" in details_child.h3.strings
+                        and (
+                            "Response" in details_child.h3.strings
+                            or "Response Parameters"
+                            in details_child.h3.strings
+                        )
+                    ) or (
+                        details_child.h4
+                        and (
+                            "Response" in details_child.h4.strings
+                            or "Response Parameters"
+                            in details_child.h4.strings
+                        )
                     ):
                         # Found response details
                         if not details_child.table:
                             logging.warn(
-                                "No Parameters description table found for %s in html"
-                                % url
+                                "No Response Parameters description table found for %s:%s in html",
+                                url,
+                                method,
                             )
 
                             continue
                         logging.debug(
-                            "Processing Response parameters for %s" % url
+                            "Processing Response parameters for %s:%s",
+                            url,
+                            method,
                         )
 
                         spec_body = None
@@ -308,66 +259,24 @@ def merge_api_ref_doc(
                                 )
                         if not spec_body:
                             logging.info(
-                                "Operation %s has no response bodyaccording to the spec",
+                                "Operation %s has no response body according to the spec",
                                 op_spec.operationId,
                             )
                             continue
-                        schema_specs = []
-                        if isinstance(spec_body, TypeSchema):
-                            ref = spec_body.ref
-                            oneOf = spec_body.oneOf
-                        else:
-                            ref = spec_body.get("$ref")
-                            oneOf = spec_body.get("oneOf")
-                        if spec_body and ref:
-                            candidate_schema = (
-                                openapi_spec.components.schemas.get(
-                                    ref.split("/")[-1]
-                                )
-                            )
-                            if candidate_schema.oneOf:
-                                for x in candidate_schema.oneOf:
-                                    if not x.get("$ref"):
-                                        continue
-                                    schema_specs.append(
-                                        openapi_spec.components.schemas.get(
-                                            x["$ref"].split("/")[-1]
-                                        )
-                                    )
-                            else:
-                                schema_specs.append(candidate_schema)
-
-                        elif spec_body and oneOf:
-                            for x in oneOf:
-                                res = get_schema(openapi_spec, x)
-
-                                if url.endswith("/action"):
-                                    # For the actions we search for the
-                                    # matching entity
-                                    candidate_action_name = None
-                                    if isinstance(res, TypeSchema):
-                                        ext = res.openstack
-                                    else:
-                                        ext = res.get("x-openstack")
-                                    if ext:
-                                        candidate_action_name = ext.get(
-                                            "action-name"
-                                        )
-                                    if not candidate_action_name:
-                                        # Not able to figure out action name, abort
-                                        continue
-                                    if candidate_action_name == action_name:
-                                        schema_specs.append(res)
-
-                                else:
-                                    schema_specs.append(res)
-                        _doc_process_operation_table(
-                            details_child.table.tbody,
-                            openapi_spec,
-                            op_spec,
-                            schema_specs,
-                            doc_source_param_mapping,
+                        (schema_specs, action_name) = _get_schema_candidates(
+                            openapi_spec, url, spec_body, action_name
                         )
+                        try:
+                            _doc_process_operation_table(
+                                details_child.table.tbody,
+                                openapi_spec,
+                                op_spec,
+                                schema_specs,
+                                doc_source_param_mapping,
+                            )
+                        except Exception:
+                            # No luck processing it as parameters table
+                            pass
 
             if not url.endswith("/action"):
                 pass
@@ -389,6 +298,7 @@ def _doc_process_operation_table(
     """Process DOC table (Request/Reseponse) and try to set description to
     the matching schema property"""
 
+    logging.debug("Processing %s", schema_specs)
     for row in tbody.find_all("tr"):
         tds = row.find_all("td")
         doc_param_name = tds[0].p.string.replace(" (Optional)", "")
@@ -401,11 +311,13 @@ def _doc_process_operation_table(
             for src_param in op_spec.parameters:
                 if src_param.ref:
                     pname = src_param.ref.split("/")[-1]
-                    param_def = openapi_spec.components.parameters[
+                    param_def = openapi_spec.components.parameters.get(
                         doc_source_param_mapping.get(pname, pname)
-                    ]
+                    )
                 else:
                     param_def = src_param
+                if not param_def:
+                    logging.warn("Cannot find parameter %s", src_param)
 
                 if (
                     param_def.location == doc_param_location
@@ -453,7 +365,7 @@ def _find_schema_property(schema, target_prop_name):
                 and target_prop_name.startswith(prop_name)
                 and prop_type == "object"
             ):
-                # block_device_mappingg_v2.tag like pattern
+                # block_device_mapping_v2.tag like pattern
                 candidate = _find_schema_property(
                     prop_def, target_prop_name[len(prop_name) + 1 :]
                 )
@@ -498,3 +410,94 @@ def get_schema(openapi_spec, ref):
         return openapi_spec.components.schemas.get(xref.split("/")[-1])
     else:
         return ref
+
+
+def _get_schema_candidates(
+    openapi_spec,
+    url,
+    spec_body,
+    action_name=None,
+    section_summary=None,
+    section_description=None,
+):
+    schema_specs = []
+    if isinstance(spec_body, TypeSchema):
+        ref = spec_body.ref
+        oneOf = spec_body.oneOf
+    else:
+        ref = spec_body.get("$ref")
+        oneOf = spec_body.get("oneOf")
+    if spec_body and ref:
+        candidate_schema = openapi_spec.components.schemas.get(
+            ref.split("/")[-1]
+        )
+        if candidate_schema.oneOf:
+            for x in candidate_schema.oneOf:
+                ref = x.get("$ref") if isinstance(x, dict) else x.ref
+                xtype = x.get("type") if isinstance(x, dict) else x.type
+                # if isinstance(x, TypeSchema) and not x.get("$ref"):
+                #    continue
+                if ref:
+                    schema_specs.append(
+                        openapi_spec.components.schemas.get(ref.split("/")[-1])
+                    )
+                elif xtype:
+                    # xtype is just to check that the
+                    # schema is not a ref and not empty
+                    schema_specs.append(x)
+        else:
+            schema_specs.append(candidate_schema)
+
+    elif spec_body and oneOf:
+        for x in oneOf:
+            res = get_schema(openapi_spec, x)
+
+            if url.endswith("/action"):
+                # For the actions we search for the
+                # matching entity
+                candidate_action_name = None
+                if isinstance(res, TypeSchema):
+                    ext = res.openstack
+                else:
+                    ext = res.get("x-openstack")
+                if ext:
+                    candidate_action_name = ext.get("action-name")
+                if not candidate_action_name:
+                    # Not able to figure out action name, abort
+                    continue
+
+                if candidate_action_name == action_name:
+                    # We know which action we are searching for (most likely we process reponse
+                    schema_specs.append(res)
+
+                elif not action_name and section_description:
+                    if candidate_action_name and (
+                        candidate_action_name in section_summary
+                        or candidate_action_name
+                        in "".join(section_description)
+                    ):
+                        # This is an action we are hopefully interested in
+                        # Now we can have single schema or multiple (i.e. microversions)
+                        if isinstance(res, TypeSchema):
+                            itms = res.oneOf
+                        elif isinstance(res, dict):
+                            itms = res.get("oneOf")
+                        if itms:
+                            for itm in itms:
+                                schema_specs.append(
+                                    get_schema(openapi_spec, itm)
+                                )
+                        schema_specs.append(res)
+                        # Set the action name. Since
+                        # Request normally comes before
+                        # the response we can reuse it
+                        # later.
+                        action_name = candidate_action_name
+                        res.description = LiteralScalarString(
+                            md("".join(section_description))
+                        )
+
+            else:
+                schema_specs.append(res)
+
+    return (schema_specs, action_name)

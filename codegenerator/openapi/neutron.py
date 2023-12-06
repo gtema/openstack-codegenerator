@@ -12,14 +12,16 @@
 #
 import logging
 from pathlib import Path
+import re
 import tempfile
 
-from generator.common.schema import ParameterSchema
-from generator.common.schema import PathSchema
-from generator.common.schema import SpecSchema
-from generator.common.schema import TypeSchema
-from generator.openapi.base import OpenStackServerSourceBase
-from generator.openapi.utils import merge_api_ref_doc
+from codegenerator.common.schema import ParameterSchema
+from codegenerator.common.schema import PathSchema
+from codegenerator.common.schema import SpecSchema
+from codegenerator.common.schema import TypeSchema
+from codegenerator.openapi.base import OpenStackServerSourceBase
+from codegenerator.openapi.base import VERSION_RE
+from codegenerator.openapi.utils import merge_api_ref_doc
 from neutron.common import config as neutron_config
 from neutron.conf.plugins.ml2 import config as ml2_config
 from neutron import manager
@@ -292,7 +294,9 @@ paste.app_factory = neutron.api.v2.router:APIRouter.factory
         self._sanitize_param_ver_info(openapi_spec, self.min_api_version)
 
         if args.api_ref_src:
-            merge_api_ref_doc(openapi_spec, args.api_ref_src)
+            merge_api_ref_doc(
+                openapi_spec, args.api_ref_src, allow_strip_version=False
+            )
 
         self.dump_openapi(openapi_spec, Path(impl_path), args.validate)
 
@@ -353,6 +357,9 @@ paste.app_factory = neutron.api.v2.router:APIRouter.factory
         path_params = set()
         # Get Path elements
         path_elements = list(filter(None, path.split("/")))
+        if path_elements and VERSION_RE.match(path_elements[0]):
+            path_elements.pop(0)
+
         operation_tags = self._get_tags_for_url(path)
 
         # Build path parameters (/foo/{foo_id}/bar/{id} => $foo_id, $foo_bar_id)
@@ -391,7 +398,6 @@ paste.app_factory = neutron.api.v2.router:APIRouter.factory
             else:
                 path_resource_names.append(path_element.replace("-", "_"))
 
-        # Set operationId
         if len(path_elements) == 0:
             path_resource_names.append("root")
         elif path_elements[-1].startswith("{"):
@@ -402,9 +408,12 @@ paste.app_factory = neutron.api.v2.router:APIRouter.factory
                 rn = rn.rstrip("s")
             path_resource_names[-1] = rn
 
-        operation_id = (
+        # Set operationId
+        operation_id = re.sub(
+            r"^(/?v[0-9.]*/)",
+            "",
             "/".join([x.strip("{}") for x in path_elements])
-            + f":{method.lower()}"  # noqa
+            + f":{method.lower()}",  # noqa
         )
 
         path_spec = openapi_spec.paths.setdefault(

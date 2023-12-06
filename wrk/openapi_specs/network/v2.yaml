@@ -13734,7 +13734,7 @@ components:
               data_plane_status:
                 type: string
                 enum:
-                  - 
+                  -
                   - ACTIVE
                   - DOWN
               extra_dhcp_opts:
@@ -13761,7 +13761,7 @@ components:
                   - required
                   - preferred
                   - legacy
-                  - 
+                  -
               resource_request:
                 type: string
               binding:vif_type:
@@ -13895,7 +13895,7 @@ components:
                 - required
                 - preferred
                 - legacy
-                - 
+                -
             binding:vnic_type:
               type: string
               enum:
@@ -13998,7 +13998,7 @@ components:
             data_plane_status:
               type: string
               enum:
-                - 
+                -
                 - ACTIVE
                 - DOWN
             extra_dhcp_opts:
@@ -14025,7 +14025,7 @@ components:
                 - required
                 - preferred
                 - legacy
-                - 
+                -
             resource_request:
               type: string
             binding:vif_type:
@@ -14642,7 +14642,7 @@ components:
             data_plane_status:
               type: string
               enum:
-                - 
+                -
                 - ACTIVE
                 - DOWN
             extra_dhcp_opts:
@@ -14669,7 +14669,7 @@ components:
                 - required
                 - preferred
                 - legacy
-                - 
+                -
             resource_request:
               type: string
             binding:vif_type:
@@ -14778,7 +14778,7 @@ components:
             data_plane_status:
               type: string
               enum:
-                - 
+                -
                 - ACTIVE
                 - DOWN
             extra_dhcp_opts:
@@ -14798,7 +14798,7 @@ components:
                 - required
                 - preferred
                 - legacy
-                - 
+                -
             binding:vnic_type:
               type: string
               enum:
@@ -14891,7 +14891,7 @@ components:
             data_plane_status:
               type: string
               enum:
-                - 
+                -
                 - ACTIVE
                 - DOWN
             extra_dhcp_opts:
@@ -14918,7 +14918,7 @@ components:
                 - required
                 - preferred
                 - legacy
-                - 
+                -
             resource_request:
               type: string
             binding:vif_type:

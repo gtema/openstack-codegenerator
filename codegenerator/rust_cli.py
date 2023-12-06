@@ -16,8 +16,8 @@ import logging
 from pathlib import Path
 import subprocess
 
-from generator.base import BaseGenerator
-from generator import common
+from codegenerator.base import BaseGenerator
+from codegenerator import common
 
 OPENAPI_RUST_TYPE_MAPPING = {
     "string": {"default": "String"},

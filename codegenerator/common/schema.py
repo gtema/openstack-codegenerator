@@ -193,15 +193,8 @@ class ComponentsSchema(BaseModel):
 
 class SpecSchema(BaseModel):
     class Config:
-        # You can override these fields, which affect JSON and YAML:
-        # json_dumps = my_custom_dumper
-        # json_loads = lambda x: SpecSchema()
-        # As well as other Pydantic configuration:
-        # allow_mutation = False
         pupulate_by_name = True
         extra = "allow"
-
-    # model_config = ConfigDict(extra="allow", populate_by_name=True)
 
     openapi: str
     info: dict

@@ -32,7 +32,6 @@ repos:
       - id: flake8
         name: flake8
         additional_dependencies:
-          - hacking>=6.0.1,<6.1.0
           - flake8-import-order>=0.18.2,<0.19.0
         language: python
         entry: flake8
@@ -50,35 +49,5 @@ repos:
         # keep this in-sync with '[mypy] exclude' in 'setup.cfg'
         exclude: |
           (?x)(
-            openstack/tests/ansible/.*
-            | openstack/tests/functional/.*
-            | openstack/tests/unit/.*
-            | openstack/tests/fixtures.py
-            | openstack/accelerator/.*
-            | openstack/baremetal/.*
-            | openstack/baremetal_introspection/.*
-            | openstack/block_storage/.*
-            | openstack/cloud/.*
-            | openstack/clustering/.*
-            | openstack/compute/.*
-            | openstack/container_infrastructure_management/.*
-            | openstack/database/.*
-            | openstack/dns/.*
-            | openstack/fixture/.*
-            | openstack/identity/.*
-            | openstack/image/.*
-            | openstack/instance_ha/.*
-            | openstack/key_manager/.*
-            | openstack/load_balancer/.*
-            | openstack/message/.*
-            | openstack/network/.*
-            | openstack/object_store/.*
-            | openstack/orchestration/.*
-            | openstack/placement/.*
-            | openstack/shared_file_system/.*
-            | openstack/workflow/.*
-            | doc/.*
-            | examples/.*
-            | releasenotes/.*
-            | codegenerator/generator/.*
+            codegenerator/.*
           )

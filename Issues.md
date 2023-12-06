@@ -9,3 +9,13 @@
 - a way of specifying whether field should be presented in the list (or list -o
   wide) need to be found.
 - stricter fields types must be defined (especially python int vs u8, i32, etc)
+
+
+## Neutron
+
+- need to find maximum possible configuration
+- from api_def it is not always clear whether specific resource operation is
+  available. I.e. auto-allocated-topology api-def specifies all attributes
+  allow-post: False, but the controller is still exposed
+  : method: POST, uri: http://192.168.122.63:9696/networking/v2.0/auto-allocated-topology/906e1808a0ca4aeeb3680be889db0625 returns 400
+- POST call to /availability_zones is possible, but return 400
