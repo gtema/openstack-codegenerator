@@ -15,8 +15,8 @@ import logging
 import re
 
 from codegenerator.base import BaseGenerator
+from codegenerator import common
 from codegenerator.common.schema import SpecSchema
-from codegenerator.common import get_resource_names_from_url
 from codegenerator.types import Metadata
 
 # from codegenerator.types import CommandTypeEnum
@@ -53,7 +53,7 @@ class MetadataGenerator(BaseGenerator):
         api_ver = "v" + schema.info["version"].split(".")[0]
         for path, spec in schema.paths.items():
             resource_name = "/".join(
-                [x for x in get_resource_names_from_url(path)]
+                [x for x in common.get_resource_names_from_url(path)]
             )
             resource_model = metadata.resources.setdefault(
                 f"{args.service_type}.{resource_name}",
@@ -72,21 +72,21 @@ class MetadataGenerator(BaseGenerator):
                     op_model = OperationModel(
                         operation_id=operation.operationId, targets=dict()
                     )
-                    operation_name = ""
+                    operation_key: str | None = None
 
                     if path.endswith("}"):
                         if method == "get":
-                            operation_name = "show"
+                            operation_key = "show"
                         elif method == "put":
-                            operation_name = "update"
+                            operation_key = "update"
                         elif method == "delete":
-                            operation_name = "delete"
+                            operation_key = "delete"
                     elif path.endswith("/detail"):
                         if method == "get":
-                            operation_name = "list_detailed"
+                            operation_key = "list_detailed"
                     elif path.endswith("/action"):
                         # Action
-                        operation_name = "action"
+                        operation_key = "action"
                     elif (
                         len(
                             [
@@ -102,27 +102,29 @@ class MetadataGenerator(BaseGenerator):
                         # likely we are at the collection
                         # level
                         if method == "get":
-                            operation_name = "list"
+                            operation_key = "list"
                         elif method == "post":
-                            operation_name = "create"
+                            operation_key = "create"
                         elif method == "put":
-                            operation_name = "replace"
+                            operation_key = "replace"
                         elif method == "delete":
-                            operation_name = "delete_all"
+                            operation_key = "delete_all"
                     elif method == "get":
-                        operation_name = "get"
+                        operation_key = "get"
                     elif method == "post":
-                        operation_name = "create"
+                        operation_key = "create"
                     elif method == "put":
-                        operation_name = path.split("/")[-1]
+                        operation_key = path.split("/")[-1]
                     elif method == "delete":
-                        operation_name = "delete"
-                    if not operation_name:
-                        print(f"Cannot identify op name for {path}:{method}")
-                    if operation_name in resource_model:
+                        operation_key = "delete"
+                    if not operation_key:
+                        logging.warn(
+                            f"Cannot identify op name for {path}:{method}"
+                        )
+                    if operation_key in resource_model:
                         raise RuntimeError("Operation name conflict")
                     else:
-                        if operation_name == "action":
+                        if operation_key == "action":
                             # For action we actually have multiple independent operations
                             try:
                                 body_schema = operation.requestBody["content"][
@@ -145,29 +147,63 @@ class MetadataGenerator(BaseGenerator):
                                         action_name = list(
                                             body["properties"].keys()
                                         )[0]
-                                    command_name = "-".join(
-                                        re.sub(
-                                            "([A-Z][a-z]+)",
-                                            r" \1",
-                                            re.sub(
-                                                "([A-Z]+)", r" \1", action_name
-                                            ),
-                                        ).split()
+                                    # Hardcode fixes
+                                    if (
+                                        resource_name == "flavor"
+                                        and action_name
+                                        in ["update", "create", "delete"]
+                                    ):
+                                        # Flavor update/create/delete
+                                        # operations are exposed ALSO as wsgi
+                                        # actions. This is wrong and useless.
+                                        logging.warn(
+                                            "Skipping generating %s:%s action",
+                                            resource_name,
+                                            action_name,
+                                        )
+                                        continue
+
+                                    operation_name = "-".join(
+                                        x.lower()
+                                        for x in re.split(
+                                            common.SPLIT_NAME_RE, action_name
+                                        )
                                     ).lower()
-                                    rust_sdk_params = OperationTargetParams(
-                                        command_name=action_name,
+                                    rust_sdk_params = (
+                                        get_rust_sdk_operation_args(
+                                            "action",
+                                            operation_name=action_name,
+                                            module_name=get_module_name(
+                                                action_name
+                                            ),
+                                        )
                                     )
-                                    rust_sdk_params.command_type = "action"
+                                    rust_cli_params = (
+                                        get_rust_cli_operation_args(
+                                            "action",
+                                            operation_name=action_name,
+                                            module_name=get_module_name(
+                                                action_name
+                                            ),
+                                        )
+                                    )
+
                                     op_model = OperationModel(
                                         operation_id=operation.operationId,
                                         targets=dict(),
                                     )
+                                    op_model.operation_type = (
+                                        "action"  # type: ignore
+                                    )
 
                                     op_model.targets[
-                                        "rust-sdk"
+                                        "rust-sdk"  # type: ignore
                                     ] = rust_sdk_params
+                                    op_model.targets[
+                                        "rust-cli"  # type: ignore
+                                    ] = rust_cli_params
                                     resource_model.operations[
-                                        command_name
+                                        operation_name
                                     ] = op_model
 
                             except KeyError:
@@ -175,15 +211,35 @@ class MetadataGenerator(BaseGenerator):
                                     "Cannot get bodies for %s" % path
                                 )
                         else:
+                            if not operation_key:
+                                raise NotImplementedError
+                            operation_type = get_operation_type_by_key(
+                                operation_key
+                            )
+                            op_model.operation_type = operation_type
+                            # NOTE: sdk gets operation_key and not operation_type
                             rust_sdk_params = get_rust_sdk_operation_args(
-                                operation_name
+                                operation_key
+                            )
+                            rust_cli_params = get_rust_cli_operation_args(
+                                operation_key
                             )
 
-                            op_model.targets["rust-sdk"] = rust_sdk_params
-                            resource_model.operations[
-                                operation_name
-                            ] = op_model
+                            op_model.targets["rust-sdk"] = rust_sdk_params  # type: ignore
+                            if rust_cli_params:
+                                op_model.targets["rust-cli"] = rust_cli_params  # type: ignore
+                            resource_model.operations[operation_key] = op_model
                     pass
+        for res_name, res_data in metadata.resources.items():
+            # Sanitize produced metadata
+            list_op = res_data.operations.get("list")
+            list_detailed_op = res_data.operations.get("list_detailed")
+            if list_op and list_detailed_op:
+                # There are both plain list and list with details operation.
+                # For the certain generator backend it makes no sense to have
+                # then both so we should disable generation of certain backends
+                # for the non detailed endpoint
+                list_op.targets.pop("rust-cli")  # type: ignore
         yaml = YAML()
         yaml.preserve_quotes = True
         yaml.default_flow_style = False
@@ -199,19 +255,58 @@ class MetadataGenerator(BaseGenerator):
             )
 
 
-def get_rust_sdk_operation_args(operation_name):
-    rust_sdk_params = OperationTargetParams()
-    if operation_name == "list_detailed":
-        rust_sdk_params.command_type = "list"
-    elif operation_name == "get":
-        rust_sdk_params.command_type = "show"
-    elif operation_name in ["update", "replace"]:
-        rust_sdk_params.command_type = "set"
-    elif operation_name in ["delete_all"]:
-        rust_sdk_params.command_type = "delete"
+def get_operation_type_by_key(operation_key):
+    if operation_key == "list_detailed":
+        return "list"
+    elif operation_key == "show":
+        return "show"
+    elif operation_key in ["update", "replace"]:
+        return "set"
+    elif operation_key in ["delete_all"]:
+        return "delete"
     else:
-        rust_sdk_params.command_type = operation_name
-    if operation_name != rust_sdk_params.command_type:
-        rust_sdk_params.alternative_module_name = operation_name
-    # op_model.targets["rust-sdk"] = rust_sdk_params
-    return rust_sdk_params
+        return operation_key
+
+
+def get_rust_sdk_operation_args(
+    operation_key: str,
+    operation_name: str | None = None,
+    module_name: str | None = None,
+):
+    """Construct proper Rust SDK parameters for operation by type"""
+    sdk_params = OperationTargetParams()
+    sdk_params.module_name = module_name
+    if operation_key == "show":
+        sdk_params.module_name = "get"
+    elif operation_key == "list_detailed":
+        sdk_params.module_name = "list_detailed"
+    else:
+        sdk_params.module_name = module_name or get_module_name(
+            get_operation_type_by_key(operation_key)
+        )
+    sdk_params.operation_name = operation_name
+
+    return sdk_params
+
+
+def get_rust_cli_operation_args(
+    operation_key: str,
+    operation_name: str | None = None,
+    module_name: str | None = None,
+):
+    """Construct proper Rust CLI parameters for operation by type"""
+    # Get SDK params to connect things with each other
+    operation_type = get_operation_type_by_key(operation_key)
+    sdk_params = get_rust_sdk_operation_args(
+        operation_key, operation_name=operation_name, module_name=module_name
+    )
+    cli_params = OperationTargetParams()
+    cli_params.sdk_mod_name = sdk_params.module_name
+    cli_params.module_name = module_name or get_module_name(operation_type)
+    cli_params.operation_name = operation_name
+
+    return cli_params
+
+
+def get_module_name(name):
+    return "_".join(x.lower() for x in re.split(common.SPLIT_NAME_RE, name))

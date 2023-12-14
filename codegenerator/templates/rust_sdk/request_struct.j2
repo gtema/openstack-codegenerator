@@ -1,26 +1,20 @@
+{#- Template to represent the root request structure -#}
 {%- import 'rust_macros.j2' as macros with context -%}
 {%- with data_type = type_manager.get_root_data_type() %}
-#[derive(Debug, Builder, Clone)]
+#[derive(Builder, Debug, Clone)]
 #[builder(setter(strip_option))]
-
-pub struct {{ data_type.name }}{{ ("<" + ",".join(data_type.lifetimes) + ">") if data_type.lifetimes else ""}} {
+pub struct {{ data_type.name }}{{ type_manager.get_request_static_lifetimes(data_type) }} {
   {%- for field in data_type.fields.values() %}
     {{ macros.docstring(field.description, indent=4) }}
     {{ field.builder_macros }}
     {{ field.local_name }}: {{ field.type_hint }},
   {%- endfor %}
 
-{%- for k, param in params.items() %}
-{%- if param.location in ["path", "query", "body"] %}
-{%- if param.type != "null" %}
-{{ macros.docstring(param.description, indent=4) }}
-{%- for macros in param.param_macros %}
-    {{ macros }}
+{%- for k, param in type_manager.parameters.items() %}
+    {{ macros.docstring(param.description, indent=4) }}
+    {{ param.builder_macros }}
+    {{ param.local_name }}: {{ param.type_hint }},
 {%- endfor %}
-    {{ param.local_name }}: {{ param.type }},
-{%- endif %}
-{%- endif %}
-{% endfor %}
 
 {% if method|lower == "patch" %}
     /// Patch data
@@ -32,4 +26,3 @@ pub struct {{ data_type.name }}{{ ("<" + ",".join(data_type.lifetimes) + ">") if
     _headers: Option<HeaderMap>,
 }
 {%- endwith %}
-

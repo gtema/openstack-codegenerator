@@ -245,6 +245,8 @@ def main():
                         op_args.service_type = res.split(".")[0]
                     if not op_args.api_version:
                         op_args.api_version = res_data.api_version
+                    if not op_args.operation_type and op_data.operation_type:
+                        op_args.operation_type = op_data.operation_type
                     # if not op_data.alternative_module_name and args.target == "rust-sdk":
 
                     openapi_spec = generator.get_openapi_spec(
@@ -285,7 +287,7 @@ def main():
                     )
 
         if args.target == "rust-sdk" and not args.resource:
-            resource_results: dict[str, dict] = {}
+            resource_results: dict[str, dict] = dict()
             for mod_path, mod_name, path in res_mods:
                 mn = "/".join(mod_path)
                 x = resource_results.setdefault(

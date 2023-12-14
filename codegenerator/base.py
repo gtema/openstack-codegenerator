@@ -52,6 +52,17 @@ class BaseGenerator:
 
     @abc.abstractmethod
     def generate(
-        self, res, target_dir, spec=None, operation_id=None, args=None
+        self, res, target_dir, openapi_spec=None, operation_id=None, args=None
+    ):
+        pass
+
+    def generate_mod(
+        self,
+        target_dir,
+        mod_path,
+        mod_list: set[str],
+        url: str,
+        resouce_name: str,
+        service_name: str,
     ):
         pass

@@ -113,7 +113,7 @@ class NovaGenerator(OpenStackServerSourceBase):
         ref_name: str,
         param_name: str,
         param_location: str,
-        path: str = None,
+        path: str | None = None,
         **param_attrs,
     ):
         if ref_name == "os_instance_usage_audit_log_id":
@@ -588,6 +588,18 @@ class NovaGenerator(OpenStackServerSourceBase):
         ]:
             schema = openapi_spec.components.schemas.setdefault(
                 name, TypeSchema(**nova_schemas.SERVER_TAGS_SCHEMA)
+            )
+            ref = f"#/components/schemas/{name}"
+
+        # Compute extensions
+        elif name == "ExtensionsListResponse":
+            schema = openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**nova_schemas.EXTENSION_LIST_SCHEMA)
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name == "ExtensionShowResponse":
+            schema = openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**nova_schemas.EXTENSION_CONTAINER_SCHEMA)
             )
             ref = f"#/components/schemas/{name}"
         elif name in [

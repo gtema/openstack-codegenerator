@@ -10,52 +10,22 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 #
-import copy
 import logging
 from pathlib import Path
 import re
 import subprocess
-
-from pydantic import BaseModel
+from typing import Type, Any
 
 from codegenerator.base import BaseGenerator
 from codegenerator import common
-from codegenerator import types
 from codegenerator import model
-
-# from generator.common.schema import RestEndpointSchema
-
-OPENAPI_RUST_TYPE_MAPPING = {
-    "string": {"default": "Cow<'a, str>"},
-    "integer": {"default": "u32", "int32": "u32", "int64": "u64"},
-    "number": {"default": "f32", "float": "f32", "double": "f64"},
-    "boolean": {"default": "bool"},
-}
-
-
-class BasePrimitiveType(BaseModel):
-    lifetimes: str | None = None
-    imports: set[str] = set()
-    builder_macros: set[str] = set([])
-
-
-class BaseCombinedType(BaseModel):
-    """A Container Type (Array, Option)"""
-
-    pass
-
-
-class BaseCompoundType(BaseModel):
-    """A Complex Type (Enum/Struct)"""
-
-    name: str
-    base_type: str
-    description: str | None = None
-    macros: list[str] = []
+from codegenerator.common import BasePrimitiveType
+from codegenerator.common import BaseCompoundType
+from codegenerator.common import rust as common_rust
 
 
 class String(BasePrimitiveType):
-    lifetimes: str = set(["'a"])
+    lifetimes: set[str] = set(["'a"])
     imports: set[str] = set(["std::borrow::Cow"])
     builder_macros: set[str] = set(["setter(into)"])
 
@@ -63,154 +33,117 @@ class String(BasePrimitiveType):
     def type_hint(self):
         return "Cow<'a, str>"
 
-
-class Boolean(BasePrimitiveType):
-    @property
-    def type_hint(self):
-        return "bool"
+    def get_sample(self):
+        return '"foo"'
 
 
-class Number(BasePrimitiveType):
-    format: str | None = None
-
-    @property
-    def type_hint(self):
-        if self.format == "float":
-            return "f32"
-        elif self.format == "double":
-            return "f64"
-        else:
-            return "f32"
-
-
-class Integer(BasePrimitiveType):
-    format: str | None = None
-
-    @property
-    def type_hint(self):
-        if self.format == "int32":
-            return "i32"
-        elif self.format == "int64":
-            return "i64"
-        return "i32"
-
-
-class Null(BasePrimitiveType):
-    @property
-    def type_hint(self):
-        return "None::<String>"
-
-
-class JsonValue(BasePrimitiveType):
-    imports: set[str] = set(["serde_json::Value"])
-    builder_macros: set[str] = set(["setter(into)"])
-
-    @property
-    def type_hint(self):
-        return "Value"
-
-
-class EnumKind(BaseModel):
-    name: str
-    description: str | None = None
-    data_type: BasePrimitiveType | BaseCombinedType | BaseCompoundType
-
-    @property
-    def type_hint(self):
-        if isinstance(self.data_type, Struct):
-            return self.data_type.name
-        else:
-            return self.data_type.type_hint
-
-
-class Enum(BaseCompoundType):
-    base_type: str = "enum"
-    kinds: dict[str, EnumKind]
-
-    @property
-    def lifetimes(self):
-        lifetimes_ = set()
-        for kind in self.kinds.values():
-            if kind.data_type.lifetimes:
-                lifetimes_.update(kind.data_type.lifetimes)
-        return lifetimes_
-
-    @property
-    def type_hint(self):
-        return self.name
-
-    @property
-    def imports(self):
-        imports = set()
-        for kind in self.kinds.values():
-            imports.update(kind.data_type.imports)
-        return imports
-
+class Enum(common_rust.Enum):
     @property
     def builder_macros(self):
-        macros = set(["setter(into)"])
+        macros: set[str] = set(["setter(into)"])
         return macros
 
-
-class StructField(BaseModel):
-    local_name: str
-    description: str | None = None
-    data_type: BasePrimitiveType | BaseCombinedType | BaseCompoundType
-    is_optional: bool = True
-    is_nullable: bool = False
-    # macros: set(str) = set()
+    @property
+    def builder_container_macros(self):
+        return ""
 
     @property
-    def type_hint(self):
-        # return self.data_type
-        typ_hint = self.data_type.type_hint
+    def serde_container_macros(self):
+        return "#[serde(untagged)]"
+
+    @property
+    def derive_container_macros(self):
+        return "#[derive(Debug, Deserialize, Clone, Serialize)]"
+
+    def get_sample(self):
+        first_kind_name = list(self.kinds.keys())[0]
+        first_kind_val = list(self.kinds.values())[0]
+        res = (
+            self.name
+            + "::"
+            + first_kind_name
+            + "("
+            + first_kind_val.data_type.get_sample()
+            + (
+                ".into()"
+                if isinstance(first_kind_val.data_type, String)
+                else ""
+            )
+            + ")"
+        )
+        return res
+
+
+class StructField(common_rust.StructField):
+    @property
+    def builder_macros(self):
+        macros: set[str] = set([])
+        if not isinstance(self.data_type, BaseCompoundType):
+            macros.update(self.data_type.builder_macros)
+        elif not isinstance(self.data_type, common_rust.StringEnum):
+            macros.add("setter(into)")
+        if "private" in macros:
+            macros.add(f'setter(name="_{self.local_name}")')
         if self.is_optional:
-            typ_hint = f"Option<{typ_hint}>"
-        return typ_hint
+            macros.add("default")
+        return f"#[builder({', '.join(sorted(macros))})]"
 
     @property
-    def builder_macros(self):
-        macros = set(["default"])
-        macros.update(self.data_type.builder_macros)
-        # if isinstance(self.data_type, BaseCompoundType):
-        #    macros.add("private")
-        return f"[builder({', '.join(macros)})]"
+    def serde_macros(self):
+        macros = set([])
+        if self.local_name != self.remote_name:
+            macros.add(f'rename="{self.remote_name}"')
+        if self.is_optional:
+            macros.add('skip_serializing_if = "Option::is_none"')
+        return f"#[serde({', '.join(sorted(macros))})]"
 
 
-class Struct(BaseCompoundType):
-    base_type: str = "struct"
-    fields: dict[str, StructField] = {}
+class Struct(common_rust.Struct):
+    # field_type_class_ = StructField
+    field_type_class_: Type[StructField] | StructField = StructField
 
     @property
-    def lifetimes(self):
-        lifetimes_ = set()
+    def derive_container_macros(self):
+        return "#[derive(Builder, Debug, Deserialize, Clone, Serialize)]"
+
+    @property
+    def builder_container_macros(self):
+        return "#[builder(setter(strip_option))]"
+
+    @property
+    def serde_container_macros(self):
+        return ""
+
+    @property
+    def static_lifetime(self):
+        """Return Rust `<'lc>` lifetimes representation"""
+        return f"<{', '.join(self.lifetimes)}>" if self.lifetimes else ""
+
+    def get_sample(self):
+        res = [self.name + "Builder::default()"]
         for field in self.fields.values():
-            if field.data_type.lifetimes and (
-                isinstance(field.data_type, BasePrimitiveType)
-                or isinstance(field.data_type, BaseCombinedType)
-            ):
-                lifetimes_.update(field.data_type.lifetimes)
-        return lifetimes_
+            if not field.is_optional:
+                data = f".{field.local_name}("
+                data += field.data_type.get_sample()
+                data += ")"
+                res.append(data)
+        res.append(".build().unwrap()")
+        return "".join(res)
 
-    @property
-    def type_hint(self):
-        return self.name
-
-    @property
-    def imports(self):
-        imports = set()
+    def get_mandatory_init(self):
+        res = []
         for field in self.fields.values():
-            imports.update(field.data_type.imports)
-        return imports
+            if not field.is_optional:
+                data = f".{field.local_name}("
+                data += field.data_type.get_sample()
+                data += ")"
+                res.append(data)
+        return "".join(res)
 
-    @property
-    def builder_macros(self):
-        macros = set(["setter(into)"])
-        return macros
 
-
-class Dictionary(BaseCombinedType):
-    value_type: BasePrimitiveType | BaseCombinedType | BaseCompoundType
+class BTreeMap(common_rust.Dictionary):
+    builder_macros: set[str] = set(["private"])
+    requires_builder_private_setter: bool = True
 
     @property
     def type_hint(self):
@@ -229,316 +162,53 @@ class Dictionary(BaseCombinedType):
             lt.update(self.value_type.lifetimes)
         return lt
 
+    # def get_sample(self):
+    #    return "BTreeSet::new()"
+
+
+class CommaSeparatedList(common_rust.CommaSeparatedList):
     @property
     def builder_macros(self):
-        macros = set(["setter(into)"])
-        return macros
+        return set()
 
 
-class Array(BaseCombinedType):
-    item_type: BasePrimitiveType | BaseCombinedType | BaseCompoundType
-
-    @property
-    def type_hint(self):
-        return f"Vec<{self.item_type.type_hint}>"
-
-    @property
-    def lifetimes(self):
-        return self.item_type.lifetimes
-
-    @property
-    def imports(self):
-        return self.item_type.imports
+class RequestParameter(common_rust.RequestParameter):
+    """OpenAPI request parameter in the Rust SDK form"""
 
     @property
     def builder_macros(self):
-        macros = set(["setter(into)"])
-        return macros
+        macros = self.data_type.builder_macros
+        macros.add("default")
+        if self.setter_name:
+            macros.add(f'setter(name="_{self.setter_name}")')
+            macros.add("private")
+            macros.remove("setter(into)")
+        return f"#[builder({', '.join(macros)})]"
 
 
-class Option(BaseCombinedType):
-    base_type: str = "Option"
-    item_type: BasePrimitiveType | BaseCombinedType | BaseCompoundType
+class TypeManager(common_rust.TypeManager):
+    """Rust SDK type manager
 
-    @property
-    def type_hint(self):
-        return f"Option<{self.item_type.type_hint}>"
+    The class is responsible for converting ADT models into types suitable
+    for Rust (SDK).
 
-    @property
-    def lifetimes(self):
-        return self.item_type.lifetimes
+    """
 
-    @property
-    def imports(self):
-        return self.item_type.imports
+    primitive_type_mapping: dict[Type[model.PrimitiveType], Type[Any]] = {
+        model.PrimitiveString: String,
+        model.ConstraintString: String,
+    }
 
-    @property
-    def builder_macros(self):
-        macros = set(["setter(into)"])
-        return macros
+    data_type_mapping = {
+        model.Dictionary: BTreeMap,
+        model.Enum: Enum,
+        model.Struct: Struct,
+        model.CommaSeparatedList: CommaSeparatedList,
+    }
 
-
-data_type_mapping = {
-    model.PrimitiveString: String,
-    model.ConstraintString: String,
-    model.PrimitiveNumber: Number,
-    model.ConstraintNumber: Number,
-    model.ConstraintInteger: Integer,
-    model.PrimitiveBoolean: Boolean,
-    model.PrimitiveNull: Null,
-    model.PrimitiveAny: JsonValue,
-}
-
-
-def get_type(data_type):
-    typ = data_type_mapping.get(data_type.__class__)
-    if not typ:
-        raise RuntimeError("No mapping for %s" % data_type)
-    # if isinstance(data_type, model.Array):
-    #    if len(self.kinds) == 2:
-    #        typs = [x.__class__ for x in self.kinds]
-    #        if model.PrimitiveNull in typs:
-    #            # a) Type + Null -> Option
-    #            typ = [x for x in typs if x is not model.PrimitiveNull][0]
-    #            return f"Option<{get_type(typ).type_hint}>"
-    #        elif model.Array in typs:
-    #            list_type = [x for x in typs if x is model.Array][0]
-    #            item_type = [x for x in typs if x is not model.Array][0]
-
-    return typ(**data_type.model_dump())
-
-
-class TypeManager:
-    models: list = []
-    refs: dict = {}
-
-    def get_local_attribute_name(self, name):
-        return "_".join(x.lower() for x in re.split(r":|_|-", name))
-
-    def get_model_name(self, model_ref):
-        if not model_ref:
-            return "Root"
-        return "".join(x.title() for x in re.split(r":|_|-", model_ref.name))
-
-    def _get_adt_by_reference(self, model_ref):
-        for model_ in self.models:
-            if model_.reference == model_ref:
-                return model_
-        raise RuntimeError("Cannot find reference %s" % model_ref)
-
-    def get_dst_type(
-        self, type_model: model.PrimitiveType | model.ADT | model.Reference
-    ):
-        logging.debug("Get RustSDK type for %s", type_model)
-        model_ref = None
-        if isinstance(type_model, model.Reference):
-            model_ref = type_model
-            type_model = self._get_adt_by_reference(type_model)
-        elif isinstance(type_model, model.ADT):
-            # Direct composite type
-            model_ref = type_model.reference
-        else:
-            # Primitive
-            typ = data_type_mapping.get(type_model.__class__)
-            if not typ:
-                raise RuntimeError("No mapping for %s" % type_model)
-            logging.debug("Returning %s for %s", typ, type_model.__class__)
-            return typ(**type_model.model_dump())
-
-        # Composite type
-        if model_ref and model_ref in self.refs:
-            return self.refs[model_ref]
-        if isinstance(type_model, model.Array):
-            typ = self.get_array_type(type_model)
-        elif isinstance(type_model, model.Struct):
-            typ = self.get_struct_type(type_model)
-        elif isinstance(type_model, model.OneOfType):
-            typ = self.get_one_of_type(type_model)
-        elif isinstance(type_model, model.Dictionary):
-            typ = Dictionary(
-                value_type=self.get_dst_type(type_model.value_type)
-            )
-
-        self.refs[model_ref] = typ
-        return typ
-
-    def get_array_type(self, type_model):
-        return Array(
-            name=self.get_model_name(type_model.reference),
-            item_type=self.get_dst_type(type_model.item_type),
-        )
-
-    def get_one_of_type(self, type_model):
-        kinds: list[dict] = []
-        is_nullable: bool = False
-        result_data_type = None
-        for kind in type_model.kinds:
-            if isinstance(kind, model.PrimitiveNull):
-                # Remove null from candidates and instead wrap with Option
-                is_nullable = True
-                continue
-            kind_type = self.get_dst_type(kind)
-            is_type_already_present = False
-            for processed_kind_type in kinds:
-                if (
-                    isinstance(kind_type, BasePrimitiveType)
-                    and processed_kind_type["local"] == kind_type
-                ):
-                    logging.debug(
-                        "Simplifying oneOf with same mapped type %s [%s]",
-                        kind,
-                        type_model,
-                    )
-                    is_type_already_present = True
-                    break
-            if not is_type_already_present:
-                kinds.append(
-                    {
-                        "model": kind,
-                        "local": kind_type,
-                        "class": kind_type.__class__,
-                    }
-                )
-
-        # Simplify certain oneOf combinations
-        kinds_classes = [x["class"] for x in kinds]
-        if String in kinds_classes and Number in kinds_classes:
-            # oneOf [string, number] => number
-            for typ in list(kinds):
-                if typ["class"] == String:
-                    kinds.remove(typ)
-        elif String in kinds_classes and Integer in kinds_classes:
-            # oneOf [string, integer] => integer
-            for typ in list(kinds):
-                if typ["class"] == String:
-                    kinds.remove(typ)
-        elif String in kinds_classes and Boolean in kinds_classes:
-            # oneOf [string, boolean] => boolean
-            for typ in list(kinds):
-                if typ["class"] == String:
-                    kinds.remove(typ)
-
-        if len(kinds) == 2:
-            list_type = [x["local"] for x in kinds if x["class"] == Array]
-            if list_type:
-                # Typ + list[Typ] => Vec<Typ>
-                list_type = list_type[0]
-                item_type = [x["local"] for x in kinds if x["class"] != Array][
-                    0
-                ]
-                if item_type.__class__ == list_type.item_type.__class__:
-                    result_data_type = Array(item_type=item_type)
-        elif len(kinds) == 1:
-            result_data_type = kinds[0]["local"]
-
-        if not result_data_type:
-            result_data_type = Enum(
-                name=self.get_model_name(type_model.reference), kinds={}
-            )
-            cnt = 0
-            for kind in kinds:
-                cnt += 1
-                kind_data_type = kind["local"]
-                kind_description: str | None = None
-                if isinstance(kind["model"], model.ADT):
-                    kind_name = self.get_model_name(kind["model"])
-                    kind_description = kind["model"].description
-                else:
-                    kind_name = f"F{cnt}"
-                enum_kind = EnumKind(
-                    name=kind_name,
-                    description=kind_description,
-                    data_type=kind_data_type,
-                )
-                result_data_type.kinds[enum_kind.name] = enum_kind
-
-        if is_nullable:
-            result_data_type = Option(item_type=result_data_type)
-
-        return result_data_type
-
-    def get_struct_type(self, type_model):
-        mod = Struct(
-            name=self.get_model_name(type_model.reference),
-            description=type_model.description,
-        )
-        for field_name, field in type_model.fields.items():
-            is_nullable: bool = False
-            field_data_type = self.get_dst_type(field.data_type)
-            if isinstance(field_data_type, Option):
-                # Unwrap Option into "is_nullable"
-                # NOTE: but perhaps Option<Option> is
-                # better (not set vs set explicitly to
-                # None )
-                is_nullable = True
-                field_data_type = field_data_type.item_type
-            f = StructField(
-                local_name=self.get_local_attribute_name(field_name),
-                description=field.description,
-                data_type=field_data_type,
-                is_optional=not field.is_required,
-                is_nullable=is_nullable,
-            )
-            if isinstance(field_data_type, Option):
-                f.is_nullable = True
-            mod.fields[field_name] = f
-        return mod
-
-    def set_models(self, models):
-        """Process (translate) ADT models into Rust SDK style"""
-        self.models = models
-        unique_model_names: set[str] = set()
-        for model_ in models:
-            model_data_type = self.get_dst_type(model_)
-            if not isinstance(model_data_type, BaseCompoundType):
-                continue
-            name = getattr(model_data_type, "name", None)
-            if name and name in unique_model_names:
-                # There is already a model with this name. Try adding suffix from datatype name
-                new_name = name + model_data_type.__class__.__name__
-                if new_name not in unique_model_names:
-                    # New name is still unused
-                    model_data_type.name = new_name
-                    unique_model_names.add(new_name)
-                else:
-                    raise RuntimeError(
-                        "Model name %s is already present" % name
-                    )
-            elif name:
-                unique_model_names.add(name)
-
-    def get_subtypes(self):
-        """Get all subtypes excluding TLA"""
-        for k, v in self.refs.items():
-            if (
-                k
-                and (isinstance(v, Enum) or isinstance(v, Struct))
-                and v.name != "Root"
-            ):
-                yield v
-
-    def get_root_data_type(self):
-        """Get TLA type"""
-        for k, v in self.refs.items():
-            if not k:
-                return v
-
-    def get_imports(self):
-        imports = set()
-        for item in self.refs.values():
-            imports.update(item.imports)
-        return imports
-
-    def get_subtype_derive_macros(self, subtype):
-        return "[derive(Debug, Deserialize, Clone, Serialize)]"
-
-    def get_subtype_field_serde_macros(self, field):
-        macros = set()
-        if not field.is_nullable:
-            macros.add('skip_serializing_if="Option::is_none"')
-        if macros:
-            return f"#[serde({', '.join(macros)})]"
-        return ""
+    request_parameter_class: Type[
+        common_rust.RequestParameter
+    ] = RequestParameter
 
 
 class RustSdkGenerator(BaseGenerator):
@@ -580,8 +250,10 @@ class RustSdkGenerator(BaseGenerator):
     ):
         """Generate code for the Rust openstack_sdk"""
         logging.debug(
-            "Generating Rust SDK code for %s in %s"
-            % (operation_id, target_dir)
+            "Generating Rust SDK code for %s in %s [%s]",
+            operation_id,
+            target_dir,
+            args,
         )
 
         if not openapi_spec:
@@ -592,35 +264,20 @@ class RustSdkGenerator(BaseGenerator):
             openapi_spec, operation_id
         )
         srv_name, res_name = res.split(".") if res else (None, None)
-        path_resources = common.get_resource_names_from_url(path)
-        res_name = path_resources[-1]
-        if path.endswith("action"):
-            logging.warn("Skipping action for now")
-            return
+        # path_resources = common.get_resource_names_from_url(path)
+        # res_name = path_resources[-1]
 
-        global_params = {}
-        global_param_setters = []
-        global_additional_imports = set()
         mime_type = None
-        processor = common.RustSdkProcessor()
-        # Process parameters
+        openapi_parser = model.OpenAPISchemaParser()
+        operation_params: list[model.RequestParameter] = []
+        type_manager: TypeManager | None = None
+        # Collect all operation parameters
         for param in openapi_spec["paths"][path].get(
             "parameters", []
         ) + spec.get("parameters", []):
-            (xparam, setter) = common.get_rust_param_dict(param, "sdk")
-            if xparam:
-                # for i.e. routers/{router_id} we want local_name to be `id` and not `router_id`
-                if (
-                    xparam["location"] == "path"
-                    and xparam["name"] == f"{res_name.lower()}_id"
-                ):
-                    xparam["local_name"] = "id"
-                global_params[xparam["name"]] = xparam
-                global_additional_imports.update(xparam["additional_imports"])
-            if setter:
-                global_param_setters.append(setter)
+            operation_params.append(openapi_parser.parse_parameter(param))
 
-        # Process body
+        # Process body information
         request_body = spec.get("requestBody")
         # List of operation variants (based on the body)
         operation_variants = []
@@ -635,7 +292,7 @@ class RustSdkGenerator(BaseGenerator):
                 if "oneOf" in json_body_schema:
                     # There is a choice of bodies. It can be because of
                     # microversion or an action (or both)
-                    # For action we should come here with command_type="action" and command_name must be the action name
+                    # For action we should come here with operation_type="action" and operation_name must be the action name
                     # For microversions we build body as enum
                     # So now try to figure out what the discriminator is
                     discriminator = json_body_schema.get(
@@ -644,71 +301,77 @@ class RustSdkGenerator(BaseGenerator):
                     if discriminator == "microversion":
                         logging.debug("Microversion discriminator for bodies")
                         for variant in json_body_schema["oneOf"]:
+                            variant_spec = variant.get("x-openstack", {})
                             operation_variants.append({"body": variant})
                         # operation_variants.extend([{"body": x} for x in json_body_schema(["oneOf"])])
+                    elif discriminator == "action":
+                        # We are in the action. Need to find matching body
+                        for variant in json_body_schema["oneOf"]:
+                            variant_spec = variant.get("x-openstack", {})
+                            if (
+                                variant_spec.get("action-name")
+                                == args.operation_name
+                            ):
+                                operation_variants.append(
+                                    {
+                                        "body": variant,
+                                        "mode": "action",
+                                        "min-ver": variant_spec.get("min-ver"),
+                                    }
+                                )
+                                break
+                        if not operation_variants:
+                            raise RuntimeError(
+                                "Cannot find body specification for action %s"
+                                % args.operation_name
+                            )
                 else:
                     operation_variants.append({"body": json_body_schema})
         else:
             # Explicitly register variant without body
             operation_variants.append({"body": None})
+
+        # jsonschema_parser = model.JsonSchemaParser()
         for operation_variant in operation_variants:
             logging.debug("Processing variant %s" % operation_variant)
+            # TODO(gtema): if we are in MV variants filter out unsupported query
+            # parameters
+            # TODO(gtema): previously we were ensuring `router_id` path param
+            # is renamed to `id`
 
-            request_key = None
-            request_def = None
-            subtypes = {}
-            params = copy.deepcopy(global_params)
-            param_setters = global_param_setters.copy()
-            additional_imports = copy.deepcopy(global_additional_imports)
             class_name = res_name.title()
             operation_body = operation_variant.get("body")
-            mod_name = (
-                args.alternative_module_name
-                or args.command_type.value
-                or method
+            type_manager = TypeManager()
+            type_manager.set_parameters(operation_params)
+            mod_name = "_".join(
+                x.lower()
+                for x in re.split(
+                    common.SPLIT_NAME_RE,
+                    (
+                        args.module_name
+                        or args.operation_name
+                        or args.operation_type.value
+                        or method
+                    ),
+                )
             )
 
             if operation_body:
-                try:
-                    request_def, request_key = common.find_resource_schema(
-                        operation_body, None, resource_name=res_name
-                    )
-                except Exception:
-                    logging.warn("Cannot identify body")
-                    return
                 min_ver = operation_body.get("x-openstack", {}).get("min-ver")
                 if min_ver:
                     mod_name += "_" + min_ver.replace(".", "")
-                if not request_def:
-                    # Not able to identity where the resource schema is. Take the whole schema as is
-                    request_def = json_body_schema
-                if request_def:
-                    # body_model = types.get_type_from_schema(request_def)
-                    body_model = types.JsonSchemaParser().parse(operation_body)
-                continue
-                processor.set_body_model(body_model)
-                # continue
+                # There is request body. Get the ADT from jsonschema
+                if args.operation_type != "action":
+                    (_, all_types) = openapi_parser.parse(operation_body)
+                    # and feed them into the TypeManager
+                    type_manager.set_models(all_types)
+                    for k, v in type_manager.refs.items():
+                        if "BootIndex" in k.name:
+                            print("")
+                            print(f"{k} => {v}")
+                else:
+                    logging.warn("Ignoring response type of action")
 
-                # if request_def.get("type") == "object":
-                #    # Our TL element is an object. This is what we expected
-                #    required_props = request_def.get("required", [])
-                #    for k, el in request_def.get("properties", {}).items():
-                #        (
-                #            xparam,
-                #            setter,
-                #            xsubtypes,
-                #        ) = common.get_rust_body_element_dict(
-                #            k, el, k in required_props, "sdk"
-                #        )
-
-                #        if xparam:
-                #            params[xparam["name"]] = xparam
-                #        if xsubtypes:
-                #            subtypes.update(xsubtypes)
-                #        if setter:
-                #            param_setters.append(setter)
-
-                #        additional_imports.update(xparam["additional_imports"])
             if method == "patch":
                 # There might be multiple supported mime types. We only select ones we are aware of
                 if "application/openstack-images-v2.1-json-patch" in content:
@@ -720,9 +383,6 @@ class RustSdkGenerator(BaseGenerator):
                         "No supported mime types for patch operation found"
                     )
 
-            # class_name = "".join(
-            #    x.title() for x in operation_id.split(".")[0].split("_")
-            # )
             mod_path = common.get_rust_sdk_mod_path(
                 args.service_type,
                 args.api_version,
@@ -759,7 +419,7 @@ class RustSdkGenerator(BaseGenerator):
             context = dict(
                 operation_id=operation_id,
                 operation_type=spec.get(
-                    "x-openstack-operation-type", args.command_type
+                    "x-openstack-operation-type", args.operation_type
                 ),
                 command_description=spec.get("description"),
                 class_name=class_name,
@@ -768,39 +428,13 @@ class RustSdkGenerator(BaseGenerator):
                 ),
                 url=path[1:] if path.startswith("/") else path,
                 method=method,
-                processor=processor,
-                params=params,
-                request_key=args.request_key or request_key,
+                type_manager=type_manager,
                 response_key=args.response_key or response_key,
                 response_list_item_key=args.response_list_item_key,
-                path_params={
-                    k: v for k, v in params.items() if v["location"] == "path"
-                },
-                query_params={
-                    k: v for k, v in params.items() if v["location"] == "query"
-                },
-                body_params={
-                    k: v for k, v in params.items() if v["location"] == "body"
-                },
-                static_lifetime=bool(
-                    len(
-                        list(
-                            v
-                            for v in params.values()
-                            if v["location"] in ["path", "query", "body"]
-                            and "'a" in v["type"]
-                        )
-                    )
-                    > 0
-                ),
-                param_setters=param_setters,
                 mime_type=mime_type,
-                additional_imports=additional_imports,
-                subtypes=subtypes,
             )
 
             work_dir = Path(target_dir, "rust", "openstack_sdk", "src")
-            # mod_name
             impl_path = Path(
                 work_dir,
                 "api",

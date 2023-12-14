@@ -1,0 +1,34 @@
+{%- import 'rust_macros.j2' as macros with context -%}
+      // Set body parameters
+{% with root = type_manager.get_root_data_type() %}
+{%- for root_attr, root_field in root.fields.items() %}
+  // Set Request.{{ root_field.remote_name }} data
+  {%- if root_field.is_optional %}
+    if let Some(args) = &self.args.{{ root_field.local_name }} {
+  {%- else %}
+    let args = &self.args.{{ root_field.local_name }};
+  {%- endif %}
+
+  {%- if root_field.data_type.__class__.__name__ == "StructInput" %}
+    {%- set builder_name = root_field.local_name + "_builder" %}
+    let mut {{ builder_name }} = {{ sdk_mod_path[-1] }}::{{ root_field.data_type.name }}Builder::default();
+
+    {%- for k, v in root_field.data_type.fields.items() %}
+      {%- if v.is_optional %}
+        if let Some(val) = &args.{{ v.local_name }} {
+          {{ macros.set_request_data_from_input(builder_name, v, "val") }}
+        }
+      {%- else %}
+          {{ macros.set_request_data_from_input(builder_name, v, "&args." + v.local_name) }}
+      {%- endif %}
+
+    {% endfor %}
+    ep_builder.{{ root_field.remote_name }}({{ builder_name }}.build().unwrap());
+
+  {%- endif %}
+
+  {% if root_field.is_optional %}
+    }
+  {%- endif %}
+{% endfor %}
+{%- endwith %}

@@ -11,7 +11,9 @@
 # under the License.
 #
 import copy
+from typing import Any
 from typing import Type
+import typing as ty
 
 from pydantic import BaseModel
 
@@ -39,7 +41,7 @@ class PrimitiveString(PrimitiveType):
     pass
 
 
-class ConstraintString(PrimitiveString):
+class ConstraintString(PrimitiveType):
     format: str | None = None
     minLength: int | None = None
     maxLength: int | None = None
@@ -53,7 +55,7 @@ class PrimitiveNumber(PrimitiveType):
 class ConstraintNumber(PrimitiveNumber):
     format: str | None = None
     minimum: int | None = None
-    maximum: int | None = None
+    maximum: int | float | None = None
     exclusiveMaximum: bool | None = None
     multipleOf: int | float | None = None
 
@@ -106,10 +108,11 @@ class OneOfType(ADT):
     kinds: list[PrimitiveType | ADT | Reference] = []
 
 
-class EnumCollection(AbstractCollection):
+class Enum(AbstractCollection):
     """Enum: a unique collection of primitives"""
 
-    literals: set[PrimitiveType] = set()
+    base_types: list[Type[PrimitiveType]] = []
+    literals: set[Any] = set()
 
 
 class StructField(BaseModel):
@@ -118,6 +121,8 @@ class StructField(BaseModel):
     data_type: PrimitiveType | ADT | Reference
     description: str | None = None
     is_required: bool = False
+    min_ver: str | None = None
+    max_ver: str | None = None
 
 
 class Struct(ADT):
@@ -146,19 +151,29 @@ class CommaSeparatedList(AbstractList):
     pass
 
 
-class JsonSchemaParser:
-    adts: list[ADT] = []
+class Set(AbstractList):
+    """A set of unique items"""
 
-    def parse(self, schema):
+    pass
+
+
+class JsonSchemaParser:
+    """JsonSchema to internal DataModel converter"""
+
+    def parse(self, schema) -> ty.Tuple[ADT | None, list[ADT]]:
+        """Parse JsonSchema object into internal DataModel"""
         results: list[ADT] = []
         res = self.parse_schema(schema, results)
         return (res, results)
 
-    def parse_schema(self, schema, results: list[ADT], name: str = None):
-        # logging.debug("Parsing %s", schema)
+    def parse_schema(
+        self, schema, results: list[ADT], name: str | None = None
+    ) -> PrimitiveType | ADT:
         type_ = schema.get("type")
         if "oneOf" in schema:
             return self.parse_oneOf(schema, results, name=name)
+        elif "enum" in schema:
+            return self.parse_enum(schema, results, name=name)
         elif isinstance(type_, list):
             return self.parse_typelist(schema, results, name=name)
         elif isinstance(type_, str):
@@ -189,8 +204,10 @@ class JsonSchemaParser:
             return PrimitiveNull()
         raise RuntimeError("Cannot determine type for %s", schema)
 
-    def parse_object(self, schema, results: list[ADT], name: str = None):
-        obj: PrimitiveType | ADT = None
+    def parse_object(
+        self, schema, results: list[ADT], name: str | None = None
+    ):
+        obj: ADT | None = None
         properties = schema.get("properties")
         additional_properties = schema.get("additionalProperties")
         additional_properties_type: PrimitiveType | ADT | None = None
@@ -229,7 +246,7 @@ class JsonSchemaParser:
                 type_kind: PrimitiveType | ADT = self.parse_schema(
                     value_type, results, name=name
                 )
-                pattern_props[key_pattern] = type_kind
+                pattern_props[key_pattern] = type_kind  # type: ignore
 
         if obj:
             if additional_properties_type:
@@ -259,14 +276,16 @@ class JsonSchemaParser:
             results.append(obj)
         return obj
 
-    def parse_oneOf(self, schema, results: list[ADT], name: str = None):
+    def parse_oneOf(self, schema, results: list[ADT], name: str | None = None):
         obj = OneOfType()
         for kind in schema.get("oneOf"):
             kind_schema = common._deep_merge(schema, kind)
             kind_schema.pop("oneOf")
             # todo: merge base props into the kind
             kind_type = self.parse_schema(kind_schema, results, name=name)
-            ref = getattr(kind_type, "reference", None)
+            if not kind_type:
+                raise NotImplementedError
+            ref: Reference | None = getattr(kind_type, "reference", None)
             if ref:
                 obj.kinds.append(ref)
             else:
@@ -276,7 +295,9 @@ class JsonSchemaParser:
         results.append(obj)
         return obj
 
-    def parse_typelist(self, schema, results: list[ADT], name: str = None):
+    def parse_typelist(
+        self, schema, results: list[ADT], name: str | None = None
+    ):
         obj = OneOfType()
         for kind_type in schema.get("type"):
             kind_schema = copy.deepcopy(schema)
@@ -292,7 +313,7 @@ class JsonSchemaParser:
         results.append(obj)
         return obj
 
-    def parse_array(self, schema, results: list[ADT], name: str = None):
+    def parse_array(self, schema, results: list[ADT], name: str | None = None):
         # todo: decide whether some constraints can be under items
         item_type = self.parse_schema(schema.get("items"), results, name=name)
         ref = getattr(item_type, "reference", None)
@@ -304,3 +325,79 @@ class JsonSchemaParser:
             obj.reference = Reference(name=name, type=obj.__class__)
         results.append(obj)
         return obj
+
+    def parse_enum(self, schema, results: list[ADT], name: str | None = None):
+        # todo: decide whether some constraints can be under items
+        literals = schema.get("enum")
+        obj = Enum(literals=literals, base_types=[])
+        literal_types = set([type(x) for x in literals])
+        for literal_type in literal_types:
+            if literal_type is str:
+                obj.base_types.append(ConstraintString)
+            elif literal_type is int:
+                obj.base_types.append(ConstraintInteger)
+            elif literal_type is bool:
+                obj.base_types.append(PrimitiveBoolean)
+
+        if name:
+            obj.reference = Reference(name=name, type=obj.__class__)
+        results.append(obj)
+        return obj
+
+
+class RequestParameter(BaseModel):
+    """OpenAPI Request parameter DataType wrapper"""
+
+    name: str
+    location: str
+    data_type: PrimitiveType | ADT
+    description: str | None = None
+    is_required: bool = False
+
+
+class OpenAPISchemaParser(JsonSchemaParser):
+    """OpenAPI to internal DataModel converter"""
+
+    def parse_parameter(self, schema) -> RequestParameter:
+        """Parse OpenAPI request parameter into internal DataModel"""
+        param_name = schema.get("name")
+        param_location = schema.get("in")
+        param_schema = schema.get("schema")
+        param_typ = param_schema.get("type")
+        dt: PrimitiveType | ADT | None = None
+        if param_typ == "string":
+            dt = ConstraintString(**param_schema)
+        elif param_typ == "array":
+            items_type = param_schema.get("items").get("type")
+            style = schema.get("style", "form")
+            explode = schema.get("explode", True)
+            if items_type == "string":
+                if style == "form" and not explode:
+                    dt = CommaSeparatedList(item_type=ConstraintString())
+                elif style == "form" and explode:
+                    dt = Set(item_type=ConstraintString())
+                else:
+                    raise NotImplementedError(
+                        "Parameter serialization %s not supported" % schema
+                    )
+
+        elif isinstance(param_typ, list):
+            # Param type can be anything. Process supported combinations first
+            if param_location == "query" and param_name == "limit":
+                dt = ConstraintInteger(minimum=0)
+
+        if isinstance(dt, ADT):
+            # Set reference into the data_type so that it doesn't mess with main body types
+            dt.reference = Reference(name=param_name, type=RequestParameter)
+
+        if dt:
+            return RequestParameter(
+                name=param_name,
+                location=param_location,
+                data_type=dt,
+                description=schema.get("description"),
+                is_required=schema.get("required", False),
+            )
+        raise NotImplementedError("Parameter %s is not covered yet" % schema)
+
+        raise RuntimeError("Parameter %s is not supported yet" % schema)

@@ -1,0 +1,18 @@
+      // Set path parameters
+{%- for (k, v) in type_manager.get_parameters("path") %}
+{%- if not v.is_required %}
+  {%- if k != "project_id" %}
+        if let Some(val) = &self.args.path.{{ v.local_name }} {
+            ep_builder.{{ v.local_name }}(val);
+        }
+  {%- else %}
+        if let Some(val) = &self.args.path.{{ v.local_name }} {
+            ep_builder.{{ v.local_name }}(val);
+        } else {
+            ep_builder.{{ v.local_name }}(client.get_current_project().expect("Project ID must be known").id);
+        }
+  {%- endif %}
+{%- else %}
+        ep_builder.{{ v.local_name }}(&self.args.path.{{ v.local_name }});
+{%- endif %}
+{%- endfor %}

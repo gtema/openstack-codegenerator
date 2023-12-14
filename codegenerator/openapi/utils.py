@@ -84,7 +84,7 @@ def merge_api_ref_doc(
             ):
                 # There is no direct URL match, but doc URL starts with /vXX - try searching without version prefix
                 m = re.search(r"^\/v[0-9.]*(\/.*)", url)
-                if m.groups():
+                if m and m.groups():
                     url = m.group(1)
                     path_spec = openapi_spec.paths.get(url)
 

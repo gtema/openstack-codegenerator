@@ -1,0 +1,73 @@
+{%- with data_type = response_type_manager.get_root_data_type() %}
+/// {{ target_class_name }}
+#[derive(Deserialize, Debug, Clone, Serialize, StructTable)]
+pub struct ResponseData {
+  {%- for k, v in data_type.fields.items() %}
+    {{ macros.docstring(v.description, indent=4) }}
+    {{ v.serde_macros }}
+    {{ v.structable_macros }}
+    {{ v.local_name }}: {{ v.type_hint }},
+  {%- endfor %}
+
+}
+{%- endwith %}
+
+{%- for subtype in response_type_manager.get_subtypes() %}
+{%- if subtype["fields"] is defined %}
+#[derive(Deserialize, Debug, Default, Clone, Serialize)]
+{{ subtype.base_type }} {{ subtype.name }} {
+  {%- for k, v in subtype.fields.items() %}
+    {{ v.local_name }}: {{ v.type_hint }},
+  {%- endfor %}
+}
+
+impl fmt::Display for {{ subtype.name }} {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let data = Vec::from([
+         {%- for k, v in subtype.fields.items() %}
+            format!("{{v.local_name}}={}", self.{{ v.local_name }}{{ ".clone().map(|v| v.to_string()).unwrap_or(\"\".to_string())" if v.type_hint.startswith("Option") }}),
+         {%- endfor %}
+        ]);
+        return write!(
+            f,
+            "{}",
+            data
+            .join(";")
+        );
+    }
+}
+{%- elif subtype.base_type == "vec" %}
+#[derive(Deserialize, Default, Debug, Clone, Serialize)]
+pub struct Vec{{ subtype.item_type.type_hint}}(Vec<{{subtype.item_type.type_hint}}>);
+impl fmt::Display for Vec{{ subtype.item_type.type_hint }} {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        return write!(
+            f,
+            "[{}]",
+            self.0
+                .iter()
+                .map(|v| v.to_string() )
+                .collect::<Vec<String>>()
+                .join(",")
+        );
+    }
+}
+{%- elif subtype.base_type == "dict"  %}
+#[derive(Deserialize, Default, Debug, Clone, Serialize)]
+pub struct HashMapString{{ subtype.value_type.type_hint}}(HashMap<String, {{subtype.value_type.type_hint}}>);
+impl fmt::Display for HashMapString{{ subtype.value_type.type_hint }} {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{{ '{{{}}}' }}",
+            self.0
+            .iter()
+            .map(|v| format!("{}={}", v.0, v.1))
+            .collect::<Vec<String>>()
+            .join("\n")
+            )
+    }
+}
+
+{%- endif %}
+{%- endfor %}

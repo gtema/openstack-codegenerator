@@ -17,6 +17,7 @@ import importlib
 import inspect
 import logging
 from pathlib import Path
+from typing import Any
 import re
 
 from codegenerator.common.schema import ParameterSchema
@@ -69,7 +70,16 @@ class OpenStackServerSourceBase:
     # non parameter path element grouping is not enough
     # ("/qos/policies/{policy_id}/packet_rate_limit_rules" should be
     # "qos-packet-rate-limit-rules" instead of "qos")
-    URL_TAG_MAP = {}
+    URL_TAG_MAP: dict[str, str] = {}
+
+    def _api_ver_major(self, ver):
+        return ver.ver_major
+
+    def _api_ver_minor(self, ver):
+        return ver.ver_minor
+
+    def _api_ver(self, ver):
+        return (ver.ver_major, ver.ver_minor)
 
     def useFixture(self, fixture):
         try:
@@ -186,9 +196,8 @@ class OpenStackServerSourceBase:
         # path_spec = openapi_spec.paths.setdefault(path, PathSchema())
 
         # operation_spec = dict() #= getattr(path_spec, method.lower())  # , {})
-        path_params = set()
         # Get Path elements
-        path_elements = list(filter(None, path.split("/")))
+        path_elements: list[str] = list(filter(None, path.split("/")))
         if path_elements and VERSION_RE.match(path_elements[0]):
             path_elements.pop(0)
         operation_tags = self._get_tags_for_url(path)
@@ -196,8 +205,8 @@ class OpenStackServerSourceBase:
         # Build path parameters (/foo/{foo_id}/bar/{id} => $foo_id, $foo_bar_id)
         # Since for same path we are here multiple times check presence of
         # parameter before adding new params
-        path_params = []
-        path_resource_names = []
+        path_params: list[ParameterSchema] = []
+        path_resource_names: list[str] = []
         for path_element in path_elements:
             if "{" in path_element:
                 param_name = path_element.strip("{}")
@@ -746,7 +755,7 @@ class OpenStackServerSourceBase:
             for prop, spec in params.items():
                 param_name = "_".join(path_resource_names) + f"_{prop}"
 
-                param_attrs = {}
+                param_attrs: dict[str, TypeSchema | dict] = {}
                 if spec["type"] == "array":
                     param_attrs["schema"] = TypeSchema(
                         **copy.deepcopy(spec["items"])
@@ -764,6 +773,7 @@ class OpenStackServerSourceBase:
                     param_name,
                     prop,
                     param_location="query",
+                    path=None,
                     **param_attrs,
                 )
                 if ref_name not in [x.ref for x in operation_spec.parameters]:
@@ -771,7 +781,6 @@ class OpenStackServerSourceBase:
                         ParameterSchema(ref=ref_name)
                     )
 
-            pass
         else:
             raise RuntimeError(
                 "Query parameters %s is not an object as expected" % obj
@@ -893,7 +902,7 @@ class OpenStackServerSourceBase:
             ] = TypeSchema(ref=schema_ref)
 
     def _sanitize_schema(
-        self, schema, *, start_version: str = None, end_version: str = None
+        self, schema, *, start_version=None, end_version=None
     ):
         """Various schemas are broken in various ways"""
 
@@ -940,7 +949,7 @@ class OpenStackServerSourceBase:
         ref_name: str,
         param_name: str,
         param_location: str,
-        path: str = None,
+        path: str | None = None,
         **param_attrs,
     ):
         if ref_name == "_project_id":
@@ -1036,7 +1045,7 @@ class OpenStackServerSourceBase:
                 return [v]
         if url == "/":
             return ["version"]
-        path_elements = list(filter(None, url.split("/")))
+        path_elements: list[str] = list(filter(None, url.split("/")))
         for el in path_elements:
             # Use 1st (non project_id) path element as tag
             if not el.startswith("{"):
@@ -1045,7 +1054,7 @@ class OpenStackServerSourceBase:
 
 def _convert_wsme_to_jsonschema(body_spec):
     """Convert WSME type description to JsonSchema"""
-    res = {}
+    res: dict[str, Any] = {}
     if wtypes.iscomplex(body_spec) or isinstance(body_spec, wtypes.wsattr):
         res = {"type": "object", "properties": {}}
         doc = inspect.getdoc(body_spec)

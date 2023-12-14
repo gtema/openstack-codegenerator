@@ -18,6 +18,7 @@ use crate::OutputConfig;
 use crate::StructTable;
 use crate::{Command, error::OpenStackCliError};
 use structable_derive::StructTable;
+use std::fmt;
 
 use openstack_sdk::{AsyncOpenStack, types::ServiceType};
 
@@ -28,20 +29,17 @@ use {{ mod }};
 {{ macros.docstring(command_description, indent=0) }}
 #[derive(Args, Clone, Debug)]
 pub struct {{ target_class_name }}Args {
+    /// Request Query parameters
+    #[command(flatten)]
+    query: QueryParameters,
 
-{# We need path parameters in a specific order #}
-{{ macros.cli_arg_params(path_params.values()|sort(attribute="path_position")) }}
-{{ macros.cli_arg_params(query_params.values()) }}
-{{ macros.cli_arg_params(body_params.values()) }}
-{{ macros.cli_arg_params(patch_params.values()) }}
+    /// Path parameters
+    #[command(flatten)]
+    path: PathParameters,
 
-{% if header_params | length > 1 and operation_type in ["set", "unset"]%}
-    /// Property to be set
-    #[arg(long, value_name="key=value", value_parser = parse_key_val::<String, String>)]
-    property: Vec<(String, String)>,
-{%- endif %}
+{% include "rust_cli/parameters.j2" %}
 
-{% if operation_type == "list" %}
+{% if operation_type == "list" and "limit" in type_manager.get_parameters("query")|list|map(attribute=0) %}
     /// Total limit of entities count to return. Use this when there are too many entries.
     #[arg(long, default_value_t=10000)]
     max_items: usize
@@ -59,29 +57,44 @@ pub struct {{ target_class_name }}Args {
 
 }
 
+{%- include "rust_cli/query_parameters.j2" %}
+{%- include "rust_cli/path_parameters.j2" %}
+
+{%- for type in type_manager.get_subtypes() %}
+{%- if type["variants"] is defined %}
+{{ macros.docstring(type.description, indent=0) }}
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+enum {{ type.name }} {
+  {%- for k, v in type.variants.items() %}
+    {{ k }},
+  {%- endfor %}
+}
+
+impl fmt::Debug for {{ type.name }} {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+{%- elif type["base_type"] == "struct" %}
+#[derive(Args, Debug, Clone)]
+{% if type["is_group"] is defined and type.is_group %}
+#[group(required={{ type.is_required | lower }}, multiple=false)]
+{%- endif %}
+struct {{ type.name }} {
+  {%- for field in type.fields.values() %}
+    {{ macros.docstring(field.description, indent=4) }}
+    {{ field.clap_macros }}
+    {{ field.local_name }}: {{ field.type_hint }},
+  {%- endfor %}
+}
+{%- endif %}
+{% endfor %}
+
 pub struct {{ target_class_name }}Cmd {
     pub args: {{ target_class_name }}Args,
 }
 
-/// {{ target_class_name }}
-#[derive(Deserialize, Debug, Clone, Serialize, StructTable)]
-pub struct {{ target_class_name }} {
-{%- if result_def %}
-{%- for k, v in result_def.items() %}
-    {{ macros.docstring(v.description, indent=4) }}
-{%- if v.param_serde_args %}
-    #[serde({{ v.param_serde_args | join(",") }})]
-{%- endif %}
-{%- if v.param_structable_args %}
-    #[structable({{ v.param_structable_args | join(",") }})]
-{%- endif %}
-    {{ v.local_name }}: {{ v.type }},
-{%- endfor %}{#- if result_def #}
-{%- elif resource_header_metadata %}
-    #[structable(title="metadata")]
-    metadata: HashMapStringString,
-{%- endif %}
-}
+{%- include 'rust_cli/response_struct.j2' %}
 
 #[async_trait]
 impl Command for {{ target_class_name }}Cmd {
@@ -94,88 +107,19 @@ impl Command for {{ target_class_name }}Cmd {
 
         let op = OutputProcessor::from_args(parsed_args);
         op.validate_args(parsed_args)?;
+        info!("Parsed args: {:?}", self.args);
 
-      {%- if operation_type == "show" and (("id" in query_params.keys() | list) or ("id" in result_def.keys() | list)) %}
+      {%- if operation_type == "show" and "id" in result_def.keys() | list %}
         let mut ep_builder = find::{{ sdk_struct_name  }}::builder();
       {%- elif operation_type == "set" and method == "patch" %}
         let mut ep_builder = find::{{ sdk_struct_name }}::builder();
       {%- else %}
-        let mut ep_builder = {{ sdk_mod_path[-1] }}::{{ sdk_struct_name }}::builder();
+        let mut ep_builder = {{ sdk_mod_path[-1] }}::Request::builder();
       {%- endif %}
-      // Set path parameters
-{%- for k, v in path_params.items() %}
-{%- if not v.required %}
-  {%- if k != "project_id" %}
-        if let Some(val) = &self.args.{{ v.local_name }} {
-            ep_builder.{{ v.local_name }}(val);
-        }
-  {%- else %}
-        if let Some(val) = &self.args.{{ v.local_name }} {
-            ep_builder.{{ v.local_name }}(val);
-        } else {
-            ep_builder.{{ v.local_name }}(client.get_current_project().expect("Project ID must be known").id);
-        }
-  {%- endif %}
-{%- else %}
-        ep_builder.{{ v.local_name }}(&self.args.{{ v.local_name }});
-{%- endif %}
-{%- endfor %}
-    // Set query parameters
-{%- for k, v in query_params.items() %}
-{%- if not v.required %}
-        if let Some(val) = &self.args.{{ v.local_name }} {
-{%- if v.schema.type in ["integer", "number", "boolean"] %}
-            ep_builder.{{ v.local_name }}(*val);
-{%- elif v.schema.type == "array" %}
-          ep_builder.{{ v.local_name }}(val.iter());
-{%- else %}
-          ep_builder.{{ v.local_name }}(val);
-{%- endif %}
-        }
-{%- else %}
-        ep_builder.{{ k }}(&self.args.{{k}});
-{%- endif %}
-{%- endfor %}
-      // Set body parameters
-{%- for k, v in body_params.items() %}
-    {%- if v.schema.type != "null" %}
-      {%- if not v.required %}
-        if let Some(val) = &self.args.{{ v.local_name }} {
-        {%- if v.schema.type in ["integer", "number", "boolean"] %}
-            ep_builder.{{ v.local_name }}(*val);
-        {%- elif "bool" in v.type %}
-            ep_builder.{{ v.local_name }}(*val);
-        {%- elif "u64" in v.type %}
-            ep_builder.{{ v.local_name }}(*val);
-        {%- elif v.schema.type == "array" %}
-            ep_builder.{{ v.local_name }}(val.iter().cloned());
-        {%- elif "Vec<" in v.type %}
-            ep_builder.{{ v.local_name }}(val.iter().cloned());
-        {%- elif "HashMap" in v.type %}
-            ep_builder.{{ v.local_name }}(val.iter());
-        {%- elif "Value" in v.type and v.subtype %}
-            let sub: {{ sdk_mod_path[-1] }}::{{ v.subtype }} = serde_json::from_value(val.clone())?;
-            ep_builder.{{ v.local_name }}(sub);
-        {%- elif "Value" in v.type %}
-            ep_builder.{{ v.local_name }}(val.clone());
-        {%- else %}
-            ep_builder.{{ v.local_name }}(val);
-        {%- endif %}
-        }
-{%- else %}
-        ep_builder.{{ k }}(&self.args.{{k}});
-{%- endif %}
-{%- endif %}
-{%- endfor %}
+      {% include 'rust_cli/set_path_parameters.j2' %}
+      {% include 'rust_cli/set_query_parameters.j2' %}
+      {% include 'rust_cli/set_body_parameters.j2' %}
 
-{%- if header_params | length > 1 and operation_type in ["set", "unset"]%}
-        ep_builder.headers(self.args.property.iter().map(|(k, v)| {
-            (
-                Some(HeaderName::from_bytes(k.as_bytes()).expect("HeaderName is a string")),
-                HeaderValue::from_str(v.as_str()).expect("Header Value is a string"),
-            )
-        }));
-{%- endif %}
 {%- if operation_type == "upload" and body_types|length == 1 and body_types[0] != "*/*" %}
         // The only supported media type
         ep_builder.header("content-type", "{{ body_types[0] }}");
@@ -188,26 +132,32 @@ impl Command for {{ target_class_name }}Cmd {
         client.discover_service_endpoint(&ServiceType::{{ sdk_service_name }}).await?;
 {%- endif %}
 
-    {%- if result_def %}
+{%- with data_type = response_type_manager.get_root_data_type() %}
+    {%- if data_type %}
     {#- there is result structure #}
       {%- if operation_type == "list" %}
 {#- List operation #}
+    {%- if "limit" in type_manager.get_parameters("query")|list|map(attribute=0) %}
+    {#- paginated list #}
         let data: Vec<serde_json::Value> = paged(ep, Pagination::Limit(self.args.max_items)).query_async(client).await?;
+    {%- else %}
+        let data: Vec<serde_json::Value> = ep.query_async(client).await?;
+    {%- endif %}
 
-        op.output_list::<{{ target_class_name }}>(data)?;
+        op.output_list::<ResponseData>(data)?;
 
-      {%- elif operation_type == "show" and (("id" in query_params.keys() | list) or ("id" in result_def.keys() | list)) %}
+      {%- elif operation_type == "show" and "id" in result_def.keys() | list %}
 {#- Show/find implementation #}
         let data = find(ep).query_async(client).await?;
-        op.output_single::<{{ target_class_name }}>(data)?;
+        op.output_single::<ResponseData>(data)?;
       {%- elif operation_type == "show" %}
 {#- Show/get implementation #}
         let data = ep.query_async(client).await?;
-        op.output_single::<{{ target_class_name }}>(data)?;
+        op.output_single::<ResponseData>(data)?;
       {%- elif operation_type == "set" and method == "patch" %}
 {#- Patch implementation #}
         // Patching resource requires fetching and calculating diff
-        let data: {{ target_class_name }} = find(ep).query_async(client).await?;
+        let data: Response = find(ep).query_async(client).await?;
         let mut new = data.clone();
         {% for k, v in patch_params.items() %}
         if let Some(val) = &self.args.{{ v.local_name }} {
@@ -235,11 +185,11 @@ impl Command for {{ target_class_name }}Cmd {
             .build()
             .map_err(|x| OpenStackCliError::EndpointBuild(x.to_string()))?;
         let new_data = patch_ep.query_async(client).await?;
-        op.output_single::<{{ target_class_name }}>(new_data)?;
+        op.output_single::<ResponseData>(new_data)?;
 
       {%- else %}
         let data = ep.query_async(client).await?;
-        op.output_single::<{{ target_class_name }}>(data)?;
+        op.output_single::<ResponseData>(data)?;
       {%- endif %}
     {%- elif operation_type not in ["delete", "download", "upload", "json"] %}
       {#- there is no result structure - raw mode #}
@@ -279,30 +229,17 @@ impl Command for {{ target_class_name }}Cmd {
                 }
             }
         }
-        let data = {{ target_class_name }} {metadata: metadata.into()};
+        let data = ResponseData {metadata: metadata.into()};
       {%- else %}
-        let data = {{ target_class_name }} {};
+        let data = ResponseData {};
       {%- endif %}
         // Maybe output some headers metadata
-        op.output_human::<{{ target_class_name }}>(&data)?;
+        op.output_human::ResponseData>(&data)?;
     {%- elif operation_type == "delete" %}
         let rsp: Response<Bytes> = ep.raw_query_async(client).await?;
     {%- elif operation_type == "download" %}
+      {%- include 'rust_cli/invoke_download.j2' %}
 
-        let (headers, data) = ep.download_async(client).await?;
-
-        let size: u64 = headers
-            .get("content-length")
-            .map(|x| x.to_str().expect("Header is a string"))
-            .unwrap_or("0")
-            .parse()
-            .unwrap();
-        download_file(
-            self.args.file.clone().unwrap_or(self.args.{{ last_path_parameter }}.clone()),
-            size,
-            data,
-        )
-        .await?;
     {%- elif operation_type == "upload" %}
         let dst = self.args.file.clone();
         let data = build_upload_asyncread(dst).await?;
@@ -314,6 +251,8 @@ impl Command for {{ target_class_name }}Cmd {
         let data: serde_json::Value = serde_json::from_slice(rsp.body())?;
         op.output_machine(data)?;
     {%- endif %}
+
+{%- endwith %}
         Ok(())
     }
 }

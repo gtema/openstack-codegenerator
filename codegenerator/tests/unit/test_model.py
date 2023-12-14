@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 #
-import logging
 from unittest import TestCase
 
 from codegenerator import model
@@ -138,22 +137,8 @@ SAMPLE_SERVER_SCHEMA = {
                                 "enum": [
                                     True,
                                     "True",
-                                    "TRUE",
-                                    "true",
-                                    "1",
-                                    "ON",
-                                    "On",
-                                    "YES",
-                                    "Yes",
                                     False,
                                     "False",
-                                    "FALSE",
-                                    "false",
-                                    "0",
-                                    "OFF",
-                                    "off",
-                                    "NO",
-                                    "no",
                                 ],
                             },
                             "no_device": {},
@@ -196,7 +181,6 @@ SAMPLE_SERVER_SCHEMA = {
                                 "enum": [
                                     True,
                                     "True",
-                                    "TRUE",
                                     False,
                                     "False",
                                 ],
@@ -500,8 +484,13 @@ EXPECTED_DATA_TYPES = [
         reference=model.Reference(name="networks", type=model.OneOfType),
         kinds=[
             model.Reference(name="networks", type=model.Array),
-            model.ConstraintString(),
+            model.Reference(name="networks", type=model.Enum),
         ],
+    ),
+    model.Enum(
+        reference=model.Reference(name="networks", type=model.Enum),
+        literals=["none", "auto"],
+        base_types=[model.ConstraintString],
     ),
     model.OneOfType(
         reference=model.Reference(name="volume_size", type=model.OneOfType),
@@ -510,11 +499,21 @@ EXPECTED_DATA_TYPES = [
             model.ConstraintString(pattern="^[0-9]+$"),
         ],
     ),
-    model.OneOfType(
+    # model.OneOfType(
+    #    reference=model.Reference(
+    #        name="delete_on_termination", type=model.OneOfType
+    #    ),
+    #    kinds=[
+    #        model.Reference(name="delete_on_termination", type=model.Enum)
+    #        #model.PrimitiveBoolean(), model.ConstraintString()
+    #    ],
+    # ),
+    model.Enum(
         reference=model.Reference(
-            name="delete_on_termination", type=model.OneOfType
+            name="delete_on_termination", type=model.Enum
         ),
-        kinds=[model.PrimitiveBoolean(), model.ConstraintString()],
+        literals=[True, "True", False, "False"],
+        base_types=[model.ConstraintString, model.PrimitiveBoolean],
     ),
     model.Struct(
         reference=model.Reference(
@@ -544,7 +543,7 @@ EXPECTED_DATA_TYPES = [
             ),
             "delete_on_termination": model.StructField(
                 data_type=model.Reference(
-                    name="delete_on_termination", type=model.OneOfType
+                    name="delete_on_termination", type=model.Enum
                 ),
             ),
             "no_device": model.StructField(
@@ -561,12 +560,6 @@ EXPECTED_DATA_TYPES = [
             model.ConstraintInteger(minimum=1, maximum=2147483647),
             model.ConstraintString(pattern="^[0-9]+$"),
         ],
-    ),
-    model.OneOfType(
-        reference=model.Reference(
-            name="delete_on_termination", type=model.OneOfType
-        ),
-        kinds=[model.PrimitiveBoolean(), model.ConstraintString()],
     ),
     model.OneOfType(
         reference=model.Reference(name="boot_index", type=model.OneOfType),
@@ -615,7 +608,7 @@ EXPECTED_DATA_TYPES = [
             ),
             "delete_on_termination": model.StructField(
                 data_type=model.Reference(
-                    name="delete_on_termination", type=model.OneOfType
+                    name="delete_on_termination", type=model.Enum
                 ),
             ),
             "no_device": model.StructField(
@@ -627,7 +620,7 @@ EXPECTED_DATA_TYPES = [
                 ),
             ),
             "source_type": model.StructField(
-                data_type=model.ConstraintString(),
+                data_type=model.Reference(name="source_type", type=model.Enum)
             ),
             "uuid": model.StructField(
                 data_type=model.ConstraintString(
@@ -642,7 +635,9 @@ EXPECTED_DATA_TYPES = [
                 ),
             ),
             "destination_type": model.StructField(
-                data_type=model.ConstraintString(),
+                data_type=model.Reference(
+                    name="destination_type", type=model.Enum
+                )
             ),
             "guest_format": model.StructField(
                 data_type=model.ConstraintString(
@@ -694,12 +689,13 @@ EXPECTED_DATA_TYPES = [
             name="block_device_mapping_v2", type=model.Struct
         ),
     ),
-    model.OneOfType(
-        reference=model.Reference(name="config_drive", type=model.OneOfType),
-        kinds=[
-            model.PrimitiveBoolean(),
-            model.ConstraintString(),
+    model.Enum(
+        reference=model.Reference(name="config_drive", type=model.Enum),
+        base_types=[
+            model.PrimitiveBoolean,
+            model.ConstraintString,
         ],
+        literals=set(["No", "no", False]),
     ),
     model.OneOfType(
         reference=model.Reference(name="min_count", type=model.OneOfType),
@@ -801,7 +797,9 @@ EXPECTED_DATA_TYPES = [
                 is_required=True,
             ),
             "OS-DCF:diskConfig": model.StructField(
-                data_type=model.ConstraintString(format=None),
+                data_type=model.Reference(
+                    name="OS-DCF:diskConfig", type=model.Enum
+                ),
                 description="DiskConfig description",
             ),
             "accessIPv4": model.StructField(
@@ -827,7 +825,7 @@ EXPECTED_DATA_TYPES = [
             ),
             "config_drive": model.StructField(
                 data_type=model.Reference(
-                    name="config_drive", type=model.OneOfType
+                    name="config_drive", type=model.Enum
                 ),
             ),
             "min_count": model.StructField(
@@ -1017,6 +1015,27 @@ EXPECTED_DATA_TYPES = [
             model.Reference(name="different_cell", type=model.Array),
         ],
     ),
+    model.Enum(
+        reference=model.Reference(name="source_type", type=model.Enum),
+        literals=set(["volume", "image", "snapshot", "blank"]),
+        base_types=[
+            model.ConstraintString,
+        ],
+    ),
+    model.Enum(
+        reference=model.Reference(name="destination_type", type=model.Enum),
+        literals=set(["volume", "local"]),
+        base_types=[
+            model.ConstraintString,
+        ],
+    ),
+    model.Enum(
+        reference=model.Reference(name="OS-DCF:diskConfig", type=model.Enum),
+        literals=set(["AUTO", "MANUAL"]),
+        base_types=[
+            model.ConstraintString,
+        ],
+    ),
     model.OneOfType(
         reference=model.Reference(
             name="build_near_host_ip", type=model.OneOfType
@@ -1077,7 +1096,6 @@ EXPECTED_DATA_TYPES = [
 
 class TestModel(TestCase):
     def test_model_parse(self):
-        logging.basicConfig(level=logging.DEBUG)
         parser = model.JsonSchemaParser()
         (res, types) = parser.parse(SAMPLE_SERVER_SCHEMA)
         self.assertEqual(res, EXPECTED_TLA_DATA)
@@ -1092,3 +1110,54 @@ class TestModel(TestCase):
                         ):
                             self.assertEqual(expected, present)
                             break
+
+    def test_parse_string_parameter(self):
+        schema = {
+            "in": "query",
+            "name": "tags",
+            "schema": {
+                "type": "string",
+                "format": "regex",
+            },
+            "x-openstack": {"min-ver": "2.26"},
+        }
+        parser = model.OpenAPISchemaParser()
+        res = parser.parse_parameter(schema)
+        dt = res.data_type
+        self.assertIsInstance(res, model.RequestParameter)
+        self.assertIsInstance(dt, model.ConstraintString)
+        self.assertEqual("regex", dt.format)
+        self.assertEqual("query", res.location)
+        self.assertEqual("tags", res.name)
+
+    def test_parse_string_array_parameter(self):
+        schema = {
+            "in": "query",
+            "name": "tags",
+            "schema": {"type": "array", "items": {"type": "string"}},
+            "style": "form",
+            "explode": False,
+        }
+        parser = model.OpenAPISchemaParser()
+        res = parser.parse_parameter(schema)
+        dt = res.data_type
+        self.assertIsInstance(res, model.RequestParameter)
+        self.assertIsInstance(dt, model.CommaSeparatedList)
+        self.assertIsInstance(dt.item_type, model.ConstraintString)
+
+    def test_parse_limit_multitype_parameter(self):
+        schema = {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+                "type": ["strng", "integer"],
+                "format": "^[0-9]*$",
+                "minimum": 0,
+            },
+        }
+        parser = model.OpenAPISchemaParser()
+        res = parser.parse_parameter(schema)
+        dt = res.data_type
+        self.assertIsInstance(res, model.RequestParameter)
+        self.assertIsInstance(dt, model.ConstraintInteger)
+        self.assertEqual(dt.minimum, 0)

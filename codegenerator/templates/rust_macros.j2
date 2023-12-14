@@ -67,3 +67,151 @@ Option
 {%- endfor %}
 {%- endmacro %}
 
+{%- macro sdk_builder_setter_btreemap(field) %}
+    {{ docstring(field.description, indent=4) }}
+    pub fn {{ field.local_name }}<I, K, V>(&mut self, iter: I) -> &mut Self
+      where
+          I: Iterator<Item = (K, V)>,
+          K: Into<Cow<'a, str>>,
+          V: Into<{{ field.data_type.value_type.type_hint }}>,
+      {
+          self.{{ field.local_name }}
+              .get_or_insert(None)
+              .get_or_insert_with(BTreeMap::new)
+              .extend(iter.map(|(k, v)| (k.into(), v.into())));
+          self
+      }
+{%- endmacro %}
+
+{%- macro sdk_builder_setter_btreeset(field) %}
+    {{ macros.docstring(field.description, indent=4) }}
+    pub fn {{ field.local_name }}<I, T>(&mut self, iter: I) -> &mut Self
+      where
+          I: Iterator<Item = T>,
+          V: Into<{{ field.data_type.item_type.type_hint }}>,
+      {
+          self.{{ field.local_name }}
+              .get_or_insert_with(BTreeSet::new)
+              .extend(iter.map(Into::into));
+          self
+      }
+{%- endmacro %}
+
+{#- Create DeriveBuilder setter method #}
+{%- macro sdk_builder_setter(field) %}
+  {%- if field.data_type.__class__.__name__ == "BTreeMap" %}
+    {{ sdk_builder_setter_btreemap(field) }}
+  {%- elif field.data_type.__class__.__name__ == "BTreeSet" %}
+    {{ sdk_builder_setter_btreeset(field) }}
+  {%- endif %}
+{%- endmacro %}
+
+{%- macro wrap_optional(val, is_nullable) %}
+{%- if is_nullable is defined and is_nullable -%}
+Some({{ val }})
+{%- else -%}
+{{ val }}
+{%- endif -%}
+{%- endmacro %}
+
+{#- Macros to render setting Request data from CLI input #}
+{%- macro set_request_data_from_input(dst_var, param, val_var) %}
+{%- if param.type_hint in ["Option<i32>", "Option<i64>", "Option<f32>", "Option<f64>", "Option<bool>"] %}
+    {{ dst_var }}.{{ param.remote_name }}({{ "*" + val_var }});
+{%- elif param.data_type.__class__.__name__ in ["ArrayInput"] %}
+    {{ sdk_plain_array_setter(param, val_var, dst_var) }}
+{%- elif param.data_type.__class__.__name__ in ["JsonValue"] %}
+    // let sub: {{ sdk_mod_path[-1] }}
+{%- elif param.data_type.__class__.__name__ == "DictionaryInput" %}
+    {{ dst_var }}.{{ param.remote_name }}({{ val_var }}.iter().cloned());
+{%- elif param.data_type.__class__.__name__ == "StringEnum" %}
+    let tmp = match {{ val_var }} {
+      {%- for variant in param.data_type.variants.keys() %}
+      {#- normally we should use the cli enum name, but we don't have it here and names must match anyway#}
+        {{ param.data_type.name }}::{{ variant }} => {
+            {{ sdk_mod_path[-1] }}::{{ param.data_type.name }}::{{ variant }}
+        }
+      {%- endfor %}
+    };
+    {{ dst_var }}.{{ param.remote_name }}(tmp);
+{%- elif param.data_type.__class__.__name__ == "GroupStruct" %}
+{#- This is a reverse action of Complex SDK enum being converted into the CLI group #}
+  {%- for k, v in param.data_type.fields.items() %}
+  {%- if v.data_type.__class__.__name__ in ["Boolean", "BooleanFlag"] %}
+    if {{ val_var | replace("&", "") }}.{{ v.local_name }} {
+        {{ dst_var }}.{{ param.remote_name }}(
+            {{ sdk_mod_path[-1] }}::{{ v.sdk_parent_enum_variant }}(
+              {{ sdk_mod_path[-1] }}::{{ v.remote_name }}
+            )
+        );
+    }
+  {%- elif v.data_type.__class__.__name__ == "ArrayInput" %}
+    {% set original_type = v.data_type.original_item_type %}
+    if let Some(data) = {{ val_var }}.{{ v.local_name }} {
+        {{ sdk_enum_array_setter(param, v, "data", dst_var) }}
+    }
+  {%- endif %}
+  {%- endfor %}
+{%- elif param.data_type.__class__.__name__ == "String" %}
+    {{ dst_var }}.{{ param.remote_name }}({{ val_var }});
+{%- elif param.data_type.__class__.__name__ == "Option" %}
+    {{ dst_var }}.{{ param.remote_name }}({{ val_var }}.clone().map(|v| v.into()));
+{%- else %}
+    {{ dst_var }}.{{ param.remote_name }}({{ val_var }});
+{%- endif %}
+{%- endmacro %}
+
+{%- macro sdk_enum_array_setter(param, field, val_var, dst_var) %}
+    {%- set original_type = field.data_type.original_data_type %}
+    {%- if field.data_type.item_type.__class__.__name__ == "JsonValue" and original_type.__class__.__name__ == "StructInput" %}
+    let sub: Vec<{{ sdk_mod_path[-1] }}::{{ original_type.name }}> = {{ val_var }}
+        .iter()
+        .flat_map(|v|
+            serde_json::from_value::<{{ sdk_mod_path[-1] }}::{{ original_type.name }}>(v.clone()))
+        .collect();
+    {{ dst_var }}.{{ param.remote_name }}(
+        {{ sdk_mod_path[-1] }}::{{ field.remote_name }}(sub)
+    );
+    {%- else %}
+    {#- Normal array #}
+    {{ dst_var }}.{{ param.remote_name }}(
+        {{ sdk_mod_path[-1] }}::{{ field.remote_name }}({{ val_var }}.iter().cloned())
+    );
+    {%- endif %}
+{%- endmacro %}
+
+{%- macro sdk_plain_array_setter(param, val_var, dst_var) %}
+    {%- set original_type = param.data_type.original_data_type %}
+    {%- if param.data_type.item_type.__class__.__name__ == "JsonValue" and original_type.__class__.__name__ == "StructInput" %}
+    let sub: Vec<{{ sdk_mod_path[-1] }}::{{ original_type.name }}> = {{ val_var }}
+        .iter()
+        .flat_map(|v|
+            serde_json::from_value::<{{ sdk_mod_path[-1] }}::{{ original_type.name }}>(v.clone()))
+        .collect::<Vec<{{ sdk_mod_path[-1] }}:: {{ original_type.name }}>>();
+    {{ dst_var }}.{{ param.remote_name }}(sub);
+    {%- elif param.data_type.item_type.__class__.__name__ == "String" and param.data_type.item_type.original_data_type.__class__.__name__ == "StructInput" %}
+    {#- Single field structure replaced with only string #}
+    {%- set original_type = param.data_type.item_type.original_data_type %}
+    {%- set original_field = original_type.fields[param.data_type.item_type.original_data_type.fields.keys()|list|first] %}
+    let sub: Vec<{{ sdk_mod_path[-1] }}::{{ original_type.name }}> = {{ val_var }}
+        .iter()
+        .flat_map(|v| {{ sdk_mod_path[-1] }}::{{ original_type.name }}Builder::default()
+            .{{ original_field.remote_name }}(v)
+            .build()
+            )
+        .collect();
+    {{ dst_var }}.{{ param.remote_name }}(sub);
+    {%- else %}
+    {#- Normal array #}
+    {{ dst_var }}.{{ param.remote_name }}(
+        {{ val_var }}.iter().map(|v| v.into()).collect::<Vec<_>>()
+    );
+    {%- endif %}
+{%- endmacro %}
+
+
+{%- macro get_data_for_sdk(data, data_var) %}
+{%- if data.__class__.__name__ == "ArrayInput" -%}
+    {{ data_var }}.iter().cloned()
+{%- endif -%}
+{%- endmacro %}

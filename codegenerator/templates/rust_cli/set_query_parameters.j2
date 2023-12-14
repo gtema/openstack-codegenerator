@@ -1,0 +1,11 @@
+{%- import 'rust_macros.j2' as macros with context -%}
+      // Set query parameters
+{%- for (k, v) in type_manager.get_parameters("query") %}
+{%- if not v.is_required %}
+        if let Some(val) = &self.args.query.{{ v.local_name }} {
+        {{ macros.set_request_data_from_input("ep_builder", v, "val")}}
+        }
+{%- else %}
+        {{ macros.set_request_data_from_input("ep_builder", v, "&self.args.query." + v.local_name )}}
+{%- endif %}
+{%- endfor %}

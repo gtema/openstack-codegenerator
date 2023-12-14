@@ -14,6 +14,7 @@ import logging
 from pathlib import Path
 import re
 import tempfile
+from typing import Any
 
 from codegenerator.common.schema import ParameterSchema
 from codegenerator.common.schema import PathSchema
@@ -163,7 +164,7 @@ paste.app_factory = neutron.api.v2.router:APIRouter.factory
         return
 
     def generate(self, target_dir, args):
-        openapi_tags = dict()
+        openapi_tags: dict[str, Any] = dict()
 
         work_dir = Path(target_dir)
         work_dir.mkdir(parents=True, exist_ok=True)
@@ -200,6 +201,9 @@ paste.app_factory = neutron.api.v2.router:APIRouter.factory
         # Neutron router duplicates certain routes. We need to skip such entries
 
         self._processed_routes = set()
+
+        if not self.router:
+            raise NotImplementedError
 
         for route in self.router.mapper.matchlist:
             if route.routepath.endswith(".:(format)"):
@@ -354,9 +358,8 @@ paste.app_factory = neutron.api.v2.router:APIRouter.factory
             "Path: %s; method: %s; operation: %s", path, method, action
         )
 
-        path_params = set()
         # Get Path elements
-        path_elements = list(filter(None, path.split("/")))
+        path_elements: list[str] = list(filter(None, path.split("/")))
         if path_elements and VERSION_RE.match(path_elements[0]):
             path_elements.pop(0)
 
@@ -365,8 +368,8 @@ paste.app_factory = neutron.api.v2.router:APIRouter.factory
         # Build path parameters (/foo/{foo_id}/bar/{id} => $foo_id, $foo_bar_id)
         # Since for same path we are here multiple times check presence of
         # parameter before adding new params
-        path_params = []
-        path_resource_names = []
+        path_params: list[ParameterSchema] = []
+        path_resource_names: list[str] = []
         for path_element in path_elements:
             if "{" in path_element:
                 param_name = path_element.strip("{}")
@@ -690,7 +693,7 @@ paste.app_factory = neutron.api.v2.router:APIRouter.factory
 
 def get_schema(param_data):
     """Convert Neutron API definition into json schema"""
-    schema = {}
+    schema: dict[str, Any] = {}
     validate = param_data.get("validate")
     convert_to = param_data.get("convert_to")
     if validate:

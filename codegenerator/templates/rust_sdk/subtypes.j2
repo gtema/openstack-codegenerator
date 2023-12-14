@@ -1,13 +1,22 @@
 {%- import 'rust_macros.j2' as macros with context -%}
 {%- for subtype in type_manager.get_subtypes() %}
 {{ macros.docstring(subtype.description, indent=0) }}
-{{ type_manager.get_subtype_derive_macros(subtype) }}
-{{ subtype.base_type }} {{ subtype.name }}{{ ("<" + ",".join(subtype.lifetimes) + ">") if subtype.lifetimes else ""}} {
+{%- if subtype.derive_container_macros %}
+{{ subtype.derive_container_macros }}
+{%- endif %}
+{%- if subtype.builder_container_macros %}
+{{ subtype.builder_container_macros }}
+{%- endif %}
+{%- if subtype.serde_container_macros %}
+{{ subtype.serde_container_macros }}
+{%- endif %}
+pub {{ subtype.base_type }} {{ subtype.name }}{{ ("<" + ",".join(subtype.lifetimes) + ">") if subtype.lifetimes else ""}} {
   {%- if subtype["fields"] is defined %}
   {#- Struct fields #}
   {%- for field in subtype.fields.values() %}
     {{ macros.docstring(field.description, indent=4) }}
-    {{ type_manager.get_subtype_field_serde_macros(field) }}
+    {{ field.serde_macros }}
+    {{ field.builder_macros }}
     {{ field.local_name }}: {{ field.type_hint }},
   {%- endfor %}
   {%- elif subtype["kinds"] is defined %}
@@ -16,6 +25,23 @@
     {{- macros.docstring(kind.description, indent=4) }}
     {{ name }}({{ kind.type_hint }}),
   {%- endfor %}
+  {%- elif subtype["variants"] is defined %}
+  {#- StringEnum kinds #}
+  {%- for k, v in subtype.variants.items() %}
+    {{ subtype.variant_serde_macros(k) }}
+    {{ k }},
+  {%- endfor %}
   {%- endif %}
 }
+
+{% if type_manager.subtype_requires_private_builders(subtype) %}
+impl{{ ("<" + ",".join(subtype.lifetimes) + ">") if subtype.lifetimes else ""}} {{ subtype.name }}Builder{{ ("<" + ",".join(subtype.lifetimes) + ">") if subtype.lifetimes else ""}} {
+
+  {%- for field in subtype.fields.values() %}
+    {%- if "private" in field.builder_macros %}
+      {{ macros.sdk_builder_setter(field)}}
+    {%- endif %}
+  {%- endfor %}
+}
+{%- endif %}
 {%- endfor %}

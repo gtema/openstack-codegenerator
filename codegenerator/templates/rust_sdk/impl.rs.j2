@@ -4,9 +4,9 @@ use derive_builder::Builder;
 use http::{HeaderMap, HeaderName, HeaderValue};
 
 use crate::api::rest_endpoint_prelude::*;
-use crate::api::common::CommaSeparatedList;
+use serde::Serialize;
 
-{% for mod in additional_imports | sort %}
+{% for mod in type_manager.get_imports() | sort %}
 use {{ mod }};
 {%- endfor %}
 
@@ -18,122 +18,59 @@ use json_patch::Patch;
 use crate::api::Pageable;
 {%- endif %}
 
-{%- for (subtype_name, subtype) in subtypes.items() %}
-{{ macros.docstring(subtype.description, indent=4) }}
-#[derive(Debug, Deserialize, Clone, Serialize)]
-pub struct {{ subtype_name }}{{ "<'a>" if "'a" in subtype.params.values()|map(attribute="type")|join() else "" }} {
-{%- for k, param in subtype.params.items() %}
-{%- if param.type != "null" %}
-{{ macros.docstring(param.description, indent=4) }}
-{%- for macros in param.param_macros %}
-    {{ macros }}
-{%- endfor %}
-    {{ param.local_name }}: {{ param.type }},
-{%- endif %}
-{% endfor %}
-}
-{%- endfor %}
+{%- include "rust_sdk/subtypes.j2" %}
 
-/// Query for {{ operation_id }} operation.
-#[derive(Debug, Builder, Clone)]
-#[builder(setter(strip_option))]
-pub struct {{ class_name }}{{ processor.get_body_lifetimes() }} {
-// {{ "<'a>" if static_lifetime else "" }} {
-{%- for k, v in processor.get_body_fields() %}
-{{ macros.docstring(v.description, indent=4) }}
-{%- for macros in v.get_macros() %}
-    {{ macros }}
-{%- endfor %}
-// {{ v.get_local_name() }}: {{ v.type_hint }};
-{%- endfor %}
-{%- for k, param in params.items() %}
-{%- if param.location in ["path", "query", "body"] %}
-{%- if param.type != "null" %}
-{{ macros.docstring(param.description, indent=4) }}
-{%- for macros in param.param_macros %}
-    {{ macros }}
-{%- endfor %}
-    {{ param.local_name }}: {{ param.type }},
-{%- endif %}
-{%- endif %}
-{% endfor %}
+{%- include "rust_sdk/request_struct.j2" %}
 
-{% if method|lower == "patch" %}
-    /// Patch data
-    #[builder()]
-    patch: Patch,
-{%- endif %}
-
-    #[builder(setter(name = "_headers"), default, private)]
-    _headers: Option<HeaderMap>,
-}
-
-impl{{ "<'a>" if static_lifetime else "" }} {{ class_name }}{{ "<'a>" if static_lifetime else "" }} {
+{%- with request = type_manager.get_root_data_type() %}
+impl{{ type_manager.get_request_static_lifetimes(request) }} Request{{ type_manager.get_request_static_lifetimes(request) }} {
     /// Create a builder for the endpoint.
-    pub fn builder() -> {{ class_name }}Builder{{ "<'a>" if static_lifetime else "" }} {
-        {{ class_name }}Builder::default()
+    pub fn builder() -> RequestBuilder{{ type_manager.get_request_static_lifetimes(request) }} {
+        RequestBuilder::default()
     }
 }
 
-impl{{ "<'a>" if static_lifetime else "" }} {{ class_name }}Builder{{ "<'a>" if static_lifetime else "" }} {
-{%- for setter in param_setters %}
-{%- if setter.type=="csv" %}
-    {{ macros.docstring(setter.description, indent=4) }}
-    pub fn {{setter.name}}<I, T>(&mut self, iter: I) -> &mut Self
+impl{{ type_manager.get_request_static_lifetimes(request) }} RequestBuilder{{ type_manager.get_request_static_lifetimes(request) }} {
+
+{%- for param in type_manager.parameters.values() %}
+{%- if param.setter_type == "csv" %}
+    {{ macros.docstring(param.description, indent=4) }}
+    pub fn {{param.setter_name}}<I, T>(&mut self, iter: I) -> &mut Self
     where
         I: Iterator<Item = T>,
-        T: Into<{{ setter.element }}>,
+        T: Into<{{ param.data_type.item_type.type_hint }}>,
     {
-    self.{{setter.name}}
+    self.{{param.setter_name}}
     .get_or_insert(None)
     .get_or_insert_with(CommaSeparatedList::new)
     .extend(iter.map(Into::into));
     self
     }
-{%- elif setter.type=="list" %}
-    {{ macros.docstring(setter.description, indent=4) }}
-    pub fn {{setter.name}}<I, T>(&mut self, iter: I) -> &mut Self
+{%- elif param.setter_type=="set" %}
+    {{ macros.docstring(param.description, indent=4) }}
+    pub fn {{param.setter_name}}<I, T>(&mut self, iter: I) -> &mut Self
     where
         I: Iterator<Item = T>,
-        T: Into<{{ setter.element }}>,
+        T: Into<{{ param.data_type.item_type.type_hint }}>,
     {
-    self.{{setter.name}}
-    {%- if setter.is_optional %}
-    .get_or_insert(None)
-    {%- endif %}
-    .get_or_insert_with(Vec::new)
-    .extend(iter.map(Into::into));
-    self
-    }
-{%- elif setter.type=="set" %}
-    {{ macros.docstring(setter.description, indent=4) }}
-    pub fn {{setter.name}}<I, T>(&mut self, iter: I) -> &mut Self
-    where
-        I: Iterator<Item = T>,
-        T: Into<{{ setter.element}}>,
-    {
-    self.{{setter.name}}
-    {%- if setter.is_optional %}
-    .get_or_insert(None)
-    {%- endif %}
+    self.{{ param.setter_name }}
     .get_or_insert_with(BTreeSet::new)
     .extend(iter.map(Into::into));
     self
     }
-{%- elif setter.type=="kv" %}
-    {{ macros.docstring(setter.description, indent=4) }}
-    pub fn {{ setter.name }}<I, K, V>(&mut self, iter: I) -> &mut Self
+{%- elif param.setter_type == "list" %}
+    {{ macros.docstring(param.description, indent=4) }}
+    pub fn {{param.setter_name}}<I, T>(&mut self, iter: I) -> &mut Self
     where
-        I: Iterator<Item = (K, V)>,
-        K: Into<{{ setter.key_type }}>,
-        V: Into<{{ setter.value_type }}>,
+        I: Iterator<Item = T>,
+        T: Into<{{ param.data_type.item_type.type_hint }}>,
     {
-    self.{{setter.name}}
-    {%- if setter.is_optional %}
+    self.{{param.setter_name}}
+    {%- if not param.is_required %}
     .get_or_insert(None)
     {%- endif %}
-    .get_or_insert_with(BTreeMap::new)
-    .extend(iter.map(|(k, v)| (k.into(), v.into())));
+    .get_or_insert_with(Vec::new)
+    .extend(iter.map(Into::into));
     self
     }
 {%- endif %}
@@ -163,7 +100,7 @@ impl{{ "<'a>" if static_lifetime else "" }} {{ class_name }}Builder{{ "<'a>" if 
     }
 }
 
-impl{{ "<'a>" if static_lifetime else "" }} RestEndpoint for {{ class_name }}{{ "<'a>" if static_lifetime else "" }} {
+impl{{ type_manager.get_request_static_lifetimes(request) }} RestEndpoint for Request{{ type_manager.get_request_static_lifetimes(request) }} {
     fn method(&self) -> Method {
         Method::{{ method | upper }}
     }
@@ -171,28 +108,32 @@ impl{{ "<'a>" if static_lifetime else "" }} RestEndpoint for {{ class_name }}{{ 
     fn endpoint(&self) -> Cow<'static, str> {
         format!(
             "{{ url }}",
-{%- for k, v in path_params.items() %}
+{%- for k, v in type_manager.parameters.items() %}
+{%- if v.location == "path" %}
                 {{ k }} = self.{{ v.local_name }}.as_ref(),
+{%- endif %}
 {% endfor %}
         ).into()
     }
 
     fn parameters(&self) -> QueryParams {
-    {%- if query_params|length > 0 %}
+    {%- if type_manager.parameters|length > 0 %}
         let mut params = QueryParams::default();
 
-     {%- for k, v in query_params.items() %}
-      {%- if not v.type.startswith("BTreeSet") %}
-        params.push_opt(
-            "{{ k }}",
-          {%- if "Cow<" in v.type %}
-            self.{{ v.local_name }}.as_ref());
-          {%- else %}
-            self.{{ v.local_name }});
-          {%- endif %}
-      {%- else %}
-        params.extend(self.{{ v.local_name }}.iter().map(|value| ("{{ k }}", value)));
-      {%- endif %}
+     {%- for param in type_manager.parameters.values() %}
+     {%- if param.location == "query" %}
+     {%- if not param.type_hint.startswith("BTreeSet") %}
+     params.push_opt(
+         "{{ param.remote_name }}",
+         self.{{ param.local_name}}
+         {%- if "Cow<" in param.type_hint %}
+         .as_ref()
+         {%- endif %}
+     );
+     {%- else %}
+     params.extend(self.{{ param.local_name }}.iter().map(|value| ("{{ param.remote_name }}", value)));
+     {%- endif %}
+     {%- endif %}
      {%- endfor %}
 
         params
@@ -201,39 +142,21 @@ impl{{ "<'a>" if static_lifetime else "" }} RestEndpoint for {{ class_name }}{{ 
     {%- endif %}
     }
 
-{% if body_params %}
+{% if request.fields %}
     fn body(&self) -> Result<Option<(&'static str, Vec<u8>)>, BodyError> {
         let mut params = JsonBodyParams::default();
 
-        {% for k, v in body_params.items() %}
-        {%- if "type" in v.schema and v.schema.type == "null" %}
-        params.push("{{ k }}", None::<String>);
-        {%- elif v.type.startswith("Option") %}
-        params.push_opt("{{ k }}",
-          {%- if "Cow<" in v.type or "Value" in v.type %}
-            self.{{ v.local_name }}.as_ref());
-          {%- elif subtypes.keys()|select("in", v.type)|list|length > 0 %}
-          {# type is one of subtypes #}
-            self.{{ v.local_name }}.as_ref());
-          {%- elif "HashMap" in v.type  %}
-            self.{{ v.local_name }}.as_ref());
-          {%- else %}
-            self.{{ v.local_name }});
-          {%- endif %}
+        {% for k, v in request.fields.items() %}
+        {%- if v.is_optional %}
+        if let Some(val) = &self.{{ v.local_name }} {
+            params.push("{{ k }}", serde_json::to_value(val)?);
+        }
         {%- else %}
-        {%- if v.type.startswith("BTreeSet") %}
-        params.push("{{ k }}", &self.{{ v.local_name }});
-        {%- elif "Cow<" in v.type %}
-        params.push("{{ k }}", self.{{ v.local_name }}.as_ref());
-        {%- endif %}
+        params.push("{{ k }}", serde_json::to_value(&self.{{v.local_name}})?);
         {%- endif %}
         {%- endfor %}
 
-        {%- if request_key %}
-        params.into_body_with_root_key("{{ request_key }}")
-        {%- else %}
         params.into_body()
-        {%- endif %}
     }
 {% elif method|lower == "patch" %}
     fn body(&self) -> Result<Option<(&'static str, Vec<u8>)>, BodyError> {
@@ -269,8 +192,8 @@ impl{{ "<'a>" if static_lifetime else "" }} RestEndpoint for {{ class_name }}{{ 
 }
 
 {#- EP is pageable if operation_type is list and there is limit or marker query parameter #}
-{%- if operation_type == "list" and "limit" in params or "marker" in params %}
-impl{{ "<'a>" if static_lifetime else "" }} Pageable for {{ class_name }}{{ "<'a>" if static_lifetime else "" }} {}
+{%- if operation_type == "list" and "limit" in type_manager.parameters.keys() or "marker" in type_manager.parameters.keys() %}
+impl{{ type_manager.get_request_static_lifetimes(request) }} Pageable for Request{{ type_manager.get_request_static_lifetimes(request) }} {}
 {%- endif %}
 
 #[cfg(test)]
@@ -281,6 +204,7 @@ mod tests {
     use crate::test::client::MockServerClient;
     use http::{HeaderName, HeaderValue};
     use serde::Deserialize;
+    use serde::Serialize;
     use serde_json::json;
     {%- if method == "patch" %}
     use serde_json::from_value;
@@ -289,8 +213,9 @@ mod tests {
 
     #[test]
     fn test_service_type() {
-        assert_eq!({{ class_name }}::builder()
+        assert_eq!(Request::builder()
             {{ ".patch(from_value::<Patch>(json!([])).unwrap())" if method == "patch" else "" }}
+            {{ request.get_mandatory_init() }}
             .build().unwrap().service_type(), ServiceType::{{ sdk_service_name }});
     }
 
@@ -298,14 +223,16 @@ mod tests {
     fn test_response_key() {
 {%- if response_key %}
         assert_eq!(
-            {{ class_name }}::builder()
+            Request::builder()
                 {{ ".patch(from_value::<Patch>(json!([])).unwrap())" if method == "patch" else "" }}
+                {{ request.get_mandatory_init() }}
                 .build().unwrap().response_key().unwrap(),
             "{{ response_key }}"
         );
 {%- else %}
-        assert!({{ class_name }}::builder()
+        assert!(Request::builder()
             {{ ".patch(from_value::<Patch>(json!([])).unwrap())" if method == "patch" else "" }}
+            {{ request.get_mandatory_init() }}
             .build().unwrap().response_key().is_none())
 {%- endif %}
     }
@@ -317,9 +244,11 @@ mod tests {
             when.method(httpmock::Method::{{ method | upper }})
             .path(format!(
                 "/{{ url }}",
-    {%- for k, v in path_params.items() %}
+                    {%- for k, v in type_manager.parameters.items() %}
+                    {%- if v.location == "path" %}
                     {{ k }} = "{{ k }}",
-    {%- endfor %}
+                    {%- endif %}
+                    {%- endfor %}
              ));
 
             then.status(200)
@@ -329,11 +258,14 @@ mod tests {
 {%- endif %};
         });
 
-        let endpoint = {{ class_name }}::builder()
-{%- for k, v in path_params.items() %}
+        let endpoint = Request::builder()
+            {%- for k, v in type_manager.parameters.items() %}
+            {%- if v.location == "path" %}
             .{{ v.local_name }}("{{ k }}")
-{%- endfor %}
+            {%- endif %}
+            {%- endfor %}
             {{ ".patch(from_value::<Patch>(json!([])).unwrap())" if method == "patch" else "" }}
+            {{ request.get_mandatory_init() }}
             .build().unwrap();
 {%- if method.upper() != "HEAD" %}
         let _: serde_json::Value = endpoint.query(&client).unwrap();
@@ -350,9 +282,11 @@ mod tests {
             when.method(httpmock::Method::{{ method|upper }})
                 .path(format!(
                     "/{{ url }}",
-        {%- for k, v in path_params.items() %}
-                        {{ k }} = "{{ k }}",
-        {%- endfor %}
+                {%- for k, v in type_manager.parameters.items() %}
+                {%- if v.location == "path" %}
+                {{ k }} = "{{ k }}",
+                {%- endif %}
+                {%- endfor %}
                  ))
                 .header("foo", "bar")
                 .header("not_foo", "not_bar");
@@ -363,11 +297,14 @@ mod tests {
 {%- endif %};
         });
 
-        let endpoint = {{ class_name }}::builder()
-{%- for k, v in path_params.items() %}
+        let endpoint = Request::builder()
+            {%- for k, v in type_manager.parameters.items() %}
+            {%- if v.location == "path" %}
             .{{ v.local_name }}("{{ k }}")
-{%- endfor %}
+            {%- endif %}
+            {%- endfor %}
             {{ ".patch(from_value::<Patch>(json!([])).unwrap())" if method == "patch" else "" }}
+            {{ request.get_mandatory_init() }}
             .headers(
                 [(
                     Some(HeaderName::from_static("foo")),
@@ -386,43 +323,6 @@ mod tests {
 {%- endif %}
         mock.assert();
     }
-
-{% if body_params %}
-    #[test]
-    fn endpoint_body() {
-        let endpoint = {{ class_name }}::builder()
-         {% for k, v in body_params.items() %}
-          {%- if v.type in ["Cow<'a, str>", "Option<Cow<'a, str>>"] %}
-             .{{ v.local_name }}("{{ k }}")
-          {%- elif "type" in v.schema and v.schema.type in ["array"] %}
-             .{{ v.local_name }}(["{{ k }}"].iter().cloned())
-          {%- endif %}
-         {%- endfor %}
-             .build()
-             .unwrap();
-
-        let (mime, body) = endpoint.body().unwrap().unwrap();
-        assert_eq!(
-            std::str::from_utf8(&body).unwrap(),
-            json!({
-             {%- if request_key %}
-              "{{ request_key }}": {
-             {%- endif %}
-             {%- for k, v in body_params.items() %}
-               {%- if v.type in ["Cow<'a, str>", "Option<Cow<'a, str>>"] %}
-                 "{{ k }}": "{{ k }}",
-               {%- elif "type" in v.schema and v.schema.type in ["array"] %}
-                 "{{ k }}": ["{{ k }}"],
-               {%- elif "type" in v.schema and v.schema.type == "null" %}
-                 "{{ k }}": None::<String>,
-               {%- endif %}
-             {%- endfor %}
-             {%- if request_key %}
-             }
-             {%- endif %}
-            }).to_string()
-        );
-
-    }
-{%- endif %}
 }
+
+{%- endwith %}

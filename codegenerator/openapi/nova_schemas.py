@@ -11,6 +11,7 @@
 #   under the License.
 #
 import copy
+from typing import Any
 
 from nova.api.openstack.compute.schemas import flavor_manage
 from nova.api.openstack.compute.schemas import flavors_extraspecs
@@ -21,7 +22,7 @@ from nova.api.validation import parameter_types
 # NOTE(gtema): This is a temporary location for schemas not currently defined
 # in Nova. Once everything is stabilized those must be moved directly to Nova
 
-LINK_SCHEMA = {
+LINK_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "Links to the resources in question. See [API Guide / Links and References](https://docs.openstack.org/api-guide/compute/links_and_references.html) for more info.",
     "properties": {
@@ -30,14 +31,14 @@ LINK_SCHEMA = {
     },
 }
 
-LINKS_SCHEMA = {
+LINKS_SCHEMA: dict[str, Any] = {
     "type": "array",
     "description": "Links to the resources in question. See [API Guide / Links and References](https://docs.openstack.org/api-guide/compute/links_and_references.html) for more info.",
     "items": copy.deepcopy(LINK_SCHEMA),
 }
 
 
-SERVER_TAGS_SCHEMA = {
+SERVER_TAGS_SCHEMA: dict[str, Any] = {
     "description": "Server Tags",
     "type": "object",
     "properties": {
@@ -51,7 +52,7 @@ SERVER_TAGS_SCHEMA = {
     },
 }
 
-SERVER_TOPOLOGY_SCHEMA = {
+SERVER_TOPOLOGY_SCHEMA: dict[str, Any] = {
     "description": "NUMA topology information for a server",
     "type": "object",
     "properties": {
@@ -97,21 +98,21 @@ SERVER_TOPOLOGY_SCHEMA = {
     },
 }
 
-FLAVOR_EXTRA_SPEC_SCHEMA = {
+FLAVOR_EXTRA_SPEC_SCHEMA: dict[str, Any] = {
     "minProperties": 1,
     "maxProperties": 1,
     "examples": {"JSON Request": {"hw:numa_nodes": "1"}},
     **flavors_extraspecs.metadata,
 }
 
-FLAVOR_EXTRA_SPECS_SCHEMA = flavors_extraspecs.metadata
-FLAVOR_EXTRA_SPECS_LIST_SCHEMA = {
+FLAVOR_EXTRA_SPECS_SCHEMA: dict[str, Any] = flavors_extraspecs.metadata
+FLAVOR_EXTRA_SPECS_LIST_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "A dictionary of the flavor’s extra-specs key-and-value pairs. It appears in the os-extra-specs’ “create” REQUEST body, as well as the os-extra-specs’ “create” and “list” RESPONSE body.",
     "properties": {"extra_specs": flavors_extraspecs.metadata},
 }
 
-FLAVOR_SHORT_SCHEMA = {
+FLAVOR_SHORT_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "id": {"type": "string", "format": "uuid"},
@@ -120,18 +121,20 @@ FLAVOR_SHORT_SCHEMA = {
         "links": LINKS_SCHEMA,
     },
 }
-FLAVOR_SCHEMA = copy.deepcopy(flavor_manage.create_v20["properties"]["flavor"])
+FLAVOR_SCHEMA: dict[str, Any] = copy.deepcopy(
+    flavor_manage.create_v20["properties"]["flavor"]
+)
 FLAVOR_SCHEMA["properties"].update(
     {"extra_specs": FLAVOR_EXTRA_SPECS_SCHEMA, "links": LINKS_SCHEMA}
 )
 
-FLAVOR_CONTAINER_SCHEMA = {
+FLAVOR_CONTAINER_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "Single flavor details",
     "properties": {"flavor": copy.deepcopy(FLAVOR_SCHEMA)},
 }
 
-FLAVORS_LIST_SCHEMA = {
+FLAVORS_LIST_SCHEMA: dict[str, Any] = {
     "description": "Flavors list response",
     "type": "object",
     "properties": {
@@ -142,7 +145,7 @@ FLAVORS_LIST_SCHEMA = {
     },
 }
 
-FLAVORS_LIST_DETAIL_SCHEMA = {
+FLAVORS_LIST_DETAIL_SCHEMA: dict[str, Any] = {
     "description": "Detailed flavors list response",
     "type": "object",
     "properties": {
@@ -150,14 +153,14 @@ FLAVORS_LIST_DETAIL_SCHEMA = {
     },
 }
 
-FLAVOR_ACCESS_SCHEMA = {
+FLAVOR_ACCESS_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "flavor_id": {"type": "string", "format": "uuid"},
         "tenant_id": {"type": "string", "format": "uuid"},
     },
 }
-FLAVOR_ACCESSES_SCHEMA = {
+FLAVOR_ACCESSES_SCHEMA: dict[str, Any] = {
     "description": "A list of objects, each with the keys flavor_id and tenant_id.",
     "type": "object",
     "properties": {
@@ -168,7 +171,7 @@ FLAVOR_ACCESSES_SCHEMA = {
     },
 }
 
-LIMITS_SCHEMA = {
+LIMITS_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "Data structure that contains both absolute limits within a deployment.",
     "properties": {
@@ -225,7 +228,7 @@ LIMITS_SCHEMA = {
     },
 }
 
-AGGREGATE_SCHEMA = {
+AGGREGATE_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "The host aggregate object",
     "properties": {
@@ -267,14 +270,14 @@ AGGREGATE_SCHEMA = {
     },
 }
 
-AGGREGATE_CONTAINER_SCHEMA = {
+AGGREGATE_CONTAINER_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "Aggregate object.",
     "properties": {"aggregate": copy.deepcopy(AGGREGATE_SCHEMA)},
 }
 
 
-AGGREGATE_LIST_SCHEMA = {
+AGGREGATE_LIST_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "The list of existing aggregates.",
     "properties": {
@@ -286,7 +289,7 @@ AGGREGATE_LIST_SCHEMA = {
     },
 }
 
-VOLUME_SNAPSHOT_SCHEMA = {
+VOLUME_SNAPSHOT_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "A partial representation of a snapshot that is used to create a snapshot.",
     "properties": {
@@ -308,7 +311,7 @@ VOLUME_SNAPSHOT_SCHEMA = {
     },
 }
 
-AZ_SCHEMA = {
+AZ_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "zoneName": {
@@ -329,7 +332,7 @@ AZ_SCHEMA = {
     },
 }
 
-AZ_DETAIL_SCHEMA = copy.deepcopy(AZ_SCHEMA)
+AZ_DETAIL_SCHEMA: dict[str, Any] = copy.deepcopy(AZ_SCHEMA)
 AZ_DETAIL_SCHEMA["properties"]["hosts"] = {
     "type": "object",
     "description": "An object containing a list of host information. The host information is comprised of host and service objects. The service object returns three parameters representing the states of the service: active, available, and updated_at.",
@@ -353,7 +356,7 @@ AZ_DETAIL_SCHEMA["properties"]["hosts"] = {
     },
 }
 
-AZ_LIST_SCHEMA = {
+AZ_LIST_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "availabilityZoneInfo": {
@@ -363,7 +366,7 @@ AZ_LIST_SCHEMA = {
         }
     },
 }
-AZ_LIST_DETAIL_SCHEMA = {
+AZ_LIST_DETAIL_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "availabilityZoneInfo": {
@@ -374,7 +377,7 @@ AZ_LIST_DETAIL_SCHEMA = {
     },
 }
 
-CONSOLE_SCHEMA = {
+CONSOLE_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "Show Console Connection Information Response",
     "properties": {
@@ -402,7 +405,7 @@ CONSOLE_SCHEMA = {
     },
 }
 
-REMOTE_CONSOLE_SCHEMA = {
+REMOTE_CONSOLE_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "Create Console Response",
     "properties": {
@@ -434,7 +437,7 @@ REMOTE_CONSOLE_SCHEMA = {
     },
 }
 
-HYPERVISOR_SHORT_SCHEMA = {
+HYPERVISOR_SHORT_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "The hypervisor object.",
     "properties": {
@@ -478,7 +481,7 @@ HYPERVISOR_SHORT_SCHEMA = {
     },
 }
 
-HYPERVISOR_SCHEMA = {
+HYPERVISOR_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "The hypervisor object.",
     "properties": {
@@ -598,13 +601,13 @@ HYPERVISOR_SCHEMA = {
     },
 }
 
-HYPERVISOR_CONTAINER_SCHEMA = {
+HYPERVISOR_CONTAINER_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {"hypervisor": copy.deepcopy(HYPERVISOR_SCHEMA)},
 }
 
 
-HYPERVISOR_LIST_SCHEMA = {
+HYPERVISOR_LIST_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "hypervisors": {
@@ -616,7 +619,7 @@ HYPERVISOR_LIST_SCHEMA = {
     },
 }
 
-HYPERVISOR_LIST_DETAIL_SCHEMA = {
+HYPERVISOR_LIST_DETAIL_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "hypervisors": {
@@ -628,7 +631,7 @@ HYPERVISOR_LIST_DETAIL_SCHEMA = {
     },
 }
 
-INSTANCE_USAGE_AUDIT_SCHEMA = {
+INSTANCE_USAGE_AUDIT_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "The object of instance usage audit log information.",
     "properties": {
@@ -702,7 +705,7 @@ INSTANCE_USAGE_AUDIT_SCHEMA = {
 }
 
 
-KEYPAIR_SHORT_SCHEMA = {
+KEYPAIR_SHORT_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "Keypair object",
     "properties": {
@@ -723,7 +726,7 @@ KEYPAIR_SHORT_SCHEMA = {
     },
 }
 
-KEYPAIR_LIST_SCHEMA = {
+KEYPAIR_LIST_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "keypairs": {
@@ -735,7 +738,7 @@ KEYPAIR_LIST_SCHEMA = {
     },
 }
 
-KEYPAIR_SCHEMA = {
+KEYPAIR_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "Keypair object",
     "properties": {
@@ -767,14 +770,14 @@ KEYPAIR_SCHEMA = {
     },
 }
 
-KEYPAIR_CREATED_SCHEMA = copy.deepcopy(KEYPAIR_SCHEMA)
+KEYPAIR_CREATED_SCHEMA: dict[str, Any] = copy.deepcopy(KEYPAIR_SCHEMA)
 KEYPAIR_CREATED_SCHEMA["properties"]["private_key"] = {
     "type": "string",
     "description": "If you do not provide a public key on create, a new keypair will be built for you, and the private key will be returned during the initial create call. Make sure to save this, as there is no way to get this private key again in the future.",
     "x-openstack": {"max-ver": "2.91"},
 }
 
-MIGRATION_SCHEMA = {
+MIGRATION_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "Migration object",
     "properties": {
@@ -854,7 +857,7 @@ MIGRATION_SCHEMA = {
     },
 }
 
-MIGRATION_LIST_SCHEMA = {
+MIGRATION_LIST_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "List of migration objects",
     "properties": {
@@ -869,7 +872,7 @@ MIGRATION_LIST_SCHEMA = {
     },
 }
 
-SERVER_MIGRATION_SCHEMA = {
+SERVER_MIGRATION_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "Migration object",
     "properties": {
@@ -958,7 +961,7 @@ SERVER_MIGRATION_SCHEMA = {
         },
     },
 }
-SERVER_MIGRATION_LIST_SCHEMA = {
+SERVER_MIGRATION_LIST_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "List of migration objects",
     "properties": {
@@ -968,12 +971,12 @@ SERVER_MIGRATION_LIST_SCHEMA = {
         },
     },
 }
-SERVER_MIGRATION_CONTAINER_SCHEMA = {
+SERVER_MIGRATION_CONTAINER_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {"migration": copy.deepcopy(SERVER_MIGRATION_SCHEMA)},
 }
 
-QUOTA_SET_SCHEMA = {
+QUOTA_SET_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "Quota Set object",
     "properties": {
@@ -986,16 +989,16 @@ QUOTA_SET_SCHEMA = {
     },
 }
 
-QUOTA_SET_CONTAINER_SCHEMA = {
+QUOTA_SET_CONTAINER_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {"quota_set": QUOTA_SET_SCHEMA},
 }
-QUOTA_DETAIL_SCHEMA = {
+QUOTA_DETAIL_SCHEMA: dict[str, Any] = {
     "in_use": {"type": "integer"},
     "limit": {"type": "integer"},
     "reserved": {"type": "integer"},
 }
-QUOTA_SET_DETAIL_CONTAINER_SCHEMA = {
+QUOTA_SET_DETAIL_CONTAINER_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "quota_set": {
@@ -1095,7 +1098,7 @@ QUOTA_SET_DETAIL_CONTAINER_SCHEMA = {
     },
 }
 # TODO(gtema): class set props are not quota_set props, but for now keep this way
-QUOTA_CLASS_SET_SCHEMA = {
+QUOTA_CLASS_SET_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "Quota Class Set object",
     "properties": {
@@ -1107,12 +1110,12 @@ QUOTA_CLASS_SET_SCHEMA = {
     },
 }
 
-QUOTA_CLASS_SET_CONTAINER_SCHEMA = {
+QUOTA_CLASS_SET_CONTAINER_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {"quota_class_set": QUOTA_CLASS_SET_SCHEMA},
 }
 
-EXTERNAL_EVENTS_SCHEMA = {
+EXTERNAL_EVENTS_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "events": {
@@ -1161,7 +1164,7 @@ SERVER_GROUP_POLICIES = [
     "soft-affinity",
 ]
 
-SERVER_GROUP_SCHEMA = {
+SERVER_GROUP_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "id": {
@@ -1219,7 +1222,7 @@ SERVER_GROUP_SCHEMA = {
     },
 }
 
-SERVER_GROUP_LIST_SCHEMA = {
+SERVER_GROUP_LIST_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "server_groups": {
@@ -1229,12 +1232,12 @@ SERVER_GROUP_LIST_SCHEMA = {
         }
     },
 }
-SERVER_GROUP_CONTAINER_SCHEMA = {
+SERVER_GROUP_CONTAINER_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {"server_group": SERVER_GROUP_SCHEMA},
 }
 
-SERVICE_SCHEMA = {
+SERVICE_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "zone": {
@@ -1278,12 +1281,12 @@ SERVICE_SCHEMA = {
     },
 }
 
-SERVICE_CONTAINER_SCHEMA = {
+SERVICE_CONTAINER_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {"service": SERVICE_SCHEMA},
 }
 
-SERVICE_LIST_SCHEMA = {
+SERVICE_LIST_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "services": {
@@ -1294,7 +1297,7 @@ SERVICE_LIST_SCHEMA = {
     },
 }
 
-TENANT_USAGE_SCHEMA = {
+TENANT_USAGE_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "tenant_id": {
@@ -1395,7 +1398,7 @@ TENANT_USAGE_SCHEMA = {
     },
 }
 
-TENANT_USAGE_LIST_SCHEMA = {
+TENANT_USAGE_LIST_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "tenant_usages": {
@@ -1407,7 +1410,7 @@ TENANT_USAGE_LIST_SCHEMA = {
     },
 }
 
-SERVER_SHORT_SCHEMA = {
+SERVER_SHORT_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "Server object",
     "properties": {
@@ -1423,32 +1426,35 @@ SERVER_SHORT_SCHEMA = {
         },
     },
 }
-SERVER_ADDRESSES_SCHEMA = {
+SERVER_ADDRESSES_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "A dictionary of addresses this server can be accessed through. The dictionary contains keys such as ``private`` and ``public``, each containing a list of dictionaries for addresses of that type. The addresses are contained in a dictionary with keys ``addr`` and ``version``, which is either 4 or 6 depending on the protocol of the IP address.",
     "additionalProperties": {
-        "type": "object",
-        "properties": {
-            "addr": {
-                "description": "The IP address.",
-                **parameter_types.ip_address,
-            },
-            "version": {
-                "type": "integer",
-                "enum": [4, 6],
-                "description": "The IP version of the address associated with server.",
+        "type": "array",
+        "items": {
+            "type": "object",
+            "properties": {
+                "addr": {
+                    "description": "The IP address.",
+                    **parameter_types.ip_address,
+                },
+                "version": {
+                    "type": "integer",
+                    "enum": [4, 6],
+                    "description": "The IP version of the address associated with server.",
+                },
             },
         },
     },
 }
-SERVER_ADDRESSES_CONTAINER_SCHEMA = {
+SERVER_ADDRESSES_CONTAINER_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "The addresses information for the server.",
     "properties": {"addresses": SERVER_ADDRESSES_SCHEMA},
 }
 
 
-SERVER_SCHEMA = {
+SERVER_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "Server object",
     "properties": {
@@ -1745,12 +1751,12 @@ SERVER_SCHEMA = {
     },
 }
 
-SERVER_CONTAINER_SCHEMA = {
+SERVER_CONTAINER_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {"server": copy.deepcopy(SERVER_SCHEMA)},
 }
 
-SERVER_LIST_SCHEMA = {
+SERVER_LIST_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "servers": {
@@ -1761,14 +1767,14 @@ SERVER_LIST_SCHEMA = {
     },
 }
 
-SERVER_LIST_DETAIL_SCHEMA = {
+SERVER_LIST_DETAIL_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "servers": {"type": "array", "items": copy.deepcopy(SERVER_SCHEMA)},
         "servers_links": LINKS_SCHEMA,
     },
 }
-SERVER_CREATED_SCHEMA = {
+SERVER_CREATED_SCHEMA: dict[str, Any] = {
     "oneOf": [
         {
             "type": "object",
@@ -1823,7 +1829,7 @@ SERVER_CREATED_SCHEMA = {
     ]
 }
 
-SERVER_ACTION_CREATE_IMAGE_RESPONSE_SCHEMA = {
+SERVER_ACTION_CREATE_IMAGE_RESPONSE_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "image_id": {
@@ -1833,7 +1839,7 @@ SERVER_ACTION_CREATE_IMAGE_RESPONSE_SCHEMA = {
         }
     },
 }
-SERVER_ACTION_NEW_ADMINPASS_SCHEMA = {
+SERVER_ACTION_NEW_ADMINPASS_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "adminPass": {
@@ -1842,12 +1848,12 @@ SERVER_ACTION_NEW_ADMINPASS_SCHEMA = {
         }
     },
 }
-SERVER_ACTION_GET_CONSOLE_OUTPUT_SCHEMA = {
+SERVER_ACTION_GET_CONSOLE_OUTPUT_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "The console output as a string. Control characters will be escaped to create a valid JSON string.",
     "properties": {"output": {"type": "string"}},
 }
-SERVER_ACTION_REMOTE_CONSOLE_SCHEMA = {
+SERVER_ACTION_REMOTE_CONSOLE_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "The remote console object.",
     "properties": {
@@ -1867,7 +1873,7 @@ SERVER_ACTION_REMOTE_CONSOLE_SCHEMA = {
         }
     },
 }
-SERVER_DIAGNOSTICS_SCHEMA = {
+SERVER_DIAGNOSTICS_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "cpu_details": {
@@ -1973,18 +1979,18 @@ SERVER_DIAGNOSTICS_SCHEMA = {
     },
 }
 
-SERVER_METADATA_LIST_SCHEMA = {
+SERVER_METADATA_LIST_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "Metadata key and value pairs. The maximum size for each metadata key and value pair is 255 bytes.",
     "properties": {"metadata": parameter_types.metadata},
 }
-SERVER_METADATA_ITEM_SCHEMA = {
+SERVER_METADATA_ITEM_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "Metadata key and value pairs. The maximum size for each metadata key and value pair is 255 bytes.",
     "properties": {"meta": {"maxProperties": 1, **parameter_types.metadata}},
 }
 
-SERVER_INSTANCE_ACTION_SCHEMA = {
+SERVER_INSTANCE_ACTION_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "The instance action object.",
     "properties": {
@@ -2064,11 +2070,11 @@ SERVER_INSTANCE_ACTION_SCHEMA = {
         },
     },
 }
-SERVER_INSTANCE_ACTION_CONTAINER_SCHEMA = {
+SERVER_INSTANCE_ACTION_CONTAINER_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {"instanceAction": SERVER_INSTANCE_ACTION_SCHEMA},
 }
-SERVER_INSTANCE_ACTION_LIST_SCHEMA = {
+SERVER_INSTANCE_ACTION_LIST_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "instanceActions": {
@@ -2080,7 +2086,7 @@ SERVER_INSTANCE_ACTION_LIST_SCHEMA = {
     },
 }
 
-INTERFACE_ATTACHMENT_SCHEMA = {
+INTERFACE_ATTACHMENT_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "The interface attachment.",
     "properties": {
@@ -2124,11 +2130,11 @@ INTERFACE_ATTACHMENT_SCHEMA = {
         },
     },
 }
-INTERFACE_ATTACHMENT_CONTAINER_SCHEMA = {
+INTERFACE_ATTACHMENT_CONTAINER_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {"interfaceAttachment": INTERFACE_ATTACHMENT_SCHEMA},
 }
-INTERFACE_ATTACHMENT_LIST_SCHEMA = {
+INTERFACE_ATTACHMENT_LIST_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "interfaceAttachments": {
@@ -2138,7 +2144,7 @@ INTERFACE_ATTACHMENT_LIST_SCHEMA = {
     },
 }
 
-SERVER_PASSWORD_SCHEMA = {
+SERVER_PASSWORD_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "password": {
@@ -2149,7 +2155,7 @@ SERVER_PASSWORD_SCHEMA = {
     },
 }
 
-VOLUME_ATTACHMENT_SCHEMA = {
+VOLUME_ATTACHMENT_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "device": {
@@ -2196,17 +2202,60 @@ VOLUME_ATTACHMENT_SCHEMA = {
         },
     },
 }
-VOLUME_ATTACHMENT_CONTAINER_SCHEMA = {
+VOLUME_ATTACHMENT_CONTAINER_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {"volumeAttachment": VOLUME_ATTACHMENT_SCHEMA},
 }
 
-VOLUME_ATTACHMENT_LIST_SCHEMA = {
+VOLUME_ATTACHMENT_LIST_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "volumeAttachments": {
             "type": "array",
             "items": VOLUME_ATTACHMENT_SCHEMA,
+        }
+    },
+}
+
+EXTENSION_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "description": "An extension object.",
+    "properties": {
+        "alias": {
+            "type": "string",
+            "description": "A short name by which this extension is also known.",
+        },
+        "description": {
+            "type": "string",
+            "description": "Text describing this extension’s purpose.",
+        },
+        "links": copy.deepcopy(LINKS_SCHEMA),
+        "name": {"type": "string", "description": "Name of the extension."},
+        "namespace": {
+            "type": "string",
+            "description": "A URL pointing to the namespace for this extension.",
+        },
+        "updated": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date and time when the resource was updated.",
+        },
+    },
+}
+
+EXTENSION_CONTAINER_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "description": "An extension object.",
+    "properties": {"extension": copy.deepcopy(EXTENSION_SCHEMA)},
+}
+
+EXTENSION_LIST_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "description": "An extension object.",
+    "properties": {
+        "extensions": {
+            "type": "array",
+            "items": copy.deepcopy(EXTENSION_SCHEMA),
         }
     },
 }

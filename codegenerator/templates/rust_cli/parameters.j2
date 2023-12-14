@@ -1,0 +1,9 @@
+{%- with type = type_manager.get_root_data_type() %}
+{%- if type["fields"] is defined %}
+{#- Structure #}
+  {%- for field in type.fields.values() %}
+    {{ field.clap_macros }}
+    {{ field.local_name }}: {{ field.type_hint }},
+  {%- endfor %}
+{%- endif %}
+{%- endwith %}

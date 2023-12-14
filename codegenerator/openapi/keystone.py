@@ -333,8 +333,8 @@ class KeystoneGenerator(OpenStackServerSourceBase):
         # Build path parameters (/foo/{foo_id}/bar/{id} => $foo_id, $foo_bar_id)
         # Since for same path we are here multiple times check presence of
         # parameter before adding new params
-        path_params = []
-        path_resource_names = []
+        path_params: list[ParameterSchema] = []
+        path_resource_names: list[str] = []
         for path_element in path_elements:
             if "{" in path_element:
                 param_name = path_element.strip("{}")
@@ -410,6 +410,8 @@ class KeystoneGenerator(OpenStackServerSourceBase):
             # API for both /RESOURCE and /RESOURCE/{ID}. Routing is then
             # failing to invoke the method because of missing parameter, so
             # analyse and skip those now.
+            if not func:
+                continue
             sig = inspect.signature(func)
             for param in args:
                 if param not in sig.parameters:

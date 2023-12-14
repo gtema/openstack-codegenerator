@@ -41,38 +41,6 @@ class TypeSchema(BaseModel):
     pattern: Optional[str] = None
     maxLength: Optional[int] = None
 
-    # sdk_name: str = Field(
-    #    alias="x-openstack-sdk-name", default=None
-    # )
-    # min_microversion: str = Field(
-    #    alias="x-openstack-min-microversion", default=None
-    # )
-    # max_microversion: str = Field(
-    #    alias="x-openstack-max-microversion", default=None
-    # )
-    # openstack_default: str = Field(
-    #    alias="x-openstack-default", default=None
-    # )
-
-    def rust_sdk_type(self):
-        if self.type in ["str", "string"]:
-            return "Cow<'a, str>"
-        elif self.type == "number":
-            if self.format:
-                if self.format == "float":
-                    return "f32"
-                elif self.format == "double":
-                    return "f64"
-            return "i32"
-        elif self.type == "integer":
-            if self.format:
-                if self.format == "int32":
-                    return "i32"
-                elif self.format == "int64":
-                    return "i64"
-            return "i32"
-        raise ValueError("Type %s is not supported for Rust" % self.type)
-
     @classmethod
     def openapi_type_from_sdk(cls, type_name, fallback_type):
         if type_name in ["string", "str"]:
@@ -114,33 +82,15 @@ class ParameterSchema(BaseModel):
     model_config = ConfigDict(extra="allow", populate_by_name=True)
 
     location: str = Field(alias="in", default=None)
-    name: str = None
-    description: str = None
+    name: str | None = None
+    description: str | None = None
     type_schema: TypeSchema = Field(alias="schema", default=None)
     required: bool = False
-    # min_version: str = Field(alias="x-min-version", default=None)
-    # max_version: str = Field(alias="x-max-version", default=None)
     deprecated: bool = False
-    style: str = None
-    explode: bool = None
+    style: str | None = None
+    explode: bool | None = None
     ref: str = Field(alias="$ref", default=None)
     openstack: Dict[str, Any] = Field(alias="x-openstack", default=None)
-
-    def rust_sdk_type(self):
-        if self.type_schema.type == "array":
-            element_type = TypeSchema(**self.type_schema.items).rust_sdk_type()
-            if (
-                self.location == "query"
-                and self.style == "form"
-                and not self.explode
-            ):
-                param_type = f"CommaSeparatedList<{element_type}>"
-        else:
-            param_type = self.type_schema.rust_sdk_type()
-        if not self.required:
-            return f"Option<{param_type}>"
-        else:
-            return param_type
 
     def get_sdk_name(self):
         return self.sdk_name or self.name
@@ -150,14 +100,14 @@ class OperationSchema(BaseModel):
     model_config = ConfigDict(extra="allow", populate_by_name=True)
 
     parameters: List[ParameterSchema] = []
-    description: str = None
-    operationId: str = None
+    description: str | None = None
+    operationId: str | None = None
     requestBody: dict = {}
     responses: Dict[str, dict] = {}
     tags: List[str] = list()
-    deprecated: bool = None
+    deprecated: bool | None = None
     openstack: dict = Field(alias="x-openstack", default={})
-    security: List = None
+    security: List | None = None
 
 
 class HeaderSchema(BaseModel):
@@ -188,7 +138,6 @@ class ComponentsSchema(BaseModel):
     schemas: Dict[str, TypeSchema] = {}
     parameters: Dict[str, ParameterSchema] = {}
     headers: Dict[str, HeaderSchema] = {}
-    # headers = Dict[str, TypeSchema] = Field(default=None)
 
 
 class SpecSchema(BaseModel):
@@ -199,6 +148,6 @@ class SpecSchema(BaseModel):
     openapi: str
     info: dict
     paths: Dict[str, PathSchema] = {}
-    components: ComponentsSchema = {}
+    components: ComponentsSchema = ComponentsSchema()
     tags: List[Dict] = []
     security: List[Dict] = []

@@ -44,10 +44,9 @@ repos:
         additional_dependencies:
           - types-decorator
           - types-PyYAML
-          - types-requests
-          - types-simplejson
-        # keep this in-sync with '[mypy] exclude' in 'setup.cfg'
-        exclude: |
-          (?x)(
-            codegenerator/.*
-          )
+          # - types-requests
+          # - types-simplejson
+          # exclude: |
+          #   (?x)(
+          #     codegenerator/openapi/.*
+          #   )
