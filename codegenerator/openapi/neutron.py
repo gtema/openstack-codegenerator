@@ -216,14 +216,18 @@ paste.app_factory = neutron.api.v2.router:APIRouter.factory
                 "/new"
             ):
                 # NEUTRON folks - please fix
-                logging.warn("Skipping processing %s route", route.routepath)
+                logging.warning(
+                    "Skipping processing %s route", route.routepath
+                )
                 continue
             if (
                 "/qos/ports" in route.routepath
                 or "/qos/networks" in route.routepath
             ):
                 # NEUTRON folks - please fix
-                logging.warn("Skipping processing %s route", route.routepath)
+                logging.warning(
+                    "Skipping processing %s route", route.routepath
+                )
                 continue
             if (
                 route.routepath.endswith("/tags")
@@ -500,7 +504,9 @@ paste.app_factory = neutron.api.v2.router:APIRouter.factory
             for field, data in attr_info.items():
                 # operation_spec.setdefault("parameters", [])
                 if data.get("is_filter", False):
-                    global_param_name = f"{collection}_{field}"
+                    global_param_name = f"{collection}_{field}".replace(
+                        ":", "_"
+                    )
                     param_ref_name = (
                         f"#/components/parameters/{global_param_name}"
                     )

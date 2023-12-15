@@ -954,6 +954,7 @@ class OpenStackServerSourceBase:
     ):
         if ref_name == "_project_id":
             ref_name = "project_id"
+        ref_name = ref_name.replace(":", "_")
         # Pop extensions for easier post processing
         if param_attrs:
             os_ext = param_attrs.pop("x-openstack", None)
