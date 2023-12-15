@@ -372,7 +372,9 @@ class RequestTypeManager(common_rust.TypeManager):
                     raise NotImplementedError
                 self.refs.pop(item_type.reference, None)
                 typ = self.data_type_mapping[model.Array](
-                    description=type_model.description,
+                    description=common_rust.sanitize_rust_docstrings(
+                        type_model.description
+                    ),
                     original_data_type=original_data_type,
                     item_type=JsonValue(),
                 )
@@ -390,7 +392,9 @@ class RequestTypeManager(common_rust.TypeManager):
         struct_class = self.data_type_mapping[model.Struct]
         mod = struct_class(
             name=self.get_model_name(type_model.reference),
-            description=type_model.description,
+            description=common_rust.sanitize_rust_docstrings(
+                type_model.description
+            ),
         )
         field_class = mod.field_type_class_
         for field_name, field in type_model.fields.items():
@@ -409,7 +413,9 @@ class RequestTypeManager(common_rust.TypeManager):
             f = field_class(
                 local_name=self.get_local_attribute_name(field_name),
                 remote_name=self.get_remote_attribute_name(field_name),
-                description=field.description,
+                description=common_rust.sanitize_rust_docstrings(
+                    field.description
+                ),
                 data_type=field_data_type,
                 is_optional=not field.is_required,
                 is_nullable=is_nullable,
@@ -487,7 +493,11 @@ class ResponseTypeManager(common_rust.TypeManager):
         if typ and isinstance(typ, common_rust.StringEnum):
             # There is no sense of Enum in the output. Convert to the plain
             # string
-            typ = String(description=typ.description)
+            typ = String(
+                description=common_rust.sanitize_rust_docstrings(
+                    typ.description
+                )
+            )
         return typ
 
     def _simplify_oneof_combinations(self, type_model, kinds):
@@ -954,7 +964,9 @@ class RustCliGenerator(BaseGenerator):
         context = dict(
             operation_id=operation_id,
             operation_type=args.operation_type.value,
-            command_description=spec.get("description"),
+            command_description=common_rust.sanitize_rust_docstrings(
+                spec.get("description")
+            ),
             type_manager=type_manager,
             resource_name=resource_name,
             response_type_manager=response_type_manager,

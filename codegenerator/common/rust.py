@@ -579,7 +579,9 @@ class TypeManager:
                 if item_type.__class__ == lt.item_type.__class__:
                     result_data_type = self.data_type_mapping[model.Array](
                         item_type=item_type,
-                        description=type_model.description,
+                        description=sanitize_rust_docstrings(
+                            type_model.description
+                        ),
                     )
                     # logging.debug("Replacing Typ + list[Typ] with list[Typ]")
         elif len(kinds) == 1:
@@ -602,7 +604,7 @@ class TypeManager:
                     kind_name = f"F{cnt}"
                 enum_kind = enum_class._kind_type_class(
                     name=kind_name,
-                    description=kind_description,
+                    description=sanitize_rust_docstrings(kind_description),
                     data_type=kind_data_type,
                 )
                 result_data_type.kinds[enum_kind.name] = enum_kind
@@ -619,7 +621,7 @@ class TypeManager:
         struct_class = self.data_type_mapping[model.Struct]
         mod = struct_class(
             name=self.get_model_name(type_model.reference),
-            description=type_model.description,
+            description=sanitize_rust_docstrings(type_model.description),
         )
         field_class = mod.field_type_class_
         for field_name, field in type_model.fields.items():
@@ -636,7 +638,7 @@ class TypeManager:
             f = field_class(
                 local_name=self.get_local_attribute_name(field_name),
                 remote_name=self.get_remote_attribute_name(field_name),
-                description=field.description,
+                description=sanitize_rust_docstrings(field.description),
                 data_type=field_data_type,
                 is_optional=not field.is_required,
                 is_nullable=is_nullable,
@@ -776,7 +778,7 @@ class TypeManager:
                 local_name=self.get_local_attribute_name(parameter.name),
                 data_type=data_type,
                 location=parameter.location,
-                description=parameter.description,
+                description=sanitize_rust_docstrings(parameter.description),
                 is_required=parameter.is_required,
             )
             if isinstance(data_type, CommaSeparatedList):
@@ -798,3 +800,22 @@ class TypeManager:
         for k, v in self.parameters.items():
             if v.location == location:
                 yield (k, v)
+
+
+def sanitize_rust_docstrings(doc: str | None) -> str | None:
+    """Sanitize the string to be a valid rust docstring"""
+    if not doc:
+        return None
+    code_block_open: bool = False
+    lines: list[str] = []
+    for line in doc.split("\n"):
+        if line.endswith("```"):
+            if not code_block_open:
+                # Rustdoc defaults to rust code for code blocks. To prevent
+                # this explicitly add `text`
+                code_block_open = True
+                line = line + "text"
+            else:
+                code_block_open = False
+        lines.append(line)
+    return "\n".join(lines)

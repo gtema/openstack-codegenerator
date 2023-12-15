@@ -53,13 +53,13 @@ def merge_api_ref_doc(
             sec_title = section_title.string
         else:
             sec_title = list(section_title.strings)[0]
-        sec_descr = md(str(section.p))
+        sec_descr = get_sanitized_description(str(section.p))
         if sec_title == title:
-            openapi_spec.info["description"] = LiteralScalarString(sec_descr)
+            openapi_spec.info["description"] = sec_descr
         else:
             for tag in openapi_spec.tags:
                 if tag["name"] == section_id:
-                    tag["description"] = LiteralScalarString(sec_descr)
+                    tag["description"] = sec_descr
                     # TODO(gtema): notes are aside of main "p" and not
                     # underneath
         # Iterate over URLs
@@ -283,8 +283,8 @@ def merge_api_ref_doc(
                 # This is not an "action" which combines various
                 # operations, so no summary/description info
                 op_spec.summary = summary
-                op_spec.description = LiteralScalarString(
-                    md("".join(description))
+                op_spec.description = get_sanitized_description(
+                    "".join(description)
                 )
 
 
@@ -304,8 +304,8 @@ def _doc_process_operation_table(
         doc_param_name = tds[0].p.string.replace(" (Optional)", "")
         doc_param_location = tds[1].p.string
         # doc_param_type = tds[2].p.string
-        doc_param_descr = md("".join(str(x) for x in tds[3].contents)).strip(
-            "\n "
+        doc_param_descr = get_sanitized_description(
+            "".join(str(x) for x in tds[3].contents).strip("\n ")
         )
         if doc_param_location in ["query", "header", "path"]:
             for src_param in op_spec.parameters:
@@ -332,11 +332,9 @@ def _doc_process_operation_table(
                 prop = _find_schema_property(schema, doc_param_name)
                 if prop:
                     if hasattr(prop, "description"):
-                        prop.description = LiteralScalarString(doc_param_descr)
+                        prop.description = doc_param_descr
                     else:
-                        prop["description"] = LiteralScalarString(
-                            doc_param_descr
-                        )
+                        prop["description"] = doc_param_descr
             pass
 
 
@@ -493,11 +491,15 @@ def _get_schema_candidates(
                         # the response we can reuse it
                         # later.
                         action_name = candidate_action_name
-                        res.description = LiteralScalarString(
-                            md("".join(section_description))
+                        res.description = get_sanitized_description(
+                            "".join(section_description)
                         )
 
             else:
                 schema_specs.append(res)
 
     return (schema_specs, action_name)
+
+
+def get_sanitized_description(descr: str) -> LiteralScalarString:
+    return LiteralScalarString(md(descr))

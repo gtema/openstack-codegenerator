@@ -196,3 +196,18 @@ def get_rust_service_type_from_str(xtype: str):
             return "ObjectStore"
         case _:
             return xtype
+
+
+def make_ascii_string(description: str | None) -> str | None:
+    """Make sure a string is a valid ASCII charset
+
+    Placing a text with Unicode chars into the generated code may cause a lot
+    of code sanity checks violations. Replace all known Unicode chars with
+    something reasonable and return a pure ASCII string
+    """
+    if not description:
+        return None
+    # PlusMinus - https://unicodeplus.com/U+00B1
+    description = description.replace("\u00b1", "+-")
+
+    return description
