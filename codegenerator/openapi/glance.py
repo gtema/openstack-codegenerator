@@ -11,26 +11,16 @@
 #   under the License.
 #
 import copy
+from multiprocessing import Process
 from pathlib import Path
 
+from jsonref import replace_refs
 import routes
+from ruamel.yaml.scalarstring import LiteralScalarString
+
 from codegenerator.common.schema import SpecSchema, TypeSchema
 from codegenerator.openapi.base import OpenStackServerSourceBase
 from codegenerator.openapi.utils import merge_api_ref_doc
-from glance.api.v2 import image_members
-from glance.api.v2 import images
-from glance.api.v2 import metadef_namespaces
-from glance.api.v2 import metadef_objects
-from glance.api.v2 import metadef_properties
-from glance.api.v2 import metadef_resource_types
-from glance.api.v2 import metadef_tags
-from glance.api.v2 import router
-from glance.api.v2 import tasks
-from glance.common import config
-from glance import schema as glance_schema
-from jsonref import replace_refs
-from oslo_config import fixture as cfg_fixture
-from ruamel.yaml.scalarstring import LiteralScalarString
 
 
 class GlanceGenerator(OpenStackServerSourceBase):
@@ -42,12 +32,6 @@ class GlanceGenerator(OpenStackServerSourceBase):
         self.api_version = "2.16"
         self.min_api_version = None
 
-        self._config_fixture = self.useFixture(cfg_fixture.Config())
-
-        config.parse_args(args=[])
-
-        self.router = router.API(routes.Mapper())
-
     def _api_ver_major(self, ver):
         return ver.ver_major
 
@@ -58,6 +42,24 @@ class GlanceGenerator(OpenStackServerSourceBase):
         return (ver.ver_major, ver.ver_minor)
 
     def generate(self, target_dir, args):
+        proc = Process(target=self._generate, args=[target_dir, args])
+        proc.start()
+        proc.join()
+        if proc.exitcode != 0:
+            raise RuntimeError("Error generating Glance OpenAPI schma")
+        return Path(target_dir, "openapi_specs", "image", "v2.yaml")
+
+    def _generate(self, target_dir, args):
+        from glance.api.v2 import router
+        from glance.common import config
+        from oslo_config import fixture as cfg_fixture
+
+        self._config_fixture = self.useFixture(cfg_fixture.Config())
+
+        config.parse_args(args=[])
+
+        self.router = router.API(routes.Mapper())
+
         work_dir = Path(target_dir)
         work_dir.mkdir(parents=True, exist_ok=True)
 
@@ -109,6 +111,16 @@ class GlanceGenerator(OpenStackServerSourceBase):
         schema_def=None,
         action_name=None,
     ):
+        from glance.api.v2 import image_members
+        from glance.api.v2 import images
+        from glance.api.v2 import metadef_namespaces
+        from glance.api.v2 import metadef_objects
+        from glance.api.v2 import metadef_properties
+        from glance.api.v2 import metadef_resource_types
+        from glance.api.v2 import metadef_tags
+        from glance.api.v2 import tasks
+        from glance import schema as glance_schema
+
         if name == "TasksListResponse":
             openapi_spec.components.schemas.setdefault(
                 name,

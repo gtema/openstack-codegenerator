@@ -10,7 +10,10 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 #
+from multiprocessing import Process
 from pathlib import Path
+
+from ruamel.yaml.scalarstring import LiteralScalarString
 
 from codegenerator.common.schema import (
     SpecSchema,
@@ -21,11 +24,6 @@ from codegenerator.common.schema import (
 from codegenerator.openapi.base import OpenStackServerSourceBase
 from codegenerator.openapi import nova_schemas
 from codegenerator.openapi.utils import merge_api_ref_doc
-from nova.api.openstack import api_version_request
-from nova.api.openstack.compute import routes
-from nova.api.openstack.compute.schemas import flavor_manage
-from nova.tests import fixtures as nova_fixtures
-from ruamel.yaml.scalarstring import LiteralScalarString
 
 
 class NovaGenerator(OpenStackServerSourceBase):
@@ -39,14 +37,6 @@ class NovaGenerator(OpenStackServerSourceBase):
         "/servers/{server_id}/tags": "server-tags",
     }
 
-    def __init__(self):
-        pass
-        self.useFixture(nova_fixtures.RPCFixture("nova.test"))
-        self.api_version = api_version_request._MAX_API_VERSION
-        self.min_api_version = api_version_request._MIN_API_VERSION
-
-        self.router = routes.APIRouterV21()
-
     def _api_ver_major(self, ver):
         return ver.ver_major
 
@@ -56,7 +46,17 @@ class NovaGenerator(OpenStackServerSourceBase):
     def _api_ver(self, ver):
         return (ver.ver_major, ver.ver_minor)
 
-    def generate(self, target_dir, args):
+    def _generate(self, target_dir, args):
+        from nova.api.openstack import api_version_request
+        from nova.api.openstack.compute import routes
+        from nova.tests import fixtures as nova_fixtures
+
+        self.api_version = api_version_request._MAX_API_VERSION
+        self.min_api_version = api_version_request._MIN_API_VERSION
+
+        self.useFixture(nova_fixtures.RPCFixture("nova.test"))
+        self.router = routes.APIRouterV21()
+
         work_dir = Path(target_dir)
         work_dir.mkdir(parents=True, exist_ok=True)
 
@@ -107,6 +107,14 @@ class NovaGenerator(OpenStackServerSourceBase):
 
         return impl_path
 
+    def generate(self, target_dir, args):
+        proc = Process(target=self._generate, args=[target_dir, args])
+        proc.start()
+        proc.join()
+        if proc.exitcode != 0:
+            raise RuntimeError("Error generating Compute OpenAPI schma")
+        return Path(target_dir, "openapi_specs", "compute", "v2.yaml")
+
     def _get_param_ref(
         self,
         openapi_spec,
@@ -145,6 +153,8 @@ class NovaGenerator(OpenStackServerSourceBase):
         schema_def=None,
         action_name=None,
     ):
+        from nova.api.openstack.compute.schemas import flavor_manage
+
         schema = None
         # NOTE(gtema): This must go away once scemas are merged directly to
         # Nova

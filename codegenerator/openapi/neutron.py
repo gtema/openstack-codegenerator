@@ -11,12 +11,11 @@
 #   under the License.
 #
 import logging
+from multiprocessing import Process, Manager
 from pathlib import Path
 import re
 import tempfile
 from typing import Any
-
-from multiprocessing import Process, Manager
 
 from routes.base import Route
 from ruamel.yaml.scalarstring import LiteralScalarString
@@ -286,11 +285,12 @@ class NeutronGenerator(OpenStackServerSourceBase):
         # NOTE(gtema): call me paranoic or stupid, but I just gave up fighting
         # agains oslo_config and oslo_policy with their global state. It is
         # just too painful and takes too much precious time. On multiple
-        # invokation with different config there are plenty of things remaining
+        # invocation with different config there are plenty of things remaining
         # in the old state. In order to workaroung this just process in
         # different processes.
         with Manager() as manager:
-            # Since we may process same route multiple times we need to have a shared state
+            # Since we may process same route multiple times we need to have a
+            # shared state
             processed_routes = manager.dict()
             # Base Neutron
             p = Process(
@@ -299,6 +299,8 @@ class NeutronGenerator(OpenStackServerSourceBase):
             )
             p.start()
             p.join()
+            if p.exitcode != 0:
+                raise RuntimeError("Error generating Neutron OpenAPI schma")
 
             # VPNaaS
             p = Process(
@@ -307,6 +309,8 @@ class NeutronGenerator(OpenStackServerSourceBase):
             )
             p.start()
             p.join()
+            if p.exitcode != 0:
+                raise RuntimeError("Error generating Neutron OpenAPI schma")
 
         (impl_path, openapi_spec) = self._read_spec(work_dir)
 

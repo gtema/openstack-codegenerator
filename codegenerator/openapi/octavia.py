@@ -11,26 +11,16 @@
 #   under the License.
 #
 import inspect
+from multiprocessing import Process
 from pathlib import Path
 from unittest import mock
 
 import fixtures
+
 from codegenerator.common.schema import SpecSchema
 from codegenerator.openapi.base import OpenStackServerSourceBase
 from codegenerator.openapi.utils import merge_api_ref_doc
-from octavia.api import root_controller
-from octavia.common import config, rpc
-from octavia.api.v2.controllers import amphora
-from octavia.api.v2.controllers import l7rule
-from octavia.api.v2.controllers import listener
-from octavia.api.v2.controllers import load_balancer
-from octavia.api.v2.controllers import member
-from octavia.api.v2.controllers import provider
-from oslo_config import cfg
-import oslo_messaging as messaging
-from oslo_messaging import conffixture as messaging_conffixture
-from pecan import make_app as pecan_make_app
-from routes import Mapper
+
 from ruamel.yaml.scalarstring import LiteralScalarString
 
 
@@ -56,27 +46,11 @@ class OctaviaGenerator(OpenStackServerSourceBase):
     def __init__(self):
         self.api_version = "2.27"
         self.min_api_version = "2.0"
-        config.register_cli_opts()
-
-        self._buses = {}
-
-        self.messaging_conf = messaging_conffixture.ConfFixture(cfg.CONF)
-        self.messaging_conf.transport_url = "fake:/"
-        self.useFixture(self.messaging_conf)
-        self.useFixture(
-            fixtures.MonkeyPatch(
-                "octavia.common.rpc.create_transport",
-                self._fake_create_transport,
-            )
-        )
-        with mock.patch("octavia.common.rpc.get_transport_url") as mock_gtu:
-            mock_gtu.return_value = None
-            rpc.init()
-
-        self.app = pecan_make_app(root_controller.RootController())
-        self.root = self.app.application.root
 
     def _fake_create_transport(self, url):
+        import oslo_messaging as messaging
+        from oslo_config import cfg
+
         if url not in self._buses:
             self._buses[url] = messaging.get_rpc_transport(cfg.CONF, url=url)
         return self._buses[url]
@@ -170,6 +144,29 @@ class OctaviaGenerator(OpenStackServerSourceBase):
         return
 
     def generate(self, target_dir, args):
+        proc = Process(target=self._generate, args=[target_dir, args])
+        proc.start()
+        proc.join()
+        if proc.exitcode != 0:
+            raise RuntimeError("Error generating Octavia OpenAPI schma")
+        return Path(target_dir, "openapi_specs", "load-balancing", "v2.yaml")
+
+    def _generate(self, target_dir, args):
+        from octavia.api import root_controller
+        from octavia.common import config, rpc
+        from octavia.api.v2.controllers import amphora
+        from octavia.api.v2.controllers import l7rule
+        from octavia.api.v2.controllers import listener
+        from octavia.api.v2.controllers import load_balancer
+        from octavia.api.v2.controllers import member
+        from octavia.api.v2.controllers import provider
+        from oslo_config import cfg
+
+        # import oslo_messaging as messaging
+        from oslo_messaging import conffixture as messaging_conffixture
+        from pecan import make_app as pecan_make_app
+        from routes import Mapper
+
         work_dir = Path(target_dir)
         work_dir.mkdir(parents=True, exist_ok=True)
 
@@ -199,6 +196,25 @@ class OctaviaGenerator(OpenStackServerSourceBase):
                     },
                 ),
             )
+        config.register_cli_opts()
+
+        self._buses = {}
+
+        self.messaging_conf = messaging_conffixture.ConfFixture(cfg.CONF)
+        self.messaging_conf.transport_url = "fake:/"
+        self.useFixture(self.messaging_conf)
+        self.useFixture(
+            fixtures.MonkeyPatch(
+                "octavia.common.rpc.create_transport",
+                self._fake_create_transport,
+            )
+        )
+        with mock.patch("octavia.common.rpc.get_transport_url") as mock_gtu:
+            mock_gtu.return_value = None
+            rpc.init()
+
+        self.app = pecan_make_app(root_controller.RootController())
+        self.root = self.app.application.root
 
         mapper = Mapper()
 

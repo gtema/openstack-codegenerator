@@ -79,6 +79,12 @@ After processing when api-ref html is available a dedicated method
 :class:`~codegenerator.openapi.utils.merge_api_ref_doc` can be called to add
 available descriptions (operation, parameters).
 
+.. note::
+   Since all services use `oslo_config` and `oslo_policy` libraries which rely
+   on global state they race with each other. In order to avoid this processing
+   rely on multiprocessing to isolate services.
+
+
 Nova
 ----
 
@@ -132,37 +138,36 @@ Neutron
 This is where things are getting more challenging.
 
 Neutron requires having DB provisioned and an in-memory DB seems not to be
-possible due to technics for the DB communication. In addition to that
-config file enabling desired extensions is expected. All this activities are
-covered in
-:class:`~codegenrator.openapi.neutron.NeutronGenerator:setup_neutron`.
+possible due to technics for the DB communication. In addition to that config
+file enabling desired extensions is expected. All this activities are covered
+in :class:`~codegenrator.openapi.neutron.NeutronGenerator:setup_neutron`.
 According to the current information it is not possible to have all possible
-Neutron extensions and plugins (and Staduim projects, whatever that is)
-enabled at the same time. This can be only solved by splitting main
-`generate` method to be splinning up Neutron few times with independent
-configurations and merging resulting spec.
+Neutron extensions and plugins enabled at the same time. This is solved by
+generator spinning multiple subprocesses that bootstrap Neutron with different
+configuration and then merge results. This is handled by spinning up Neutron
+few times with independent configurations and merging resulting spec.
 
 Additional challenge in Neutron is that it does not use `routes` to expose
 operations directly, but is having a mix of `routes` based operations for
 extensions and `pecan` app for the base functionality. Since the `pecan`
 framework is based on a purely dynamic routing there is no possibility to
-extract information about exposed routes by doing code inspection. Luckily
-only base operations (router/net/subnet) are implemented this way. Therefore
+extract information about exposed routes by doing code inspection. Luckily only
+base operations (router/net/subnet) are implemented this way. Therefore
 generator registers known `pecan` operations into the extensions router and
 normal generator flow is being invoked.
 
 Next challenge is that for Neutron there is no description of bodies at all,
-but certain controllers are having `API_DEFINITION` attached. While this is
-not a jsonschema at all it can be used to create one where possible. Sadly
-there is still sometime no possibility to properly estimate whether certain
-operation is exposed and functioning or it is exposed but fails permanently
-due to the fact, that `API_DEFINITION` extrapolation fails for this
-operation. :class:`~codegenerator.openapi.neutron.get_schema` method is
-responsible for conversion of the `API_DEFINITION` into the jsonschema, but
-is not able to work perfectly until additional work is invested.
+but certain controllers are having `API_DEFINITION` attached. While this is not
+a jsonschema at all it can be used to create one where possible. Sadly there is
+still sometime no possibility to properly estimate whether certain operation is
+exposed and functioning or it is exposed but fails permanently due to the fact,
+that `API_DEFINITION` extrapolation fails for this operation.
+:class:`~codegenerator.openapi.neutron.get_schema` method is responsible for
+conversion of the `API_DEFINITION` into the jsonschema, but is not able to work
+perfectly until additional work is invested.
 
-Certain additional operations (addRouterInterface, addExtraRoute, ...) are
-not having any information available and require to be also hardcodede in the
+Certain additional operations (addRouterInterface, addExtraRoute, ...) are not
+having any information available and require to be also hardcodede in the
 generator.
 
 

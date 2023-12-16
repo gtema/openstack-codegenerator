@@ -11,8 +11,16 @@
 #   under the License.
 #
 import inspect
+from multiprocessing import Process
 import logging
 from pathlib import Path
+
+from ruamel.yaml.scalarstring import LiteralScalarString
+
+from keystone.assignment import schema as assignment_schema
+from keystone.auth import schema as auth_schema
+from keystone.identity import schema as identity_schema
+from keystone.resource import schema as ks_schema
 
 from codegenerator.common.schema import ParameterSchema
 from codegenerator.common.schema import PathSchema
@@ -20,12 +28,7 @@ from codegenerator.common.schema import SpecSchema
 from codegenerator.common.schema import TypeSchema
 from codegenerator.openapi.base import OpenStackServerSourceBase
 from codegenerator.openapi.utils import merge_api_ref_doc
-from keystone.assignment import schema as assignment_schema
-from keystone.auth import schema as auth_schema
-from keystone.identity import schema as identity_schema
-from keystone.resource import schema as ks_schema
-from keystone.server.flask import application
-from ruamel.yaml.scalarstring import LiteralScalarString
+
 
 PROJECT_SCHEMA = TypeSchema(
     type="object",
@@ -221,9 +224,6 @@ class KeystoneGenerator(OpenStackServerSourceBase):
         self.api_version = "3.0"
         self.min_api_version = "3.14"
 
-        self.app = application.application_factory()
-        self.router = self.app.url_map
-
     def _api_ver_major(self, ver):
         return ver._ver_major
 
@@ -233,7 +233,20 @@ class KeystoneGenerator(OpenStackServerSourceBase):
     def _api_ver(self, ver):
         return (ver._ver_major, ver._ver_minor)
 
-    def generate(self, target_dir, args, *pargs, **kwargs):
+    def generate(self, target_dir, args):
+        proc = Process(target=self._generate, args=[target_dir, args])
+        proc.start()
+        proc.join()
+        if proc.exitcode != 0:
+            raise RuntimeError("Error generating Keystone OpenAPI schma")
+        return Path(target_dir, "openapi_specs", "identity", "v3.yaml")
+
+    def _generate(self, target_dir, args, *pargs, **kwargs):
+        from keystone.server.flask import application
+
+        self.app = application.application_factory()
+        self.router = self.app.url_map
+
         work_dir = Path(target_dir)
         work_dir.mkdir(parents=True, exist_ok=True)
 
