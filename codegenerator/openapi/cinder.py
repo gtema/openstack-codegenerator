@@ -10,20 +10,15 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 #
-
+from multiprocessing import Process
 from pathlib import Path
 
-from cinder import objects, rpc
-from cinder.api.openstack import api_version_request
-from cinder.common import config
-from cinder.tests.unit.test import Database as db_fixture
+from ruamel.yaml.scalarstring import LiteralScalarString
+
 from codegenerator.common.schema import SpecSchema
 from codegenerator.common.schema import TypeSchema
 from codegenerator.openapi.base import OpenStackServerSourceBase
 from codegenerator.openapi.utils import merge_api_ref_doc
-from ruamel.yaml.scalarstring import LiteralScalarString
-
-CONF = config.CONF
 
 
 class CinderV3Generator(OpenStackServerSourceBase):
@@ -31,9 +26,33 @@ class CinderV3Generator(OpenStackServerSourceBase):
         "/versions": "version",
     }
 
-    def __init__(self):
+    def _api_ver_major(self, ver):
+        return ver._ver_major
+
+    def _api_ver_minor(self, ver):
+        return ver._ver_minor
+
+    def _api_ver(self, ver):
+        return (ver._ver_major, ver._ver_minor)
+
+    def generate(self, target_dir, args):
+        proc = Process(target=self._generate, args=[target_dir, args])
+        proc.start()
+        proc.join()
+        if proc.exitcode != 0:
+            raise RuntimeError("Error generating Cinder OpenAPI schma")
+        return Path(target_dir, "openapi_specs", "block-storage", "v3.yaml")
+
+    def _generate(self, target_dir, args, *pargs, **kwargs):
+        from cinder import objects, rpc
+        from cinder.api.openstack import api_version_request
+        from cinder.common import config
+        from cinder.tests.unit.test import Database as db_fixture
+
         # Register all Cinder objects
         objects.register_all()
+
+        CONF = config.CONF
 
         self.api_version = api_version_request._MAX_API_VERSION
         self.min_api_version = api_version_request._MIN_API_VERSION
@@ -49,16 +68,6 @@ class CinderV3Generator(OpenStackServerSourceBase):
 
         self.router = router.APIRouter()
 
-    def _api_ver_major(self, ver):
-        return ver._ver_major
-
-    def _api_ver_minor(self, ver):
-        return ver._ver_minor
-
-    def _api_ver(self, ver):
-        return (ver._ver_major, ver._ver_minor)
-
-    def generate(self, target_dir, args, *pargs, **kwargs):
         work_dir = Path(target_dir)
         work_dir.mkdir(parents=True, exist_ok=True)
 
