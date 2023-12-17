@@ -390,6 +390,15 @@ class NeutronGenerator(OpenStackServerSourceBase):
                 "method"
             ][0] in ["POST", "DELETE", "PUT"]:
                 continue
+            if route.routepath.startswith(
+                "/availability_zones"
+            ) and route.conditions["method"][0] in ["POST", "DELETE", "PUT"]:
+                continue
+            if route.routepath.startswith(
+                "/availability_zones/"
+            ) and route.conditions["method"][0] in ["GET"]:
+                # There is no "show" for AZ
+                continue
 
             self._process_route(route, openapi_spec, processed_routes)
 
