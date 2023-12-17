@@ -316,14 +316,14 @@ def main():
                         )
                         x["mods"].add(mod_name)
 
-                for k, v in resource_results.items():
+                for path, gen_data in resource_results.items():
                     generators["rust-sdk"].generate_mod(
                         args.work_dir,
-                        k.split("/"),
-                        v["mods"],
-                        v["path"],
+                        path.split("/"),
+                        gen_data["mods"],
+                        gen_data["path"],
                         res.split(".")[-1].capitalize(),
-                        service_name=k.split("/")[0],
+                        service_name=path.split("/")[0],
                     )
         exit(0)
 

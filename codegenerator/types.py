@@ -11,32 +11,25 @@
 #   under the License.
 #
 
-from enum import Enum
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class CommandTypeEnum(str, Enum):
-    """Supported Command/Operation types"""
+OPERATION_TYPE = Literal[
+    "list",
+    "show",
+    "get",
+    "create",
+    "delete",
+    "set",
+    "action",
+    "download",
+    "upload",
+    "json",
+]
 
-    List = "list"
-    # fetch resource by name
-    Show = "show"
-    # general GET operation
-    Get = "get"
-    Create = "create"
-    Delete = "delete"
-    Set = "set"
-    Action = "action"
-    Download = "download"
-    Upload = "upload"
-    Json = "json"
-
-
-class SupportedTargets(str, Enum):
-    OpenApiSchena = "openapi-schema"
-    RustSdk = "rust-sdk"
-    RustCli = "rust-cli"
+SUPPORTED_TARGETS = Literal["rust-sdk", "rust-cli"]
 
 
 class OperationTargetParams(BaseModel):
@@ -50,7 +43,7 @@ class OperationTargetParams(BaseModel):
     sdk_mod_path: str | None = None
     sdk_mod_name: str | None = None
     cli_mod_path: str | None = None
-    operation_type: CommandTypeEnum | None = None
+    operation_type: OPERATION_TYPE | None = None
     # currently used for actions to find proper response body
     operation_name: str | None = None
     service_type: str | None = None
@@ -64,8 +57,8 @@ class OperationModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
     operation_id: str
     spec_file: str = Field(default=None)
-    operation_type: CommandTypeEnum | None = None
-    targets: dict[SupportedTargets, OperationTargetParams]
+    operation_type: OPERATION_TYPE | None = None
+    targets: dict[SUPPORTED_TARGETS, OperationTargetParams]
 
 
 class ResourceModel(BaseModel):

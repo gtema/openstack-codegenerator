@@ -19,7 +19,6 @@ from codegenerator import common
 from codegenerator.common.schema import SpecSchema
 from codegenerator.types import Metadata
 
-# from codegenerator.types import CommandTypeEnum
 from codegenerator.types import OperationModel
 from codegenerator.types import OperationTargetParams
 from codegenerator.types import ResourceModel
@@ -52,6 +51,7 @@ class MetadataGenerator(BaseGenerator):
         metadata = Metadata(resources=dict())
         api_ver = "v" + schema.info["version"].split(".")[0]
         for path, spec in schema.paths.items():
+            path_elements: list[str] = path.split("/")
             resource_name = "/".join(
                 [x for x in common.get_resource_names_from_url(path)]
             )
@@ -74,6 +74,15 @@ class MetadataGenerator(BaseGenerator):
                     )
                     operation_key: str | None = None
 
+                    response_schema: dict | None = None
+                    for code, rsp in operation.responses.items():
+                        if code.startswith("2"):
+                            response_schema = (
+                                rsp.get("content", {})
+                                .get("application/json", {})
+                                .get("schema", {})
+                            )
+                            break
                     if path.endswith("}"):
                         if method == "get":
                             operation_key = "show"
@@ -84,6 +93,18 @@ class MetadataGenerator(BaseGenerator):
                     elif path.endswith("/detail"):
                         if method == "get":
                             operation_key = "list_detailed"
+                    elif response_schema and (
+                        response_schema.get("type", "") == "array"
+                        or (
+                            response_schema.get("type", "") == "object"
+                            and "properties" in response_schema
+                            and len(path_elements) > 1
+                            and path_elements[-1]
+                            in response_schema.get("properties", {})
+                        )
+                    ):
+                        # Response looks clearly like a list
+                        operation_key = "list"
                     elif path.endswith("/action"):
                         # Action
                         operation_key = "action"
