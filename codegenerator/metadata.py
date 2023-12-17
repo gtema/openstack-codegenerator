@@ -97,9 +97,8 @@ class MetadataGenerator(BaseGenerator):
                         )
                         > 0
                     ):
-                        # if we are at i.e. /v2/servers
-                        # and there is /v2/servers/{ most
-                        # likely we are at the collection
+                        # if we are at i.e. /v2/servers and there is
+                        # /v2/servers/{ most likely we are at the collection
                         # level
                         if method == "get":
                             operation_key = "list"
@@ -192,15 +191,13 @@ class MetadataGenerator(BaseGenerator):
                                         operation_id=operation.operationId,
                                         targets=dict(),
                                     )
-                                    op_model.operation_type = (
-                                        "action"  # type: ignore
-                                    )
+                                    op_model.operation_type = "action"
 
                                     op_model.targets[
-                                        "rust-sdk"  # type: ignore
+                                        "rust-sdk"
                                     ] = rust_sdk_params
                                     op_model.targets[
-                                        "rust-cli"  # type: ignore
+                                        "rust-cli"
                                     ] = rust_cli_params
                                     resource_model.operations[
                                         operation_name
@@ -225,9 +222,9 @@ class MetadataGenerator(BaseGenerator):
                                 operation_key
                             )
 
-                            op_model.targets["rust-sdk"] = rust_sdk_params  # type: ignore
+                            op_model.targets["rust-sdk"] = rust_sdk_params
                             if rust_cli_params:
-                                op_model.targets["rust-cli"] = rust_cli_params  # type: ignore
+                                op_model.targets["rust-cli"] = rust_cli_params
                             resource_model.operations[operation_key] = op_model
                     pass
         for res_name, res_data in metadata.resources.items():
@@ -239,7 +236,7 @@ class MetadataGenerator(BaseGenerator):
                 # For the certain generator backend it makes no sense to have
                 # then both so we should disable generation of certain backends
                 # for the non detailed endpoint
-                list_op.targets.pop("rust-cli")  # type: ignore
+                list_op.targets.pop("rust-cli")
         yaml = YAML()
         yaml.preserve_quotes = True
         yaml.default_flow_style = False
@@ -256,16 +253,20 @@ class MetadataGenerator(BaseGenerator):
 
 
 def get_operation_type_by_key(operation_key):
-    if operation_key == "list_detailed":
+    if operation_key in ["list", "list_detailed"]:
         return "list"
+    elif operation_key == "get":
+        return "get"
     elif operation_key == "show":
         return "show"
     elif operation_key in ["update", "replace"]:
         return "set"
-    elif operation_key in ["delete_all"]:
+    elif operation_key in ["delete", "delete_all"]:
         return "delete"
+    elif operation_key in ["create"]:
+        return "create"
     else:
-        return operation_key
+        return "action"
 
 
 def get_rust_sdk_operation_args(
@@ -280,9 +281,12 @@ def get_rust_sdk_operation_args(
         sdk_params.module_name = "get"
     elif operation_key == "list_detailed":
         sdk_params.module_name = "list_detailed"
+    #    elif operation_key == "action" and not module_name:
+    #        sdk_params.module_name = operation_name if operation_name else operation_key
     else:
         sdk_params.module_name = module_name or get_module_name(
-            get_operation_type_by_key(operation_key)
+            # get_operation_type_by_key(operation_key)
+            operation_key
         )
     sdk_params.operation_name = operation_name
 
@@ -296,17 +300,29 @@ def get_rust_cli_operation_args(
 ):
     """Construct proper Rust CLI parameters for operation by type"""
     # Get SDK params to connect things with each other
-    operation_type = get_operation_type_by_key(operation_key)
+    # operation_type = get_operation_type_by_key(operation_key)
     sdk_params = get_rust_sdk_operation_args(
         operation_key, operation_name=operation_name, module_name=module_name
     )
     cli_params = OperationTargetParams()
     cli_params.sdk_mod_name = sdk_params.module_name
-    cli_params.module_name = module_name or get_module_name(operation_type)
+    cli_params.module_name = module_name or get_module_name(operation_key)
     cli_params.operation_name = operation_name
 
     return cli_params
 
 
 def get_module_name(name):
+    if name in ["list", "list_detailed"]:
+        return "list"
+    elif name == "get":
+        return "get"
+    elif name == "show":
+        return "show"
+    elif name in ["update", "replace"]:
+        return "set"
+    elif name in ["delete", "delete_all"]:
+        return "delete"
+    elif name in ["create"]:
+        return "create"
     return "_".join(x.lower() for x in re.split(common.SPLIT_NAME_RE, name))

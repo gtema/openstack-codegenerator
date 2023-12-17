@@ -108,8 +108,13 @@ def find_resource_schema(
         raise RuntimeError("No type in %s" % schema)
     schema_type = schema["type"]
     if schema_type == "array":
+        print(f"plural {get_plural_form(resource_name)}")
         if parent and parent == get_plural_form(resource_name):
             return (schema["items"], parent)
+        elif not parent and schema.get("items", {}).get("type") == "object":
+            # Array on the top level. Most likely we are searching for items
+            # directly
+            return (schema["items"], None)
         return find_resource_schema(
             schema["items"], parent, resource_name=resource_name
         )
@@ -146,14 +151,22 @@ def get_resource_names_from_url(path: str):
             el = path_element.replace("-", "_")
             if el[-3:] == "ies":
                 path_resource_names.append(el[0:-3] + "y")
+            elif el[-4:] == "sses":
+                path_resource_names.append(el[0:-2])
             elif el[-1] == "s" and el[-3:] != "dns" and el[-6:] != "access":
                 path_resource_names.append(el[0:-1])
             else:
                 path_resource_names.append(el)
-    if len(path_resource_names) > 1 and path_resource_names[-1] in [
-        "action",
-        "detail",
-    ]:
+    if len(path_resource_names) > 1 and (
+        path_resource_names[-1]
+        in [
+            "action",
+            "detail",
+        ]
+        or "add" in path_resource_names[-1]
+        or "remove" in path_resource_names[-1]
+        or "update" in path_resource_names[-1]
+    ):
         path_resource_names.pop()
     if len(path_resource_names) == 0:
         return ["Version"]

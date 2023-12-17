@@ -11,6 +11,7 @@
 # under the License.
 #
 import copy
+import logging
 from typing import Any
 from typing import Type
 import typing as ty
@@ -365,10 +366,22 @@ class OpenAPISchemaParser(JsonSchemaParser):
         param_schema = schema.get("schema")
         param_typ = param_schema.get("type")
         dt: PrimitiveType | ADT | None = None
+        if isinstance(param_typ, list) and "null" in param_typ:
+            param_typ.remove("null")
+            if len(param_typ) == 1:
+                param_typ = param_typ[0]
         if param_typ == "string":
             dt = ConstraintString(**param_schema)
+        elif param_typ == "number":
+            dt = ConstraintNumber(**param_schema)
+        elif param_typ == "integer":
+            dt = ConstraintInteger(**param_schema)
         elif param_typ == "array":
-            items_type = param_schema.get("items").get("type")
+            try:
+                items_type = param_schema.get("items").get("type")
+            except Exception:
+                logging.exception("Broken array data: %s", param_schema)
+                raise
             style = schema.get("style", "form")
             explode = schema.get("explode", True)
             if items_type == "string":
@@ -385,6 +398,21 @@ class OpenAPISchemaParser(JsonSchemaParser):
             # Param type can be anything. Process supported combinations first
             if param_location == "query" and param_name == "limit":
                 dt = ConstraintInteger(minimum=0)
+            elif (
+                param_location == "query"
+                and list(["string", "boolean"]) == param_typ
+            ):
+                dt = PrimitiveBoolean()
+            elif (
+                param_location == "query"
+                and list(["string", "integer"]) == param_typ
+            ):
+                dt = ConstraintInteger(**param_schema)
+            elif (
+                param_location == "query"
+                and list(["string", "number"]) == param_typ
+            ):
+                dt = ConstraintNumber(**param_schema)
 
         if isinstance(dt, ADT):
             # Set reference into the data_type so that it doesn't mess with main body types

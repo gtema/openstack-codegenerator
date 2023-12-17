@@ -182,7 +182,7 @@ class RequestParameter(common_rust.RequestParameter):
         if self.setter_name:
             macros.add(f'setter(name="_{self.setter_name}")')
             macros.add("private")
-            macros.remove("setter(into)")
+            macros.discard("setter(into)")
         return f"#[builder({', '.join(macros)})]"
 
 

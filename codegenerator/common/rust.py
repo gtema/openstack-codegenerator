@@ -28,11 +28,13 @@ class Boolean(BasePrimitiveType):
 
     type_hint: str = "bool"
     clap_macros: set[str] = set(["action=clap::ArgAction::Set"])
+    original_data_type: BaseCompoundType | BaseCompoundType | None = None
 
 
 class Number(BasePrimitiveType):
     format: str | None = None
     clap_macros: set[str] = set()
+    original_data_type: BaseCompoundType | BaseCompoundType | None = None
 
     @property
     def type_hint(self):
@@ -50,6 +52,7 @@ class Number(BasePrimitiveType):
 class Integer(BasePrimitiveType):
     format: str | None = None
     clap_macros: set[str] = set()
+    original_data_type: BaseCompoundType | BaseCompoundType | None = None
 
     @property
     def type_hint(self):
@@ -489,16 +492,37 @@ class TypeManager:
                 base_type = type_model.base_types[0]
                 if base_type is model.ConstraintString:
                     variants: dict[str, set[str]] = {}
-                    for lit in set([x.lower() for x in type_model.literals]):
-                        vals = variants.setdefault(lit.title(), set())
-                        for orig_val in type_model.literals:
-                            if orig_val.lower() == lit:
-                                vals.add(orig_val)
+                    try:
+                        if None in type_model.literals:
+                            # TODO(gtema): make parent nullable or add "null"
+                            # as enum value
+                            type_model.literals.remove(None)
+                        for lit in set(
+                            [x.lower() for x in type_model.literals]
+                        ):
+                            val = "".join(
+                                [
+                                    x.capitalize()
+                                    for x in re.split(
+                                        common.SPLIT_NAME_RE, lit
+                                    )
+                                ]
+                            )
+                            if val[0].isdigit():
+                                val = "_" + val
+                            vals = variants.setdefault(val, set())
+                            for orig_val in type_model.literals:
+                                if orig_val.lower() == lit:
+                                    vals.add(orig_val)
 
-                    typ = self.string_enum_class(
-                        name=self.get_model_name(type_model.reference),
-                        variants=variants,
-                    )
+                        typ = self.string_enum_class(
+                            name=self.get_model_name(type_model.reference),
+                            variants=variants,
+                        )
+                    except Exception:
+                        logging.exception(
+                            "Error processing enum: %s", type_model
+                        )
                 elif base_type is model.ConstraintInteger:
                     typ = self.primitive_type_mapping[
                         model.ConstraintInteger

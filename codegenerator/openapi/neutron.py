@@ -10,6 +10,7 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 #
+import copy
 import logging
 from multiprocessing import Process, Manager
 from pathlib import Path
@@ -54,6 +55,30 @@ paste.app_factory = neutron.pecan_wsgi.app:versions_factory
 [app:neutronapiapp_v2_0]
 paste.app_factory = neutron.api.v2.router:APIRouter.factory
     """
+
+EXTENSION_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "alias": {
+            "type": "string",
+            "description": "A short name by which this extension is also known.",
+        },
+        "description": {
+            "type": "string",
+            "description": "Text describing this extension’s purpose.",
+        },
+        "name": {"type": "string", "description": "Name of the extension."},
+        "namespace": {
+            "type": "string",
+            "description": "A URL pointing to the namespace for this extension.",
+        },
+        "updated": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date and time when the resource was updated.",
+        },
+    },
+}
 
 
 class NeutronGenerator(OpenStackServerSourceBase):
@@ -360,6 +385,10 @@ class NeutronGenerator(OpenStackServerSourceBase):
                 logging.warning(
                     "Skipping processing POST %s route", route.routepath
                 )
+                continue
+            if route.routepath.startswith("/extensions") and route.conditions[
+                "method"
+            ][0] in ["POST", "DELETE", "PUT"]:
                 continue
 
             self._process_route(route, openapi_spec, processed_routes)
@@ -723,7 +752,16 @@ class NeutronGenerator(OpenStackServerSourceBase):
         )
 
         # Here come schemas that are not present in Neutron
-        if name.endswith("TagsIndexResponse"):
+        if name == "ExtensionsIndexResponse":
+            schema.properties = {
+                "extensions": {
+                    "type": "array",
+                    "items": copy.deepcopy(EXTENSION_SCHEMA),
+                }
+            }
+        elif name == "ExtensionShowResponse":
+            schema.properties = {"extension": copy.deepcopy(EXTENSION_SCHEMA)}
+        elif name.endswith("TagsIndexResponse"):
             schema.properties = {
                 "tags": {
                     "type": "array",
@@ -927,11 +965,11 @@ def get_schema(param_data):
             if length:
                 schema["maxLength"] = length
         elif "type:fixed_ips" in validate:
-            schema = {"type": "array", "ites": {"type": "string"}}
+            schema = {"type": "array", "items": {"type": "string"}}
         elif "type:allowed_address_pairs" in validate:
             schema = {
                 "type": "array",
-                "ites": {
+                "items": {
                     "type": "object",
                     "properties": {
                         "ip_address": {"type": "string"},

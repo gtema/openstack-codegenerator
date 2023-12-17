@@ -164,6 +164,7 @@ class StructResponse(common_rust.Struct):
 
 class DictionaryInput(common_rust.Dictionary):
     lifetimes: set[str] = set()
+    original_data_type: BaseCompoundType | BaseCompoundType | None = None
 
     @property
     def type_hint(self):
@@ -609,9 +610,7 @@ class RustCliGenerator(BaseGenerator):
             openapi_spec, operation_id
         )
         srv_name, res_name = res.split(".") if res else (None, None)
-        resource_name = "/".join(
-            [x for x in common.get_resource_names_from_url(path)]
-        )
+        resource_name = common.get_resource_names_from_url(path)[-1]
 
         openapi_parser = model.OpenAPISchemaParser()
         operation_params: list[model.RequestParameter] = []
@@ -627,7 +626,7 @@ class RustCliGenerator(BaseGenerator):
             args.api_version,
             args.module_path or path,
         )
-        target_class_name = res_name
+        target_class_name = resource_name
 
         mod_name = "_".join(
             x.lower()
@@ -999,16 +998,16 @@ class RustCliGenerator(BaseGenerator):
 
         work_dir = Path(target_dir, "rust", "openstack_cli", "src")
         if not args.cli_mod_path:
-            mod_name = args.operation_name or args.operation_type.value
+            # mod_name = args.operation_name or args.operation_type.value
             impl_path = Path(
                 work_dir, "/".join(cli_mod_path), f"{mod_name}.rs"
             )
-        else:
-            impl_path = Path(
-                work_dir,
-                "/".join(cli_mod_path[0:-1]),
-                f"{mod_name}.rs",
-            )
+        # else:
+        #    impl_path = Path(
+        #        work_dir,
+        #        "/".join(cli_mod_path[0:-1]),
+        #        f"{mod_name}.rs",
+        #    )
 
         self._render_command(
             context,
