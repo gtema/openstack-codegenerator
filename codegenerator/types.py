@@ -27,6 +27,7 @@ OPERATION_TYPE = Literal[
     "download",
     "upload",
     "json",
+    "find",
 ]
 
 SUPPORTED_TARGETS = Literal["rust-sdk", "rust-cli"]
@@ -51,6 +52,15 @@ class OperationTargetParams(BaseModel):
     request_key: str | None = None
     response_key: str | None = None
     response_list_item_key: str | None = None
+    #: Flag indicating that `find` operation is implemented by the corresponding SDK
+    find_implemented_by_sdk: bool | None = None
+    #: Name or the resource `name` field
+    name_field: str | None = None
+    #: Flag whether `name` query parameter to the `list` method is supported.
+    #: Used by SDK to implement `find` method.
+    name_filter_supported: bool | None = None
+    #: List module for the find
+    list_mod: str | None = None
 
 
 class OperationModel(BaseModel):

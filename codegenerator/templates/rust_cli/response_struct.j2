@@ -1,15 +1,17 @@
 {%- with data_type = response_type_manager.get_root_data_type() %}
+{%- if data_type.fields %}
 /// {{ target_class_name }}
 #[derive(Deserialize, Debug, Clone, Serialize, StructTable)]
 pub struct ResponseData {
   {%- for k, v in data_type.fields.items() %}
     {{ macros.docstring(v.description, indent=4) }}
     {{ v.serde_macros }}
-    {{ v.structable_macros }}
+    {{ v.get_structable_macros(data_type, sdk_service_name, resource_name) }}
     {{ v.local_name }}: {{ v.type_hint }},
   {%- endfor %}
 
 }
+{%- endif %}
 {%- endwith %}
 
 {%- for subtype in response_type_manager.get_subtypes() %}

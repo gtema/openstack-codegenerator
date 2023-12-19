@@ -251,12 +251,12 @@ def main():
 
                     openapi_spec = generator.get_openapi_spec(
                         Path(
-                            metadata_path.parent,
-                            op_data.spec_file or res_data.spec_file,
+                            # metadata_path.parent,
+                            op_data.spec_file
+                            or res_data.spec_file,
                         ).resolve()
                     )
 
-                    # res_mods.append(
                     for mod_path, mod_name, path in generators[
                         args.target
                     ].generate(

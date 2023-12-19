@@ -1,7 +1,7 @@
 #[derive(Args, Clone, Debug)]
 pub struct PathParameters {
 {%- for param in type_manager.parameters.values() %}
-{%- if param.location == "path" %}
+{%- if param.location == "path"%}
     {{ macros.docstring(param.description, indent=4) }}
     {{ param.clap_macros }}
     {{ param.local_name}}: {{ param.type_hint }},

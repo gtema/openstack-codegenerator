@@ -41,12 +41,7 @@ repos:
     rev: v1.4.1
     hooks:
       - id: mypy
+        files: '^codegenerator/.*\.py$'
         additional_dependencies:
           - types-decorator
           - types-PyYAML
-          # - types-requests
-          # - types-simplejson
-          # exclude: |
-          #   (?x)(
-          #     codegenerator/openapi/.*
-          #   )

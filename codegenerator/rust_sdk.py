@@ -171,6 +171,13 @@ class CommaSeparatedList(common_rust.CommaSeparatedList):
     def builder_macros(self):
         return set()
 
+    @property
+    def imports(self):
+        imports: set[str] = set([])
+        imports.add("crate::api::common::CommaSeparatedList")
+        imports.update(self.item_type.imports)
+        return imports
+
 
 class RequestParameter(common_rust.RequestParameter):
     """OpenAPI request parameter in the Rust SDK form"""
@@ -256,6 +263,16 @@ class RustSdkGenerator(BaseGenerator):
             args,
         )
 
+        if args.operation_type == "find":
+            return self.generate_find_mod(
+                target_dir,
+                args.sdk_mod_path.split("::"),
+                res.split(".")[-1],
+                args.name_field,
+                args.list_mod,
+                args.name_filter_supported,
+            )
+
         if not openapi_spec:
             openapi_spec = common.get_openapi_spec(args.openapi_yaml_spec)
         if not operation_id:
@@ -275,7 +292,11 @@ class RustSdkGenerator(BaseGenerator):
         for param in openapi_spec["paths"][path].get(
             "parameters", []
         ) + spec.get("parameters", []):
-            operation_params.append(openapi_parser.parse_parameter(param))
+            if (
+                ("{" + param["name"] + "}") in path and param["in"] == "path"
+            ) or param["in"] != "path":
+                # Respect path params that appear in path and not path params
+                operation_params.append(openapi_parser.parse_parameter(param))
 
         # Process body information
         request_body = spec.get("requestBody")
@@ -365,10 +386,6 @@ class RustSdkGenerator(BaseGenerator):
                     (_, all_types) = openapi_parser.parse(operation_body)
                     # and feed them into the TypeManager
                     type_manager.set_models(all_types)
-                    for k, v in type_manager.refs.items():
-                        if "BootIndex" in k.name:
-                            print("")
-                            print(f"{k} => {v}")
                 else:
                     logging.warn("Ignoring response type of action")
 
@@ -458,6 +475,7 @@ class RustSdkGenerator(BaseGenerator):
     def generate_mod(
         self, target_dir, mod_path, mod_list, url, resource_name, service_name
     ):
+        """Generate collection module (include individual modules)"""
         work_dir = Path(target_dir, "rust", "openstack_sdk", "src")
         impl_path = Path(
             work_dir,
@@ -482,3 +500,40 @@ class RustSdkGenerator(BaseGenerator):
         )
 
         self._format_code(impl_path)
+
+    def generate_find_mod(
+        self,
+        target_dir,
+        mod_path,
+        resource_name,
+        name_field: str,
+        list_mod: str,
+        name_filter_supported: bool = False,
+    ):
+        """Generate `find` operation module"""
+        work_dir = Path(target_dir, "rust", "openstack_sdk", "src")
+        impl_path = Path(
+            work_dir,
+            "api",
+            "/".join(mod_path),
+            "find.rs",
+        )
+
+        context = dict(
+            mod_path=mod_path,
+            resource_name=resource_name,
+            list_mod=list_mod,
+            name_filter_supported=name_filter_supported,
+            name_field=name_field,
+        )
+
+        # Generate methods for the GET resource command
+        self._render_command(
+            context,
+            "rust_sdk/find.rs.j2",
+            impl_path,
+        )
+
+        self._format_code(impl_path)
+
+        return (mod_path, "find.rs", "dummy")

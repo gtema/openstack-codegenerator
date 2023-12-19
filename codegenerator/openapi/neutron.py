@@ -29,6 +29,7 @@ from codegenerator.common.schema import SpecSchema
 from codegenerator.common.schema import TypeSchema
 from codegenerator.openapi.base import OpenStackServerSourceBase
 from codegenerator.openapi.base import VERSION_RE
+from codegenerator.openapi import neutron_schemas
 from codegenerator.openapi.utils import merge_api_ref_doc
 
 
@@ -55,30 +56,6 @@ paste.app_factory = neutron.pecan_wsgi.app:versions_factory
 [app:neutronapiapp_v2_0]
 paste.app_factory = neutron.api.v2.router:APIRouter.factory
     """
-
-EXTENSION_SCHEMA = {
-    "type": "object",
-    "properties": {
-        "alias": {
-            "type": "string",
-            "description": "A short name by which this extension is also known.",
-        },
-        "description": {
-            "type": "string",
-            "description": "Text describing this extension’s purpose.",
-        },
-        "name": {"type": "string", "description": "Name of the extension."},
-        "namespace": {
-            "type": "string",
-            "description": "A URL pointing to the namespace for this extension.",
-        },
-        "updated": {
-            "type": "string",
-            "format": "date-time",
-            "description": "The date and time when the resource was updated.",
-        },
-    },
-}
 
 
 class NeutronGenerator(OpenStackServerSourceBase):
@@ -398,6 +375,14 @@ class NeutronGenerator(OpenStackServerSourceBase):
                 "/availability_zones/"
             ) and route.conditions["method"][0] in ["GET"]:
                 # There is no "show" for AZ
+                continue
+            if route.routepath in ["/quotas/tenant", "/quotas/project"]:
+                # Tenant and Project quota are not a thing
+                continue
+            if route.routepath == "/quotas" and route.conditions["method"][
+                0
+            ] in ["POST"]:
+                # Tenant and Project quota is the same
                 continue
 
             self._process_route(route, openapi_spec, processed_routes)
@@ -765,11 +750,13 @@ class NeutronGenerator(OpenStackServerSourceBase):
             schema.properties = {
                 "extensions": {
                     "type": "array",
-                    "items": copy.deepcopy(EXTENSION_SCHEMA),
+                    "items": copy.deepcopy(neutron_schemas.EXTENSION_SCHEMA),
                 }
             }
         elif name == "ExtensionShowResponse":
-            schema.properties = {"extension": copy.deepcopy(EXTENSION_SCHEMA)}
+            schema.properties = {
+                "extension": copy.deepcopy(neutron_schemas.EXTENSION_SCHEMA)
+            }
         elif name.endswith("TagsIndexResponse"):
             schema.properties = {
                 "tags": {
@@ -785,6 +772,27 @@ class NeutronGenerator(OpenStackServerSourceBase):
                     "type": "array",
                     "items": {"type": "string", "maxLength": 255},
                 }
+            }
+        elif name == "QuotasIndexResponse":
+            schema.properties = {
+                "quotas": {
+                    "type": "array",
+                    "items": copy.deepcopy(neutron_schemas.QUOTA_SCHEMA),
+                }
+            }
+        elif name == "QuotasDetailsDetailsResponse":
+            schema.properties = {
+                "quota": copy.deepcopy(neutron_schemas.QUOTA_DETAILS_SCHEMA)
+            }
+        elif name in [
+            "QuotaShowResponse",
+            "QuotaUpdateRequest",
+            "QuotaUpdateResponse",
+            "QuotasDefaultDefaultResponse",
+            "QuotasProjectProjectResponse",
+        ]:
+            schema.properties = {
+                "quota": copy.deepcopy(neutron_schemas.QUOTA_SCHEMA)
             }
         elif name.endswith("TagUpdateRequest") or name.endswith(
             "TagUpdateResponse"

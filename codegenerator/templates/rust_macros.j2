@@ -204,7 +204,7 @@ Some({{ val }})
     {%- else %}
     {#- Normal array #}
     {{ dst_var }}.{{ param.remote_name }}(
-        {{ val_var }}.iter().map(|v| v.into()).collect::<Vec<_>>()
+        {{ val_var }}.into_iter()
     );
     {%- endif %}
 {%- endmacro %}

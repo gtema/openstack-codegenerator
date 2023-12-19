@@ -10,6 +10,7 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 #
+from pathlib import Path
 from typing import Any
 import re
 
@@ -21,6 +22,9 @@ from pydantic import BaseModel
 VERSION_RE = re.compile(r"[Vv][0-9.]*")
 # RE to split name from camelCase or by [`:`,`_`,`-`]
 SPLIT_NAME_RE = re.compile(r"(?<=[a-z])(?=[A-Z])|:|_|-")
+
+# FullyQualifiedAttributeName alias map
+FQAN_ALIAS_MAP = {"network.floatingip.floating_ip_address": "name"}
 
 
 def _deep_merge(
@@ -59,7 +63,7 @@ class BaseCompoundType(BaseModel):
     description: str | None = None
 
 
-def get_openapi_spec(path: str):
+def get_openapi_spec(path: str | Path):
     """Load OpenAPI spec from a file"""
     with open(path, "r") as fp:
         spec_data = jsonref.replace_refs(yaml.safe_load(fp))
@@ -77,7 +81,7 @@ def find_openapi_operation(spec, operationId: str):
     raise RuntimeError("Cannot find operation %s specification" % operationId)
 
 
-def get_plural_form(resource):
+def get_plural_form(resource: str) -> str:
     """Get plural for of the resource"""
     if resource[-1] == "y":
         return resource[0:-1] + "ies"
@@ -108,8 +112,11 @@ def find_resource_schema(
         raise RuntimeError("No type in %s" % schema)
     schema_type = schema["type"]
     if schema_type == "array":
-        print(f"plural {get_plural_form(resource_name)}")
-        if parent and parent == get_plural_form(resource_name):
+        if (
+            parent
+            and resource_name
+            and parent == get_plural_form(resource_name)
+        ):
             return (schema["items"], parent)
         elif not parent and schema.get("items", {}).get("type") == "object":
             # Array on the top level. Most likely we are searching for items
@@ -132,6 +139,12 @@ def find_resource_schema(
             (r, path) = find_resource_schema(item, name, resource_name)
             if r:
                 return (r, path)
+        if not parent:
+            # We are on top level and have not found anything.
+            keys = list(props.keys())
+            if len(keys) == 1:
+                # there is only one field in the object
+                return (props[keys[0]], keys[0])
     return (None, None)
 
 
@@ -142,10 +155,6 @@ def get_resource_names_from_url(path: str):
         path_elements.pop(0)
     path_resource_names = []
 
-    # if len([x for x in all_paths if x.startswith(path + "/")]) > 0:
-    #     has_subs = True
-    # else:
-    #     has_subs = False
     for path_element in path_elements:
         if "{" not in path_element:
             el = path_element.replace("-", "_")
@@ -153,7 +162,14 @@ def get_resource_names_from_url(path: str):
                 path_resource_names.append(el[0:-3] + "y")
             elif el[-4:] == "sses":
                 path_resource_names.append(el[0:-2])
-            elif el[-1] == "s" and el[-3:] != "dns" and el[-6:] != "access":
+            elif (
+                el[-1] == "s"
+                and el[-3:] != "dns"
+                and el[-6:] != "access"
+                and el != "qos"
+                # quota/details
+                and el != "details"
+            ):
                 path_resource_names.append(el[0:-1])
             else:
                 path_resource_names.append(el)

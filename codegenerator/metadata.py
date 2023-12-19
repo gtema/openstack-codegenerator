@@ -10,20 +10,20 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 #
-import pathlib
+from pathlib import Path
 import logging
 import re
+
+import jsonref
+from ruamel.yaml import YAML
 
 from codegenerator.base import BaseGenerator
 from codegenerator import common
 from codegenerator.common.schema import SpecSchema
 from codegenerator.types import Metadata
-
 from codegenerator.types import OperationModel
 from codegenerator.types import OperationTargetParams
 from codegenerator.types import ResourceModel
-import jsonref
-from ruamel.yaml import YAML
 
 
 class MetadataGenerator(BaseGenerator):
@@ -47,7 +47,11 @@ class MetadataGenerator(BaseGenerator):
         # We do not import generators since due to the use of Singletons in the
         # code importing glance, nova, cinder at the same time crashes
         # dramatically
-        schema = self.load_openapi(pathlib.Path(args.openapi_yaml_spec))
+        spec_path = Path(args.openapi_yaml_spec)
+        metadata_path = Path(target_dir, args.service_type + "_metadata.yaml")
+
+        schema = self.load_openapi(spec_path)
+        openapi_spec = common.get_openapi_spec(spec_path)
         metadata = Metadata(resources=dict())
         api_ver = "v" + schema.info["version"].split(".")[0]
         for path, spec in schema.paths.items():
@@ -59,7 +63,7 @@ class MetadataGenerator(BaseGenerator):
                 f"{args.service_type}.{resource_name}",
                 ResourceModel(
                     api_version=api_ver,
-                    spec_file=args.openapi_yaml_spec,
+                    spec_file=spec_path.as_posix(),
                     operations=dict(),
                 ),
             )
@@ -93,6 +97,8 @@ class MetadataGenerator(BaseGenerator):
                     elif path.endswith("/detail"):
                         if method == "get":
                             operation_key = "list_detailed"
+                    # elif path.endswith("/default"):
+                    #     operation_key = "default"
                     elif response_schema and (
                         response_schema.get("type", "") == "array"
                         or (
@@ -258,13 +264,97 @@ class MetadataGenerator(BaseGenerator):
                 # then both so we should disable generation of certain backends
                 # for the non detailed endpoint
                 list_op.targets.pop("rust-cli")
+
+            # Prepare `find` operation data
+            if (list_op or list_detailed_op) and res_data.operations.get(
+                "show"
+            ):
+                show_op = res_data.operations["show"]
+
+                (path, _, spec) = common.find_openapi_operation(
+                    openapi_spec, show_op.operation_id
+                )
+                mod_path = common.get_rust_sdk_mod_path(
+                    args.service_type,
+                    res_data.api_version or "",
+                    path,
+                )
+                response_schema = None
+                for code, rspec in spec.get("responses", {}).items():
+                    if not code.startswith("2"):
+                        continue
+                    content = rspec.get("content", {})
+                    if "application/json" in content:
+                        try:
+                            (
+                                response_schema,
+                                _,
+                            ) = common.find_resource_schema(
+                                content["application/json"].get("schema", {}),
+                                None,
+                            )
+                        except Exception as ex:
+                            logging.exception(
+                                "Cannot process response of %s operation: %s",
+                                show_op.operation_id,
+                                ex,
+                            )
+
+                if not response_schema:
+                    # Show does not have a suitable
+                    # response. We can't have find
+                    # for such
+                    continue
+                if "id" not in response_schema.get("properties", {}).keys():
+                    # Resource has no ID in show method => find impossible
+                    continue
+
+                list_op_ = list_detailed_op or list_op
+                if not list_op_:
+                    continue
+                (_, _, list_spec) = common.find_openapi_operation(
+                    openapi_spec, list_op_.operation_id
+                )
+                name_field: str = "name"
+                for fqan, alias in common.FQAN_ALIAS_MAP.items():
+                    if fqan.startswith(res_name) and alias == "name":
+                        name_field = fqan.split(".")[-1]
+                name_filter_supported: bool = False
+                if name_field in [
+                    x.get("name")
+                    for x in list(list_spec.get("parameters", []))
+                ]:
+                    name_filter_supported = True
+
+                sdk_params = OperationTargetParams(
+                    module_name="find",
+                    name_field=name_field,
+                    name_filter_supported=name_filter_supported,
+                    sdk_mod_path="::".join(mod_path),
+                    list_mod="list_detailed" if list_detailed_op else "list",
+                )
+                res_data.operations["find"] = OperationModel(
+                    operation_id="fake",
+                    operation_type="find",
+                    targets={"rust-sdk": sdk_params},
+                )
+
+                # Let other operations know of `find` presence
+                for op_name, op_data in res_data.operations.items():
+                    if op_name not in ["find", "list", "create"]:
+                        for (
+                            target_name,
+                            target_params,
+                        ) in op_data.targets.items():
+                            if target_name in ["rust-cli"]:
+                                target_params.find_implemented_by_sdk = True
+
         yaml = YAML()
         yaml.preserve_quotes = True
         yaml.default_flow_style = False
         yaml.indent(mapping=2, sequence=4, offset=2)
-        with open(
-            pathlib.Path(target_dir, args.service_type + "_metadata.yaml"), "w"
-        ) as fp:
+        metadata_path.parent.mkdir(exist_ok=True, parents=True)
+        with open(metadata_path, "w") as fp:
             yaml.dump(
                 metadata.model_dump(
                     exclude_none=True, exclude_defaults=True, by_alias=True
@@ -286,6 +376,8 @@ def get_operation_type_by_key(operation_key):
         return "delete"
     elif operation_key in ["create"]:
         return "create"
+    elif operation_key == "default":
+        return "get"
     else:
         return "action"
 
@@ -346,4 +438,6 @@ def get_module_name(name):
         return "delete"
     elif name in ["create"]:
         return "create"
+    elif name in ["default"]:
+        return "default"
     return "_".join(x.lower() for x in re.split(common.SPLIT_NAME_RE, name))

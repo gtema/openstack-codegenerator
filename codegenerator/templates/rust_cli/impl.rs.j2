@@ -109,10 +109,8 @@ impl Command for {{ target_class_name }}Cmd {
         op.validate_args(parsed_args)?;
         info!("Parsed args: {:?}", self.args);
 
-      {%- if operation_type == "show" and "id" in result_def.keys() | list %}
+      {%- if find_present %}
         let mut ep_builder = find::{{ sdk_struct_name  }}::builder();
-      {%- elif operation_type == "set" and method == "patch" %}
-        let mut ep_builder = find::{{ sdk_struct_name }}::builder();
       {%- else %}
         let mut ep_builder = {{ sdk_mod_path[-1] }}::Request::builder();
       {%- endif %}
@@ -146,7 +144,7 @@ impl Command for {{ target_class_name }}Cmd {
 
         op.output_list::<ResponseData>(data)?;
 
-      {%- elif operation_type == "show" and "id" in result_def.keys() | list %}
+      {%- elif find_present %}
 {#- Show/find implementation #}
         let data = find(ep).query_async(client).await?;
         op.output_single::<ResponseData>(data)?;
@@ -189,7 +187,9 @@ impl Command for {{ target_class_name }}Cmd {
 
       {%- else %}
         let data = ep.query_async(client).await?;
+        {%- if data_type.fields %}
         op.output_single::<ResponseData>(data)?;
+        {%- endif %}
       {%- endif %}
     {%- elif operation_type not in ["delete", "download", "upload", "json"] %}
       {#- there is no result structure - raw mode #}

@@ -157,6 +157,31 @@ class StructFieldResponse(common_rust.StructField):
             macros.add("wide")
         return f"#[structable({', '.join(sorted(macros))})]"
 
+    def get_structable_macros(
+        self, struct: "StructResponse", service_name: str, resource_name: str
+    ):
+        macros = set([])
+        if self.is_optional:
+            macros.add("optional")
+        # Fully Qualified Attribute Name
+        fqan: str = ".".join(
+            [service_name, resource_name, self.remote_name]
+        ).lower()
+        # Check the known alias of the field by FQAN
+        alias = common.FQAN_ALIAS_MAP.get(fqan)
+        if (
+            "id" in struct.fields.keys()
+            and not (self.local_name in BASIC_FIELDS or alias in BASIC_FIELDS)
+        ) or (
+            "id" not in struct.fields.keys()
+            and (self.local_name not in list(struct.fields.keys())[-10:])
+        ):
+            # Only add "wide" flag if field is not in the basic fields AND
+            # there is at least "id" field existing in the struct OR the
+            # field is not in the first 10
+            macros.add("wide")
+        return f"#[structable({', '.join(sorted(macros))})]"
+
 
 class StructResponse(common_rust.Struct):
     field_type_class_: Type[common_rust.StructField] = StructFieldResponse
@@ -227,6 +252,12 @@ class HashMapResponse(common_rust.Dictionary):
         return imports
 
 
+class CommaSeparatedList(common_rust.CommaSeparatedList):
+    @property
+    def type_hint(self):
+        return f"Vec<{self.item_type.type_hint}>"
+
+
 class RequestParameter(common_rust.RequestParameter):
     """OpenAPI request parameter in the Rust SDK form"""
 
@@ -247,10 +278,15 @@ class RequestTypeManager(common_rust.TypeManager):
         model.PrimitiveAny: JsonValue,
     }
 
+    data_type_mapping: dict[
+        Type[model.ADT], Type[BaseCombinedType] | Type[BaseCompoundType]
+    ]
+
     data_type_mapping = {
         model.Struct: StructInput,
         model.Dictionary: DictionaryInput,
         model.Array: ArrayInput,
+        model.CommaSeparatedList: ArrayInput,
     }
 
     request_parameter_class: Type[
@@ -386,7 +422,7 @@ class RequestTypeManager(common_rust.TypeManager):
         else:
             # Not hacked anything, invoke superior method
             typ = super().convert_model(type_model)
-        return typ
+        return typ  # type: ignore
 
     def _get_struct_type(self, type_model: model.Struct) -> common_rust.Struct:
         """Convert model.Struct into rust_sdk `Struct`"""
@@ -427,15 +463,19 @@ class RequestTypeManager(common_rust.TypeManager):
 
         # Server.security_groups is an object with only name -> simplify
         if len(type_model.fields.keys()) == 1:
-            only_field = list(type_model.fields.values())[0]
-            simplified_data_type = self.convert_model(only_field.data_type)
-            simplified_data_type.original_data_type = mod
-            logging.debug(
-                "Replacing single field object %s with %s",
-                type_model,
-                simplified_data_type.__class__,
-            )
-            return simplified_data_type
+            only_field_name = list(mod.fields.keys())[0]
+            only_field = mod.fields[only_field_name]
+            if not isinstance(only_field.data_type, StructInput):
+                # If there is only single field in the struct and it is not a
+                # new struct simplify it.
+                simplified_data_type = only_field.data_type
+                simplified_data_type.original_data_type = mod
+                logging.debug(
+                    "Replacing single field object %s with %s",
+                    type_model,
+                    simplified_data_type.__class__,
+                )
+                return simplified_data_type
 
         return mod
 
@@ -635,7 +675,7 @@ class RustCliGenerator(BaseGenerator):
                 (
                     args.module_name
                     or args.operation_name
-                    or args.operation_type.value
+                    or args.operation_type
                     or method
                 ),
             )
@@ -648,7 +688,11 @@ class RustCliGenerator(BaseGenerator):
         for param in openapi_spec["paths"][path].get(
             "parameters", []
         ) + spec.get("parameters", []):
-            operation_params.append(openapi_parser.parse_parameter(param))
+            if (
+                ("{" + param["name"] + "}") in path and param["in"] == "path"
+            ) or param["in"] != "path":
+                # Respect path params that appear in path and not path params
+                operation_params.append(openapi_parser.parse_parameter(param))
 
         if operation_params:
             type_manager.set_parameters(operation_params)
@@ -926,15 +970,15 @@ class RustCliGenerator(BaseGenerator):
         #         ]
         #     )
 
-        if args.operation_type.value == "list":
+        if args.operation_type == "list":
             # Make plural form for listing
             target_class_name = common.get_plural_form(target_class_name)
             additional_imports.update(
                 ["openstack_sdk::api::{paged, Pagination}"]
             )
-        if args.operation_type.value == "download":
+        if args.operation_type == "download":
             additional_imports.add("crate::common::download_file")
-        if args.operation_type.value == "upload":
+        if args.operation_type == "upload":
             additional_imports.add("crate::common::build_upload_asyncread")
         if response_type_manager.get_root_data_type():
             additional_imports.add("openstack_sdk::api::QueryAsync")
@@ -959,10 +1003,21 @@ class RustCliGenerator(BaseGenerator):
         additional_imports.update(response_type_manager.get_imports())
         # Deserialize is already in template since it is uncoditionally required
         additional_imports.discard("serde::Deserialize")
+        if args.find_implemented_by_sdk:
+            additional_imports.add("openstack_sdk::api::find")
+            additional_imports.add(
+                "::".join(
+                    [
+                        "openstack_sdk::api",
+                        "::".join(sdk_mod_path[:-1]),
+                        "find",
+                    ]
+                )
+            )
 
         context = dict(
             operation_id=operation_id,
-            operation_type=args.operation_type.value,
+            operation_type=args.operation_type,
             command_description=common_rust.sanitize_rust_docstrings(
                 spec.get("description")
             ),
@@ -994,6 +1049,7 @@ class RustCliGenerator(BaseGenerator):
             # else None,
             body_types=body_types,
             additional_imports=additional_imports,
+            find_present=args.find_implemented_by_sdk,
         )
 
         work_dir = Path(target_dir, "rust", "openstack_cli", "src")
