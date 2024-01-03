@@ -69,6 +69,7 @@ class Integer(BasePrimitiveType):
 class Null(BasePrimitiveType):
     type_hint: str = "Option<String>"
     clap_macros: set[str] = set()
+    original_data_type: BaseCompoundType | BaseCompoundType | None = None
 
 
 class String(BasePrimitiveType):
@@ -88,6 +89,7 @@ class JsonValue(BasePrimitiveType):
 class Option(BaseCombinedType):
     base_type: str = "Option"
     item_type: BasePrimitiveType | BaseCombinedType | BaseCompoundType
+    original_data_type: BaseCompoundType | BaseCompoundType | None = None
 
     @property
     def type_hint(self):
@@ -109,6 +111,9 @@ class Option(BaseCombinedType):
     @property
     def clap_macros(self):
         return self.item_type.clap_macros
+
+    def get_sample(self):
+        return "Some(" + self.item_type.get_sample() + ")"
 
 
 class Array(BaseCombinedType):
@@ -164,6 +169,7 @@ class CommaSeparatedList(BaseCombinedType):
 
 class BTreeSet(BaseCombinedType):
     item_type: BasePrimitiveType | BaseCombinedType | BaseCompoundType
+    builder_macros: set[str] = set(["setter(into)"])
 
     @property
     def type_hint(self):
@@ -178,11 +184,6 @@ class BTreeSet(BaseCombinedType):
         imports = self.item_type.imports
         imports.add("std::collections::BTreeSet")
         return imports
-
-    @property
-    def builder_macros(self):
-        macros = set(["setter(into)"])
-        return macros
 
 
 class Dictionary(BaseCombinedType):
@@ -246,8 +247,7 @@ class EnumKind(BaseModel):
     def type_hint(self):
         if isinstance(self.data_type, Struct):
             return self.data_type.name
-        else:
-            return self.data_type.type_hint
+        return self.data_type.type_hint
 
     @property
     def clap_macros(self) -> set[str]:
@@ -297,20 +297,25 @@ class StringEnum(BaseCompoundType):
     builder_container_macros: str | None = None
     serde_container_macros: str | None = "#[serde(untagged)]"
     serde_macros: set[str] | None = None
+    original_data_type: BaseCompoundType | BaseCompoundType | None = None
 
     @property
     def type_hint(self):
+        """Get type hint"""
         return self.name
 
     @property
     def clap_macros(self) -> set[str]:
+        """ "Return clap macros"""
         return set()
 
     def get_sample(self):
+        """Generate sample data"""
         variant = list(self.variants.keys())[0]
         return f"{self.name}::{variant}"
 
     def variant_serde_macros(self, variant: str):
+        """Return serde macros"""
         return (
             "#[serde("
             + ", ".join([f'alias="{x}"' for x in self.variants[variant]])
@@ -334,8 +339,7 @@ class RequestParameter(BaseModel):
     def type_hint(self):
         if not self.is_required:
             return f"Option<{self.data_type.type_hint}>"
-        else:
-            return self.data_type.type_hint
+        return self.data_type.type_hint
 
     @property
     def lifetimes(self):
@@ -450,7 +454,7 @@ class TypeManager:
             model_ref = type_model.reference
         else:
             # Primitive
-            typ = self.primitive_type_mapping.get(type_model.__class__)  # type: ignore
+            typ = self.primitive_type_mapping.get(type_model.__class__)
             if not typ:
                 raise RuntimeError("No mapping for %s" % type_model)
             # logging.debug("Returning %s for %s", typ, type_model.__class__)
@@ -485,8 +489,7 @@ class TypeManager:
                     typ = Boolean()
                 else:
                     raise RuntimeError(
-                        "Rust model does not support multitype enums yet %s"
-                        % type_model
+                        f"Rust model does not support multitype enums yet {type_model}"
                     )
             elif len(type_model.base_types) == 1:
                 base_type = type_model.base_types[0]
@@ -497,9 +500,7 @@ class TypeManager:
                             # TODO(gtema): make parent nullable or add "null"
                             # as enum value
                             type_model.literals.remove(None)
-                        for lit in set(
-                            [x.lower() for x in type_model.literals]
-                        ):
+                        for lit in set(x.lower() for x in type_model.literals):
                             val = "".join(
                                 [
                                     x.capitalize()
@@ -678,14 +679,16 @@ class TypeManager:
         integer_klass = self.primitive_type_mapping[model.ConstraintInteger]
         boolean_klass = self.primitive_type_mapping[model.PrimitiveBoolean]
         dict_klass = self.data_type_mapping[model.Dictionary]
-        enum_name = type_model.reference.name
+        enum_name = type_model.reference.name if type_model.reference else None
         if string_klass in kinds_classes and number_klass in kinds_classes:
             # oneOf [string, number] => string
             for typ in list(kinds):
                 if typ["class"] == number_klass:
                     kinds.remove(typ)
         elif string_klass in kinds_classes and integer_klass in kinds_classes:
-            if enum_name.endswith("size") or enum_name.endswith("count"):
+            if enum_name and (
+                enum_name.endswith("size") or enum_name.endswith("count")
+            ):
                 # XX_size or XX_count is clearly an integer
                 for typ in list(kinds):
                     if typ["class"] == string_klass:
@@ -738,11 +741,7 @@ class TypeManager:
         for k, v in self.refs.items():
             if (
                 k
-                and (
-                    isinstance(v, Enum)
-                    or isinstance(v, Struct)
-                    or isinstance(v, StringEnum)
-                )
+                and isinstance(v, (Enum, Struct, StringEnum))
                 and k.name != "Body"
             ):
                 yield v
@@ -773,6 +772,7 @@ class TypeManager:
         return imports
 
     def get_request_static_lifetimes(self, request_model: Struct):
+        """Return static lifetimes of the Structure"""
         lifetimes = request_model.lifetimes
         for param in self.parameters.values():
             lt = param.lifetimes
@@ -780,16 +780,16 @@ class TypeManager:
                 lifetimes.update(lt)
         if lifetimes:
             return f"<{', '.join(lifetimes)}>"
-        else:
-            return ""
+        return ""
 
-    def subtype_requires_private_builders(self, subtype) -> bool:
-        if not isinstance(subtype, self.data_type_mapping[model.Struct]):
-            return False
-        for field in subtype.fields.values():
-            if "private" in field.builder_macros:
-                return True
-        return False
+    # def subtype_requires_private_builders(self, subtype) -> bool:
+    #     """Return `True` if type require private builder"""
+    #     if not isinstance(subtype, self.data_type_mapping[model.Struct]):
+    #         return False
+    #     for field in subtype.fields.values():
+    #         if "private" in field.builder_macros:
+    #             return True
+    #     return False
 
     def set_parameters(self, parameters: list[model.RequestParameter]) -> None:
         """Set OpenAPI operation parameters into typemanager for conversion"""

@@ -162,8 +162,13 @@ class BTreeMap(common_rust.Dictionary):
             lt.update(self.value_type.lifetimes)
         return lt
 
-    # def get_sample(self):
-    #    return "BTreeSet::new()"
+    def get_sample(self):
+        return "BTreeSet::new()"
+
+
+class BTreeSet(common_rust.BTreeSet):
+    builder_macros: set[str] = set(["private"])
+    requires_builder_private_setter: bool = True
 
 
 class CommaSeparatedList(common_rust.CommaSeparatedList):
@@ -211,6 +216,7 @@ class TypeManager(common_rust.TypeManager):
         model.Enum: Enum,
         model.Struct: Struct,
         model.CommaSeparatedList: CommaSeparatedList,
+        #        model.Array: BTreeSet
     }
 
     request_parameter_class: Type[
@@ -280,9 +286,9 @@ class RustSdkGenerator(BaseGenerator):
         (path, method, spec) = common.find_openapi_operation(
             openapi_spec, operation_id
         )
-        srv_name, res_name = res.split(".") if res else (None, None)
-        # path_resources = common.get_resource_names_from_url(path)
-        # res_name = path_resources[-1]
+        # srv_name, res_name = res.split(".") if res else (None, None)
+        path_resources = common.get_resource_names_from_url(path)
+        res_name = path_resources[-1]
 
         mime_type = None
         openapi_parser = model.OpenAPISchemaParser()
@@ -296,7 +302,12 @@ class RustSdkGenerator(BaseGenerator):
                 ("{" + param["name"] + "}") in path and param["in"] == "path"
             ) or param["in"] != "path":
                 # Respect path params that appear in path and not path params
-                operation_params.append(openapi_parser.parse_parameter(param))
+                param_ = openapi_parser.parse_parameter(param)
+                if param_.name == f"{res_name}_id":
+                    path = path.replace(f"{res_name}_id", "id")
+                    # for i.e. routers/{router_id} we want local_name to be `id` and not `router_id`
+                    param_.name = "id"
+                operation_params.append(param_)
 
         # Process body information
         request_body = spec.get("requestBody")

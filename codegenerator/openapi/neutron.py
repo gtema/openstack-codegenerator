@@ -837,10 +837,25 @@ class NeutronGenerator(OpenStackServerSourceBase):
             send_props = {}
             return_props = {}
             for field, data in schema_def.items():
+                js_schema = get_schema(data)
+                # Dirty hacks for corrupted schemas
+                if field in ["availability_zones", "tags"]:
+                    js_schema.update(
+                        {"type": "array", "items": {"type": "string"}}
+                    )
+                elif field == "revision_number":
+                    js_schema.update({"type": "integer"})
+                elif field == "subnets":
+                    js_schema.update(
+                        {
+                            "type": "array",
+                            "items": {"type": "string", "format": "uuid"},
+                        }
+                    )
                 if data.get(f"allow_{method.lower()}", False):
-                    send_props[field] = get_schema(data)
+                    send_props[field] = js_schema
                 if data.get("is_visible", False):
-                    return_props[field] = get_schema(data)
+                    return_props[field] = js_schema
             if operation == "index" and collection_key:
                 schema.properties = {
                     collection_key: {
@@ -1097,6 +1112,11 @@ def get_schema(param_data):
                 "Unsupported conversion function %s used", convert_to.__name__
             )
 
+    if not schema:
+        default = param_data.get("default")
+        if default is not None:
+            if isinstance(default, list):
+                schema = {"type": "array", "items": {"type": "string"}}
     if not schema:
         schema = {"type": "string"}
 

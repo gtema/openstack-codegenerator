@@ -75,6 +75,11 @@ QUOTA_SCHEMA = {
             "type": "integer",
             "description": "The number of subnet pools allowed for each project. A value of -1 means no limit.",
         },
+        "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The ID of the project.",
+        },
     },
 }
 

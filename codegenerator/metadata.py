@@ -100,13 +100,16 @@ class MetadataGenerator(BaseGenerator):
                     # elif path.endswith("/default"):
                     #     operation_key = "default"
                     elif response_schema and (
-                        response_schema.get("type", "") == "array"
-                        or (
-                            response_schema.get("type", "") == "object"
-                            and "properties" in response_schema
-                            and len(path_elements) > 1
-                            and path_elements[-1]
-                            in response_schema.get("properties", {})
+                        method == "get"
+                        and (
+                            response_schema.get("type", "") == "array"
+                            or (
+                                response_schema.get("type", "") == "object"
+                                and "properties" in response_schema
+                                and len(path_elements) > 1
+                                and path_elements[-1]
+                                in response_schema.get("properties", {})
+                            )
                         )
                     ):
                         # Response looks clearly like a list

@@ -175,6 +175,8 @@ class JsonSchemaParser:
             return self.parse_oneOf(schema, results, name=name)
         elif "enum" in schema:
             return self.parse_enum(schema, results, name=name)
+        elif "allOf" in schema:
+            return self.parse_allOf(schema, results, name=name)
         elif isinstance(type_, list):
             return self.parse_typelist(schema, results, name=name)
         elif isinstance(type_, str):
@@ -201,6 +203,9 @@ class JsonSchemaParser:
             elif type_ == "null":
                 obj = PrimitiveNull()
                 return obj
+        elif not type_ and "properties" in schema:
+            # Sometimes services forget to set "type=object"
+            return self.parse_object(schema, results, name=name)
         elif schema == {}:
             return PrimitiveNull()
         raise RuntimeError("Cannot determine type for %s", schema)
@@ -345,6 +350,19 @@ class JsonSchemaParser:
         results.append(obj)
         return obj
 
+    def parse_allOf(self, schema, results: list[ADT], name: str | None = None):
+        sch = copy.deepcopy(schema)
+        sch.pop("allOf")
+        for kind in schema.get("allOf"):
+            sch = common._deep_merge(sch, kind)
+        obj = self.parse_schema(sch, results, name=name)
+        if not obj:
+            raise NotImplementedError
+        # if name:
+        #    obj.reference = Reference(name=name, type=obj.__class__)
+        # results.append(obj)
+        return obj
+
 
 class RequestParameter(BaseModel):
     """OpenAPI Request parameter DataType wrapper"""
@@ -398,20 +416,17 @@ class OpenAPISchemaParser(JsonSchemaParser):
             # Param type can be anything. Process supported combinations first
             if param_location == "query" and param_name == "limit":
                 dt = ConstraintInteger(minimum=0)
-            elif (
-                param_location == "query"
-                and list(["string", "boolean"]) == param_typ
-            ):
+            elif param_location == "query" and sorted(
+                ["string", "boolean"]
+            ) == sorted(param_typ):
                 dt = PrimitiveBoolean()
-            elif (
-                param_location == "query"
-                and list(["string", "integer"]) == param_typ
-            ):
+            elif param_location == "query" and sorted(
+                ["string", "integer"]
+            ) == sorted(param_typ):
                 dt = ConstraintInteger(**param_schema)
-            elif (
-                param_location == "query"
-                and list(["string", "number"]) == param_typ
-            ):
+            elif param_location == "query" and sorted(
+                ["string", "number"]
+            ) == sorted(param_typ):
                 dt = ConstraintNumber(**param_schema)
 
         if isinstance(dt, ADT):

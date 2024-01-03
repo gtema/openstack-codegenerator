@@ -58,6 +58,14 @@ class NumString(common.BasePrimitiveType):
     clap_macros: set[str] = set()
 
 
+class BoolString(common.BasePrimitiveType):
+    """CLI Boolean or String"""
+
+    imports: set[str] = set(["crate::common::BoolString"])
+    type_hint: str = "BoolString"
+    clap_macros: set[str] = set()
+
+
 class VecString(common.BasePrimitiveType):
     """CLI Vector of strings"""
 
@@ -69,7 +77,7 @@ class VecString(common.BasePrimitiveType):
 class JsonValue(common_rust.JsonValue):
     """Arbitrary JSON value"""
 
-    imports: set[str] = set(["crate::common::parse_json"])
+    imports: set[str] = set(["crate::common::parse_json", "serde_json::Value"])
     clap_macros: set[str] = set(
         ['value_name="JSON"', "value_parser=parse_json"]
     )
@@ -296,20 +304,24 @@ class RequestTypeManager(common_rust.TypeManager):
 
     def get_local_attribute_name(self, name: str) -> str:
         """Get localized attribute name"""
-        return "_".join(
+        attr_name = "_".join(
             x.lower() for x in re.split(common.SPLIT_NAME_RE, name)
         )
+        if attr_name == "type":
+            attr_name = "_type"
+        return attr_name
 
     def get_remote_attribute_name(self, name: str) -> str:
         """Get the attribute name on the SDK side"""
-        return "_".join(
-            x.lower() for x in re.split(common.SPLIT_NAME_RE, name)
-        )
+        return self.get_local_attribute_name(name)
 
     def get_var_name_for(self, obj) -> str:
-        return "_".join(
+        attr_name = "_".join(
             x.lower() for x in re.split(common.SPLIT_NAME_RE, obj.name)
         )
+        if attr_name == "type":
+            attr_name = "_type"
+        return attr_name
 
     def _get_one_of_type(
         self, type_model: model.OneOfType
@@ -422,7 +434,7 @@ class RequestTypeManager(common_rust.TypeManager):
         else:
             # Not hacked anything, invoke superior method
             typ = super().convert_model(type_model)
-        return typ  # type: ignore
+        return typ
 
     def _get_struct_type(self, type_model: model.Struct) -> common_rust.Struct:
         """Convert model.Struct into rust_sdk `Struct`"""
@@ -555,7 +567,7 @@ class ResponseTypeManager(common_rust.TypeManager):
         elif String in kinds_classes and common_rust.Boolean in kinds_classes:
             # oneOf [string, boolean] => String
             kinds.clear()
-            kinds.append({"local": String(), "class": String})
+            kinds.append({"local": BoolString(), "class": BoolString})
         super()._simplify_oneof_combinations(type_model, kinds)
 
     def get_subtypes(self):
@@ -564,12 +576,15 @@ class ResponseTypeManager(common_rust.TypeManager):
         for k, v in self.refs.items():
             if (
                 k
-                and (
-                    isinstance(v, common_rust.Enum)
-                    or isinstance(v, common_rust.Struct)
-                    or isinstance(v, common_rust.StringEnum)
-                    or isinstance(v, common_rust.Dictionary)
-                    or isinstance(v, common_rust.Array)
+                and isinstance(
+                    v,
+                    (
+                        common_rust.Enum,
+                        common_rust.Struct,
+                        common_rust.StringEnum,
+                        common_rust.Dictionary,
+                        common_rust.Array,
+                    ),
                 )
                 and k.name != "Body"
             ):
@@ -649,7 +664,7 @@ class RustCliGenerator(BaseGenerator):
         (path, method, spec) = common.find_openapi_operation(
             openapi_spec, operation_id
         )
-        srv_name, res_name = res.split(".") if res else (None, None)
+        _, res_name = res.split(".") if res else (None, None)
         resource_name = common.get_resource_names_from_url(path)[-1]
 
         openapi_parser = model.OpenAPISchemaParser()
@@ -692,31 +707,14 @@ class RustCliGenerator(BaseGenerator):
                 ("{" + param["name"] + "}") in path and param["in"] == "path"
             ) or param["in"] != "path":
                 # Respect path params that appear in path and not path params
-                operation_params.append(openapi_parser.parse_parameter(param))
+                param_ = openapi_parser.parse_parameter(param)
+                if param_.name == f"{res_name}_id":
+                    # for i.e. routers/{router_id} we want local_name to be `id` and not `router_id`
+                    param_.name = "id"
+                operation_params.append(param_)
 
         if operation_params:
             type_manager.set_parameters(operation_params)
-        # for param in openapi_spec["paths"][path].get(
-        #     "parameters", []
-        # ) + spec.get("parameters", []):
-        #     (xparam, setter) = common.get_rust_param_dict(param, "cli")
-        #     if xparam:
-        #         if xparam["location"] == "header":
-        #             header_params[xparam["name"]] = xparam
-        #         if xparam["location"] == "path":
-        #             xparam["path_position"] = path_elements.index(
-        #                 xparam["name"]
-        #             )
-        #             # for i.e. routers/{router_id} we want local_name to be `id` and not `router_id`
-        #             if xparam["name"] == f"{res_name}_id":
-        #                 xparam["name"] = "id"
-        #                 xparam["local_name"] = "id"
-
-        #             path_params[xparam["name"]] = xparam
-        #         if xparam["location"] == "query":
-        #             query_params[xparam["name"]] = xparam
-
-        #         additional_imports.update(xparam["additional_imports"])
 
         # Process request body information
         request_body = spec.get("requestBody")
@@ -735,12 +733,34 @@ class RustCliGenerator(BaseGenerator):
                     "x-openstack", {}
                 ).get("discriminator")
                 if oneof and oneof_discriminator == "action":
-                    raise NotImplementedError("No actions yet")
-                elif oneof and oneof_discriminator == "microversion":
+                    action_body_schema: dict | None = None
+                    for candidate in oneof:
+                        act_name = candidate.get("x-openstack", {}).get(
+                            "action-name"
+                        )
+                        if (
+                            act_name
+                            and args.operation_name
+                            and args.operation_name == act_name
+                        ):
+                            action_body_schema = candidate
+                            break
+                    if not action_body_schema:
+                        raise NotImplementedError("Action body not found")
+                    json_body_schema = action_body_schema
+                # Selecting actions we could have shifted from to the next level
+                oneof = json_body_schema.get("oneOf", {})
+                oneof_discriminator = json_body_schema.get(
+                    "x-openstack", {}
+                ).get("discriminator")
+                if oneof and oneof_discriminator == "microversion":
                     json_body_schema = oneof[-1]
-                    # raise NotImplementedError("no mv yet")
+                    raise NotImplementedError(
+                        "Microversions not yet implemented"
+                    )
 
                 (_, all_types) = openapi_parser.parse(json_body_schema)
+
                 # Certain hacks
                 for parsed_type in list(all_types):
                     # iterate over listed all_types since we want to modify list
@@ -762,38 +782,13 @@ class RustCliGenerator(BaseGenerator):
                 # and feed them into the TypeManager
                 type_manager.set_models(all_types)
 
-                # response_def, _ = common.find_resource_schema(
-                #     json_body_schema, None
-                # )
-                # if not response_def:
-                #     # If there is no "x-openstack-client-resource" down the
-                #     # pipe take what we have
-                #     response_def = json_body_schema
-
-                # if response_def.get("type") == "object":
-                #     # Our TL element is an object. This is what we expected
-                #     required_props = response_def.get("required", [])
-                #     for k, el in response_def.get("properties", {}).items():
-                #         (
-                #             xparam,
-                #             setter,
-                #             subtype,
-                #         ) = common.get_rust_body_element_dict(
-                #             k, el, k in required_props, "cli-request"
-                #         )
-
-                #         if xparam:
-                #             body_params[xparam["name"]] = xparam
-                #             additional_imports.update(
-                #                 xparam.get("additional_imports", set())
-                #             )
-
         result_def: dict = {}
         resource_header_metadata: dict = {}
 
         # Process response information
         # # Prepare information about response
         if method.upper() != "HEAD":
+            response_def: dict | None = None
             for code, rspec in spec["responses"].items():
                 if not code.startswith("2"):
                     continue
@@ -810,10 +805,19 @@ class RustCliGenerator(BaseGenerator):
                         if not discriminator:
                             # Server returns server or reservation info. For the cli it is not very helpful and we look for response candidate with the resource_name in the response
                             for candidate in oneof:
-                                if candidate.get(
-                                    "type"
-                                ) == "object" and resource_name in candidate.get(
-                                    "properties"
+                                if (
+                                    args.operation_type == "action"
+                                    and candidate.get("x-openstack", {}).get(
+                                        "action-name"
+                                    )
+                                    == args.operation_name
+                                ):
+                                    response_def = candidate
+                                elif (
+                                    resource_name
+                                    and candidate.get("type") == "object"
+                                    and resource_name
+                                    in candidate.get("properties", {})
                                 ):
                                     # Actually for the sake of the CLI it may make sense to merge all candidates
                                     response_def = candidate["properties"][
@@ -833,104 +837,11 @@ class RustCliGenerator(BaseGenerator):
                             response_def
                         )
                         response_type_manager.set_models(response_all_types)
-        #                 for k, v in response_def["properties"].items():
-        #                     try:
-        #                         (
-        #                             xparam,
-        #                             setter,
-        #                             subtype,
-        #                         ) = common.get_rust_body_element_dict(
-        #                             k,
-        #                             v,
-        #                             k in response_def.get("required", []),
-        #                             "cli",
-        #                         )
-
-        #                         if xparam:
-        #                             if operation_type == "list" and (
-        #                                 k.lower() not in BASIC_FIELDS
-        #                                 and xparam["local_name"].lower()
-        #                                 not in BASIC_FIELDS
-        #                             ):
-        #                                 xparam["param_structable_args"].append(
-        #                                     "wide"
-        #                                 )
-
-        #                             #                                    params[xparam["name"]] = xparam
-        #                             field_res = copy.deepcopy(xparam)
-        #                             field_res["type"] == field_res[
-        #                                 "type"
-        #                             ].replace("Vec<String>", "VecString")
-        #                             # Vec<String> in the res must be VecString
-        #                             if "Vec<String>" in field_res["type"]:
-        #                                 field_res["type"] = field_res[
-        #                                     "type"
-        #                                 ].replace("Vec<String>", "VecString")
-        #                                 additional_imports.add(
-        #                                     "crate::common::VecString"
-        #                                 )
-        #                             # Vec<Value> in the res must be VecValue
-        #                             if "Vec<Value>" in field_res["type"]:
-        #                                 field_res["type"] = field_res[
-        #                                     "type"
-        #                                 ].replace("Vec<Value>", "VecValue")
-        #                                 additional_imports.add(
-        #                                     "crate::common::VecValue"
-        #                                 )
-        #                             # HashMap<String, String> in the res must be HashMapStringString
-        #                             if (
-        #                                 "HashMap<String, String>"
-        #                                 in field_res["type"]
-        #                             ):
-        #                                 field_res["type"] = field_res[
-        #                                     "type"
-        #                                 ].replace(
-        #                                     "HashMap<String, String>",
-        #                                     "HashMapStringString",
-        #                                 )
-        #                                 additional_imports.add(
-        #                                     "crate::common::HashMapStringString"
-        #                                 )
-
-        #                             result_def[field_res["name"]] = field_res
-        #                             additional_imports.update(
-        #                                 field_res.get(
-        #                                     "additional_imports", set()
-        #                                 )
-        #                             )
-
-        #                             if method == "patch" and not v.get(
-        #                                 "readOnly", False
-        #                             ):
-        #                                 field_arg = copy.deepcopy(xparam)
-        #                                 field_arg["location"] = "patch"
-        #                                 patch_params[
-        #                                     field_arg["name"]
-        #                                 ] = field_arg
-
-        #                     except Exception as ex:
-        #                         raise ValueError(
-        #                             "Cannot interpret %s in rust: %s" % (k, ex)
-        #                         )
-
-        #             else:
-        #                 raise ValueError("Cannot find result object")
-        # else:
-        #     responses = spec["responses"]
-        #     rspec = None
-        #     # Even though in HEAD case only 204 makes sense Swift object.head
-        #     # returns 200. Therefore try whatever we find first.
-        #     for code in ["204", "200"]:
-        #         if code in responses:
-        #             rspec = responses[code]
-        #             break
-        #     for name, hspec in rspec["headers"].items():
-        #         resource_header_metadata[name] = dict(
-        #             description=hspec.get("description"),
-        #             type=common.OPENAPI_RUST_TYPE_MAPPING[
-        #                 hspec["schema"]["type"]
-        #             ]["default"],
-        #         )
+                    elif response_def["type"] == "string":
+                        (_, response_all_types) = openapi_parser.parse(
+                            response_def
+                        )
+                        response_type_manager.set_models(response_all_types)
 
         additional_imports.add(
             "openstack_sdk::api::" + "::".join(sdk_mod_path)
@@ -980,7 +891,7 @@ class RustCliGenerator(BaseGenerator):
             additional_imports.add("crate::common::download_file")
         if args.operation_type == "upload":
             additional_imports.add("crate::common::build_upload_asyncread")
-        if response_type_manager.get_root_data_type():
+        if response_type_manager.get_root_data_type().fields:
             additional_imports.add("openstack_sdk::api::QueryAsync")
         else:
             additional_imports.add("openstack_sdk::api::RawQueryAsync")
@@ -994,11 +905,6 @@ class RustCliGenerator(BaseGenerator):
             ):
                 additional_imports.add("regex::Regex")
 
-        # if path_params:
-        #     p = sorted(path_params.values(), key=lambda d: d["path_position"])
-        #     last_path_parameter = p[-1]
-        # else:
-        #     last_path_parameter = None
         additional_imports.update(type_manager.get_imports())
         additional_imports.update(response_type_manager.get_imports())
         # Deserialize is already in template since it is uncoditionally required

@@ -1,0 +1,33 @@
+{#- Patch implementation #}
+        // Patching resource requires fetching and calculating diff
+        let data: Response = find(ep).query_async(client).await?;
+        let mut new = data.clone();
+        {% for k, v in patch_params.items() %}
+        if let Some(val) = &self.args.{{ v.local_name }} {
+          {%- if v.type == "Option<Vec<String>>" %}
+            new.{{ v.local_name }} = Some(VecString(val.clone()));
+          {%- elif v.type in ["Option<bool>", "Option<u32>", "Option<f32>"]%}
+            new.{{ v.local_name }} = Some(*val);
+          {%- elif "Option" in v.type %}
+            new.{{ v.local_name }} = Some(val.into());
+          {%- else %}
+            new.{{ v.local_name }} = *val;
+          {%- endif %}
+        }
+        {%- endfor %}
+
+        let curr_json = serde_json::to_value(&data).unwrap();
+        let new_json = serde_json::to_value(&new).unwrap();
+        let patch = diff(&curr_json, &new_json);
+
+        let mut patch_ep_builder = {{ method }}::{{ sdk_struct_name }}::builder();
+        patch_ep_builder.id(&data.id);
+        patch_ep_builder.patch(patch);
+
+        let patch_ep = patch_ep_builder
+            .build()
+            .map_err(|x| OpenStackCliError::EndpointBuild(x.to_string()))?;
+        let new_data = patch_ep.query_async(client).await?;
+        op.output_single::<ResponseData>(new_data)?;
+
+

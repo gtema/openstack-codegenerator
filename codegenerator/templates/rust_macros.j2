@@ -181,8 +181,8 @@ Some({{ val }})
 {%- endmacro %}
 
 {%- macro sdk_plain_array_setter(param, val_var, dst_var) %}
-    {%- set original_type = param.data_type.original_data_type %}
-    {%- if param.data_type.item_type.__class__.__name__ == "JsonValue" and original_type.__class__.__name__ == "StructInput" %}
+  {%- set original_type = param.data_type.original_data_type %}
+  {%- if param.data_type.item_type.__class__.__name__ == "JsonValue" and original_type.__class__.__name__ == "StructInput" %}
     let sub: Vec<{{ sdk_mod_path[-1] }}::{{ original_type.name }}> = {{ val_var }}
         .iter()
         .flat_map(|v|
@@ -201,12 +201,17 @@ Some({{ val }})
             )
         .collect();
     {{ dst_var }}.{{ param.remote_name }}(sub);
-    {%- else %}
-    {#- Normal array #}
+  {%- elif param["setter_type"] is defined %}
+    {#- Param with setter present #}
     {{ dst_var }}.{{ param.remote_name }}(
         {{ val_var }}.into_iter()
     );
-    {%- endif %}
+  {%- else %}
+    {#- Normal array #}
+    {{ dst_var }}.{{ param.remote_name }}(
+        {{ val_var }}.iter().map(|v| v.into()).collect::<Vec<_>>()
+    );
+  {%- endif %}
 {%- endmacro %}
 
 
