@@ -1,0 +1,3 @@
+{#- Create operation handling #}
+        let data = ep.query_async(client).await?;
+        op.output_single::<ResponseData>(data)?;

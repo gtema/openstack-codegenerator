@@ -30,6 +30,9 @@ class Boolean(BasePrimitiveType):
     clap_macros: set[str] = set(["action=clap::ArgAction::Set"])
     original_data_type: BaseCompoundType | BaseCompoundType | None = None
 
+    def get_sample(self):
+        return "False"
+
 
 class Number(BasePrimitiveType):
     format: str | None = None
@@ -69,6 +72,10 @@ class Integer(BasePrimitiveType):
 class Null(BasePrimitiveType):
     type_hint: str = "Option<String>"
     clap_macros: set[str] = set()
+    original_data_type: BaseCompoundType | BaseCompoundType | None = None
+
+    def get_sample(self):
+        return "None::<String>"
 
 
 class String(BasePrimitiveType):
@@ -88,6 +95,7 @@ class JsonValue(BasePrimitiveType):
 class Option(BaseCombinedType):
     base_type: str = "Option"
     item_type: BasePrimitiveType | BaseCombinedType | BaseCompoundType
+    original_data_type: BaseCompoundType | BaseCompoundType | None = None
 
     @property
     def type_hint(self):
@@ -104,11 +112,17 @@ class Option(BaseCombinedType):
     @property
     def builder_macros(self):
         macros = set(["setter(into)"])
+        wrapped_macros = self.item_type.builder_macros
+        if "private" in wrapped_macros:
+            macros = wrapped_macros
         return macros
 
     @property
     def clap_macros(self):
         return self.item_type.clap_macros
+
+    def get_sample(self):
+        return self.item_type.get_sample()
 
 
 class Array(BaseCombinedType):
@@ -133,7 +147,12 @@ class Array(BaseCombinedType):
         return macros
 
     def get_sample(self):
-        return "Vec::from([" + self.item_type.get_sample() + "])"
+        return (
+            "Vec::from(["
+            + self.item_type.get_sample()
+            + (".into()" if isinstance(self.item_type, String) else "")
+            + "])"
+        )
 
     @property
     def clap_macros(self) -> set[str]:
@@ -164,6 +183,7 @@ class CommaSeparatedList(BaseCombinedType):
 
 class BTreeSet(BaseCombinedType):
     item_type: BasePrimitiveType | BaseCombinedType | BaseCompoundType
+    builder_macros: set[str] = set(["setter(into)"])
 
     @property
     def type_hint(self):
@@ -178,11 +198,6 @@ class BTreeSet(BaseCombinedType):
         imports = self.item_type.imports
         imports.add("std::collections::BTreeSet")
         return imports
-
-    @property
-    def builder_macros(self):
-        macros = set(["setter(into)"])
-        return macros
 
 
 class Dictionary(BaseCombinedType):
@@ -246,8 +261,7 @@ class EnumKind(BaseModel):
     def type_hint(self):
         if isinstance(self.data_type, Struct):
             return self.data_type.name
-        else:
-            return self.data_type.type_hint
+        return self.data_type.type_hint
 
     @property
     def clap_macros(self) -> set[str]:
@@ -297,20 +311,25 @@ class StringEnum(BaseCompoundType):
     builder_container_macros: str | None = None
     serde_container_macros: str | None = "#[serde(untagged)]"
     serde_macros: set[str] | None = None
+    original_data_type: BaseCompoundType | BaseCompoundType | None = None
 
     @property
     def type_hint(self):
+        """Get type hint"""
         return self.name
 
     @property
     def clap_macros(self) -> set[str]:
+        """ "Return clap macros"""
         return set()
 
     def get_sample(self):
+        """Generate sample data"""
         variant = list(self.variants.keys())[0]
         return f"{self.name}::{variant}"
 
     def variant_serde_macros(self, variant: str):
+        """Return serde macros"""
         return (
             "#[serde("
             + ", ".join([f'alias="{x}"' for x in self.variants[variant]])
@@ -332,10 +351,9 @@ class RequestParameter(BaseModel):
 
     @property
     def type_hint(self):
-        if not self.is_required:
+        if not self.is_required and not isinstance(self.data_type, BTreeSet):
             return f"Option<{self.data_type.type_hint}>"
-        else:
-            return self.data_type.type_hint
+        return self.data_type.type_hint
 
     @property
     def lifetimes(self):
@@ -356,7 +374,10 @@ class TypeManager:
     ] = {}
     parameters: dict[str, Type[RequestParameter] | RequestParameter] = {}
 
-    base_primitive_type_mapping: dict[Type[model.PrimitiveType], Type[Any]] = {
+    base_primitive_type_mapping: dict[
+        Type[model.PrimitiveType],
+        Type[BasePrimitiveType] | Type[BaseCombinedType],
+    ] = {
         model.PrimitiveString: String,
         model.ConstraintString: String,
         model.PrimitiveNumber: Number,
@@ -367,7 +388,10 @@ class TypeManager:
         model.PrimitiveAny: JsonValue,
     }
 
-    primitive_type_mapping: dict[Type[model.PrimitiveType], Type[Any]]
+    primitive_type_mapping: dict[
+        Type[model.PrimitiveType],
+        Type[BasePrimitiveType] | Type[BaseCombinedType],
+    ]
 
     data_type_mapping: dict[
         Type[model.ADT], Type[BaseCombinedType] | Type[BaseCompoundType]
@@ -450,11 +474,11 @@ class TypeManager:
             model_ref = type_model.reference
         else:
             # Primitive
-            typ = self.primitive_type_mapping.get(type_model.__class__)  # type: ignore
-            if not typ:
+            xtyp = self.primitive_type_mapping.get(type_model.__class__)
+            if not xtyp:
                 raise RuntimeError("No mapping for %s" % type_model)
             # logging.debug("Returning %s for %s", typ, type_model.__class__)
-            return typ(**type_model.model_dump())
+            return xtyp(**type_model.model_dump())
 
         # Composite/Compound type
         if model_ref and model_ref in self.refs:
@@ -485,8 +509,7 @@ class TypeManager:
                     typ = Boolean()
                 else:
                     raise RuntimeError(
-                        "Rust model does not support multitype enums yet %s"
-                        % type_model
+                        f"Rust model does not support multitype enums yet {type_model}"
                     )
             elif len(type_model.base_types) == 1:
                 base_type = type_model.base_types[0]
@@ -497,9 +520,7 @@ class TypeManager:
                             # TODO(gtema): make parent nullable or add "null"
                             # as enum value
                             type_model.literals.remove(None)
-                        for lit in set(
-                            [x.lower() for x in type_model.literals]
-                        ):
+                        for lit in set(x.lower() for x in type_model.literals):
                             val = "".join(
                                 [
                                     x.capitalize()
@@ -508,7 +529,7 @@ class TypeManager:
                                     )
                                 ]
                             )
-                            if val[0].isdigit():
+                            if val and val[0].isdigit():
                                 val = "_" + val
                             vals = variants.setdefault(val, set())
                             for orig_val in type_model.literals:
@@ -532,7 +553,7 @@ class TypeManager:
 
         if not typ:
             raise RuntimeError(
-                "Cannot map model type %s to Rust SDK [%s]"
+                "Cannot map model type %s to Rust type [%s]"
                 % (type_model.__class__.__name__, type_model)
             )
 
@@ -678,14 +699,16 @@ class TypeManager:
         integer_klass = self.primitive_type_mapping[model.ConstraintInteger]
         boolean_klass = self.primitive_type_mapping[model.PrimitiveBoolean]
         dict_klass = self.data_type_mapping[model.Dictionary]
-        enum_name = type_model.reference.name
+        enum_name = type_model.reference.name if type_model.reference else None
         if string_klass in kinds_classes and number_klass in kinds_classes:
             # oneOf [string, number] => string
             for typ in list(kinds):
                 if typ["class"] == number_klass:
                     kinds.remove(typ)
         elif string_klass in kinds_classes and integer_klass in kinds_classes:
-            if enum_name.endswith("size") or enum_name.endswith("count"):
+            if enum_name and (
+                enum_name.endswith("size") or enum_name.endswith("count")
+            ):
                 # XX_size or XX_count is clearly an integer
                 for typ in list(kinds):
                     if typ["class"] == string_klass:
@@ -738,11 +761,7 @@ class TypeManager:
         for k, v in self.refs.items():
             if (
                 k
-                and (
-                    isinstance(v, Enum)
-                    or isinstance(v, Struct)
-                    or isinstance(v, StringEnum)
-                )
+                and isinstance(v, (Enum, Struct, StringEnum))
                 and k.name != "Body"
             ):
                 yield v
@@ -758,6 +777,19 @@ class TypeManager:
         """Get TLA type"""
         for k, v in self.refs.items():
             if not k or (k.name == "Body" and isinstance(v, Struct)):
+                if isinstance(v.fields, dict):
+                    # There might be tuple Struct (with
+                    # fields as list)
+                    field_names = list(v.fields.keys())
+                    if (
+                        len(field_names) == 1
+                        and v.fields[field_names[0]].is_optional
+                    ):
+                        # A body with only field can not normally be optional
+                        logging.warning(
+                            "Request body with single root field cannot be optional"
+                        )
+                        v.fields[field_names[0]].is_optional = False
                 return v
         # No root has been found, make a dummy one
         root = self.data_type_mapping[model.Struct](name="Request")
@@ -773,6 +805,7 @@ class TypeManager:
         return imports
 
     def get_request_static_lifetimes(self, request_model: Struct):
+        """Return static lifetimes of the Structure"""
         lifetimes = request_model.lifetimes
         for param in self.parameters.values():
             lt = param.lifetimes
@@ -780,10 +813,10 @@ class TypeManager:
                 lifetimes.update(lt)
         if lifetimes:
             return f"<{', '.join(lifetimes)}>"
-        else:
-            return ""
+        return ""
 
     def subtype_requires_private_builders(self, subtype) -> bool:
+        """Return `True` if type require private builder"""
         if not isinstance(subtype, self.data_type_mapping[model.Struct]):
             return False
         for field in subtype.fields.values():
@@ -843,3 +876,87 @@ def sanitize_rust_docstrings(doc: str | None) -> str | None:
                 code_block_open = False
         lines.append(line)
     return "\n".join(lines)
+
+
+def get_operation_variants(spec: dict, operation_name: str):
+    request_body = spec.get("requestBody")
+    # List of operation variants (based on the body)
+    operation_variants = []
+
+    if request_body:
+        content = request_body.get("content", {})
+        json_body_schema = content.get("application/json", {}).get("schema")
+        if json_body_schema:
+            mime_type = "application/json"
+            # response_def = json_body_schema
+            if "oneOf" in json_body_schema:
+                # There is a choice of bodies. It can be because of
+                # microversion or an action (or both)
+                # For action we should come here with operation_type="action" and operation_name must be the action name
+                # For microversions we build body as enum
+                # So now try to figure out what the discriminator is
+                discriminator = json_body_schema.get("x-openstack", {}).get(
+                    "discriminator"
+                )
+                if discriminator == "microversion":
+                    logging.debug("Microversion discriminator for bodies")
+                    for variant in json_body_schema["oneOf"]:
+                        variant_spec = variant.get("x-openstack", {})
+                        operation_variants.append({"body": variant})
+                    # operation_variants.extend([{"body": x} for x in json_body_schema(["oneOf"])])
+                elif discriminator == "action":
+                    # We are in the action. Need to find matching body
+                    for variant in json_body_schema["oneOf"]:
+                        variant_spec = variant.get("x-openstack", {})
+                        if variant_spec.get("action-name") == operation_name:
+                            discriminator = variant_spec.get("discriminator")
+                            if (
+                                "oneOf" in variant
+                                and discriminator == "microversion"
+                            ):
+                                logging.debug(
+                                    "Microversion discriminator for action bodies"
+                                )
+                                for subvariant in variant["oneOf"]:
+                                    subvariant_spec = subvariant.get(
+                                        "x-openstack", {}
+                                    )
+                                    operation_variants.append(
+                                        {
+                                            "body": subvariant,
+                                            "mode": "action",
+                                            "min-ver": subvariant_spec.get(
+                                                "min-ver"
+                                            ),
+                                        }
+                                    )
+                            else:
+                                logging.debug(
+                                    "Action %s with %s", variant, discriminator
+                                )
+                                operation_variants.append(
+                                    {
+                                        "body": variant,
+                                        "mode": "action",
+                                        "min-ver": variant_spec.get("min-ver"),
+                                    }
+                                )
+                            break
+                    if not operation_variants:
+                        raise RuntimeError(
+                            "Cannot find body specification for action %s"
+                            % operation_name
+                        )
+            else:
+                operation_variants.append({"body": json_body_schema})
+        elif "application/openstack-images-v2.1-json-patch" in content:
+            mime_type = "application/openstack-images-v2.1-json-patch"
+            operation_variants.append({"mime_type": mime_type})
+        elif "application/json-patch+json" in content:
+            mime_type = "application/json-patch+json"
+            operation_variants.append({"mime_type": mime_type})
+    else:
+        # Explicitly register variant without body
+        operation_variants.append({"body": None})
+
+    return operation_variants

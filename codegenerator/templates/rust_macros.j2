@@ -68,15 +68,22 @@ Option
 {%- endmacro %}
 
 {%- macro sdk_builder_setter_btreemap(field) %}
+  {%- set is_opt = False if field.data_type.__class__.__name__ != "Option" else True %}
+  {%- set dt = field.data_type if not is_opt else field.data_type.item_type %}
     {{ docstring(field.description, indent=4) }}
     pub fn {{ field.local_name }}<I, K, V>(&mut self, iter: I) -> &mut Self
       where
           I: Iterator<Item = (K, V)>,
           K: Into<Cow<'a, str>>,
-          V: Into<{{ field.data_type.value_type.type_hint }}>,
+          V: Into<{{ dt.value_type.type_hint }}>,
       {
           self.{{ field.local_name }}
+            {%- if field.is_optional %}
               .get_or_insert(None)
+            {%- endif %}
+            {%- if is_opt %}
+              .get_or_insert(None)
+            {%- endif %}
               .get_or_insert_with(BTreeMap::new)
               .extend(iter.map(|(k, v)| (k.into(), v.into())));
           self
@@ -84,11 +91,13 @@ Option
 {%- endmacro %}
 
 {%- macro sdk_builder_setter_btreeset(field) %}
+  {%- set is_opt = False if field.data_type.__class__.__name__ != "Option" else True %}
+  {%- set dt = field.data_type if not is_opt else field.data_type.item_type %}
     {{ macros.docstring(field.description, indent=4) }}
     pub fn {{ field.local_name }}<I, T>(&mut self, iter: I) -> &mut Self
       where
           I: Iterator<Item = T>,
-          V: Into<{{ field.data_type.item_type.type_hint }}>,
+          V: Into<{{ dt.item_type.type_hint }}>,
       {
           self.{{ field.local_name }}
               .get_or_insert_with(BTreeSet::new)
@@ -99,9 +108,11 @@ Option
 
 {#- Create DeriveBuilder setter method #}
 {%- macro sdk_builder_setter(field) %}
-  {%- if field.data_type.__class__.__name__ == "BTreeMap" %}
+ {%- set dtc = field.data_type.__class__.__name__ %}
+ {%- set subdtc = field.data_type.item_type.__class__.__name__ %}
+  {%- if dtc == "BTreeMap" or subdtc == "BTreeMap" %}
     {{ sdk_builder_setter_btreemap(field) }}
-  {%- elif field.data_type.__class__.__name__ == "BTreeSet" %}
+  {%- elif dtc == "BTreeSet" or subdtc == "BTreeSet" %}
     {{ sdk_builder_setter_btreeset(field) }}
   {%- endif %}
 {%- endmacro %}
@@ -116,8 +127,11 @@ Some({{ val }})
 
 {#- Macros to render setting Request data from CLI input #}
 {%- macro set_request_data_from_input(dst_var, param, val_var) %}
+{%- set is_nullable = param.is_nullable if param.is_nullable is defined else False %}
 {%- if param.type_hint in ["Option<i32>", "Option<i64>", "Option<f32>", "Option<f64>", "Option<bool>"] %}
     {{ dst_var }}.{{ param.remote_name }}({{ "*" + val_var }});
+{%- elif param.type_hint in ["i32", "i64", "f32", "f64", "bool"] %}
+    {{ dst_var }}.{{ param.remote_name }}({{ val_var | replace("&", "" )}});
 {%- elif param.data_type.__class__.__name__ in ["ArrayInput"] %}
     {{ sdk_plain_array_setter(param, val_var, dst_var) }}
 {%- elif param.data_type.__class__.__name__ in ["JsonValue"] %}
@@ -134,7 +148,7 @@ Some({{ val }})
       {%- endfor %}
     };
     {{ dst_var }}.{{ param.remote_name }}(tmp);
-{%- elif param.data_type.__class__.__name__ == "GroupStruct" %}
+{%- elif param.data_type.__class__.__name__ == "EnumGroupStruct" %}
 {#- This is a reverse action of Complex SDK enum being converted into the CLI group #}
   {%- for k, v in param.data_type.fields.items() %}
   {%- if v.data_type.__class__.__name__ in ["Boolean", "BooleanFlag"] %}
@@ -145,15 +159,20 @@ Some({{ val }})
             )
         );
     }
-  {%- elif v.data_type.__class__.__name__ == "ArrayInput" %}
+   {%- elif v.data_type.__class__.__name__ == "ArrayInput" %}
     {% set original_type = v.data_type.original_item_type %}
     if let Some(data) = {{ val_var }}.{{ v.local_name }} {
         {{ sdk_enum_array_setter(param, v, "data", dst_var) }}
     }
   {%- endif %}
   {%- endfor %}
+{%- elif param.data_type.__class__.__name__ == "StructInput" %}
+    let sub = {{ sdk_mod_path[-1] }}::{{ param.data_type.name }}Builder::default();
+    {%- for k, v in param.data_type.fields.items() %}
+    {%- endfor %}
+    {{ dst_var }}.{{ param.remote_name }}(sub.build().expect("A valid object"));
 {%- elif param.data_type.__class__.__name__ == "String" %}
-    {{ dst_var }}.{{ param.remote_name }}({{ val_var }});
+    {{ dst_var }}.{{ param.remote_name }}({{ "Some(" if is_nullable }}{{ val_var }}{{ ".into())" if is_nullable }});
 {%- elif param.data_type.__class__.__name__ == "Option" %}
     {{ dst_var }}.{{ param.remote_name }}({{ val_var }}.clone().map(|v| v.into()));
 {%- else %}
@@ -181,8 +200,9 @@ Some({{ val }})
 {%- endmacro %}
 
 {%- macro sdk_plain_array_setter(param, val_var, dst_var) %}
-    {%- set original_type = param.data_type.original_data_type %}
-    {%- if param.data_type.item_type.__class__.__name__ == "JsonValue" and original_type.__class__.__name__ == "StructInput" %}
+  {%- set original_type = param.data_type.original_data_type %}
+  {%- set original_item_type = param.data_type.item_type.original_data_type %}
+  {%- if param.data_type.item_type.__class__.__name__ == "JsonValue" and original_type.__class__.__name__ == "StructInput" %}
     let sub: Vec<{{ sdk_mod_path[-1] }}::{{ original_type.name }}> = {{ val_var }}
         .iter()
         .flat_map(|v|
@@ -201,12 +221,30 @@ Some({{ val }})
             )
         .collect();
     {{ dst_var }}.{{ param.remote_name }}(sub);
-    {%- else %}
-    {#- Normal array #}
+  {%- elif param["setter_type"] is defined %}
+    {#- Param with setter present #}
     {{ dst_var }}.{{ param.remote_name }}(
         {{ val_var }}.into_iter()
     );
-    {%- endif %}
+  {%- elif original_item_type and original_item_type.__class__.__name__ == "DictionaryInput" %}
+    use std::collections::BTreeMap;
+    {{ dst_var }}.{{ param.remote_name }}(
+        {{ val_var }}.iter()
+            .map( |v| {
+                v.as_object()
+                    .expect("Is a valid Json object")
+                    .iter()
+                    .map(|(k, v)| (k.clone().into(), v.clone().into()))
+                    .collect::<BTreeMap<_,Value>>()
+            })
+            .collect::<Vec<_>>()
+    );
+  {%- else %}
+    {#- Normal array #}
+    {{ dst_var }}.{{ param.remote_name }}(
+        {{ val_var }}.iter().map(|v| v.into()).collect::<Vec<_>>()
+    );
+  {%- endif %}
 {%- endmacro %}
 
 

@@ -1,0 +1,9 @@
+{#- List operation #}
+    {%- if "limit" in type_manager.get_parameters("query")|list|map(attribute=0) %}
+    {#- paginated list #}
+        let data: Vec<serde_json::Value> = paged(ep, Pagination::Limit(self.args.max_items)).query_async(client).await?;
+    {%- else %}
+        let data: Vec<serde_json::Value> = ep.query_async(client).await?;
+    {%- endif %}
+
+        op.output_list::<ResponseData>(data)?;

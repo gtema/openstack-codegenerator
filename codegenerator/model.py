@@ -168,18 +168,31 @@ class JsonSchemaParser:
         return (res, results)
 
     def parse_schema(
-        self, schema, results: list[ADT], name: str | None = None
+        self,
+        schema,
+        results: list[ADT],
+        name: str | None = None,
+        min_ver: str | None = None,
+        max_ver: str | None = None,
     ) -> PrimitiveType | ADT:
         type_ = schema.get("type")
         if "oneOf" in schema:
             return self.parse_oneOf(schema, results, name=name)
         elif "enum" in schema:
             return self.parse_enum(schema, results, name=name)
+        elif "allOf" in schema:
+            return self.parse_allOf(schema, results, name=name)
         elif isinstance(type_, list):
             return self.parse_typelist(schema, results, name=name)
         elif isinstance(type_, str):
             if type_ == "object":
-                return self.parse_object(schema, results, name=name)
+                return self.parse_object(
+                    schema,
+                    results,
+                    name=name,
+                    min_ver=min_ver,
+                    max_ver=max_ver,
+                )
             elif type_ == "array":
                 return self.parse_array(schema, results, name=name)
             elif type_ == "string":
@@ -201,12 +214,22 @@ class JsonSchemaParser:
             elif type_ == "null":
                 obj = PrimitiveNull()
                 return obj
+        elif not type_ and "properties" in schema:
+            # Sometimes services forget to set "type=object"
+            return self.parse_object(
+                schema, results, name=name, min_ver=min_ver, max_ver=max_ver
+            )
         elif schema == {}:
             return PrimitiveNull()
         raise RuntimeError("Cannot determine type for %s", schema)
 
     def parse_object(
-        self, schema, results: list[ADT], name: str | None = None
+        self,
+        schema,
+        results: list[ADT],
+        name: str | None = None,
+        min_ver: str | None = None,
+        max_ver: str | None = None,
     ):
         obj: ADT | None = None
         properties = schema.get("properties")
@@ -215,10 +238,15 @@ class JsonSchemaParser:
         pattern_properties = schema.get("patternProperties")
         pattern_props: dict[str, PrimitiveType | ADT] | None = {}
         required = schema.get("required", [])
+        os_ext: dict = schema.get("x-openstack", {})
+        min_ver = os_ext.get("min-ver", min_ver)
+        max_ver = os_ext.get("max-ver", max_ver)
         if properties:
             obj = Struct()
             for k, v in properties.items():
-                data_type = self.parse_schema(v, results, name=k)
+                data_type = self.parse_schema(
+                    v, results, name=k, min_ver=min_ver, max_ver=max_ver
+                )
                 ref = getattr(data_type, "reference", None)
                 if ref:
                     field = StructField(data_type=ref)
@@ -230,6 +258,10 @@ class JsonSchemaParser:
                 field.description = v.get("description")
                 if k in required:
                     field.is_required = True
+                if min_ver:
+                    field.min_ver = min_ver
+                if max_ver:
+                    field.max_ver = max_ver
                 obj.fields[k] = field
         if additional_properties:
             if (
@@ -237,7 +269,11 @@ class JsonSchemaParser:
                 and "type" in additional_properties
             ):
                 additional_properties_type = self.parse_schema(
-                    additional_properties, results, name=name
+                    additional_properties,
+                    results,
+                    name=name,
+                    min_ver=min_ver,
+                    max_ver=max_ver,
                 )
             else:
                 additional_properties_type = PrimitiveAny()
@@ -245,7 +281,11 @@ class JsonSchemaParser:
         if pattern_properties:
             for key_pattern, value_type in pattern_properties.items():
                 type_kind: PrimitiveType | ADT = self.parse_schema(
-                    value_type, results, name=name
+                    value_type,
+                    results,
+                    name=name,
+                    min_ver=min_ver,
+                    max_ver=max_ver,
                 )
                 pattern_props[key_pattern] = type_kind  # type: ignore
 
@@ -345,6 +385,19 @@ class JsonSchemaParser:
         results.append(obj)
         return obj
 
+    def parse_allOf(self, schema, results: list[ADT], name: str | None = None):
+        sch = copy.deepcopy(schema)
+        sch.pop("allOf")
+        for kind in schema.get("allOf"):
+            sch = common._deep_merge(sch, kind)
+        obj = self.parse_schema(sch, results, name=name)
+        if not obj:
+            raise NotImplementedError
+        # if name:
+        #    obj.reference = Reference(name=name, type=obj.__class__)
+        # results.append(obj)
+        return obj
+
 
 class RequestParameter(BaseModel):
     """OpenAPI Request parameter DataType wrapper"""
@@ -398,20 +451,17 @@ class OpenAPISchemaParser(JsonSchemaParser):
             # Param type can be anything. Process supported combinations first
             if param_location == "query" and param_name == "limit":
                 dt = ConstraintInteger(minimum=0)
-            elif (
-                param_location == "query"
-                and list(["string", "boolean"]) == param_typ
-            ):
+            elif param_location == "query" and sorted(
+                ["string", "boolean"]
+            ) == sorted(param_typ):
                 dt = PrimitiveBoolean()
-            elif (
-                param_location == "query"
-                and list(["string", "integer"]) == param_typ
-            ):
+            elif param_location == "query" and sorted(
+                ["string", "integer"]
+            ) == sorted(param_typ):
                 dt = ConstraintInteger(**param_schema)
-            elif (
-                param_location == "query"
-                and list(["string", "number"]) == param_typ
-            ):
+            elif param_location == "query" and sorted(
+                ["string", "number"]
+            ) == sorted(param_typ):
                 dt = ConstraintNumber(**param_schema)
 
         if isinstance(dt, ADT):

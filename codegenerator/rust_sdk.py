@@ -19,22 +19,14 @@ from typing import Type, Any
 from codegenerator.base import BaseGenerator
 from codegenerator import common
 from codegenerator import model
-from codegenerator.common import BasePrimitiveType
 from codegenerator.common import BaseCompoundType
 from codegenerator.common import rust as common_rust
 
 
-class String(BasePrimitiveType):
+class String(common_rust.String):
     lifetimes: set[str] = set(["'a"])
     imports: set[str] = set(["std::borrow::Cow"])
-    builder_macros: set[str] = set(["setter(into)"])
-
-    @property
-    def type_hint(self):
-        return "Cow<'a, str>"
-
-    def get_sample(self):
-        return '"foo"'
+    type_hint: str = "Cow<'a, str>"
 
 
 class Enum(common_rust.Enum):
@@ -103,6 +95,10 @@ class Struct(common_rust.Struct):
     field_type_class_: Type[StructField] | StructField = StructField
 
     @property
+    def builder_macros(self):
+        return set()
+
+    @property
     def derive_container_macros(self):
         return "#[derive(Builder, Debug, Deserialize, Clone, Serialize)]"
 
@@ -134,10 +130,12 @@ class Struct(common_rust.Struct):
         res = []
         for field in self.fields.values():
             if not field.is_optional:
-                data = f".{field.local_name}("
-                data += field.data_type.get_sample()
-                data += ")"
-                res.append(data)
+                el = field.data_type.get_sample()
+                if el:
+                    data = f".{field.local_name}("
+                    data += el
+                    data += ")"
+                    res.append(data)
         return "".join(res)
 
 
@@ -162,8 +160,13 @@ class BTreeMap(common_rust.Dictionary):
             lt.update(self.value_type.lifetimes)
         return lt
 
-    # def get_sample(self):
-    #    return "BTreeSet::new()"
+    def get_sample(self):
+        return "BTreeMap::<String, String>::new().into_iter()"
+
+
+class BTreeSet(common_rust.BTreeSet):
+    builder_macros: set[str] = set(["private"])
+    requires_builder_private_setter: bool = True
 
 
 class CommaSeparatedList(common_rust.CommaSeparatedList):
@@ -190,7 +193,7 @@ class RequestParameter(common_rust.RequestParameter):
             macros.add(f'setter(name="_{self.setter_name}")')
             macros.add("private")
             macros.discard("setter(into)")
-        return f"#[builder({', '.join(macros)})]"
+        return f"#[builder({', '.join(sorted(macros))})]"
 
 
 class TypeManager(common_rust.TypeManager):
@@ -264,7 +267,7 @@ class RustSdkGenerator(BaseGenerator):
         )
 
         if args.operation_type == "find":
-            return self.generate_find_mod(
+            yield self.generate_find_mod(
                 target_dir,
                 args.sdk_mod_path.split("::"),
                 res.split(".")[-1],
@@ -272,6 +275,7 @@ class RustSdkGenerator(BaseGenerator):
                 args.list_mod,
                 args.name_filter_supported,
             )
+            return
 
         if not openapi_spec:
             openapi_spec = common.get_openapi_spec(args.openapi_yaml_spec)
@@ -280,9 +284,9 @@ class RustSdkGenerator(BaseGenerator):
         (path, method, spec) = common.find_openapi_operation(
             openapi_spec, operation_id
         )
-        srv_name, res_name = res.split(".") if res else (None, None)
-        # path_resources = common.get_resource_names_from_url(path)
-        # res_name = path_resources[-1]
+        # srv_name, res_name = res.split(".") if res else (None, None)
+        path_resources = common.get_resource_names_from_url(path)
+        res_name = path_resources[-1]
 
         mime_type = None
         openapi_parser = model.OpenAPISchemaParser()
@@ -296,63 +300,19 @@ class RustSdkGenerator(BaseGenerator):
                 ("{" + param["name"] + "}") in path and param["in"] == "path"
             ) or param["in"] != "path":
                 # Respect path params that appear in path and not path params
-                operation_params.append(openapi_parser.parse_parameter(param))
+                param_ = openapi_parser.parse_parameter(param)
+                if param_.name == f"{res_name}_id":
+                    path = path.replace(f"{res_name}_id", "id")
+                    # for i.e. routers/{router_id} we want local_name to be `id` and not `router_id`
+                    param_.name = "id"
+                operation_params.append(param_)
 
         # Process body information
-        request_body = spec.get("requestBody")
         # List of operation variants (based on the body)
-        operation_variants = []
-        if request_body:
-            content = request_body.get("content", {})
-            json_body_schema = content.get("application/json", {}).get(
-                "schema"
-            )
-            if json_body_schema:
-                mime_type = "application/json"
-                # response_def = json_body_schema
-                if "oneOf" in json_body_schema:
-                    # There is a choice of bodies. It can be because of
-                    # microversion or an action (or both)
-                    # For action we should come here with operation_type="action" and operation_name must be the action name
-                    # For microversions we build body as enum
-                    # So now try to figure out what the discriminator is
-                    discriminator = json_body_schema.get(
-                        "x-openstack", {}
-                    ).get("discriminator")
-                    if discriminator == "microversion":
-                        logging.debug("Microversion discriminator for bodies")
-                        for variant in json_body_schema["oneOf"]:
-                            variant_spec = variant.get("x-openstack", {})
-                            operation_variants.append({"body": variant})
-                        # operation_variants.extend([{"body": x} for x in json_body_schema(["oneOf"])])
-                    elif discriminator == "action":
-                        # We are in the action. Need to find matching body
-                        for variant in json_body_schema["oneOf"]:
-                            variant_spec = variant.get("x-openstack", {})
-                            if (
-                                variant_spec.get("action-name")
-                                == args.operation_name
-                            ):
-                                operation_variants.append(
-                                    {
-                                        "body": variant,
-                                        "mode": "action",
-                                        "min-ver": variant_spec.get("min-ver"),
-                                    }
-                                )
-                                break
-                        if not operation_variants:
-                            raise RuntimeError(
-                                "Cannot find body specification for action %s"
-                                % args.operation_name
-                            )
-                else:
-                    operation_variants.append({"body": json_body_schema})
-        else:
-            # Explicitly register variant without body
-            operation_variants.append({"body": None})
+        operation_variants = common_rust.get_operation_variants(
+            spec, args.operation_name
+        )
 
-        # jsonschema_parser = model.JsonSchemaParser()
         for operation_variant in operation_variants:
             logging.debug("Processing variant %s" % operation_variant)
             # TODO(gtema): if we are in MV variants filter out unsupported query
@@ -382,20 +342,17 @@ class RustSdkGenerator(BaseGenerator):
                 if min_ver:
                     mod_name += "_" + min_ver.replace(".", "")
                 # There is request body. Get the ADT from jsonschema
-                if args.operation_type != "action":
-                    (_, all_types) = openapi_parser.parse(operation_body)
-                    # and feed them into the TypeManager
-                    type_manager.set_models(all_types)
-                else:
-                    logging.warn("Ignoring response type of action")
+                # if args.operation_type != "action":
+                (_, all_types) = openapi_parser.parse(operation_body)
+                # and feed them into the TypeManager
+                type_manager.set_models(all_types)
+                # else:
+                #    logging.warn("Ignoring response type of action")
 
             if method == "patch":
                 # There might be multiple supported mime types. We only select ones we are aware of
-                if "application/openstack-images-v2.1-json-patch" in content:
-                    mime_type = "application/openstack-images-v2.1-json-patch"
-                elif "application/json-patch+json" in content:
-                    mime_type = "application/json-patch+json"
-                else:
+                mime_type = operation_variant.get("mime_type")
+                if not mime_type:
                     raise RuntimeError(
                         "No supported mime types for patch operation found"
                     )
@@ -536,4 +493,4 @@ class RustSdkGenerator(BaseGenerator):
 
         self._format_code(impl_path)
 
-        return (mod_path, "find.rs", "dummy")
+        return (mod_path, "find", "dummy")

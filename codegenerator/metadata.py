@@ -59,6 +59,11 @@ class MetadataGenerator(BaseGenerator):
             resource_name = "/".join(
                 [x for x in common.get_resource_names_from_url(path)]
             )
+            if args.service_type == "compute" and resource_name in [
+                "os_volumes_boot"
+            ]:
+                # We do not need to produce anything for old os_volumes_boot
+                continue
             resource_model = metadata.resources.setdefault(
                 f"{args.service_type}.{resource_name}",
                 ResourceModel(
@@ -100,13 +105,16 @@ class MetadataGenerator(BaseGenerator):
                     # elif path.endswith("/default"):
                     #     operation_key = "default"
                     elif response_schema and (
-                        response_schema.get("type", "") == "array"
-                        or (
-                            response_schema.get("type", "") == "object"
-                            and "properties" in response_schema
-                            and len(path_elements) > 1
-                            and path_elements[-1]
-                            in response_schema.get("properties", {})
+                        method == "get"
+                        and (
+                            response_schema.get("type", "") == "array"
+                            or (
+                                response_schema.get("type", "") == "object"
+                                and "properties" in response_schema
+                                and len(path_elements) > 1
+                                and path_elements[-1]
+                                in response_schema.get("properties", {})
+                            )
                         )
                     ):
                         # Response looks clearly like a list
@@ -248,6 +256,23 @@ class MetadataGenerator(BaseGenerator):
                             rust_cli_params = get_rust_cli_operation_args(
                                 operation_key
                             )
+
+                            # Keypairs have non standard response key.
+                            # Help codegenerator by setting them into
+                            # metadata.
+                            if resource_name == "os_keypair":
+                                if operation_type in [
+                                    "create",
+                                    "show",
+                                ]:
+                                    rust_sdk_params.response_key = "keypair"
+                                    rust_cli_params.response_key = "keypair"
+                                if operation_type == "list":
+                                    rust_sdk_params.response_key = "keypairs"
+                                    rust_cli_params.response_key = "keypair"
+                                    rust_sdk_params.response_list_item_key = (
+                                        "keypair"
+                                    )
 
                             op_model.targets["rust-sdk"] = rust_sdk_params
                             if rust_cli_params:
@@ -432,10 +457,14 @@ def get_module_name(name):
         return "get"
     elif name == "show":
         return "show"
-    elif name in ["update", "replace"]:
+    elif name == "update":
         return "set"
-    elif name in ["delete", "delete_all"]:
+    elif name == "replace":
+        return "replace"
+    elif name == "delete":
         return "delete"
+    elif name == "delete_all":
+        return "delete_all"
     elif name in ["create"]:
         return "create"
     elif name in ["default"]:

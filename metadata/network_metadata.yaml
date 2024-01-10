@@ -1,0 +1,3958 @@
+resources:
+  network.extension:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: extensions:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      show:
+        operation_id: extensions/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+  network.address_group:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: address-groups:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: address-groups:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      add_addresses:
+        operation_id: address-groups/id/add_addresses:put
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: add_addresses
+          rust-cli:
+            module_name: add_addresses
+            sdk_mod_name: add_addresses
+            find_implemented_by_sdk: true
+      remove_addresses:
+        operation_id: address-groups/id/remove_addresses:put
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: remove_addresses
+          rust-cli:
+            module_name: remove_addresses
+            sdk_mod_name: remove_addresses
+            find_implemented_by_sdk: true
+      show:
+        operation_id: address-groups/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: address-groups/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: address-groups/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::address_group
+            name_field: name
+            name_filter_supported: true
+            list_mod: list
+  network.address_scope:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: address-scopes:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: address-scopes:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: address-scopes/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: address-scopes/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: address-scopes/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::address_scope
+            name_field: name
+            name_filter_supported: true
+            list_mod: list
+  network.agent:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: agents:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: agents:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: agents/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: agents/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: agents/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::agent
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  network.auto_allocated_topology:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: auto-allocated-topology:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: auto-allocated-topology:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: auto-allocated-topology/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: auto-allocated-topology/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: auto-allocated-topology/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::auto_allocated_topology
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  network.availability_zone:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: availability_zones:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+  network.agent/dhcp_network:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: agents/agent_id/dhcp-networks:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: agents/agent_id/dhcp-networks:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: agents/agent_id/dhcp-networks/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: agents/agent_id/dhcp-networks/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: agents/agent_id/dhcp-networks/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  network.network/dhcp_agent:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: networks/network_id/dhcp-agents:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: networks/network_id/dhcp-agents:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: networks/network_id/dhcp-agents/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: networks/network_id/dhcp-agents/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: networks/network_id/dhcp-agents/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  network.router:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: routers:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: routers:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      add_router_interface:
+        operation_id: routers/id/add_router_interface:put
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: add_router_interface
+          rust-cli:
+            module_name: add_router_interface
+            sdk_mod_name: add_router_interface
+            find_implemented_by_sdk: true
+      remove_router_interface:
+        operation_id: routers/id/remove_router_interface:put
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: remove_router_interface
+          rust-cli:
+            module_name: remove_router_interface
+            sdk_mod_name: remove_router_interface
+            find_implemented_by_sdk: true
+      add_extraroutes:
+        operation_id: routers/id/add_extraroutes:put
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: add_extraroutes
+          rust-cli:
+            module_name: add_extraroutes
+            sdk_mod_name: add_extraroutes
+            find_implemented_by_sdk: true
+      remove_extraroutes:
+        operation_id: routers/id/remove_extraroutes:put
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: remove_extraroutes
+          rust-cli:
+            module_name: remove_extraroutes
+            sdk_mod_name: remove_extraroutes
+            find_implemented_by_sdk: true
+      add_external_gateways:
+        operation_id: routers/id/add_external_gateways:put
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: add_external_gateways
+          rust-cli:
+            module_name: add_external_gateways
+            sdk_mod_name: add_external_gateways
+            find_implemented_by_sdk: true
+      update_external_gateways:
+        operation_id: routers/id/update_external_gateways:put
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: update_external_gateways
+          rust-cli:
+            module_name: update_external_gateways
+            sdk_mod_name: update_external_gateways
+            find_implemented_by_sdk: true
+      remove_external_gateways:
+        operation_id: routers/id/remove_external_gateways:put
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: remove_external_gateways
+          rust-cli:
+            module_name: remove_external_gateways
+            sdk_mod_name: remove_external_gateways
+            find_implemented_by_sdk: true
+      show:
+        operation_id: routers/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: routers/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: routers/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::router
+            name_field: name
+            name_filter_supported: true
+            list_mod: list
+  network.flavor:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: flavors:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: flavors:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: flavors/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: flavors/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: flavors/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::flavor
+            name_field: name
+            name_filter_supported: true
+            list_mod: list
+  network.service_profile:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: service_profiles:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: service_profiles:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: service_profiles/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: service_profiles/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: service_profiles/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::service_profile
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  network.flavor/next_provider:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: flavors/flavor_id/next_providers:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: flavors/flavor_id/next_providers:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: flavors/flavor_id/next_providers/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: flavors/flavor_id/next_providers/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: flavors/flavor_id/next_providers/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  network.flavor/service_profile:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: flavors/flavor_id/service_profiles:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: flavors/flavor_id/service_profiles:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: flavors/flavor_id/service_profiles/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: flavors/flavor_id/service_profiles/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: flavors/flavor_id/service_profiles/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::flavor::service_profile
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  network.floatingip/port_forwarding:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: floatingips/floatingip_id/port_forwardings:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: floatingips/floatingip_id/port_forwardings:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: floatingips/floatingip_id/port_forwardings/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: floatingips/floatingip_id/port_forwardings/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: floatingips/floatingip_id/port_forwardings/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::floatingip::port_forwarding
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  network.floatingip_pool:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: floatingip-pools:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: floatingip-pools:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: floatingip-pools/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: floatingip-pools/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: floatingip-pools/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  network.floatingip:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: floatingips:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: floatingips:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: floatingips/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: floatingips/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: floatingips/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::floatingip
+            name_field: floating_ip_address
+            name_filter_supported: true
+            list_mod: list
+  network.router/conntrack_helper:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: routers/router_id/conntrack_helpers:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: routers/router_id/conntrack_helpers:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: routers/router_id/conntrack_helpers/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: routers/router_id/conntrack_helpers/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: routers/router_id/conntrack_helpers/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::router::conntrack_helper
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  network.ndp_proxy:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: ndp-proxies:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: ndp-proxies:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: ndp-proxies/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: ndp-proxies/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: ndp-proxies/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::ndp_proxy
+            name_field: name
+            name_filter_supported: true
+            list_mod: list
+  network.agent/l3_router:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: agents/agent_id/l3-routers:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: agents/agent_id/l3-routers:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: agents/agent_id/l3-routers/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: agents/agent_id/l3-routers/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: agents/agent_id/l3-routers/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  network.router/l3_agent:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: routers/router_id/l3-agents:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: routers/router_id/l3-agents:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: routers/router_id/l3-agents/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: routers/router_id/l3-agents/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: routers/router_id/l3-agents/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  network.local_ip:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: local-ips:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: local-ips:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: local-ips/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: local-ips/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: local-ips/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::local_ip
+            name_field: name
+            name_filter_supported: true
+            list_mod: list
+  network.local_ip/port_association:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: local_ips/local_ip_id/port_associations:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: local_ips/local_ip_id/port_associations:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: local_ips/local_ip_id/port_associations/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: local_ips/local_ip_id/port_associations/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: local_ips/local_ip_id/port_associations/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  network.log/log:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: log/logs:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: log/logs:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: log/logs/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: log/logs/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: log/logs/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::log::log
+            name_field: name
+            name_filter_supported: true
+            list_mod: list
+  network.log/loggable_resource:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: log/loggable-resources:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: log/loggable-resources:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: log/loggable-resources/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: log/loggable-resources/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: log/loggable-resources/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  network.metering/metering_label:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: metering/metering-labels:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: metering/metering-labels:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: metering/metering-labels/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: metering/metering-labels/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: metering/metering-labels/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::metering::metering_label
+            name_field: name
+            name_filter_supported: true
+            list_mod: list
+  network.metering/metering_label_rule:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: metering/metering-label-rules:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: metering/metering-label-rules:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: metering/metering-label-rules/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: metering/metering-label-rules/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: metering/metering-label-rules/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::metering::metering_label_rule
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  network.network_ip_availability:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: network-ip-availabilities:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: network-ip-availabilities:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: network-ip-availabilities/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: network-ip-availabilities/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: network-ip-availabilities/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  network.network_segment_range:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: network-segment-ranges:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: network-segment-ranges:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: network-segment-ranges/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: network-segment-ranges/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: network-segment-ranges/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::network_segment_range
+            name_field: name
+            name_filter_supported: true
+            list_mod: list
+  network.port/binding:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: ports/port_id/bindings:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: ports/port_id/bindings:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: ports/port_id/bindings/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: ports/port_id/bindings/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: ports/port_id/bindings/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  network.port/binding/activate:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      activate:
+        operation_id: ports/port_id/bindings/id/activate:put
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: activate
+          rust-cli:
+            module_name: activate
+            sdk_mod_name: activate
+  network.qos/policy:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: qos/policies:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: qos/policies:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: qos/policies/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: qos/policies/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: qos/policies/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::qos::policy
+            name_field: name
+            name_filter_supported: true
+            list_mod: list
+  network.qos/rule_type:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: qos/rule-types:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: qos/rule-types:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: qos/rule-types/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: qos/rule-types/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: qos/rule-types/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  network.qos/policy/bandwidth_limit_rule:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: qos/policies/policy_id/bandwidth_limit_rules:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: qos/policies/policy_id/bandwidth_limit_rules:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: qos/policies/policy_id/bandwidth_limit_rules/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: qos/policies/policy_id/bandwidth_limit_rules/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: qos/policies/policy_id/bandwidth_limit_rules/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::qos::policy::bandwidth_limit_rule
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  network.qos/policy/dscp_marking_rule:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: qos/policies/policy_id/dscp_marking_rules:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: qos/policies/policy_id/dscp_marking_rules:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: qos/policies/policy_id/dscp_marking_rules/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: qos/policies/policy_id/dscp_marking_rules/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: qos/policies/policy_id/dscp_marking_rules/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::qos::policy::dscp_marking_rule
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  network.qos/policy/minimum_bandwidth_rule:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: qos/policies/policy_id/minimum_bandwidth_rules:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: qos/policies/policy_id/minimum_bandwidth_rules:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: qos/policies/policy_id/minimum_bandwidth_rules/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: qos/policies/policy_id/minimum_bandwidth_rules/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: qos/policies/policy_id/minimum_bandwidth_rules/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::qos::policy::minimum_bandwidth_rule
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  network.qos/policy/minimum_packet_rate_rule:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: qos/policies/policy_id/minimum-packet-rate-rules:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: qos/policies/policy_id/minimum-packet-rate-rules:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: qos/policies/policy_id/minimum-packet-rate-rules/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: qos/policies/policy_id/minimum-packet-rate-rules/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: qos/policies/policy_id/minimum-packet-rate-rules/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::qos::policy::minimum_packet_rate_rule
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  network.qos/alias_minimum_packet_rate_rule:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: qos/alias-minimum-packet-rate-rules:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: qos/alias-minimum-packet-rate-rules:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: qos/alias-minimum-packet-rate-rules/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: qos/alias-minimum-packet-rate-rules/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: qos/alias-minimum-packet-rate-rules/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::qos::alias_minimum_packet_rate_rule
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  network.policy/packet_rate_limit_rule:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: policies/policy_id/packet_rate_limit_rules:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: policies/policy_id/packet_rate_limit_rules:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: policies/policy_id/packet_rate_limit_rules/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: policies/policy_id/packet_rate_limit_rules/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: policies/policy_id/packet_rate_limit_rules/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::policy::packet_rate_limit_rule
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  network.qos/alias_bandwidth_limit_rule:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: qos/alias-bandwidth-limit-rules:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: qos/alias-bandwidth-limit-rules:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: qos/alias-bandwidth-limit-rules/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: qos/alias-bandwidth-limit-rules/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: qos/alias-bandwidth-limit-rules/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::qos::alias_bandwidth_limit_rule
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  network.qos/alias_dscp_marking_rule:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: qos/alias-dscp-marking-rules:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: qos/alias-dscp-marking-rules:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: qos/alias-dscp-marking-rules/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: qos/alias-dscp-marking-rules/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: qos/alias-dscp-marking-rules/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::qos::alias_dscp_marking_rule
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  network.qos/alias_minimum_bandwidth_rule:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: qos/alias-minimum-bandwidth-rules:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: qos/alias-minimum-bandwidth-rules:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: qos/alias-minimum-bandwidth-rules/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: qos/alias-minimum-bandwidth-rules/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: qos/alias-minimum-bandwidth-rules/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::qos::alias_minimum_bandwidth_rule
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  network.quota:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: quotas:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      show:
+        operation_id: quotas/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: quotas/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: quotas/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  network.quota/default:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: quotas/id/default:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+  network.quota/details:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: quotas/id/details:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+  network.rbac_policy:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: rbac-policies:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: rbac-policies:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: rbac-policies/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: rbac-policies/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: rbac-policies/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::rbac_policy
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  network.default_security_group_rule:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: default-security-group-rules:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: default-security-group-rules:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: default-security-group-rules/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: default-security-group-rules/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: default-security-group-rules/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::default_security_group_rule
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  network.security_group:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: security-groups:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: security-groups:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: security-groups/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: security-groups/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: security-groups/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::security_group
+            name_field: name
+            name_filter_supported: true
+            list_mod: list
+  network.security_group_rule:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: security-group-rules:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: security-group-rules:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: security-group-rules/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: security-group-rules/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: security-group-rules/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::security_group_rule
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  network.segment:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: segments:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: segments:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: segments/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: segments/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: segments/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::segment
+            name_field: name
+            name_filter_supported: true
+            list_mod: list
+  network.service_provider:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: service-providers:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: service-providers:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: service-providers/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: service-providers/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: service-providers/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  network.subnetpool:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: subnetpools:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: subnetpools:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: subnetpools/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: subnetpools/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: subnetpools/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      add_prefixes:
+        operation_id: subnetpools/id/add_prefixes:put
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: add_prefixes
+          rust-cli:
+            module_name: add_prefixes
+            sdk_mod_name: add_prefixes
+            find_implemented_by_sdk: true
+      remove_prefixes:
+        operation_id: subnetpools/id/remove_prefixes:put
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: remove_prefixes
+          rust-cli:
+            module_name: remove_prefixes
+            sdk_mod_name: remove_prefixes
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::subnetpool
+            name_field: name
+            name_filter_supported: true
+            list_mod: list
+  network.subnetpool/onboard_network_subnet:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      onboard_network_subnets:
+        operation_id: subnetpools/id/onboard_network_subnets:put
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: onboard_network_subnets
+          rust-cli:
+            module_name: onboard_network_subnets
+            sdk_mod_name: onboard_network_subnets
+  network.port/tag:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: ports/port_id/tags:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      replace:
+        operation_id: ports/port_id/tags:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete_all:
+        operation_id: ports/port_id/tags:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+      show:
+        operation_id: ports/port_id/tags/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: ports/port_id/tags/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: ports/port_id/tags/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  network.subnet/tag:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: subnets/subnet_id/tags:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      replace:
+        operation_id: subnets/subnet_id/tags:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete_all:
+        operation_id: subnets/subnet_id/tags:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+      show:
+        operation_id: subnets/subnet_id/tags/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: subnets/subnet_id/tags/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: subnets/subnet_id/tags/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  network.subnetpool/tag:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: subnetpools/subnetpool_id/tags:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      replace:
+        operation_id: subnetpools/subnetpool_id/tags:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete_all:
+        operation_id: subnetpools/subnetpool_id/tags:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+      show:
+        operation_id: subnetpools/subnetpool_id/tags/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: subnetpools/subnetpool_id/tags/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: subnetpools/subnetpool_id/tags/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  network.network/tag:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: networks/network_id/tags:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      replace:
+        operation_id: networks/network_id/tags:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete_all:
+        operation_id: networks/network_id/tags:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+      show:
+        operation_id: networks/network_id/tags/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: networks/network_id/tags/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: networks/network_id/tags/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  network.router/tag:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: routers/router_id/tags:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      replace:
+        operation_id: routers/router_id/tags:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete_all:
+        operation_id: routers/router_id/tags:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+      show:
+        operation_id: routers/router_id/tags/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: routers/router_id/tags/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: routers/router_id/tags/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  network.floatingip/tag:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: floatingips/floatingip_id/tags:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      replace:
+        operation_id: floatingips/floatingip_id/tags:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete_all:
+        operation_id: floatingips/floatingip_id/tags:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+      show:
+        operation_id: floatingips/floatingip_id/tags/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: floatingips/floatingip_id/tags/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: floatingips/floatingip_id/tags/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  network.policy/tag:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: policies/policy_id/tags:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      replace:
+        operation_id: policies/policy_id/tags:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete_all:
+        operation_id: policies/policy_id/tags:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+      show:
+        operation_id: policies/policy_id/tags/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: policies/policy_id/tags/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: policies/policy_id/tags/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  network.security_group/tag:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: security-groups/security_group_id/tags:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      replace:
+        operation_id: security-groups/security_group_id/tags:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete_all:
+        operation_id: security-groups/security_group_id/tags:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+      show:
+        operation_id: security-groups/security_group_id/tags/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: security-groups/security_group_id/tags/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: security-groups/security_group_id/tags/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  network.trunk/tag:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: trunks/trunk_id/tags:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      replace:
+        operation_id: trunks/trunk_id/tags:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete_all:
+        operation_id: trunks/trunk_id/tags:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+      show:
+        operation_id: trunks/trunk_id/tags/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: trunks/trunk_id/tags/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: trunks/trunk_id/tags/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  network.network_segment_range/tag:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: network_segment_ranges/network_segment_range_id/tags:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      replace:
+        operation_id: network_segment_ranges/network_segment_range_id/tags:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete_all:
+        operation_id: network_segment_ranges/network_segment_range_id/tags:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+      show:
+        operation_id: network_segment_ranges/network_segment_range_id/tags/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: network_segment_ranges/network_segment_range_id/tags/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: network_segment_ranges/network_segment_range_id/tags/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  network.network:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: networks:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: networks:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: networks/network_id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: networks/network_id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: networks/network_id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::network
+            name_field: name
+            name_filter_supported: true
+            list_mod: list
+  network.subnet:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: subnets:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: subnets:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: subnets/subnet_id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: subnets/subnet_id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: subnets/subnet_id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::subnet
+            name_field: name
+            name_filter_supported: true
+            list_mod: list
+  network.port:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: ports:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: ports:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: ports/port_id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: ports/port_id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: ports/port_id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      add_allowed_address_pairs:
+        operation_id: ports/port_id/add_allowed_address_pairs:put
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: add_allowed_address_pairs
+          rust-cli:
+            module_name: add_allowed_address_pairs
+            sdk_mod_name: add_allowed_address_pairs
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::port
+            name_field: name
+            name_filter_supported: true
+            list_mod: list
+  network.vpn/endpoint_group:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: vpn/endpoint-groups:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: vpn/endpoint-groups:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: vpn/endpoint-groups/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: vpn/endpoint-groups/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: vpn/endpoint-groups/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::vpn::endpoint_group
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  network.vpn/vpnservice:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: vpn/vpnservices:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: vpn/vpnservices:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: vpn/vpnservices/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: vpn/vpnservices/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: vpn/vpnservices/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::vpn::vpnservice
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  network.vpn/ipsec_site_connection:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: vpn/ipsec-site-connections:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: vpn/ipsec-site-connections:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: vpn/ipsec-site-connections/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: vpn/ipsec-site-connections/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: vpn/ipsec-site-connections/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::vpn::ipsec_site_connection
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  network.vpn/ipsecpolicy:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: vpn/ipsecpolicies:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: vpn/ipsecpolicies:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: vpn/ipsecpolicies/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: vpn/ipsecpolicies/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: vpn/ipsecpolicies/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::vpn::ipsecpolicy
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  network.vpn/ikepolicy:
+    spec_file: wrk/openapi_specs/network/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: vpn/ikepolicies:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: vpn/ikepolicies:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: vpn/ikepolicies/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: vpn/ikepolicies/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: vpn/ikepolicies/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: network::v2::vpn::ikepolicy
+            name_field: name
+            name_filter_supported: false
+            list_mod: list

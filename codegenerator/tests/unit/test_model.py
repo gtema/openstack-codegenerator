@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 #
+import logging
 from unittest import TestCase
 
 from codegenerator import model
@@ -406,17 +407,20 @@ EXPECTED_TLA_DATA = model.Struct(
             data_type=model.Reference(name="server", type=model.Struct),
             description="A `server` object.",
             is_required=True,
+            min_ver="2.94",
         ),
         "os:scheduler_hints": model.StructField(
             data_type=model.Reference(
                 name="os:scheduler_hints", type=model.Struct
             ),
             description="scheduler hints description",
+            min_ver="2.94",
         ),
         "OS-SCH-HNT:scheduler_hints": model.StructField(
             data_type=model.Reference(
                 name="OS-SCH-HNT:scheduler_hints", type=model.Struct
             ),
+            min_ver="2.94",
         ),
     },
 )
@@ -428,6 +432,7 @@ EXPECTED_DATA_TYPES = [
             model.ConstraintString(format="uuid"),
             model.ConstraintString(maxLength=0),
         ],
+        min_ver="2.94",
     ),
     model.OneOfType(
         reference=model.Reference(name="flavorRef", type=model.OneOfType),
@@ -435,11 +440,13 @@ EXPECTED_DATA_TYPES = [
             model.ConstraintString(minLength=1),
             model.ConstraintInteger(),
         ],
+        min_ver="2.94",
     ),
     model.Dictionary(
         reference=model.Reference(name="metadata", type=model.Dictionary),
         description="metadata description",
         value_type=model.ConstraintString(maxLength=255),
+        min_ver="2.94",
     ),
     model.OneOfType(
         reference=model.Reference(name="fixed_ip", type=model.OneOfType),
@@ -447,6 +454,7 @@ EXPECTED_DATA_TYPES = [
             model.ConstraintString(format="ipv4"),
             model.ConstraintString(format="ipv6"),
         ],
+        min_ver="2.94",
     ),
     model.OneOfType(
         reference=model.Reference(name="port", type=model.OneOfType),
@@ -454,6 +462,7 @@ EXPECTED_DATA_TYPES = [
             model.ConstraintString(format="uuid"),
             model.PrimitiveNull(),
         ],
+        min_ver="2.94",
     ),
     model.Struct(
         reference=model.Reference(name="networks", type=model.Struct),
@@ -475,10 +484,12 @@ EXPECTED_DATA_TYPES = [
                 ),
             ),
         },
+        min_ver="2.94",
     ),
     model.Array(
         reference=model.Reference(name="networks", type=model.Array),
         item_type=model.Reference(name="networks", type=model.Struct),
+        min_ver="2.94",
     ),
     model.OneOfType(
         reference=model.Reference(name="networks", type=model.OneOfType),
@@ -486,11 +497,13 @@ EXPECTED_DATA_TYPES = [
             model.Reference(name="networks", type=model.Array),
             model.Reference(name="networks", type=model.Enum),
         ],
+        min_ver="2.94",
     ),
     model.Enum(
         reference=model.Reference(name="networks", type=model.Enum),
         literals=["none", "auto"],
         base_types=[model.ConstraintString],
+        min_ver="2.94",
     ),
     model.OneOfType(
         reference=model.Reference(name="volume_size", type=model.OneOfType),
@@ -498,6 +511,7 @@ EXPECTED_DATA_TYPES = [
             model.ConstraintInteger(minimum=1, maximum=2147483647),
             model.ConstraintString(pattern="^[0-9]+$"),
         ],
+        min_ver="2.94",
     ),
     # model.OneOfType(
     #    reference=model.Reference(
@@ -514,6 +528,7 @@ EXPECTED_DATA_TYPES = [
         ),
         literals=[True, "True", False, "False"],
         base_types=[model.ConstraintString, model.PrimitiveBoolean],
+        min_ver="2.94",
     ),
     model.Struct(
         reference=model.Reference(
@@ -553,6 +568,7 @@ EXPECTED_DATA_TYPES = [
                 data_type=model.ConstraintString(maxLength=16777215),
             ),
         },
+        min_ver="2.94",
     ),
     model.OneOfType(
         reference=model.Reference(name="volume_size", type=model.OneOfType),
@@ -560,6 +576,7 @@ EXPECTED_DATA_TYPES = [
             model.ConstraintInteger(minimum=1, maximum=2147483647),
             model.ConstraintString(pattern="^[0-9]+$"),
         ],
+        min_ver="2.94",
     ),
     model.OneOfType(
         reference=model.Reference(name="boot_index", type=model.OneOfType),
@@ -568,6 +585,7 @@ EXPECTED_DATA_TYPES = [
             model.ConstraintString(pattern="^-?[0-9]+$"),
             model.PrimitiveNull(),
         ],
+        min_ver="2.94",
     ),
     model.OneOfType(
         reference=model.Reference(name="volume_type", type=model.OneOfType),
@@ -575,6 +593,7 @@ EXPECTED_DATA_TYPES = [
             model.ConstraintString(minLength=0, maxLength=255),
             model.PrimitiveNull(),
         ],
+        min_ver="2.94",
     ),
     model.Struct(
         reference=model.Reference(
@@ -672,6 +691,7 @@ EXPECTED_DATA_TYPES = [
                 ),
             ),
         },
+        min_ver="2.94",
     ),
     model.Array(
         reference=model.Reference(
@@ -680,6 +700,7 @@ EXPECTED_DATA_TYPES = [
         item_type=model.Reference(
             name="block_device_mapping", type=model.Struct
         ),
+        min_ver="2.94",
     ),
     model.Array(
         reference=model.Reference(
@@ -688,6 +709,7 @@ EXPECTED_DATA_TYPES = [
         item_type=model.Reference(
             name="block_device_mapping_v2", type=model.Struct
         ),
+        min_ver="2.94",
     ),
     model.Enum(
         reference=model.Reference(name="config_drive", type=model.Enum),
@@ -696,6 +718,7 @@ EXPECTED_DATA_TYPES = [
             model.ConstraintString,
         ],
         literals=set(["No", "no", False]),
+        min_ver="2.94",
     ),
     model.OneOfType(
         reference=model.Reference(name="min_count", type=model.OneOfType),
@@ -708,6 +731,7 @@ EXPECTED_DATA_TYPES = [
                 pattern="^[0-9]*$",
             ),
         ],
+        min_ver="2.94",
     ),
     model.Struct(
         reference=model.Reference(name="security_groups", type=model.Struct),
@@ -719,10 +743,12 @@ EXPECTED_DATA_TYPES = [
                 description="A target cell name. Schedule the server in a host in the cell specified.",
             )
         },
+        min_ver="2.94",
     ),
     model.Array(
         reference=model.Reference(name="security_groups", type=model.Array),
         item_type=model.Reference(name="security_groups", type=model.Struct),
+        min_ver="2.94",
     ),
     model.OneOfType(
         reference=model.Reference(name="description", type=model.OneOfType),
@@ -734,18 +760,21 @@ EXPECTED_DATA_TYPES = [
             ),
             model.PrimitiveNull(),
         ],
+        min_ver="2.94",
     ),
     model.Array(
         reference=model.Reference(name="tags", type=model.Array),
         item_type=model.ConstraintString(
             format=None, minLength=1, maxLength=60, pattern="^[^,/]*$"
         ),
+        min_ver="2.94",
     ),
     model.Array(
         reference=model.Reference(
             name="trusted_image_certificates", type=model.Array
         ),
         item_type=model.ConstraintString(format=None, minLength=1),
+        min_ver="2.94",
     ),
     model.OneOfType(
         reference=model.Reference(
@@ -757,6 +786,7 @@ EXPECTED_DATA_TYPES = [
             ),
             model.PrimitiveNull(),
         ],
+        min_ver="2.94",
     ),
     model.Struct(
         reference=model.Reference(name="server", type=model.Struct),
@@ -768,26 +798,30 @@ EXPECTED_DATA_TYPES = [
                 ),
                 description="dummy description",
                 is_required=True,
+                min_ver="2.94",
             ),
             "imageRef": model.StructField(
                 data_type=model.Reference(
                     name="imageRef", type=model.OneOfType
                 ),
+                min_ver="2.94",
             ),
             "flavorRef": model.StructField(
                 data_type=model.Reference(
                     name="flavorRef", type=model.OneOfType
                 ),
                 is_required=True,
+                min_ver="2.94",
             ),
             "adminPass": model.StructField(
-                data_type=model.ConstraintString(format=None),
+                data_type=model.ConstraintString(format=None), min_ver="2.94"
             ),
             "metadata": model.StructField(
                 data_type=model.Reference(
                     name="metadata", type=model.Dictionary
                 ),
                 description="metadata description",
+                min_ver="2.94",
             ),
             "networks": model.StructField(
                 data_type=model.Reference(
@@ -795,49 +829,58 @@ EXPECTED_DATA_TYPES = [
                 ),
                 description="Networks description",
                 is_required=True,
+                min_ver="2.94",
             ),
             "OS-DCF:diskConfig": model.StructField(
                 data_type=model.Reference(
                     name="OS-DCF:diskConfig", type=model.Enum
                 ),
                 description="DiskConfig description",
+                min_ver="2.94",
             ),
             "accessIPv4": model.StructField(
                 data_type=model.ConstraintString(format="ipv4"),
                 description="IPv4 address",
+                min_ver="2.94",
             ),
             "availability_zone": model.StructField(
                 data_type=model.ConstraintString(
                     format="name", minLength=1, maxLength=255
                 ),
                 description="A target cell name.",
+                min_ver="2.94",
             ),
             "block_device_mapping": model.StructField(
                 data_type=model.Reference(
                     name="block_device_mapping", type=model.Array
                 ),
+                min_ver="2.94",
             ),
             "block_device_mapping_v2": model.StructField(
                 data_type=model.Reference(
                     name="block_device_mapping_v2", type=model.Array
                 ),
                 description="descr",
+                min_ver="2.94",
             ),
             "config_drive": model.StructField(
                 data_type=model.Reference(
                     name="config_drive", type=model.Enum
                 ),
+                min_ver="2.94",
             ),
             "min_count": model.StructField(
                 data_type=model.Reference(
                     name="min_count", type=model.OneOfType
                 ),
+                min_ver="2.94",
             ),
             "security_groups": model.StructField(
                 data_type=model.Reference(
                     name="security_groups", type=model.Array
                 ),
                 description="SG descr",
+                min_ver="2.94",
             ),
             "user_data": model.StructField(
                 data_type=model.ConstraintString(
@@ -845,19 +888,23 @@ EXPECTED_DATA_TYPES = [
                     maxLength=65535,
                 ),
                 description="user data",
+                min_ver="2.94",
             ),
             "description": model.StructField(
                 data_type=model.Reference(
                     name="description", type=model.OneOfType
                 ),
+                min_ver="2.94",
             ),
             "tags": model.StructField(
                 data_type=model.Reference(name="tags", type=model.Array),
+                min_ver="2.94",
             ),
             "trusted_image_certificates": model.StructField(
                 data_type=model.Reference(
                     name="trusted_image_certificates", type=model.OneOfType
                 ),
+                min_ver="2.94",
             ),
             "host": model.StructField(
                 data_type=model.ConstraintString(
@@ -865,6 +912,7 @@ EXPECTED_DATA_TYPES = [
                     maxLength=255,
                     pattern="^[a-zA-Z0-9-._]*$",
                 ),
+                min_ver="2.94",
             ),
             "hypervisor_hostname": model.StructField(
                 data_type=model.ConstraintString(
@@ -872,6 +920,7 @@ EXPECTED_DATA_TYPES = [
                     maxLength=255,
                     pattern="^[a-zA-Z0-9-._]*$",
                 ),
+                min_ver="2.94",
             ),
             "hostname": model.StructField(
                 data_type=model.ConstraintString(
@@ -879,12 +928,15 @@ EXPECTED_DATA_TYPES = [
                     maxLength=255,
                     pattern="^[a-zA-Z0-9-._]*$",
                 ),
+                min_ver="2.94",
             ),
         },
+        min_ver="2.94",
     ),
     model.Array(
         reference=model.Reference(name="different_host", type=model.Array),
         item_type=model.ConstraintString(format="uuid"),
+        min_ver="2.94",
     ),
     model.OneOfType(
         reference=model.Reference(name="different_host", type=model.OneOfType),
@@ -892,10 +944,12 @@ EXPECTED_DATA_TYPES = [
             model.ConstraintString(format="uuid"),
             model.Reference(name="different_host", type=model.Array),
         ],
+        min_ver="2.94",
     ),
     model.Array(
         reference=model.Reference(name="same_host", type=model.Array),
         item_type=model.ConstraintString(format="uuid"),
+        min_ver="2.94",
     ),
     model.OneOfType(
         reference=model.Reference(name="same_host", type=model.OneOfType),
@@ -903,10 +957,12 @@ EXPECTED_DATA_TYPES = [
             model.ConstraintString(format=None),
             model.Reference(name="same_host", type=model.Array),
         ],
+        min_ver="2.94",
     ),
     model.Dictionary(
         reference=model.Reference(name="query", type=model.Dictionary),
         value_type=model.PrimitiveAny(),
+        min_ver="2.94",
     ),
     model.OneOfType(
         reference=model.Reference(name="query", type=model.OneOfType),
@@ -914,10 +970,12 @@ EXPECTED_DATA_TYPES = [
             model.ConstraintString(format=None),
             model.Reference(name="query", type=model.Dictionary),
         ],
+        min_ver="2.94",
     ),
     model.Array(
         reference=model.Reference(name="different_cell", type=model.Array),
         item_type=model.ConstraintString(format=None),
+        min_ver="2.94",
     ),
     model.OneOfType(
         reference=model.Reference(name="different_cell", type=model.OneOfType),
@@ -925,6 +983,7 @@ EXPECTED_DATA_TYPES = [
             model.ConstraintString(format=None),
             model.Reference(name="different_cell", type=model.Array),
         ],
+        min_ver="2.94",
     ),
     model.OneOfType(
         reference=model.Reference(
@@ -934,6 +993,7 @@ EXPECTED_DATA_TYPES = [
             model.ConstraintString(format="ipv4"),
             model.ConstraintString(format="ipv6"),
         ],
+        min_ver="2.94",
     ),
     model.Struct(
         reference=model.Reference(
@@ -942,49 +1002,58 @@ EXPECTED_DATA_TYPES = [
         description="scheduler hints description",
         fields={
             "group": model.StructField(
-                data_type=model.ConstraintString(format="uuid"),
+                data_type=model.ConstraintString(format="uuid"), min_ver="2.94"
             ),
             "different_host": model.StructField(
                 data_type=model.Reference(
                     name="different_host", type=model.OneOfType
                 ),
+                min_ver="2.94",
             ),
             "same_host": model.StructField(
                 data_type=model.Reference(
                     name="same_host", type=model.OneOfType
                 ),
                 description="A list of server UUIDs or a server UUID.",
+                min_ver="2.94",
             ),
             "query": model.StructField(
                 data_type=model.Reference(name="query", type=model.OneOfType),
+                min_ver="2.94",
             ),
             "target_cell": model.StructField(
                 data_type=model.ConstraintString(
                     format="name", minLength=1, maxLength=255
                 ),
+                min_ver="2.94",
             ),
             "different_cell": model.StructField(
                 data_type=model.Reference(
                     name="different_cell", type=model.OneOfType
                 ),
+                min_ver="2.94",
             ),
             "build_near_host_ip": model.StructField(
                 data_type=model.Reference(
                     name="build_near_host_ip", type=model.OneOfType
                 ),
                 description="Schedule the server on a host in the network specified with",
+                min_ver="2.94",
             ),
             "cidr": model.StructField(
                 data_type=model.ConstraintString(
                     pattern="^/[0-9a-f.:]+$",
                 ),
+                min_ver="2.94",
             ),
         },
         additional_fields=model.PrimitiveAny(),
+        min_ver="2.94",
     ),
     model.Array(
         reference=model.Reference(name="different_host", type=model.Array),
         item_type=model.ConstraintString(format="uuid"),
+        min_ver="2.94",
     ),
     model.OneOfType(
         reference=model.Reference(name="different_host", type=model.OneOfType),
@@ -992,10 +1061,12 @@ EXPECTED_DATA_TYPES = [
             model.ConstraintString(format="uuid"),
             model.Reference(name="different_host", type=model.Array),
         ],
+        min_ver="2.94",
     ),
     model.Array(
         reference=model.Reference(name="same_host", type=model.Array),
         item_type=model.ConstraintString(format="uuid"),
+        min_ver="2.94",
     ),
     model.OneOfType(
         reference=model.Reference(name="same_host", type=model.OneOfType),
@@ -1003,10 +1074,12 @@ EXPECTED_DATA_TYPES = [
             model.ConstraintString(format=None),
             model.Reference(name="same_host", type=model.Array),
         ],
+        min_ver="2.94",
     ),
     model.Array(
         reference=model.Reference(name="different_cell", type=model.Array),
         item_type=model.ConstraintString(format=None),
+        min_ver="2.94",
     ),
     model.OneOfType(
         reference=model.Reference(name="different_cell", type=model.OneOfType),
@@ -1014,6 +1087,7 @@ EXPECTED_DATA_TYPES = [
             model.ConstraintString(format=None),
             model.Reference(name="different_cell", type=model.Array),
         ],
+        min_ver="2.94",
     ),
     model.Enum(
         reference=model.Reference(name="source_type", type=model.Enum),
@@ -1021,6 +1095,7 @@ EXPECTED_DATA_TYPES = [
         base_types=[
             model.ConstraintString,
         ],
+        min_ver="2.94",
     ),
     model.Enum(
         reference=model.Reference(name="destination_type", type=model.Enum),
@@ -1028,6 +1103,7 @@ EXPECTED_DATA_TYPES = [
         base_types=[
             model.ConstraintString,
         ],
+        min_ver="2.94",
     ),
     model.Enum(
         reference=model.Reference(name="OS-DCF:diskConfig", type=model.Enum),
@@ -1035,6 +1111,7 @@ EXPECTED_DATA_TYPES = [
         base_types=[
             model.ConstraintString,
         ],
+        min_ver="2.94",
     ),
     model.OneOfType(
         reference=model.Reference(
@@ -1044,6 +1121,7 @@ EXPECTED_DATA_TYPES = [
             model.ConstraintString(format="ipv4"),
             model.ConstraintString(format="ipv6"),
         ],
+        min_ver="2.94",
     ),
     model.Struct(
         reference=model.Reference(
@@ -1051,50 +1129,62 @@ EXPECTED_DATA_TYPES = [
         ),
         fields={
             "group": model.StructField(
-                data_type=model.ConstraintString(format="uuid"),
+                data_type=model.ConstraintString(format="uuid"), min_ver="2.94"
             ),
             "different_host": model.StructField(
                 data_type=model.Reference(
                     name="different_host", type=model.OneOfType
                 ),
                 description="A list of server UUIDs or a server UUID.\nSchedule the server on a different host from a set of servers.\nIt is available when `DifferentHostFilter` is available on cloud side.",
+                min_ver="2.94",
             ),
             "same_host": model.StructField(
                 data_type=model.Reference(
                     name="same_host", type=model.OneOfType
                 ),
+                min_ver="2.94",
             ),
             "query": model.StructField(
                 data_type=model.Reference(name="query", type=model.OneOfType),
+                min_ver="2.94",
             ),
             "target_cell": model.StructField(
                 data_type=model.ConstraintString(
                     format="name", minLength=1, maxLength=255
                 ),
+                min_ver="2.94",
             ),
             "different_cell": model.StructField(
                 data_type=model.Reference(
                     name="different_cell", type=model.OneOfType
                 ),
+                min_ver="2.94",
             ),
             "build_near_host_ip": model.StructField(
                 data_type=model.Reference(
                     name="build_near_host_ip", type=model.OneOfType
                 ),
+                min_ver="2.94",
             ),
             "cidr": model.StructField(
                 data_type=model.ConstraintString(
                     pattern="^/[0-9a-f.:]+$",
                 ),
+                min_ver="2.94",
             ),
         },
         additional_fields=model.PrimitiveAny(),
+        min_ver="2.94",
     ),
     EXPECTED_TLA_DATA,
 ]
 
 
 class TestModel(TestCase):
+    def setUp(self):
+        super().setUp()
+        logging.basicConfig(level=logging.DEBUG)
+
     def test_model_parse(self):
         parser = model.JsonSchemaParser()
         (res, types) = parser.parse(SAMPLE_SERVER_SCHEMA)
@@ -1161,3 +1251,28 @@ class TestModel(TestCase):
         self.assertIsInstance(res, model.RequestParameter)
         self.assertIsInstance(dt, model.ConstraintInteger)
         self.assertEqual(dt.minimum, 0)
+
+    # def test_microversion(self):
+    #     data: dict | None = None
+    #     with open(
+    #         "codegenerator/tests/unit/model_microversion.yaml", "r"
+    #     ) as fp:
+    #         data = jsonref.replace_refs(yaml.safe_load(fp))
+
+    #     if not data:
+    #         raise RuntimeError
+    #     parser = model.OpenAPISchemaParser()
+    #     schema1, all1 = parser.parse(
+    #         data["components"]["schemas"]["Flavors_Create_20"]
+    #     )
+    #     schema2, all2 = parser.parse(
+    #         data["components"]["schemas"]["Flavors_Create_21"]
+    #     )
+    #     schema3, all3 = parser.parse(
+    #         data["components"]["schemas"]["Flavors_Create_255"]
+    #     )
+
+    #     all_all = parser.merge_models(all2, all3)
+
+    #     #        print(schema3)
+    #     print(all_all)

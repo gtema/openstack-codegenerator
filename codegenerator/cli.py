@@ -238,7 +238,7 @@ def main():
             if args.resource and res != f"{args.service}.{args.resource}":
                 continue
             for op, op_data in res_data.operations.items():
-                logging.debug("Processing %s", op_data.operation_id)
+                logging.debug(f"Processing operation {op_data.operation_id}")
                 if args.target in op_data.targets:
                     op_args = op_data.targets[args.target]
                     if not op_args.service_type:
