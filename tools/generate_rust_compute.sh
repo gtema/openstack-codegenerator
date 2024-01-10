@@ -1,38 +1,23 @@
 #!/usr/bin/env bash
-#
-DATA=(
-# Compute
-#
-# sdk
-# server
-"--openapi-yaml-spec openapi_specs/compute/server.spec.yaml --openapi-operation-id server.get --target rust-sdk --service-type compute --api-version v2"
-"--openapi-yaml-spec openapi_specs/compute/server.spec.yaml --openapi-operation-id servers.get --target rust-sdk --service-type compute --api-version v2"
-"--openapi-yaml-spec openapi_specs/compute/server.spec.yaml --openapi-operation-id servers.get_detailed --target rust-sdk --service-type compute --api-version v2"
-"--openapi-yaml-spec openapi_specs/compute/server_action.pause.yaml --openapi-operation-id server.action.pause --target rust-sdk --service-type compute --api-version v2 --alternative-method-name pause"
-# flavor
-"--openapi-yaml-spec openapi_specs/compute/flavor.spec.yaml --openapi-operation-id flavor.get --target rust-sdk --service-type compute --api-version v2"
-"--openapi-yaml-spec openapi_specs/compute/flavor.spec.yaml --openapi-operation-id flavors.get --target rust-sdk --service-type compute --api-version v2"
-"--openapi-yaml-spec openapi_specs/compute/flavor.spec.yaml --openapi-operation-id flavors.get_detailed --target rust-sdk --service-type compute --api-version v2"
-# keypairs
-"--openapi-yaml-spec openapi_specs/compute/keypair.spec.yaml --openapi-operation-id keypairs.get --target rust-sdk --service-type compute --api-version v2 --command-type list --response-key keypairs --response-list-item-key keypair"
-"--openapi-yaml-spec openapi_specs/compute/keypair.spec.yaml --openapi-operation-id keypairs.post --target rust-sdk --service-type compute --api-version v2"
-"--openapi-yaml-spec openapi_specs/compute/keypair.spec.yaml --openapi-operation-id keypair.get --target rust-sdk --service-type compute --api-version v2"
-"--openapi-yaml-spec openapi_specs/compute/keypair.spec.yaml --openapi-operation-id keypair.delete --target rust-sdk --service-type compute --api-version v2"
-# cli
-# server
-"--openapi-yaml-spec openapi_specs/compute/server.spec.yaml --openapi-operation-id servers.get_detailed --target rust-cli --service-type compute --api-version v2 --command-type list --alternative-target-name server --sdk-mod-path servers::detail::get"
-"--openapi-yaml-spec openapi_specs/compute/server.spec.yaml --openapi-operation-id server.get --target rust-cli --service-type compute --api-version v2 --command-type show --alternative-target-name server --sdk-mod-path server::get"
-# flavor
-"--openapi-yaml-spec openapi_specs/compute/flavor.spec.yaml --openapi-operation-id flavors.get_detailed --target rust-cli --service-type compute --api-version v2 --command-type list --alternative-target-name flavor --sdk-mod-path flavors::detail::get"
-"--openapi-yaml-spec openapi_specs/compute/flavor.spec.yaml --openapi-operation-id flavor.get --target rust-cli --service-type compute --api-version v2 --command-type show --alternative-target-name flavor --sdk-mod-path flavor::get --command-type show"
-# keypair
-"--openapi-yaml-spec openapi_specs/compute/keypair.spec.yaml --openapi-operation-id keypairs.get --target rust-cli --service-type compute --api-version v2 --command-type list --alternative-target-name keypair --sdk-mod-path os_keypairs::get"
-"--openapi-yaml-spec openapi_specs/compute/keypair.spec.yaml --openapi-operation-id keypairs.post --target rust-cli --service-type compute --api-version v2 --command-type create --alternative-target-name keypair --sdk-mod-path os_keypairs::post"
-"--openapi-yaml-spec openapi_specs/compute/keypair.spec.yaml --openapi-operation-id keypair.get --target rust-cli --service-type compute --api-version v2 --command-type show"
-"--openapi-yaml-spec openapi_specs/compute/keypair.spec.yaml --openapi-operation-id keypair.delete --target rust-cli --service-type compute --api-version v2 --command-type delete"
+
+WRK_DIR=wrk
+METADATA=metadata
+DST=~/workspace/github/gtema/openstack
+NET_RESOURCES=(
+  "extension"
+  "flavor"
+  "os_keypair"
 )
 
-for item in "${DATA[@]}"; do
-  python codegenerator/cli.py $item --work-dir wrk
-done;
+openstack-codegenerator --work-dir ${WRK_DIR} --target rust-sdk --metadata ${METADATA}/compute_metadata.yaml --service compute
+openstack-codegenerator --work-dir ${WRK_DIR} --target rust-cli --metadata ${METADATA}/compute_metadata.yaml --service compute
 
+
+for resource in "${NET_RESOURCES[@]}"; do
+#  openstack-codegenerator --work-dir ${WRK_DIR} --target rust-sdk --metadata ${METADATA}/compute_metadata.yaml --service compute # --resource ${resource}
+#  openstack-codegenerator --work-dir ${WRK_DIR} --target rust-cli --metadata ${METADATA}/compute_metadata.yaml --service compute # --resource ${resource}
+
+  cp -av "${WRK_DIR}/rust/openstack_sdk/src/api/compute/v2/${resource}" ${DST}/openstack_sdk/src/api/compute/v2
+  cp -av "${WRK_DIR}/rust/openstack_sdk/src/api/compute/v2/${resource}.rs" ${DST}/openstack_sdk/src/api/compute/v2
+  cp -av "${WRK_DIR}/rust/openstack_cli/src/compute/v2/${resource}" ${DST}/openstack_cli/src/compute/v2
+done;

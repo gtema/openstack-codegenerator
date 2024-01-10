@@ -2888,19 +2888,19 @@ resources:
         operation_type: set
         targets:
           rust-sdk:
-            module_name: set
+            module_name: replace
           rust-cli:
-            module_name: set
-            sdk_mod_name: set
+            module_name: replace
+            sdk_mod_name: replace
       delete_all:
         operation_id: ports/port_id/tags:delete
         operation_type: delete
         targets:
           rust-sdk:
-            module_name: delete
+            module_name: delete_all
           rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
+            module_name: delete_all
+            sdk_mod_name: delete_all
       show:
         operation_id: ports/port_id/tags/id:get
         operation_type: show
@@ -2946,19 +2946,19 @@ resources:
         operation_type: set
         targets:
           rust-sdk:
-            module_name: set
+            module_name: replace
           rust-cli:
-            module_name: set
-            sdk_mod_name: set
+            module_name: replace
+            sdk_mod_name: replace
       delete_all:
         operation_id: subnets/subnet_id/tags:delete
         operation_type: delete
         targets:
           rust-sdk:
-            module_name: delete
+            module_name: delete_all
           rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
+            module_name: delete_all
+            sdk_mod_name: delete_all
       show:
         operation_id: subnets/subnet_id/tags/id:get
         operation_type: show
@@ -3004,19 +3004,19 @@ resources:
         operation_type: set
         targets:
           rust-sdk:
-            module_name: set
+            module_name: replace
           rust-cli:
-            module_name: set
-            sdk_mod_name: set
+            module_name: replace
+            sdk_mod_name: replace
       delete_all:
         operation_id: subnetpools/subnetpool_id/tags:delete
         operation_type: delete
         targets:
           rust-sdk:
-            module_name: delete
+            module_name: delete_all
           rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
+            module_name: delete_all
+            sdk_mod_name: delete_all
       show:
         operation_id: subnetpools/subnetpool_id/tags/id:get
         operation_type: show
@@ -3062,19 +3062,19 @@ resources:
         operation_type: set
         targets:
           rust-sdk:
-            module_name: set
+            module_name: replace
           rust-cli:
-            module_name: set
-            sdk_mod_name: set
+            module_name: replace
+            sdk_mod_name: replace
       delete_all:
         operation_id: networks/network_id/tags:delete
         operation_type: delete
         targets:
           rust-sdk:
-            module_name: delete
+            module_name: delete_all
           rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
+            module_name: delete_all
+            sdk_mod_name: delete_all
       show:
         operation_id: networks/network_id/tags/id:get
         operation_type: show
@@ -3120,19 +3120,19 @@ resources:
         operation_type: set
         targets:
           rust-sdk:
-            module_name: set
+            module_name: replace
           rust-cli:
-            module_name: set
-            sdk_mod_name: set
+            module_name: replace
+            sdk_mod_name: replace
       delete_all:
         operation_id: routers/router_id/tags:delete
         operation_type: delete
         targets:
           rust-sdk:
-            module_name: delete
+            module_name: delete_all
           rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
+            module_name: delete_all
+            sdk_mod_name: delete_all
       show:
         operation_id: routers/router_id/tags/id:get
         operation_type: show
@@ -3178,19 +3178,19 @@ resources:
         operation_type: set
         targets:
           rust-sdk:
-            module_name: set
+            module_name: replace
           rust-cli:
-            module_name: set
-            sdk_mod_name: set
+            module_name: replace
+            sdk_mod_name: replace
       delete_all:
         operation_id: floatingips/floatingip_id/tags:delete
         operation_type: delete
         targets:
           rust-sdk:
-            module_name: delete
+            module_name: delete_all
           rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
+            module_name: delete_all
+            sdk_mod_name: delete_all
       show:
         operation_id: floatingips/floatingip_id/tags/id:get
         operation_type: show
@@ -3236,19 +3236,19 @@ resources:
         operation_type: set
         targets:
           rust-sdk:
-            module_name: set
+            module_name: replace
           rust-cli:
-            module_name: set
-            sdk_mod_name: set
+            module_name: replace
+            sdk_mod_name: replace
       delete_all:
         operation_id: policies/policy_id/tags:delete
         operation_type: delete
         targets:
           rust-sdk:
-            module_name: delete
+            module_name: delete_all
           rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
+            module_name: delete_all
+            sdk_mod_name: delete_all
       show:
         operation_id: policies/policy_id/tags/id:get
         operation_type: show
@@ -3294,19 +3294,19 @@ resources:
         operation_type: set
         targets:
           rust-sdk:
-            module_name: set
+            module_name: replace
           rust-cli:
-            module_name: set
-            sdk_mod_name: set
+            module_name: replace
+            sdk_mod_name: replace
       delete_all:
         operation_id: security-groups/security_group_id/tags:delete
         operation_type: delete
         targets:
           rust-sdk:
-            module_name: delete
+            module_name: delete_all
           rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
+            module_name: delete_all
+            sdk_mod_name: delete_all
       show:
         operation_id: security-groups/security_group_id/tags/id:get
         operation_type: show
@@ -3352,19 +3352,19 @@ resources:
         operation_type: set
         targets:
           rust-sdk:
-            module_name: set
+            module_name: replace
           rust-cli:
-            module_name: set
-            sdk_mod_name: set
+            module_name: replace
+            sdk_mod_name: replace
       delete_all:
         operation_id: trunks/trunk_id/tags:delete
         operation_type: delete
         targets:
           rust-sdk:
-            module_name: delete
+            module_name: delete_all
           rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
+            module_name: delete_all
+            sdk_mod_name: delete_all
       show:
         operation_id: trunks/trunk_id/tags/id:get
         operation_type: show
@@ -3410,19 +3410,19 @@ resources:
         operation_type: set
         targets:
           rust-sdk:
-            module_name: set
+            module_name: replace
           rust-cli:
-            module_name: set
-            sdk_mod_name: set
+            module_name: replace
+            sdk_mod_name: replace
       delete_all:
         operation_id: network_segment_ranges/network_segment_range_id/tags:delete
         operation_type: delete
         targets:
           rust-sdk:
-            module_name: delete
+            module_name: delete_all
           rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
+            module_name: delete_all
+            sdk_mod_name: delete_all
       show:
         operation_id: network_segment_ranges/network_segment_range_id/tags/id:get
         operation_type: show
