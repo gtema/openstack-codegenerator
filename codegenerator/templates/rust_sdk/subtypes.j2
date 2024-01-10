@@ -21,7 +21,7 @@ pub {{ subtype.base_type }} {{ subtype.name }}{{ ("<" + ",".join(subtype.lifetim
   {%- endfor %}
   {%- elif subtype["kinds"] is defined %}
   {#- Enum kinds #}
-  {%- for name, kind in subtype.kinds.items() %}
+  {%- for name, kind in subtype.kinds.items() | dictsort %}
     {{- macros.docstring(kind.description, indent=4) }}
     {{ name }}({{ kind.type_hint }}),
   {%- endfor %}

@@ -1,5 +1,12 @@
 CHANGES
 =======
 
+* feat: add vpnaas under the neutron openapi spec
+* fix: sanitize rust docstrings in the model
+* feat: add functional tests for openapi codegenerator
+* fix: remove python pinning in tox
+* feat: bootstrap project documentation
+* feat: introduce type model
+* interim commit with the restructuring
 * chore: move to GH
 * Initial commit

@@ -140,7 +140,7 @@ Some({{ val }})
     {{ dst_var }}.{{ param.remote_name }}({{ val_var }}.iter().cloned());
 {%- elif param.data_type.__class__.__name__ == "StringEnum" %}
     let tmp = match {{ val_var }} {
-      {%- for variant in param.data_type.variants.keys() %}
+      {%- for variant in param.data_type.variants.keys() | sort %}
       {#- normally we should use the cli enum name, but we don't have it here and names must match anyway#}
         {{ param.data_type.name }}::{{ variant }} => {
             {{ sdk_mod_path[-1] }}::{{ param.data_type.name }}::{{ variant }}
