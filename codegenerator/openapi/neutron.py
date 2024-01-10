@@ -677,6 +677,19 @@ class NeutronGenerator(OpenStackServerSourceBase):
                         )
                         query_param.style = "form"
                         query_param.explode = False
+                    if field == "fixed_ips":
+                        # TODO: Neutron is expecting a
+                        # trick to get an array of
+                        # objects. For now we only
+                        # implement array of strings
+                        # (whatever they are).
+                        query_param.type_schema = TypeSchema(
+                            type="array",
+                            items={"type": "string"},
+                            description="The IP addresses for the port. If the port has multiple IP addresses, this field has multiple entries. Each entry consists of IP address (ip_address) and the subnet ID from which the IP address is assigned (subnet_id).",
+                        )
+                        query_param.style = "form"
+                        query_param.explode = False
                     if param_ref_name not in [
                         x.ref for x in operation_spec.parameters
                     ]:
@@ -836,6 +849,10 @@ class NeutronGenerator(OpenStackServerSourceBase):
             # Only CRUD operation are having request/response information avaiable
             send_props = {}
             return_props = {}
+            # Consume request name to required fields mapping
+            required_fields = neutron_schemas.REQUIRED_FIELDS_MAPPING.get(
+                name, []
+            )
             for field, data in schema_def.items():
                 js_schema = get_schema(data)
                 # Dirty hacks for corrupted schemas
@@ -878,6 +895,10 @@ class NeutronGenerator(OpenStackServerSourceBase):
                             else return_props,
                         }
                     }
+                    if required_fields:
+                        schema.properties[resource_key]["required"] = list(
+                            required_fields
+                        )
         else:
             logging.warning("No Schema information for %s" % name)
 
@@ -893,7 +914,7 @@ def get_schema(param_data):
         if "type:uuid" in validate:
             schema = {"type": "string", "format": "uuid"}
         elif "type:uuid_or_none" in validate:
-            schema = {"type": "string", "format": "uuid"}
+            schema = {"type": ["string", "null"], "format": "uuid"}
         elif "type:uuid_list" in validate:
             schema = {
                 "type": "array",
@@ -997,7 +1018,22 @@ def get_schema(param_data):
             if length:
                 schema["maxLength"] = length
         elif "type:fixed_ips" in validate:
-            schema = {"type": "array", "items": {"type": "string"}}
+            schema = {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "ip_address": {
+                            "type": "string",
+                            "description": "IP Address",
+                        },
+                        "subnet_id": {
+                            "type": "string",
+                            "description": "The subnet ID from which the IP address is assigned",
+                        },
+                    },
+                },
+            }
         elif "type:allowed_address_pairs" in validate:
             schema = {
                 "type": "array",
@@ -1042,7 +1078,7 @@ def get_schema(param_data):
                 "type": "string",
             }
         elif "type:subnet_or_none" in validate:
-            schema = {"type": ["string", "null"], "format": "uuid"}
+            schema = {"type": ["string", "null"]}
         elif "type:fip_dns_host_name" in validate:
             length = validate.get("type:fip_dns_host_name")
             schema = {"type": "string"}

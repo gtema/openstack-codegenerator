@@ -1,4 +1,4 @@
-{%- import 'rust_macros.j2' as macros with context -%}
+{% import 'rust_macros.j2' as macros with context -%}
       // Set body parameters
 {% with root = type_manager.get_root_data_type() %}
 {%- for root_attr, root_field in root.fields.items() %}
@@ -25,6 +25,8 @@
     {% endfor %}
     ep_builder.{{ root_field.remote_name }}({{ builder_name }}.build().unwrap());
 
+  {%- elif root_field.data_type.__class__.__name__ == "ArrayInput" %}
+    {{ macros.sdk_plain_array_setter(root_field, "args", "ep_builder") }}
   {%- endif %}
 
   {% if root_field.is_optional %}

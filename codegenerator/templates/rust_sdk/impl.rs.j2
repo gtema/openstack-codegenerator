@@ -76,6 +76,12 @@ impl{{ type_manager.get_request_static_lifetimes(request) }} RequestBuilder{{ ty
 {%- endif %}
 {%- endfor %}
 
+  {%- for field in request.fields.values() %}
+    {%- if "private" in field.builder_macros %}
+      {{ macros.sdk_builder_setter(field)}}
+    {%- endif %}
+  {%- endfor %}
+
     /// Add a single header to the {{ class_name }}.
     pub fn header(&mut self, header_name: &'static str, header_value: &'static str) -> &mut Self
     where {

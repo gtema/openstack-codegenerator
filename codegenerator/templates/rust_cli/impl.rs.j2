@@ -26,7 +26,7 @@ use openstack_sdk::{AsyncOpenStack, types::ServiceType};
 use {{ mod }};
 {%- endfor %}
 
-{{ macros.docstring(command_description, indent=0) }}
+/// Command arguments
 #[derive(Args, Clone, Debug)]
 pub struct {{ target_class_name }}Args {
     /// Request Query parameters
@@ -56,40 +56,36 @@ pub struct {{ target_class_name }}Args {
 {%- endif %}
 
 }
-
 {% include "rust_cli/query_parameters.j2" %}
 {% include "rust_cli/path_parameters.j2" %}
 
 {%- for type in type_manager.get_subtypes() %}
 {%- if type["variants"] is defined %}
 {{ macros.docstring(type.description, indent=0) }}
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+#[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, ValueEnum)]
 enum {{ type.name }} {
   {%- for k, v in type.variants.items() %}
     {{ k }},
   {%- endfor %}
 }
 
-impl fmt::Debug for {{ type.name }} {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
 {%- elif type["base_type"] == "struct" %}
+/// {{ type.name }} Body data
 #[derive(Args, Debug, Clone)]
-{% if type["is_group"] is defined and type.is_group %}
-#[group(required={{ type.is_required | lower }}, multiple=false)]
+{%- if type["is_group"] is defined and type.is_group %}
+#[group(required={{ type.is_required | lower }}, multiple={{ "true" if type.__class__.__name__ != "EnumGroupStruct" else "false" }})]
 {%- endif %}
 struct {{ type.name }} {
   {%- for field in type.fields.values() %}
     {{ macros.docstring(field.description, indent=4) }}
-    {{ field.clap_macros }}
+    {{ field.clap_macros_ext(is_group=type.is_group) }}
     {{ field.local_name }}: {{ field.type_hint }},
   {%- endfor %}
 }
 {%- endif %}
 {% endfor %}
 
+/// {{ target_class_name }} {{ operation_type }} command
 pub struct {{ target_class_name }}Cmd {
     pub args: {{ target_class_name }}Args,
 }
@@ -103,7 +99,7 @@ impl Command for {{ target_class_name }}Cmd {
         parsed_args: &Cli,
         client: &mut AsyncOpenStack,
     ) -> Result<(), OpenStackCliError> {
-        info!("{{ method | title }} {{ target_class_name }} with {:?}", self.args);
+        info!("{{ operation_type | title }} {{ target_class_name }} with {:?}", self.args);
 
         let op = OutputProcessor::from_args(parsed_args);
         op.validate_args(parsed_args)?;
@@ -113,6 +109,9 @@ impl Command for {{ target_class_name }}Cmd {
         let mut ep_builder = find::{{ sdk_struct_name  }}::builder();
       {%- else %}
         let mut ep_builder = {{ sdk_mod_path[-1] }}::Request::builder();
+      {%- endif %}
+      {%- if microversion %}
+        ep_builder.header("OpenStack-API-Version", "{{ service_type }} {{ microversion }}");
       {%- endif %}
       {% include 'rust_cli/set_path_parameters.j2' %}
       {% include 'rust_cli/set_query_parameters.j2' %}
@@ -126,12 +125,8 @@ impl Command for {{ target_class_name }}Cmd {
             .build()
             .map_err(|x| OpenStackCliError::EndpointBuild(x.to_string()))?;
 
-{%- if sdk_service_name not in ["object", "object-store"] %}
-        client.discover_service_endpoint(&ServiceType::{{ sdk_service_name }}).await?;
-{%- endif %}
-
 {%- with data_type = response_type_manager.get_root_data_type() %}
-    {%- if data_type.fields %}
+    {%- if data_type.fields or (data_type.tuple_fields is defined and data_type.tuple_fields) %}
     {#- there is result structure #}
       {%- if operation_type == "list" %}
         {% include 'rust_cli/invoke_list.j2' %}
@@ -149,10 +144,13 @@ impl Command for {{ target_class_name }}Cmd {
 {#- Patch implementation #}
         {% include 'rust_cli/invoke_patch.j2' %}
       {%- else %}
-        let data = ep.query_async(client).await?;
-        {%- if data_type.fields %}
-        op.output_single::<ResponseData>(data)?;
-        {%- endif %}
+         {%- if result_is_list %}
+          let data: Vec<serde_json::Value> = ep.query_async(client).await?;
+          op.output_list::<ResponseData>(data)?;
+         {%- else %}
+          let data = ep.query_async(client).await?;
+          op.output_single::<ResponseData>(data)?;
+         {%- endif %}
       {%- endif %}
     {%- elif operation_type not in ["delete", "download", "upload", "json"] %}
       {#- there is no result structure - raw mode #}

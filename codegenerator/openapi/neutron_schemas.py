@@ -12,6 +12,17 @@
 #
 import copy
 
+"""Mapping of the Requests to required fields list
+
+Neutron API defitnitions have no clear way on how to detect required fields in
+the request. This mapping is adding such information.
+"""
+REQUIRED_FIELDS_MAPPING = {
+    "SubnetsCreateRequest": ["network_id", "ip_version"],
+    "FloatingipsCreateRequest": ["floating_network_id"],
+    "FloatingipsUpdateRequest": ["port_id"],
+}
+
 EXTENSION_SCHEMA = {
     "type": "object",
     "properties": {

@@ -145,6 +145,8 @@ def find_resource_schema(
             if len(keys) == 1:
                 # there is only one field in the object
                 return (props[keys[0]], keys[0])
+            else:
+                return (schema, None)
     return (None, None)
 
 

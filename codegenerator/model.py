@@ -168,7 +168,12 @@ class JsonSchemaParser:
         return (res, results)
 
     def parse_schema(
-        self, schema, results: list[ADT], name: str | None = None
+        self,
+        schema,
+        results: list[ADT],
+        name: str | None = None,
+        min_ver: str | None = None,
+        max_ver: str | None = None,
     ) -> PrimitiveType | ADT:
         type_ = schema.get("type")
         if "oneOf" in schema:
@@ -181,7 +186,13 @@ class JsonSchemaParser:
             return self.parse_typelist(schema, results, name=name)
         elif isinstance(type_, str):
             if type_ == "object":
-                return self.parse_object(schema, results, name=name)
+                return self.parse_object(
+                    schema,
+                    results,
+                    name=name,
+                    min_ver=min_ver,
+                    max_ver=max_ver,
+                )
             elif type_ == "array":
                 return self.parse_array(schema, results, name=name)
             elif type_ == "string":
@@ -205,13 +216,20 @@ class JsonSchemaParser:
                 return obj
         elif not type_ and "properties" in schema:
             # Sometimes services forget to set "type=object"
-            return self.parse_object(schema, results, name=name)
+            return self.parse_object(
+                schema, results, name=name, min_ver=min_ver, max_ver=max_ver
+            )
         elif schema == {}:
             return PrimitiveNull()
         raise RuntimeError("Cannot determine type for %s", schema)
 
     def parse_object(
-        self, schema, results: list[ADT], name: str | None = None
+        self,
+        schema,
+        results: list[ADT],
+        name: str | None = None,
+        min_ver: str | None = None,
+        max_ver: str | None = None,
     ):
         obj: ADT | None = None
         properties = schema.get("properties")
@@ -220,10 +238,15 @@ class JsonSchemaParser:
         pattern_properties = schema.get("patternProperties")
         pattern_props: dict[str, PrimitiveType | ADT] | None = {}
         required = schema.get("required", [])
+        os_ext: dict = schema.get("x-openstack", {})
+        min_ver = os_ext.get("min-ver", min_ver)
+        max_ver = os_ext.get("max-ver", max_ver)
         if properties:
             obj = Struct()
             for k, v in properties.items():
-                data_type = self.parse_schema(v, results, name=k)
+                data_type = self.parse_schema(
+                    v, results, name=k, min_ver=min_ver, max_ver=max_ver
+                )
                 ref = getattr(data_type, "reference", None)
                 if ref:
                     field = StructField(data_type=ref)
@@ -235,6 +258,10 @@ class JsonSchemaParser:
                 field.description = v.get("description")
                 if k in required:
                     field.is_required = True
+                if min_ver:
+                    field.min_ver = min_ver
+                if max_ver:
+                    field.max_ver = max_ver
                 obj.fields[k] = field
         if additional_properties:
             if (
@@ -242,7 +269,11 @@ class JsonSchemaParser:
                 and "type" in additional_properties
             ):
                 additional_properties_type = self.parse_schema(
-                    additional_properties, results, name=name
+                    additional_properties,
+                    results,
+                    name=name,
+                    min_ver=min_ver,
+                    max_ver=max_ver,
                 )
             else:
                 additional_properties_type = PrimitiveAny()
@@ -250,7 +281,11 @@ class JsonSchemaParser:
         if pattern_properties:
             for key_pattern, value_type in pattern_properties.items():
                 type_kind: PrimitiveType | ADT = self.parse_schema(
-                    value_type, results, name=name
+                    value_type,
+                    results,
+                    name=name,
+                    min_ver=min_ver,
+                    max_ver=max_ver,
                 )
                 pattern_props[key_pattern] = type_kind  # type: ignore
 
@@ -444,3 +479,90 @@ class OpenAPISchemaParser(JsonSchemaParser):
         raise NotImplementedError("Parameter %s is not covered yet" % schema)
 
         raise RuntimeError("Parameter %s is not supported yet" % schema)
+
+    # def merge_models(self, side_a: list[ADT], side_b: list[ADT]) -> list[ADT]:
+    #     results: list[ADT] = []
+    #     for item_a in side_a:
+    #         for item_b in side_b:
+    #             if item_a == item_b:
+    #                 results.append(item_a)
+    #                 side_b.remove(item_b)
+    #                 break
+    #             elif item_a.reference == item_b.reference:
+    #                 # Reference matches means we found modified model
+    #                 if not isinstance(item_a, Struct):
+    #                     raise NotImplementedError(
+    #                         f"Merging {type(item_a)} is not implemented"
+    #                     )
+    #                 if item_a.pattern_properties != item_b.pattern_properties:
+    #                     raise NotImplementedError(
+    #                         f"Merging object patternProperties is not implemented"
+    #                     )
+    #                 if item_a.additional_fields != item_b.additional_fields:
+    #                     raise NotImplementedError(
+    #                         f"Merging object additionalProperties is not implemented"
+    #                     )
+    #                 a_not_b = set(item_a.fields.keys()).difference(
+    #                     item_b.fields.keys()
+    #                 )
+    #                 b_not_a = set(item_b.fields.keys()).difference(
+    #                     item_a.fields.keys()
+    #                 )
+    #                 logging.debug(f"a not b {a_not_b}")
+    #                 logging.debug(f"b not a {b_not_a}")
+    #                 for field, data_type_a in item_a.fields.items():
+    #                     if field not in b_not_a:
+    #                         data_type_b = item_b.fields[field]
+    #                         if data_type_a != data_type_b:
+    #                             logging.debug(
+    #                                 f"Found change in {data_type_a} vs {data_type_b}"
+    #                             )
+    #                             a = data_type_a.model_copy()
+    #                             a.min_ver = None
+    #                             a.max_ver = None
+    #                             b = data_type_b.model_copy()
+    #                             b.min_ver = None
+    #                             b.max_ver = None
+    #                             if a == b:
+    #                                 logging.debug("Only MV changed")
+    #                                 data_type_a.min_ver = ".".join(
+    #                                     min(
+    #                                         data_type_a.min_ver.split("."),
+    #                                         data_type_b.min_ver.split("."),
+    #                                     )
+    #                                 )
+    #                                 if (
+    #                                     not data_type_a.max_ver
+    #                                     or not data_type_b.max_ver
+    #                                 ):
+    #                                     data_type_a.max_ver = None
+    #                                 else:
+    #                                     data_type_a.max_ver = ".".join(
+    #                                         max(
+    #                                             data_type_a.max_ver.split("."),
+    #                                             data_type_b.max_ver.split("."),
+    #                                         )
+    #                                     )
+    #                                 continue
+    #                             if type(a.data_type) == type(b.data_type):
+    #                                 # types are same
+    #                                 a.data_type.format = None
+    #                                 b.data_type.format = None
+    #                                 if a == b:
+    #                                     logging.debug("Field changed format. Ignoring...")
+    #                                     continue
+    #                             raise NotImplementedError(
+    #                                 "Structure field changes other then microversion are not suported"
+    #                             )
+
+    #                     print(field)
+    #                 for field in b_not_a:
+    #                     item_a.fields[field] = item_b.fields[field]
+    #                 results.append(item_a)
+    #                 side_b.remove(item_b)
+    #                 break
+
+    #         # print(item_a)
+    #     results.extend(side_b)
+    #     print(results)
+    #     return results
