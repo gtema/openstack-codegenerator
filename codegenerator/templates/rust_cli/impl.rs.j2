@@ -64,7 +64,7 @@ pub struct {{ target_class_name }}Args {
 {{ macros.docstring(type.description, indent=0) }}
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, ValueEnum)]
 enum {{ type.name }} {
-  {%- for k, v in type.variants.items() %}
+  {%- for k in type.variants.keys()|sort %}
     {{ k }},
   {%- endfor %}
 }
