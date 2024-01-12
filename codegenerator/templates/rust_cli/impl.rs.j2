@@ -114,7 +114,7 @@ impl Command for {{ target_class_name }}Cmd {
         let mut find_builder = find::{{ sdk_struct_name  }}::builder();
         {{ macros.set_cli_path_parameters(type_manager, "find_builder", find_mode=True) }}
         {%- if microversion %}
-        find_builder.header("OpenStack-API-Version", "{{ service_type }} {{ microversion }}");
+        find_builder.header("OpenStack-API-Version", "{{ "volume" if service_type == "block-storage" else service_type }} {{ microversion }}");
         {%- endif %}
         let find_ep = find_builder
             .build()
@@ -125,7 +125,7 @@ impl Command for {{ target_class_name }}Cmd {
     {%- if not is_json_patch and (operation_type != "show" or not find_present) %}
         let mut ep_builder = {{ sdk_mod_path[-1] }}::Request::builder();
       {%- if microversion %}
-        ep_builder.header("OpenStack-API-Version", "{{ service_type }} {{ microversion }}");
+        ep_builder.header("OpenStack-API-Version", "{{ "volume" if service_type == "block-storage" else service_type }} {{ microversion }}");
       {%- endif %}
       {{ macros.set_cli_path_parameters(type_manager, "ep_builder") }}
       {% include 'rust_cli/set_query_parameters.j2' %}

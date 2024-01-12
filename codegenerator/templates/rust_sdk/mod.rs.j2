@@ -5,6 +5,10 @@
 {%- endif %}
 
 {%- for mod in mod_list|sort %}
+{%- if mod in ["type"] %}
+pub mod r#{{ mod }};
+{%- else %}
 pub mod {{ mod }};
+{%- endif %}
 {%- endfor %}
 

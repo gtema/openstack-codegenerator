@@ -343,12 +343,8 @@ class RequestTypeManager(common_rust.TypeManager):
         attr_name = "_".join(
             x.lower() for x in re.split(common.SPLIT_NAME_RE, name)
         )
-        if attr_name == "type":
-            attr_name = "_type"
-        elif attr_name == "self":
-            attr_name = "_self"
-        elif attr_name == "enum":
-            attr_name = "_enum"
+        if attr_name in ["type", "self", "enum", "ref"]:
+            attr_name = f"_{attr_name}"
         return attr_name
 
     def get_remote_attribute_name(self, name: str) -> str:
@@ -359,12 +355,8 @@ class RequestTypeManager(common_rust.TypeManager):
         attr_name = "_".join(
             x.lower() for x in re.split(common.SPLIT_NAME_RE, obj.name)
         )
-        if attr_name == "type":
-            attr_name = "_type"
-        elif attr_name == "self":
-            attr_name = "_self"
-        elif attr_name == "enum":
-            attr_name = "_enum"
+        if attr_name in ["type", "self", "enum", "ref"]:
+            attr_name = f"_{attr_name}"
         return attr_name
 
     def _get_one_of_type(

@@ -15,9 +15,11 @@ from pathlib import Path
 
 from ruamel.yaml.scalarstring import LiteralScalarString
 
+from codegenerator.common.schema import ParameterSchema
 from codegenerator.common.schema import SpecSchema
 from codegenerator.common.schema import TypeSchema
 from codegenerator.openapi.base import OpenStackServerSourceBase
+from codegenerator.openapi import cinder_schemas
 from codegenerator.openapi.utils import merge_api_ref_doc
 
 
@@ -97,6 +99,12 @@ class CinderV3Generator(OpenStackServerSourceBase):
                 ),
             )
 
+        # Set global parameters
+        for name, definition in cinder_schemas.VOLUME_PARAMETERS.items():
+            openapi_spec.components.parameters[name] = ParameterSchema(
+                **definition
+            )
+
         for route in self.router.map.matchlist:
             # if route.routepath.startswith("/{project"):
             #    continue
@@ -114,6 +122,42 @@ class CinderV3Generator(OpenStackServerSourceBase):
 
         return impl_path
 
+    def _post_process_operation_hook(self, openapi_spec, operation_spec):
+        """Hook to allow service specific generator to modify details"""
+        operationId = operation_spec.operationId
+
+        if operationId in [
+            "project_id/volumes:get",
+            "volumes:get",
+            "project_id/volumes/detail:get",
+            "volumes/detail:get",
+        ]:
+            for pname in [
+                "all_tenants",
+                "sort",
+                "sort_key",
+                "sort_dir",
+                "limit",
+                "offset",
+                "marker",
+                "with_count",
+                "created_at",
+                "updated_at",
+                "consumes_quota",
+            ]:
+                ref = f"#/components/parameters/{pname}"
+                if ref not in [x.ref for x in operation_spec.parameters]:
+                    operation_spec.parameters.append(ParameterSchema(ref=ref))
+        elif operationId in [
+            "project_id/volumes/summary:get",
+        ]:
+            for pname in [
+                "all_tenants",
+            ]:
+                ref = f"#/components/parameters/{pname}"
+                if ref not in [x.ref for x in operation_spec.parameters]:
+                    operation_spec.parameters.append(ParameterSchema(ref=ref))
+
     def _get_schema_ref(
         self,
         openapi_spec,
@@ -123,68 +167,23 @@ class CinderV3Generator(OpenStackServerSourceBase):
         action_name=None,
     ):
         mime_type: str = "application/json"
-        if name == "ServersCreateResponse":
+        if name == "VolumesListResponse":
             openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(
-                    description="Server Create response",
-                    type="object",
-                    properties={
-                        "server": {
-                            "type": "object",
-                            "properties": {
-                                "name": {"type": "string"},
-                                "flavorRef": {"type": "string"},
-                                "security_groups": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "name": {"type": "string"}
-                                        },
-                                    },
-                                },
-                            },
-                        }
-                    },
-                ),
+                name, TypeSchema(**cinder_schemas.VOLUMES_SCHEMA)
             )
             ref = f"#/components/schemas/{name}"
-        elif name == "ServersListResponse":
+        if name == "VolumesDetailResponse":
             openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(
-                    description="Server List response",
-                    type="object",
-                    properties={
-                        "servers": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "id": {"type": "string", "format": "uuid"},
-                                    "name": {"type": "string"},
-                                    "links": {"type": "array"},
-                                    "server_links": {"type": "array"},
-                                },
-                            },
-                        }
-                    },
-                ),
+                name, TypeSchema(**cinder_schemas.VOLUMES_DETAIL_SCHEMA)
             )
             ref = f"#/components/schemas/{name}"
-        elif name == "FlavorsListResponse":
+        elif name in [
+            "VolumeShowResponse",
+            "VolumeUpdateResponse",
+            "VolumesCreateResponse",
+        ]:
             openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(
-                    description="Dummy Flavors response",
-                    type="object",
-                    properties={
-                        "flavors": {
-                            "type": "array",
-                        }
-                    },
-                ),
+                name, TypeSchema(**cinder_schemas.VOLUME_CONTAINER_SCHEMA)
             )
             ref = f"#/components/schemas/{name}"
         else:

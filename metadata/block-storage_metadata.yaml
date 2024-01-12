@@ -25,6 +25,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list_detailed
+            find_implemented_by_sdk: true
       list:
         operation_id: volumes:get
         operation_type: list
@@ -51,6 +52,7 @@ resources:
             module_name: revert
             sdk_mod_name: revert
             operation_name: revert
+            find_implemented_by_sdk: true
       os-reset-status:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -62,6 +64,7 @@ resources:
             module_name: os_reset_status
             sdk_mod_name: os_reset_status
             operation_name: os-reset_status
+            find_implemented_by_sdk: true
       os-force-delete:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -73,6 +76,7 @@ resources:
             module_name: os_force_delete
             sdk_mod_name: os_force_delete
             operation_name: os-force_delete
+            find_implemented_by_sdk: true
       os-force-detach:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -84,6 +88,7 @@ resources:
             module_name: os_force_detach
             sdk_mod_name: os_force_detach
             operation_name: os-force_detach
+            find_implemented_by_sdk: true
       os-migrate-volume:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -95,6 +100,7 @@ resources:
             module_name: os_migrate_volume
             sdk_mod_name: os_migrate_volume
             operation_name: os-migrate_volume
+            find_implemented_by_sdk: true
       os-migrate-volume-completion:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -106,6 +112,7 @@ resources:
             module_name: os_migrate_volume_completion
             sdk_mod_name: os_migrate_volume_completion
             operation_name: os-migrate_volume_completion
+            find_implemented_by_sdk: true
       os-attach:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -117,6 +124,7 @@ resources:
             module_name: os_attach
             sdk_mod_name: os_attach
             operation_name: os-attach
+            find_implemented_by_sdk: true
       os-detach:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -128,6 +136,7 @@ resources:
             module_name: os_detach
             sdk_mod_name: os_detach
             operation_name: os-detach
+            find_implemented_by_sdk: true
       os-reserve:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -139,6 +148,7 @@ resources:
             module_name: os_reserve
             sdk_mod_name: os_reserve
             operation_name: os-reserve
+            find_implemented_by_sdk: true
       os-unreserve:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -150,6 +160,7 @@ resources:
             module_name: os_unreserve
             sdk_mod_name: os_unreserve
             operation_name: os-unreserve
+            find_implemented_by_sdk: true
       os-begin-detaching:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -161,6 +172,7 @@ resources:
             module_name: os_begin_detaching
             sdk_mod_name: os_begin_detaching
             operation_name: os-begin_detaching
+            find_implemented_by_sdk: true
       os-roll-detaching:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -172,6 +184,7 @@ resources:
             module_name: os_roll_detaching
             sdk_mod_name: os_roll_detaching
             operation_name: os-roll_detaching
+            find_implemented_by_sdk: true
       os-initialize-connection:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -183,6 +196,7 @@ resources:
             module_name: os_initialize_connection
             sdk_mod_name: os_initialize_connection
             operation_name: os-initialize_connection
+            find_implemented_by_sdk: true
       os-terminate-connection:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -194,6 +208,7 @@ resources:
             module_name: os_terminate_connection
             sdk_mod_name: os_terminate_connection
             operation_name: os-terminate_connection
+            find_implemented_by_sdk: true
       os-volume-upload-image:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -205,6 +220,7 @@ resources:
             module_name: os_volume_upload_image
             sdk_mod_name: os_volume_upload_image
             operation_name: os-volume_upload_image
+            find_implemented_by_sdk: true
       os-extend:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -216,6 +232,7 @@ resources:
             module_name: os_extend
             sdk_mod_name: os_extend
             operation_name: os-extend
+            find_implemented_by_sdk: true
       os-update-readonly-flag:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -227,6 +244,7 @@ resources:
             module_name: os_update_readonly_flag
             sdk_mod_name: os_update_readonly_flag
             operation_name: os-update_readonly_flag
+            find_implemented_by_sdk: true
       os-retype:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -238,6 +256,7 @@ resources:
             module_name: os_retype
             sdk_mod_name: os_retype
             operation_name: os-retype
+            find_implemented_by_sdk: true
       os-set-bootable:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -249,6 +268,7 @@ resources:
             module_name: os_set_bootable
             sdk_mod_name: os_set_bootable
             operation_name: os-set_bootable
+            find_implemented_by_sdk: true
       os-reimage:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -260,6 +280,7 @@ resources:
             module_name: os_reimage
             sdk_mod_name: os_reimage
             operation_name: os-reimage
+            find_implemented_by_sdk: true
       os-set-image-metadata:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -271,6 +292,7 @@ resources:
             module_name: os_set_image_metadata
             sdk_mod_name: os_set_image_metadata
             operation_name: os-set_image_metadata
+            find_implemented_by_sdk: true
       os-show-image-metadata:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -282,6 +304,7 @@ resources:
             module_name: os_show_image_metadata
             sdk_mod_name: os_show_image_metadata
             operation_name: os-show_image_metadata
+            find_implemented_by_sdk: true
       os-unset-image-metadata:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -293,6 +316,7 @@ resources:
             module_name: os_unset_image_metadata
             sdk_mod_name: os_unset_image_metadata
             operation_name: os-unset_image_metadata
+            find_implemented_by_sdk: true
       os-unmanage:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -304,6 +328,7 @@ resources:
             module_name: os_unmanage
             sdk_mod_name: os_unmanage
             operation_name: os-unmanage
+            find_implemented_by_sdk: true
       show:
         operation_id: volumes/id:get
         operation_type: show
@@ -313,6 +338,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            find_implemented_by_sdk: true
       update:
         operation_id: volumes/id:put
         operation_type: set
@@ -322,6 +348,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            find_implemented_by_sdk: true
       delete:
         operation_id: volumes/id:delete
         operation_type: delete
@@ -331,6 +358,17 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: block_storage::v3::volume
+            name_field: name
+            name_filter_supported: false
+            list_mod: list_detailed
   block-storage.volume/summary:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
