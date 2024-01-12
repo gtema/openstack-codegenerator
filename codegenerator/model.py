@@ -161,10 +161,14 @@ class Set(AbstractList):
 class JsonSchemaParser:
     """JsonSchema to internal DataModel converter"""
 
-    def parse(self, schema) -> ty.Tuple[ADT | None, list[ADT]]:
+    def parse(
+        self, schema, ignore_read_only: bool = False
+    ) -> ty.Tuple[ADT | None, list[ADT]]:
         """Parse JsonSchema object into internal DataModel"""
         results: list[ADT] = []
-        res = self.parse_schema(schema, results)
+        res = self.parse_schema(
+            schema, results, ignore_read_only=ignore_read_only
+        )
         return (res, results)
 
     def parse_schema(
@@ -174,16 +178,25 @@ class JsonSchemaParser:
         name: str | None = None,
         min_ver: str | None = None,
         max_ver: str | None = None,
+        ignore_read_only: bool | None = False,
     ) -> PrimitiveType | ADT:
         type_ = schema.get("type")
         if "oneOf" in schema:
-            return self.parse_oneOf(schema, results, name=name)
+            return self.parse_oneOf(
+                schema, results, name=name, ignore_read_only=ignore_read_only
+            )
         elif "enum" in schema:
-            return self.parse_enum(schema, results, name=name)
+            return self.parse_enum(
+                schema, results, name=name, ignore_read_only=ignore_read_only
+            )
         elif "allOf" in schema:
-            return self.parse_allOf(schema, results, name=name)
+            return self.parse_allOf(
+                schema, results, name=name, ignore_read_only=ignore_read_only
+            )
         elif isinstance(type_, list):
-            return self.parse_typelist(schema, results, name=name)
+            return self.parse_typelist(
+                schema, results, name=name, ignore_read_only=ignore_read_only
+            )
         elif isinstance(type_, str):
             if type_ == "object":
                 return self.parse_object(
@@ -192,9 +205,15 @@ class JsonSchemaParser:
                     name=name,
                     min_ver=min_ver,
                     max_ver=max_ver,
+                    ignore_read_only=ignore_read_only,
                 )
             elif type_ == "array":
-                return self.parse_array(schema, results, name=name)
+                return self.parse_array(
+                    schema,
+                    results,
+                    name=name,
+                    ignore_read_only=ignore_read_only,
+                )
             elif type_ == "string":
                 obj = ConstraintString(**schema)
                 # todo: set obj props
@@ -217,7 +236,12 @@ class JsonSchemaParser:
         elif not type_ and "properties" in schema:
             # Sometimes services forget to set "type=object"
             return self.parse_object(
-                schema, results, name=name, min_ver=min_ver, max_ver=max_ver
+                schema,
+                results,
+                name=name,
+                min_ver=min_ver,
+                max_ver=max_ver,
+                ignore_read_only=ignore_read_only,
             )
         elif schema == {}:
             return PrimitiveNull()
@@ -230,6 +254,7 @@ class JsonSchemaParser:
         name: str | None = None,
         min_ver: str | None = None,
         max_ver: str | None = None,
+        ignore_read_only: bool | None = False,
     ):
         obj: ADT | None = None
         properties = schema.get("properties")
@@ -244,8 +269,15 @@ class JsonSchemaParser:
         if properties:
             obj = Struct()
             for k, v in properties.items():
+                if ignore_read_only and v.get("readOnly", False):
+                    continue
                 data_type = self.parse_schema(
-                    v, results, name=k, min_ver=min_ver, max_ver=max_ver
+                    v,
+                    results,
+                    name=k,
+                    min_ver=min_ver,
+                    max_ver=max_ver,
+                    ignore_read_only=ignore_read_only,
                 )
                 ref = getattr(data_type, "reference", None)
                 if ref:
@@ -274,6 +306,7 @@ class JsonSchemaParser:
                     name=name,
                     min_ver=min_ver,
                     max_ver=max_ver,
+                    ignore_read_only=ignore_read_only,
                 )
             else:
                 additional_properties_type = PrimitiveAny()
@@ -286,6 +319,7 @@ class JsonSchemaParser:
                     name=name,
                     min_ver=min_ver,
                     max_ver=max_ver,
+                    ignore_read_only=ignore_read_only,
                 )
                 pattern_props[key_pattern] = type_kind  # type: ignore
 
@@ -317,13 +351,24 @@ class JsonSchemaParser:
             results.append(obj)
         return obj
 
-    def parse_oneOf(self, schema, results: list[ADT], name: str | None = None):
+    def parse_oneOf(
+        self,
+        schema,
+        results: list[ADT],
+        name: str | None = None,
+        ignore_read_only: bool | None = False,
+    ):
         obj = OneOfType()
         for kind in schema.get("oneOf"):
             kind_schema = common._deep_merge(schema, kind)
             kind_schema.pop("oneOf")
             # todo: merge base props into the kind
-            kind_type = self.parse_schema(kind_schema, results, name=name)
+            kind_type = self.parse_schema(
+                kind_schema,
+                results,
+                name=name,
+                ignore_read_only=ignore_read_only,
+            )
             if not kind_type:
                 raise NotImplementedError
             ref: Reference | None = getattr(kind_type, "reference", None)
@@ -337,13 +382,22 @@ class JsonSchemaParser:
         return obj
 
     def parse_typelist(
-        self, schema, results: list[ADT], name: str | None = None
+        self,
+        schema,
+        results: list[ADT],
+        name: str | None = None,
+        ignore_read_only: bool | None = False,
     ):
         obj = OneOfType()
         for kind_type in schema.get("type"):
             kind_schema = copy.deepcopy(schema)
             kind_schema["type"] = kind_type
-            kind_type = self.parse_schema(kind_schema, results, name=name)
+            kind_type = self.parse_schema(
+                kind_schema,
+                results,
+                name=name,
+                ignore_read_only=ignore_read_only,
+            )
             ref = getattr(kind_type, "reference", None)
             if ref:
                 obj.kinds.append(ref)
@@ -354,9 +408,20 @@ class JsonSchemaParser:
         results.append(obj)
         return obj
 
-    def parse_array(self, schema, results: list[ADT], name: str | None = None):
+    def parse_array(
+        self,
+        schema,
+        results: list[ADT],
+        name: str | None = None,
+        ignore_read_only: bool | None = False,
+    ):
         # todo: decide whether some constraints can be under items
-        item_type = self.parse_schema(schema.get("items"), results, name=name)
+        item_type = self.parse_schema(
+            schema.get("items", {"type": "string"}),
+            results,
+            name=name,
+            ignore_read_only=ignore_read_only,
+        )
         ref = getattr(item_type, "reference", None)
         if ref:
             obj = Array(item_type=ref)
@@ -367,7 +432,13 @@ class JsonSchemaParser:
         results.append(obj)
         return obj
 
-    def parse_enum(self, schema, results: list[ADT], name: str | None = None):
+    def parse_enum(
+        self,
+        schema,
+        results: list[ADT],
+        name: str | None = None,
+        ignore_read_only: bool | None = False,
+    ):
         # todo: decide whether some constraints can be under items
         literals = schema.get("enum")
         obj = Enum(literals=literals, base_types=[])
@@ -385,12 +456,20 @@ class JsonSchemaParser:
         results.append(obj)
         return obj
 
-    def parse_allOf(self, schema, results: list[ADT], name: str | None = None):
+    def parse_allOf(
+        self,
+        schema,
+        results: list[ADT],
+        name: str | None = None,
+        ignore_read_only: bool | None = False,
+    ):
         sch = copy.deepcopy(schema)
         sch.pop("allOf")
         for kind in schema.get("allOf"):
             sch = common._deep_merge(sch, kind)
-        obj = self.parse_schema(sch, results, name=name)
+        obj = self.parse_schema(
+            sch, results, name=name, ignore_read_only=ignore_read_only
+        )
         if not obj:
             raise NotImplementedError
         # if name:
@@ -429,6 +508,8 @@ class OpenAPISchemaParser(JsonSchemaParser):
             dt = ConstraintNumber(**param_schema)
         elif param_typ == "integer":
             dt = ConstraintInteger(**param_schema)
+        elif param_typ == "boolean":
+            dt = PrimitiveBoolean(**param_schema)
         elif param_typ == "array":
             try:
                 items_type = param_schema.get("items").get("type")

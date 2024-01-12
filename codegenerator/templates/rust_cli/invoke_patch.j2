@@ -1,27 +1,66 @@
 {#- Patch implementation #}
+{% with root = type_manager.get_root_data_type() %}
         // Patching resource requires fetching and calculating diff
-        let data: Response = find(ep).query_async(client).await?;
+        let resource_id = find_data["id"]
+            .as_str()
+            .expect("Resource ID is a string")
+            .to_string();
+
+        let data: ResponseData = serde_json::from_value(find_data)?;
         let mut new = data.clone();
-        {% for k, v in patch_params.items() %}
-        if let Some(val) = &self.args.{{ v.local_name }} {
-          {%- if v.type == "Option<Vec<String>>" %}
-            new.{{ v.local_name }} = Some(VecString(val.clone()));
-          {%- elif v.type in ["Option<bool>", "Option<u32>", "Option<f32>"]%}
-            new.{{ v.local_name }} = Some(*val);
-          {%- elif "Option" in v.type %}
-            new.{{ v.local_name }} = Some(val.into());
+
+    {%- for attr_name, field in root.fields.items() %}
+      {%- if attr_name != "id" %}{# glance doesn't hide "ID" from change #}
+        if let Some(val) = &self.args.{{ field.local_name }} {
+          {%- if field.type_hint == "Option<Vec<String>>" %}
+            new.{{ field.local_name }} = Some(VecString(val.clone()));
+
+          {%- elif field.type_hint == "Option<Vec<Value>>" %}
+            new.{{ field.local_name }} = Some(serde_json::from_value(serde_json::Value::from(
+                val.clone(),
+            ))?);
+
+          {%- elif field.type_hint in ["Option<bool>", "Option<i32>", "Option<f32>", "Option<i64>", "Option<f64>", "bool", "i32", "u32", "f32", "i64", "f64"]%}
+            new.{{ field.local_name }} = Some(*val);
+
+          {%- elif field.data_type.__class__.__name__ in ["StringEnum"]%}
+            // StringEnum
+            let tmp = match val {
+              {%- for variant in field.data_type.variants.keys() | sort %}
+              {#- normally we should use the cli enum name, but we don't have it here and names must match anyway#}
+                {{ field.data_type.name }}::{{ variant }} => {
+                    "{{ variant | lower }}"
+                }
+              {%- endfor %}
+            };
+            new.{{ field.local_name }} = Some(tmp.to_string());
+
+          {%- elif "Option" in field.type_hint %}
+            new.{{ field.local_name }} = Some(val.into());
+
           {%- else %}
-            new.{{ v.local_name }} = *val;
+            new.{{ field.local_name }} = *val;
           {%- endif %}
         }
-        {%- endfor %}
+      {%- endif %}
+    {%- endfor %}
 
         let curr_json = serde_json::to_value(&data).unwrap();
-        let new_json = serde_json::to_value(&new).unwrap();
+        let mut new_json = serde_json::to_value(&new).unwrap();
+
+    {%- if root.additional_fields_type %}
+{#- additional properties are not present in the output and thus handleded on the raw json #}
+        if let Some(properties) = &self.args.properties {
+            for (key, val) in properties {
+                new_json[key] = json!(val);
+            }
+        }
+    {%- endif %}
+
         let patch = diff(&curr_json, &new_json);
 
         let mut patch_ep_builder = {{ method }}::{{ sdk_struct_name }}::builder();
-        patch_ep_builder.id(&data.id);
+        patch_ep_builder.id(&resource_id);
         patch_ep_builder.patch(patch);
 
         let patch_ep = patch_ep_builder
@@ -30,4 +69,4 @@
         let new_data = patch_ep.query_async(client).await?;
         op.output_single::<ResponseData>(new_data)?;
 
-
+{%- endwith %}

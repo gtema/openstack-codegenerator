@@ -1,0 +1,856 @@
+resources:
+  image.schema/image:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: schemas/image:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            operation_type: json
+  image.schema/images:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: schemas/images:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            operation_type: json
+  image.schema/member:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: schemas/member:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            operation_type: json
+  image.schema/members:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: schemas/members:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            operation_type: json
+  image.schema/task:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: schemas/task:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            operation_type: json
+  image.schema/tasks:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: schemas/tasks:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            operation_type: json
+  image.schema/metadef/namespace:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: schemas/metadefs/namespace:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            operation_type: json
+  image.schema/metadef/namespaces:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: schemas/metadefs/namespaces:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            operation_type: json
+  image.schema/metadef/resource_type:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: schemas/metadefs/resource_type:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            operation_type: json
+  image.schema/metadef/resource_types:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: schemas/metadefs/resource_types:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            operation_type: json
+  image.schema/metadef/property:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: schemas/metadefs/property:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            operation_type: json
+  image.schema/metadef/propertys:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: schemas/metadefs/properties:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            operation_type: json
+  image.schema/metadef/object:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: schemas/metadefs/object:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            operation_type: json
+  image.schema/metadef/objects:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: schemas/metadefs/objects:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            operation_type: json
+  image.schema/metadef/tag:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: schemas/metadefs/tag:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            operation_type: json
+  image.schema/metadef/tags:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: schemas/metadefs/tags:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+            operation_type: json
+  image.metadef/resource_type:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: metadefs/resource_types:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+  image.metadef/namespace/resource_type:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: metadefs/namespaces/namespace/resource_types:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: metadefs/namespaces/namespace/resource_types:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      delete:
+        operation_id: metadefs/namespaces/namespace/resource_types/resource_type:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  image.metadef/namespace:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: metadefs/namespaces:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: metadefs/namespaces:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: metadefs/namespaces/namespace:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: metadefs/namespaces/namespace:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: metadefs/namespaces/namespace:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  image.metadef/namespace/property:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: metadefs/namespaces/namespace/properties:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: metadefs/namespaces/namespace/properties:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      delete_all:
+        operation_id: metadefs/namespaces/namespace/properties:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete_all
+          rust-cli:
+            module_name: delete_all
+            sdk_mod_name: delete_all
+      show:
+        operation_id: metadefs/namespaces/namespace/properties/property_name:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: metadefs/namespaces/namespace/properties/property_name:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: metadefs/namespaces/namespace/properties/property_name:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  image.metadef/namespace/object:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: metadefs/namespaces/namespace/objects:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: metadefs/namespaces/namespace/objects:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      delete_all:
+        operation_id: metadefs/namespaces/namespace/objects:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete_all
+          rust-cli:
+            module_name: delete_all
+            sdk_mod_name: delete_all
+      show:
+        operation_id: metadefs/namespaces/namespace/objects/object_name:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: metadefs/namespaces/namespace/objects/object_name:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: metadefs/namespaces/namespace/objects/object_name:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  image.metadef/namespace/tag:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: metadefs/namespaces/namespace/tags:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: metadefs/namespaces/namespace/tags/tag_name:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      delete_all:
+        operation_id: metadefs/namespaces/namespace/tags:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete_all
+          rust-cli:
+            module_name: delete_all
+            sdk_mod_name: delete_all
+      show:
+        operation_id: metadefs/namespaces/namespace/tags/tag_name:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: metadefs/namespaces/namespace/tags/tag_name:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: metadefs/namespaces/namespace/tags/tag_name:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  image.image:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: images:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: images:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: images/image_id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: images/image_id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      patch:
+        operation_id: images/image_id:patch
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: patch
+          rust-cli:
+            module_name: patch
+            sdk_mod_name: patch
+            find_implemented_by_sdk: true
+      deactivate:
+        operation_id: images/image_id/actions/deactivate:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: deactivate
+          rust-cli:
+            module_name: deactivate
+            sdk_mod_name: deactivate
+            find_implemented_by_sdk: true
+      reactivate:
+        operation_id: images/image_id/actions/reactivate:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: reactivate
+          rust-cli:
+            module_name: reactivate
+            sdk_mod_name: reactivate
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: image::v2::image
+            name_field: name
+            name_filter_supported: true
+            list_mod: list
+  image.image/task:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: images/image_id/tasks:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+  image.image/import:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      create:
+        operation_id: images/image_id/import:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+  image.store:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      delete:
+        operation_id: stores/store_id/image_id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  image.image/file:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      download:
+        operation_id: images/image_id/file:get
+        operation_type: download
+        targets:
+          rust-sdk:
+            module_name: download
+          rust-cli:
+            module_name: download
+            sdk_mod_name: download
+      upload:
+        operation_id: images/image_id/file:put
+        operation_type: upload
+        targets:
+          rust-sdk:
+            module_name: upload
+          rust-cli:
+            module_name: upload
+            sdk_mod_name: upload
+  image.image/stage:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      stage:
+        operation_id: images/image_id/stage:put
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: stage
+          rust-cli:
+            module_name: stage
+            sdk_mod_name: stage
+  image.image/tag:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      update:
+        operation_id: images/image_id/tags/tag_value:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: images/image_id/tags/tag_value:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  image.image/member:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: images/image_id/members:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: images/image_id/members:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: images/image_id/members/member_id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: images/image_id/members/member_id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: images/image_id/members/member_id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  image.task:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: tasks:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: tasks:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: tasks/task_id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: tasks/task_id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: image::v2::task
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  image.info/import:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      get:
+        operation_id: info/import:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+  image.info/store:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: info/stores:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+      list_detailed:
+        operation_id: info/stores/detail:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list_detailed
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list_detailed
+  image.info/usage:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: info/usage:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+  image.cache:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: cache:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      delete_all:
+        operation_id: cache:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete_all
+          rust-cli:
+            module_name: delete_all
+            sdk_mod_name: delete_all
+      update:
+        operation_id: cache/image_id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: cache/image_id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete

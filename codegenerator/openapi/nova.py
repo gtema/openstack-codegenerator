@@ -156,6 +156,7 @@ class NovaGenerator(OpenStackServerSourceBase):
         from nova.api.openstack.compute.schemas import flavor_manage
 
         schema = None
+        mime_type: str = "application/json"
         # NOTE(gtema): This must go away once scemas are merged directly to
         # Nova
         # /servers
@@ -620,7 +621,7 @@ class NovaGenerator(OpenStackServerSourceBase):
             # Operations without body
             return None
         else:
-            ref = super()._get_schema_ref(
+            (ref, mime_type) = super()._get_schema_ref(
                 openapi_spec, name, description, action_name=action_name
             )
         if action_name and schema:
@@ -628,7 +629,7 @@ class NovaGenerator(OpenStackServerSourceBase):
                 schema.openstack = {}
             schema.openstack.setdefault("action-name", action_name)
 
-        return ref
+        return (ref, mime_type)
 
     def _post_process_operation_hook(self, openapi_spec, operation_spec):
         """Hook to allow service specific generator to modify details"""

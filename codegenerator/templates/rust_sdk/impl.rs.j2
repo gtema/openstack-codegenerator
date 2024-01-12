@@ -104,11 +104,26 @@ impl{{ type_manager.get_request_static_lifetimes(request) }} RequestBuilder{{ ty
             .extend(iter.map(Into::into));
         self
     }
+
+  {% if request.additional_fields_type is defined and request.additional_fields_type %}
+    pub fn properties<I, K, V>(&mut self, iter: I) -> &mut Self
+      where
+          I: Iterator<Item = (K, V)>,
+          K: Into<Cow<'a, str>>,
+          V: Into<{{ request.additional_fields_type.type_hint }}>,
+      {
+          self._properties
+              .get_or_insert_with(BTreeMap::new)
+              .extend(iter.map(|(k, v)| (k.into(), v.into())));
+          self
+      }
+
+  {%- endif %}
 }
 
 impl{{ type_manager.get_request_static_lifetimes(request) }} RestEndpoint for Request{{ type_manager.get_request_static_lifetimes(request) }} {
-    fn method(&self) -> Method {
-        Method::{{ method | upper }}
+    fn method(&self) -> http::Method {
+        http::Method::{{ method | upper }}
     }
 
     fn endpoint(&self) -> Cow<'static, str> {
@@ -161,6 +176,12 @@ impl{{ type_manager.get_request_static_lifetimes(request) }} RestEndpoint for Re
         params.push("{{ k }}", serde_json::to_value(&self.{{v.local_name}})?);
         {%- endif %}
         {%- endfor %}
+
+  {%- if request.additional_fields_type %}
+        for (key, val) in &self._properties {
+            params.push(key.clone(), serde_json::Value::from(val.clone()));
+        }
+  {%- endif %}
 
         params.into_body()
     }

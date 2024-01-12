@@ -469,7 +469,10 @@ class OpenStackServerSourceBase:
             operation_name,
             func,
         )
-        # deser = getattr(controller, "deserializer", None)
+        deser_schema = None
+        deser = getattr(controller, "deserializer", None)
+        if deser:
+            deser_schema = getattr(deser, "schema", None)
         ser = getattr(controller, "serializer", None)
         # deser_schema = getattr(deser, "schema", None)
         ser_schema = getattr(ser, "schema", None)
@@ -618,6 +621,20 @@ class OpenStackServerSourceBase:
                 ser_schema = _convert_wsme_to_jsonschema(rsp_spec)
             response_code = getattr(fdef, "status_code", None)
 
+        if not body_schemas and deser_schema:
+            # Glance may have request deserializer attached schema
+            schema_name = (
+                "".join([x.title() for x in path_resource_names])
+                + func.__name__.title()
+                + "Request"
+            )
+            (body_schema, mime_type) = self._get_schema_ref(
+                openapi_spec,
+                schema_name,
+                description=f"Request of the {operation_spec.operationId} operation",
+                schema_def=deser_schema,
+            )
+
         if query_params_versions:
             so = sorted(
                 query_params_versions,
@@ -633,7 +650,7 @@ class OpenStackServerSourceBase:
                     max_ver,
                 )
         # if body_schemas or mode == "action":
-        if method in ["PUT", "POST"]:
+        if method in ["PUT", "POST", "PATCH"]:
             self.process_body_parameters(
                 openapi_spec,
                 operation_spec,
@@ -651,79 +668,79 @@ class OpenStackServerSourceBase:
                 # This looks like a deprecated operation still hanging out there
                 operation_spec.deprecated = True
         if not response_code:
-            response_code = getattr(func, "wsgi_code", None)
-            if isinstance(response_code, list):
-                raise RuntimeError(
-                    "Operation cannot have multiple response codes"
-                )
-        if not response_code:
+            response_codes = getattr(func, "wsgi_code", None)
+            if response_codes and not isinstance(response_codes, list):
+                response_codes = [response_codes]
+        else:
+            response_codes = [response_code]
+        if not response_codes:
             # No expected response code known, take "normal" defaults
-            if method == "DELETE":
-                response_code = "204"
-            elif method == "POST":
-                response_code = "201"
-            else:
-                response_code = "200"
-        if response_code:
-            rsp = responses_spec.setdefault(
-                str(response_code), dict(description="Ok")
+            response_codes = self._get_response_codes(
+                method, operation_spec.operationId
             )
-            if str(response_code) != "204" and method != "DELETE":
-                # Arrange response placeholder
-                schema_name = (
-                    "".join([x.title() for x in path_resource_names])
-                    + (
-                        operation_name.replace("index", "list").title()
-                        if not path_resource_names[-1].endswith(operation_name)
-                        else ""
-                    )
-                    + "Response"
+        if response_codes:
+            for response_code in response_codes:
+                rsp = responses_spec.setdefault(
+                    str(response_code), dict(description="Ok")
                 )
-                schema_ref = self._get_schema_ref(
-                    openapi_spec,
-                    schema_name,
-                    description=f"Response of the {operation_spec.operationId} operation"
-                    if not action_name
-                    else f"Response of the {operation_spec.operationId}:{action_name} action",  # noqa
-                    schema_def=ser_schema,
-                    action_name=action_name,
-                )
-
-                if schema_ref:
-                    curr_schema = (
-                        rsp.get("content", {})
-                        .get("application/json", {})
-                        .get("schema", {})
-                    )
-                    if mode == "action" and curr_schema:
-                        # There is existing response for the action. Need to
-                        # merge them
-                        if isinstance(curr_schema, dict):
-                            curr_oneOf = curr_schema.get("oneOf")
-                            curr_ref = curr_schema.get("$ref")
-                        else:
-                            curr_oneOf = curr_schema.oneOf
-                            curr_ref = curr_schema.ref
-                        if curr_oneOf:
-                            if schema_ref not in [
-                                x["$ref"] for x in curr_oneOf
-                            ]:
-                                curr_oneOf.append({"$ref": schema_ref})
-                        elif curr_ref and curr_ref != schema_ref:
-                            rsp["content"]["application/json"][
-                                "schema"
-                            ] = TypeSchema(
-                                oneOf=[
-                                    {"$ref": curr_ref},
-                                    {"$ref": schema_ref},
-                                ]
+                if str(response_code) != "204" and method != "DELETE":
+                    # Arrange response placeholder
+                    schema_name = (
+                        "".join([x.title() for x in path_resource_names])
+                        + (
+                            operation_name.replace("index", "list").title()
+                            if not path_resource_names[-1].endswith(
+                                operation_name
                             )
-                    else:
-                        rsp["content"] = {
-                            "application/json": {
-                                "schema": {"$ref": schema_ref}
+                            else ""
+                        )
+                        + "Response"
+                    )
+                    (schema_ref, mime_type) = self._get_schema_ref(
+                        openapi_spec,
+                        schema_name,
+                        description=f"Response of the {operation_spec.operationId} operation"
+                        if not action_name
+                        else f"Response of the {operation_spec.operationId}:{action_name} action",  # noqa
+                        schema_def=ser_schema,
+                        action_name=action_name,
+                    )
+
+                    if schema_ref:
+                        curr_schema = (
+                            rsp.get("content", {})
+                            .get("application/json", {})
+                            .get("schema", {})
+                        )
+                        if mode == "action" and curr_schema:
+                            # There is existing response for the action. Need to
+                            # merge them
+                            if isinstance(curr_schema, dict):
+                                curr_oneOf = curr_schema.get("oneOf")
+                                curr_ref = curr_schema.get("$ref")
+                            else:
+                                curr_oneOf = curr_schema.oneOf
+                                curr_ref = curr_schema.ref
+                            if curr_oneOf:
+                                if schema_ref not in [
+                                    x["$ref"] for x in curr_oneOf
+                                ]:
+                                    curr_oneOf.append({"$ref": schema_ref})
+                            elif curr_ref and curr_ref != schema_ref:
+                                rsp["content"]["application/json"][
+                                    "schema"
+                                ] = TypeSchema(
+                                    oneOf=[
+                                        {"$ref": curr_ref},
+                                        {"$ref": schema_ref},
+                                    ]
+                                )
+                        else:
+                            rsp["content"] = {
+                                "application/json": {
+                                    "schema": {"$ref": schema_ref}
+                                }
                             }
-                        }
 
         # Ensure operation tags are existing
         for tag in operation_spec.tags:
@@ -796,6 +813,7 @@ class OpenStackServerSourceBase:
         action_name,
     ):
         op_body = operation_spec.requestBody.setdefault("content", {})
+        mime_type: str = "application/json"
         schema_name = None
         # We should not modify path_resource_names of the caller
         path_resource_names = path_resource_names.copy()
@@ -823,7 +841,7 @@ class OpenStackServerSourceBase:
                 schema_ref = body_schemas[0]
         elif len(body_schemas) > 1:
             # We may end up here multiple times if we have versioned operation. In this case merge to what we have already
-            old_schema = op_body.get("application/json", {}).get("schema", {})
+            old_schema = op_body.get(mime_type, {}).get("schema", {})
             old_ref = (
                 old_schema.ref
                 if isinstance(old_schema, TypeSchema)
@@ -877,7 +895,7 @@ class OpenStackServerSourceBase:
                 )
                 + "Request"
             )
-            schema_ref = self._get_schema_ref(
+            (schema_ref, mime_type) = self._get_schema_ref(
                 openapi_spec,
                 schema_name,
                 description=f"Request of the {operation_spec.operationId} operation",
@@ -885,7 +903,7 @@ class OpenStackServerSourceBase:
             )
 
         if mode == "action":
-            js_content = op_body.setdefault("application/json", {})
+            js_content = op_body.setdefault(mime_type, {})
             body_schema = js_content.setdefault("schema", {})
             one_of = body_schema.setdefault("oneOf", [])
             if schema_ref not in [x.get("$ref") for x in one_of]:
@@ -895,9 +913,9 @@ class OpenStackServerSourceBase:
             if cont_schema and action_name:
                 cont_schema.openstack["action-name"] = action_name
         elif schema_ref:
-            js_content = op_body.setdefault("application/json", {})
+            js_content = op_body.setdefault(mime_type, {})
             body_schema = js_content.setdefault("schema", {})
-            operation_spec.requestBody["content"]["application/json"][
+            operation_spec.requestBody["content"][mime_type][
                 "schema"
             ] = TypeSchema(ref=schema_ref)
 
@@ -1013,7 +1031,7 @@ class OpenStackServerSourceBase:
         description=None,
         schema_def=None,
         action_name=None,
-    ):
+    ) -> tuple[str, str]:
         if not schema_def:
             logging.warn(
                 "No Schema definition for %s[%s] is known", name, action_name
@@ -1034,7 +1052,7 @@ class OpenStackServerSourceBase:
                 schema.openstack = {}
             schema.openstack.setdefault("action-name", action_name)
 
-        return f"#/components/schemas/{name}"
+        return (f"#/components/schemas/{name}", "application/json")
 
     def _get_tags_for_url(self, url):
         """Return Tag (group) name based on the URL"""
@@ -1051,6 +1069,16 @@ class OpenStackServerSourceBase:
             # Use 1st (non project_id) path element as tag
             if not el.startswith("{"):
                 return [el]
+
+    @classmethod
+    def _get_response_codes(cls, method: str, operationId: str) -> list[str]:
+        if method == "DELETE":
+            response_code = "204"
+        elif method == "POST":
+            response_code = "201"
+        else:
+            response_code = "200"
+        return [response_code]
 
 
 def _convert_wsme_to_jsonschema(body_spec):

@@ -122,6 +122,7 @@ class CinderV3Generator(OpenStackServerSourceBase):
         schema_def=None,
         action_name=None,
     ):
+        mime_type: str = "application/json"
         if name == "ServersCreateResponse":
             openapi_spec.components.schemas.setdefault(
                 name,
@@ -187,7 +188,7 @@ class CinderV3Generator(OpenStackServerSourceBase):
             )
             ref = f"#/components/schemas/{name}"
         else:
-            ref = super()._get_schema_ref(
+            (ref, mime_type) = super()._get_schema_ref(
                 openapi_spec, name, description, action_name=action_name
             )
-        return ref
+        return (ref, mime_type)

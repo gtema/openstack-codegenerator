@@ -345,6 +345,10 @@ class RequestTypeManager(common_rust.TypeManager):
         )
         if attr_name == "type":
             attr_name = "_type"
+        elif attr_name == "self":
+            attr_name = "_self"
+        elif attr_name == "enum":
+            attr_name = "_enum"
         return attr_name
 
     def get_remote_attribute_name(self, name: str) -> str:
@@ -357,6 +361,10 @@ class RequestTypeManager(common_rust.TypeManager):
         )
         if attr_name == "type":
             attr_name = "_type"
+        elif attr_name == "self":
+            attr_name = "_self"
+        elif attr_name == "enum":
+            attr_name = "_enum"
         return attr_name
 
     def _get_one_of_type(
@@ -511,12 +519,22 @@ class RequestTypeManager(common_rust.TypeManager):
             if mod.name != "Request" and isinstance(
                 field_data_type, struct_class
             ):
-                print(f"Struct name = {mod.name}")
                 field_data_type.is_group = True
                 field_data_type.is_required = field.is_required
             if isinstance(field_data_type, self.option_type_class):
                 f.is_nullable = True
             mod.fields[field_name] = f
+        # Repeat additional_fields handling as in
+        # common/rust.py
+        if type_model.additional_fields:
+            definition = type_model.additional_fields
+            # Structure allows additional fields
+            if isinstance(definition, bool):
+                mod.additional_fields_type = self.primitive_type_mapping[
+                    model.PrimitiveAny
+                ]
+            else:
+                mod.additional_fields_type = self.convert_model(definition)
 
         return mod
 
@@ -766,6 +784,8 @@ class RustCliGenerator(BaseGenerator):
             args.module_path or path,
         )
         target_class_name = resource_name
+        is_image_download: bool = False
+        is_json_patch: bool = False
 
         # Collect all operation parameters
         for param in openapi_spec["paths"][path].get(
@@ -787,6 +807,13 @@ class RustCliGenerator(BaseGenerator):
         )
 
         body_types: list[str] = []
+        last_path_parameter: RequestParameter | None = None
+        if (
+            args.operation_type == "download"
+            and path == "/v2/images/{image_id}/file"
+        ):
+            is_image_download = True
+
         if args.operation_type == "upload":
             # collect registered media types for upload operation
             request_body = spec.get("requestBody")
@@ -820,17 +847,20 @@ class RustCliGenerator(BaseGenerator):
             operation_body = operation_variant.get("body")
             microversion: str | None = None
             mod_suffix: str = ""
+            request_types = None
             if operation_body:
                 min_ver = operation_body.get("x-openstack", {}).get("min-ver")
                 if min_ver:
                     mod_suffix = "_" + min_ver.replace(".", "")
                     microversion = min_ver
 
-                (_, all_types) = openapi_parser.parse(operation_body)
+                (_, request_types) = openapi_parser.parse(
+                    operation_body, ignore_read_only=True
+                )
 
                 # Certain hacks
-                for parsed_type in list(all_types):
-                    # iterate over listed all_types since we want to modify list
+                for parsed_type in list(request_types):
+                    # iterate over listed request_types since we want to modify list
                     if resource_name == "server" and method.lower() == "post":
                         # server declares OS-SCH-HNT:scheduler_hints as
                         # "alias" for normal scheduler hints, but the whole
@@ -840,14 +870,14 @@ class RustCliGenerator(BaseGenerator):
                         if parsed_type.reference == model.Reference(
                             name=object_to_remove, type=model.Struct
                         ):
-                            all_types.remove(parsed_type)
+                            request_types.remove(parsed_type)
                         elif parsed_type.reference is None and isinstance(
                             parsed_type, model.Struct
                         ):
                             parsed_type.fields.pop(object_to_remove, None)
 
                 # and feed them into the TypeManager
-                type_manager.set_models(all_types)
+                type_manager.set_models(request_types)
 
             sdk_mod_path: list[str] = sdk_mod_path_base.copy()
             sdk_mod_path.append((args.sdk_mod_name or mod_name) + mod_suffix)
@@ -906,13 +936,31 @@ class RustCliGenerator(BaseGenerator):
                         if not response_def:
                             continue
 
-                        if response_def["type"] == "object":
-                            (_, response_all_types) = openapi_parser.parse(
+                        if response_def.get("type", "object") == "object":
+                            (_, response_types) = openapi_parser.parse(
                                 response_def
                             )
-                            response_type_manager.set_models(
-                                response_all_types
-                            )
+                            response_type_manager.set_models(response_types)
+                            if method == "patch" and not request_types:
+                                # image patch is a jsonpatch based operation
+                                # where there is no request. For it we need
+                                # to look at the response and get writable
+                                # parameters as a base
+                                is_json_patch = True
+                                if not args.find_implemented_by_sdk:
+                                    raise NotImplementedError
+                                additional_imports.update(
+                                    [
+                                        "json_patch::{Patch, diff}",
+                                        "serde_json::to_value",
+                                        "serde_json::json",
+                                    ]
+                                )
+                                (_, response_types) = openapi_parser.parse(
+                                    response_def, ignore_read_only=True
+                                )
+                                type_manager.set_models(response_types)
+
                         elif response_def["type"] == "string":
                             (root_dt, _) = openapi_parser.parse(response_def)
                             if not root_dt:
@@ -1005,6 +1053,19 @@ class RustCliGenerator(BaseGenerator):
                         )
                     )
 
+                if is_image_download:
+                    additional_imports.add("openstack_sdk::api::find")
+                    additional_imports.add("openstack_sdk::api::QueryAsync")
+                    additional_imports.add(
+                        "::".join(
+                            [
+                                "openstack_sdk::api",
+                                "::".join(sdk_mod_path[:-2]),
+                                "find",
+                            ]
+                        )
+                    )
+
                 context = dict(
                     operation_id=operation_id,
                     operation_type=args.operation_type,
@@ -1029,12 +1090,15 @@ class RustCliGenerator(BaseGenerator):
                     sdk_mod_path=sdk_mod_path,
                     cli_mod_path=cli_mod_path,
                     result_def=result_def,
-                    last_path_parameter=None,
+                    # Last path param is required for the download operation
+                    last_path_parameter=last_path_parameter,
                     body_types=body_types,
                     additional_imports=additional_imports,
                     find_present=args.find_implemented_by_sdk,
                     microversion=microversion,
                     result_is_list=result_is_list,
+                    is_image_download=is_image_download,
+                    is_json_patch=is_json_patch,
                 )
 
                 if not args.cli_mod_path:

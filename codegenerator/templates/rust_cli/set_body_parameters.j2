@@ -1,6 +1,7 @@
 {% import 'rust_macros.j2' as macros with context -%}
+{% if not is_json_patch -%}
       // Set body parameters
-{% with root = type_manager.get_root_data_type() %}
+{%- with root = type_manager.get_root_data_type() %}
 {%- for root_attr, root_field in root.fields.items() %}
   // Set Request.{{ root_field.remote_name }} data
   {%- if root_field.is_optional %}
@@ -25,12 +26,18 @@
     {% endfor %}
     ep_builder.{{ root_field.remote_name }}({{ builder_name }}.build().unwrap());
 
-  {%- elif root_field.data_type.__class__.__name__ == "ArrayInput" %}
-    {{ macros.sdk_plain_array_setter(root_field, "args", "ep_builder") }}
+  {%- else %}
+    {{ macros.set_request_data_from_input("ep_builder", root_field, "args") }}
   {%- endif %}
 
   {% if root_field.is_optional %}
     }
   {%- endif %}
 {% endfor %}
+{%- if root.additional_fields_type %}
+    if let Some(properties) = &self.args.properties {
+        ep_builder.properties(properties.iter().cloned());
+    }
+{%- endif %}
 {%- endwith %}
+{%- endif %}

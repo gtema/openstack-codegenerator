@@ -253,3 +253,33 @@ Some({{ val }})
     {{ data_var }}.iter().cloned()
 {%- endif -%}
 {%- endmacro %}
+
+{%- macro set_cli_path_parameters(type_manager, builder, find_mode=False) %}
+{%- if not find_mode %}
+
+    // Set path parameters
+{%- endif %}
+{%- for (k, v) in type_manager.get_parameters("path") %}
+{%- if not v.is_required %}
+  {%- if k != "project_id" %}
+        if let Some(val) = &self.args.path.{{ v.local_name }} {
+          {{ builder }}.{{ v.local_name }}(val);
+        }
+  {%- else %}
+        if let Some(val) = &self.args.path.{{ v.local_name }} {
+            {{ builder }}.{{ v.local_name }}(val);
+        } else {
+            {{ builder }}.{{ v.local_name }}(client.get_current_project().expect("Project ID must be known").id);
+        }
+  {%- endif %}
+{%- elif not find_mode and find_present and operation_type in ["show", "set", "download"] %}
+    let resource_id = find_data["id"]
+        .as_str()
+        .expect("Resource ID is a string")
+        .to_string();
+    {{ builder }}.{{ v.local_name }}(resource_id.clone());
+{%- else %}
+    {{ builder }}.{{ v.local_name }}(&self.args.path.{{ v.local_name }});
+{%- endif %}
+{%- endfor %}
+{%- endmacro %}

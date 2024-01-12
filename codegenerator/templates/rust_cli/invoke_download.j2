@@ -7,7 +7,7 @@
             .parse()
             .unwrap();
         download_file(
-            self.args.file.clone().unwrap_or(self.args.{{ last_path_parameter }}.clone()),
+            self.args.file.clone().unwrap_or(self.args.{{ last_path_parameter.name }}.clone()),
             size,
             data,
         )
