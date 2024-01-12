@@ -343,7 +343,9 @@ class RustSdkGenerator(BaseGenerator):
                     mod_name += "_" + min_ver.replace(".", "")
                 # There is request body. Get the ADT from jsonschema
                 # if args.operation_type != "action":
-                (_, all_types) = openapi_parser.parse(operation_body)
+                (_, all_types) = openapi_parser.parse(
+                    operation_body, ignore_read_only=True
+                )
                 # and feed them into the TypeManager
                 type_manager.set_models(all_types)
                 # else:

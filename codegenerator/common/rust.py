@@ -225,6 +225,9 @@ class Struct(BaseCompoundType):
     base_type: str = "struct"
     fields: dict[str, StructField] = {}
     field_type_class_: Type[StructField] | StructField = StructField
+    additional_fields_type: BasePrimitiveType | BaseCombinedType | BaseCompoundType | None = (
+        None
+    )
 
     @property
     def type_hint(self):
@@ -237,6 +240,9 @@ class Struct(BaseCompoundType):
         imports: set[str] = set(["serde::Deserialize"])
         for field in self.fields.values():
             imports.update(field.data_type.imports)
+        if self.additional_fields_type:
+            imports.add("std::collections::BTreeMap")
+            imports.update(self.additional_fields_type.imports)
         return imports
 
     @property
@@ -309,7 +315,7 @@ class StringEnum(BaseCompoundType):
         "#[derive(Debug, Deserialize, Clone, Serialize)]"
     )
     builder_container_macros: str | None = None
-    serde_container_macros: str | None = "#[serde(untagged)]"
+    serde_container_macros: str | None = None  # "#[serde(untagged)]"
     serde_macros: set[str] | None = None
     original_data_type: BaseCompoundType | BaseCompoundType | None = None
 
@@ -332,7 +338,7 @@ class StringEnum(BaseCompoundType):
         """Return serde macros"""
         return (
             "#[serde("
-            + ", ".join([f'alias="{x}"' for x in self.variants[variant]])
+            + ", ".join([f'rename="{x}"' for x in self.variants[variant]])
             + ")]"
         )
 
@@ -431,6 +437,10 @@ class TypeManager:
         )
         if attr_name == "type":
             attr_name = "_type"
+        elif attr_name == "self":
+            attr_name = "_self"
+        elif attr_name == "enum":
+            attr_name = "_self"
         return attr_name
 
     def get_remote_attribute_name(self, name: str) -> str:
@@ -445,10 +455,11 @@ class TypeManager:
         """Get the localized model type name"""
         if not model_ref:
             return "Request"
-        return "".join(
+        name = "".join(
             x.capitalize()
             for x in re.split(common.SPLIT_NAME_RE, model_ref.name)
         )
+        return name
 
     def _get_adt_by_reference(self, model_ref):
         for model_ in self.models:
@@ -689,6 +700,15 @@ class TypeManager:
                 is_nullable=is_nullable,
             )
             mod.fields[field_name] = f
+        if type_model.additional_fields:
+            definition = type_model.additional_fields
+            # Structure allows additional fields
+            if isinstance(definition, bool):
+                mod.additional_fields_type = self.primitive_type_mapping[
+                    model.PrimitiveAny
+                ]
+            else:
+                mod.additional_fields_type = self.convert_model(definition)
         return mod
 
     def _simplify_oneof_combinations(self, type_model, kinds):
@@ -949,6 +969,9 @@ def get_operation_variants(spec: dict, operation_name: str):
                         )
             else:
                 operation_variants.append({"body": json_body_schema})
+        elif "application/octet-stream" in content:
+            mime_type = "application/octet-stream"
+            operation_variants.append({"mime_type": mime_type})
         elif "application/openstack-images-v2.1-json-patch" in content:
             mime_type = "application/openstack-images-v2.1-json-patch"
             operation_variants.append({"mime_type": mime_type})

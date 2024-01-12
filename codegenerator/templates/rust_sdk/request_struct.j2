@@ -24,5 +24,10 @@ pub struct {{ data_type.name }}{{ type_manager.get_request_static_lifetimes(data
 
     #[builder(setter(name = "_headers"), default, private)]
     _headers: Option<HeaderMap>,
+
+  {%- if data_type.additional_fields_type %}
+    #[builder(setter(name = "_properties"), default, private)]
+    _properties: BTreeMap<Cow<'a, str>, {{ data_type.additional_fields_type.type_hint }}>,
+  {%- endif %}
 }
 {%- endwith %}

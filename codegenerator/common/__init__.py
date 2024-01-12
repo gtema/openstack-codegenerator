@@ -10,6 +10,7 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 #
+import logging
 from pathlib import Path
 from typing import Any
 import re
@@ -107,46 +108,66 @@ def find_resource_schema(
         if not found
 
     """
-    if "type" not in schema:
-        # Response of server create is a server or reservation_id
-        raise RuntimeError("No type in %s" % schema)
-    schema_type = schema["type"]
-    if schema_type == "array":
-        if (
-            parent
-            and resource_name
-            and parent == get_plural_form(resource_name)
-        ):
-            return (schema["items"], parent)
-        elif not parent and schema.get("items", {}).get("type") == "object":
-            # Array on the top level. Most likely we are searching for items
-            # directly
-            return (schema["items"], None)
-        return find_resource_schema(
-            schema["items"], parent, resource_name=resource_name
-        )
-    elif schema_type == "object":
-        props = (
-            schema.properties
-            if hasattr(schema, "properties")
-            else schema.get("properties", {})
-        )
-        if not parent and resource_name in props:
-            # we are at the top level and there is property with the resource
-            # name - it is what we are searching for
-            return (props[resource_name], resource_name)
-        for name, item in props.items():
-            (r, path) = find_resource_schema(item, name, resource_name)
-            if r:
-                return (r, path)
-        if not parent:
-            # We are on top level and have not found anything.
-            keys = list(props.keys())
-            if len(keys) == 1:
-                # there is only one field in the object
-                return (props[keys[0]], keys[0])
+    try:
+        if "type" not in schema:
+            # Response of server create is a server or reservation_id
+            if "allOf" in schema:
+                kinds = {}
+                for kind in schema["allOf"]:
+                    kinds.update(kind)
+                schema["type"] = kinds["type"]
+            elif schema == {}:
+                return (None, None)
+            elif "properties" in schema:
+                schema["type"] = "object"
             else:
-                return (schema, None)
+                raise RuntimeError("No type in %s" % schema)
+        schema_type = schema["type"]
+        if schema_type == "array":
+            if (
+                parent
+                and resource_name
+                and parent == get_plural_form(resource_name)
+            ):
+                return (schema["items"], parent)
+            elif (
+                not parent and schema.get("items", {}).get("type") == "object"
+            ):
+                # Array on the top level. Most likely we are searching for items
+                # directly
+                return (schema["items"], None)
+            return find_resource_schema(
+                schema.get("items", {"type": "string"}),
+                parent,
+                resource_name=resource_name,
+            )
+        elif schema_type == "object":
+            props = (
+                schema.properties
+                if hasattr(schema, "properties")
+                else schema.get("properties", {})
+            )
+            if not parent and resource_name in props:
+                # we are at the top level and there is property with the resource
+                # name - it is what we are searching for
+                return (props[resource_name], resource_name)
+            for name, item in props.items():
+                (r, path) = find_resource_schema(item, name, resource_name)
+                if r:
+                    return (r, path)
+            if not parent:
+                # We are on top level and have not found anything.
+                keys = list(props.keys())
+                if len(keys) == 1:
+                    # there is only one field in the object
+                    return (props[keys[0]], keys[0])
+                else:
+                    return (schema, None)
+    except Exception as ex:
+        logging.exception(
+            f"Caught exception {ex} during processing of {schema}"
+        )
+        raise
     return (None, None)
 
 
@@ -188,6 +209,16 @@ def get_resource_names_from_url(path: str):
         path_resource_names.pop()
     if len(path_resource_names) == 0:
         return ["Version"]
+    if path.startswith("/v2/schemas/"):
+        # Image schemas should not be singularized (schema/images,
+        # schema/image)
+        if path.endswith("s") and not path_resource_names[-1].endswith("s"):
+            path_resource_names[-1] += "s"
+    if path.startswith("/v2/images") and path.endswith("/actions/deactivate"):
+        path_resource_names = ["image"]
+    if path.startswith("/v2/images") and path.endswith("/actions/reactivate"):
+        path_resource_names = ["image"]
+
     return path_resource_names
 
 

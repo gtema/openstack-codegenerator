@@ -72,7 +72,15 @@ class MetadataGenerator(BaseGenerator):
                     operations=dict(),
                 ),
             )
-            for method in ["head", "get", "put", "post", "delete", "options"]:
+            for method in [
+                "head",
+                "get",
+                "put",
+                "post",
+                "delete",
+                "options",
+                "patch",
+            ]:
                 operation = getattr(spec, method, None)
                 if operation:
                     if not operation.operationId:
@@ -97,6 +105,10 @@ class MetadataGenerator(BaseGenerator):
                             operation_key = "show"
                         elif method == "put":
                             operation_key = "update"
+                        elif method == "patch":
+                            operation_key = "patch"
+                        elif method == "post":
+                            operation_key = "create"
                         elif method == "delete":
                             operation_key = "delete"
                     elif path.endswith("/detail"):
@@ -104,6 +116,13 @@ class MetadataGenerator(BaseGenerator):
                             operation_key = "list_detailed"
                     # elif path.endswith("/default"):
                     #     operation_key = "default"
+                    elif path == "/v2/images/{image_id}/file":
+                        if method == "put":
+                            operation_key = "upload"
+                        elif method == "get":
+                            operation_key = "download"
+                        else:
+                            raise NotImplementedError
                     elif response_schema and (
                         method == "get"
                         and (
@@ -122,6 +141,14 @@ class MetadataGenerator(BaseGenerator):
                     elif path.endswith("/action"):
                         # Action
                         operation_key = "action"
+                    elif args.service_type == "image" and path.endswith(
+                        "/actions/deactivate"
+                    ):
+                        operation_key = "deactivate"
+                    elif args.service_type == "image" and path.endswith(
+                        "/actions/reactivate"
+                    ):
+                        operation_key = "reactivate"
                     elif (
                         len(
                             [
@@ -149,16 +176,23 @@ class MetadataGenerator(BaseGenerator):
                         operation_key = "create"
                     elif method == "put":
                         operation_key = path.split("/")[-1]
+                    elif method == "patch":
+                        operation_key = "patch"
                     elif method == "delete":
                         operation_key = "delete"
                     if not operation_key:
                         logging.warn(
                             f"Cannot identify op name for {path}:{method}"
                         )
+
                     if operation_key in resource_model:
                         raise RuntimeError("Operation name conflict")
                     else:
-                        if operation_key == "action":
+                        if (
+                            operation_key == "action"
+                            and args.service_type
+                            in ["compute", "block-storage"]
+                        ):
                             # For action we actually have multiple independent operations
                             try:
                                 body_schema = operation.requestBody["content"][
@@ -273,6 +307,12 @@ class MetadataGenerator(BaseGenerator):
                                     rust_sdk_params.response_list_item_key = (
                                         "keypair"
                                     )
+                            # Image schemas are a JSON operation
+                            if (
+                                args.service_type == "image"
+                                and resource_name.startswith("schema")
+                            ):
+                                rust_cli_params.operation_type = "json"
 
                             op_model.targets["rust-sdk"] = rust_sdk_params
                             if rust_cli_params:
@@ -401,8 +441,14 @@ def get_operation_type_by_key(operation_key):
         return "delete"
     elif operation_key in ["create"]:
         return "create"
+    elif operation_key == "patch":
+        return "set"
     elif operation_key == "default":
         return "get"
+    elif operation_key == "download":
+        return "download"
+    elif operation_key == "upload":
+        return "upload"
     else:
         return "action"
 
