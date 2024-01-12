@@ -208,7 +208,7 @@ def get_resource_names_from_url(path: str):
     ):
         path_resource_names.pop()
     if len(path_resource_names) == 0:
-        return ["Version"]
+        return ["version"]
     if path.startswith("/v2/schemas/"):
         # Image schemas should not be singularized (schema/images,
         # schema/image)
@@ -218,6 +218,8 @@ def get_resource_names_from_url(path: str):
         path_resource_names = ["image"]
     if path.startswith("/v2/images") and path.endswith("/actions/reactivate"):
         path_resource_names = ["image"]
+    if path_resource_names == ["volume_transfer", "accept"]:
+        path_resource_names = ["volume_transfer"]
 
     return path_resource_names
 

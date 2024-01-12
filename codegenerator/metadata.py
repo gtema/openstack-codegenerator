@@ -141,14 +141,17 @@ class MetadataGenerator(BaseGenerator):
                     elif path.endswith("/action"):
                         # Action
                         operation_key = "action"
-                    elif args.service_type == "image" and path.endswith(
-                        "/actions/deactivate"
+                    elif args.service_type == "image":
+                        if path.endswith("/actions/deactivate"):
+                            operation_key = "deactivate"
+                        elif path.endswith("/actions/reactivate"):
+                            operation_key = "reactivate"
+                    elif (
+                        args.service_type == "block-storage"
+                        and "volume-transfers" in path
+                        and path.endswith("}/accept")
                     ):
-                        operation_key = "deactivate"
-                    elif args.service_type == "image" and path.endswith(
-                        "/actions/reactivate"
-                    ):
-                        operation_key = "reactivate"
+                        operation_key = "accept"
                     elif (
                         len(
                             [
