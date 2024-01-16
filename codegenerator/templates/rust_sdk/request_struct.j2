@@ -16,7 +16,7 @@ pub struct {{ data_type.name }}{{ type_manager.get_request_static_lifetimes(data
     {{ param.local_name }}: {{ param.type_hint }},
 {%- endfor %}
 
-{% if method|lower == "patch" %}
+{% if is_json_patch %}
     /// Patch data
     #[builder()]
     patch: Patch,

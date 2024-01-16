@@ -17,8 +17,10 @@ from pathlib import Path
 
 from ruamel.yaml.scalarstring import LiteralScalarString
 
+from keystone.application_credential import (
+    schema as application_credential_schema,
+)
 from keystone.assignment import schema as assignment_schema
-from keystone.auth import schema as auth_schema
 from keystone.identity import schema as identity_schema
 from keystone.resource import schema as ks_schema
 
@@ -26,193 +28,9 @@ from codegenerator.common.schema import ParameterSchema
 from codegenerator.common.schema import PathSchema
 from codegenerator.common.schema import SpecSchema
 from codegenerator.common.schema import TypeSchema
+from codegenerator.openapi import keystone_schemas
 from codegenerator.openapi.base import OpenStackServerSourceBase
 from codegenerator.openapi.utils import merge_api_ref_doc
-
-
-PROJECT_SCHEMA = TypeSchema(
-    type="object",
-    properties={
-        "id": {"type": "string", "format": "uuid"},
-        **ks_schema._project_properties,
-    },
-    additionalProperties=True,
-)
-
-PROJECTS_SCHEMA = TypeSchema(
-    type="object",
-    properties={"projects": {"type": "array", "items": PROJECT_SCHEMA}},
-)
-
-DOMAIN_SCHEMA = TypeSchema(
-    **{
-        "type": "object",
-        "properties": {
-            "id": {"type": "string", "format": "uuid"},
-            **ks_schema._domain_properties,
-        },
-        "additionalProperties": True,
-    }
-)
-
-DOMAINS_SCHEMA = TypeSchema(
-    **{
-        "type": "object",
-        "properties": {"domains": {"type": "array", "items": DOMAIN_SCHEMA}},
-    }
-)
-
-TAG_SCHEMA = TypeSchema(**ks_schema._project_tag_name_properties)
-
-TAGS_SCHEMA = TypeSchema(
-    **{
-        "type": "object",
-        "properties": {"tags": ks_schema._project_tags_list_properties},
-    }
-)
-
-ROLE_SCHEMA = TypeSchema(
-    **{
-        "type": "object",
-        "properties": {
-            "id": {"type": "string", "format": "uuid"},
-            "links": {"type": "object"},
-            **assignment_schema._role_properties,
-        },
-    }
-)
-
-ROLES_SCHEMA = TypeSchema(
-    **{
-        "type": "object",
-        "properties": {
-            "roles": {"type": "array", "items": ROLE_SCHEMA},
-            "links": {"type": "object"},
-        },
-    }
-)
-
-
-ROLE_INFERENCE_SCHEMA = TypeSchema(
-    **{
-        "type": "object",
-        "properties": {
-            "role_inference": {
-                "properties": {
-                    "prior_role": ROLE_SCHEMA,
-                    "implies": ROLE_SCHEMA,
-                }
-            }
-        },
-    }
-)
-ROLES_INFERENCE_SCHEMA = TypeSchema(
-    **{
-        "type": "object",
-        "properties": {
-            "role_inference": {
-                "properties": {
-                    "prior_role": ROLE_SCHEMA,
-                    "implies": {
-                        "type": "array",
-                        "item": ROLE_SCHEMA,
-                    },
-                }
-            }
-        },
-    }
-)
-
-DOMAIN_CONFIG_GROUP_LDAP = TypeSchema(
-    **{
-        "type": "object",
-        "description": "An ldap object. Required to set the LDAP group configuration options.",
-        "properties": {
-            "url": {
-                "type": "string",
-                "format": "url",
-                "description": "The LDAP URL.",
-            },
-            "user_tree_dn": {
-                "type": "string",
-                "description": "The base distinguished name (DN) of LDAP, from where all users can be reached. For example, ou=Users,dc=root,dc=org.",
-            },
-        },
-        "additionalProperties": True,
-    }
-)
-
-DOMAIN_CONFIG_GROUP_IDENTITY = TypeSchema(
-    **{
-        "type": "object",
-        "description": "An identity object.",
-        "properties": {
-            "driver": {
-                "type": "string",
-                "description": "The Identity backend driver.",
-            },
-        },
-        "additionalProperties": True,
-    }
-)
-
-DOMAIN_CONFIGS_SCHEMA = TypeSchema(
-    **{
-        "type": "object",
-        "properties": {
-            "config": {
-                "type": "object",
-                "description": "A config object.",
-                "properties": {
-                    "identity": DOMAIN_CONFIG_GROUP_IDENTITY,
-                    "ldap": DOMAIN_CONFIG_GROUP_LDAP,
-                },
-            }
-        },
-    }
-)
-DOMAIN_CONFIG_SCHEMA = TypeSchema(
-    **{
-        "oneOf": [
-            DOMAIN_CONFIG_GROUP_IDENTITY,
-            DOMAIN_CONFIG_GROUP_LDAP,
-        ]
-    }
-)
-
-USER_SCHEMA = TypeSchema(
-    **{
-        "type": "object",
-        "properties": {
-            "id": {"type": "string", "format": "uuid"},
-            **identity_schema._user_properties,
-        },
-    }
-)
-
-USERS_SCHEMA = TypeSchema(
-    **{
-        "type": "object",
-        "properties": {"projects": {"type": "array", "items": USER_SCHEMA}},
-    }
-)
-
-GROUP_SCHEMA = TypeSchema(
-    **{
-        "type": "object",
-        "properties": {
-            "id": {"type": "string", "format": "uuid"},
-            **identity_schema._group_properties,
-        },
-    }
-)
-
-GROUPS_SCHEMA = TypeSchema(
-    **{
-        "type": "object",
-        "properties": {"projects": {"type": "array", "items": GROUP_SCHEMA}},
-    }
-)
 
 
 class KeystoneGenerator(OpenStackServerSourceBase):
@@ -278,6 +96,14 @@ class KeystoneGenerator(OpenStackServerSourceBase):
                             "description": "A valid authentication token",
                             "schema": {"type": "string", "format": "secret"},
                         },
+                        "X-Subject-Token": {
+                            "description": "A valid authentication token",
+                            "schema": {"type": "string", "format": "secret"},
+                        },
+                        "Openstack-Auth-Receipt": {
+                            "description": "The auth receipt. A partially successful authentication response returns the auth receipt ID in this header rather than in the response body.",
+                            "schema": {"type": "string"},
+                        },
                     },
                     parameters={
                         "X-Auth-Token": {
@@ -285,6 +111,13 @@ class KeystoneGenerator(OpenStackServerSourceBase):
                             "name": "X-Auth-Token",
                             "description": "A valid authentication token",
                             "schema": {"type": "string", "format": "secret"},
+                        },
+                        "X-Subject-Token": {
+                            "in": "header",
+                            "name": "X-Subject-Token",
+                            "description": "The authentication token. An authentication response returns the token ID in this header rather than in the response body.",
+                            "schema": {"type": "string", "format": "secret"},
+                            "required": True,
                         },
                     },
                 ),
@@ -500,7 +333,7 @@ class KeystoneGenerator(OpenStackServerSourceBase):
                 + "Request"
             )
 
-            schema_ref = self._get_schema_ref(
+            (schema_ref, mime_type) = self._get_schema_ref(
                 openapi_spec,
                 schema_name,
                 description=f"Request of the {operation_spec.operationId} operation",
@@ -508,7 +341,6 @@ class KeystoneGenerator(OpenStackServerSourceBase):
 
             if schema_ref:
                 content = operation_spec.requestBody = {"content": {}}
-                mime_type = "application/json"
                 content["content"][mime_type] = {
                     "schema": {"$ref": schema_ref}
                 }
@@ -549,32 +381,17 @@ class KeystoneGenerator(OpenStackServerSourceBase):
                 + method.title()
                 + "Response"
             )
-            schema_ref = self._get_schema_ref(
+            (schema_ref, mime_type) = self._get_schema_ref(
                 openapi_spec,
                 schema_name,
                 description=f"Response of the {operation_spec.operationId} operation",
             )
 
             if schema_ref:
-                rsp["content"] = {
-                    "application/json": {"schema": {"$ref": schema_ref}}
-                }
+                rsp["content"] = {mime_type: {"schema": {"$ref": schema_ref}}}
 
         if path == "/v3/auth/tokens":
             rsp_headers = rsp.setdefault("headers", {})
-            openapi_spec.components.headers["X-Subject-Token"] = {
-                "description": "API Authorization token",
-                "schema": {"type": "string"},
-            }
-            openapi_spec.components.parameters[
-                "X-Subject-Token"
-            ] = ParameterSchema(
-                location="header",
-                name="X-Subject-Token",
-                description="The authentication token to be verified.",
-                type_schema={"type": "string"},
-                required=True,
-            )
             if method == "POST":
                 openapi_spec.components.headers["X-Subject-Token"] = {
                     "description": "API Authorization token",
@@ -587,9 +404,6 @@ class KeystoneGenerator(OpenStackServerSourceBase):
                 operation_spec.security = []
             elif method == "GET":
                 operation_spec.parameters.append(
-                    ParameterSchema(ref="#/components/parameters/X-Auth-Token")
-                )
-                operation_spec.parameters.append(
                     ParameterSchema(
                         ref="#/components/parameters/X-Subject-Token"
                     )
@@ -599,23 +413,36 @@ class KeystoneGenerator(OpenStackServerSourceBase):
                     {"$ref": "#/components/headers/X-Subject-Token"},
                 )
 
-    def _get_tags_for_url(self, url):
-        """Return Tag (group) name based on the URL"""
-        pass
+        self._post_process_operation_hook(openapi_spec, operation_spec)
 
-        # for part in route.rule.split("/"):
-        #    if not part:
-        #        continue
-        #    if part.startswith("<"):
-        #        param = part.strip("<>").split(":")
-        #        path_elements.append("{" + param[-1] + "}")
-        #    else:
-        #        if not tag_name and part != "" and part != "v3":
-        #            tag_name = part
-        #        path_elements.append(part)
+    def _post_process_operation_hook(self, openapi_spec, operation_spec):
+        """Hook to allow service specific generator to modify details"""
+        operationId = operation_spec.operationId
 
-        # if not tag_name:
-        #    tag_name = "versions"
+        if operationId == "auth/tokens:post":
+            (receipt_schema_ref, receipt_mime_type) = self._get_schema_ref(
+                openapi_spec, "AuthReceiptSchema"
+            )
+            operation_spec.responses["401"] = {
+                "description": "Unauthorized",
+                "headers": {
+                    "Openstack-Auth-Receipt": {
+                        "$ref": "#/components/headers/Openstack-Auth-Receipt"
+                    }
+                },
+                "content": {
+                    receipt_mime_type: {"schema": {"$ref": receipt_schema_ref}}
+                },
+            }
+
+        elif operationId == "projects:get":
+            for key, val in keystone_schemas.PROJECT_LIST_PARAMETERS.items():
+                openapi_spec.components.parameters.setdefault(
+                    key, ParameterSchema(**val)
+                )
+                ref = f"#/components/parameters/{key}"
+                if ref not in [x.ref for x in operation_spec.parameters]:
+                    operation_spec.parameters.append(ParameterSchema(ref=ref))
 
     def _get_schema_ref(
         self,
@@ -629,25 +456,35 @@ class KeystoneGenerator(OpenStackServerSourceBase):
         # Projects
         if name == "ProjectsPostRequest":
             openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**ks_schema.project_create)
+                name,
+                TypeSchema(**keystone_schemas.PROJECT_CREATE_REQUEST_SCHEMA),
             )
             ref = f"#/components/schemas/{name}"
         elif name == "ProjectsPostResponse":
-            openapi_spec.components.schemas.setdefault(name, PROJECT_SCHEMA)
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.PROJECT_CONTAINER_SCHEMA)
+            )
             ref = f"#/components/schemas/{name}"
         elif name == "ProjectPatchRequest":
             openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**ks_schema.project_update)
+                name,
+                TypeSchema(**keystone_schemas.PROJECT_UPDATE_REQUEST_SCHEMA),
             )
             ref = f"#/components/schemas/{name}"
         elif name == "ProjectPatchResponse":
-            openapi_spec.components.schemas.setdefault(name, PROJECT_SCHEMA)
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.PROJECT_CONTAINER_SCHEMA)
+            )
             ref = f"#/components/schemas/{name}"
         elif name == "ProjectsGetResponse":
-            openapi_spec.components.schemas.setdefault(name, PROJECTS_SCHEMA)
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.PROJECTS_SCHEMA)
+            )
             ref = f"#/components/schemas/{name}"
         elif name == "ProjectGetResponse":
-            openapi_spec.components.schemas.setdefault(name, PROJECT_SCHEMA)
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.PROJECT_CONTAINER_SCHEMA)
+            )
             ref = f"#/components/schemas/{name}"
 
         # Project Tags
@@ -662,24 +499,36 @@ class KeystoneGenerator(OpenStackServerSourceBase):
             )
             ref = f"#/components/schemas/{name}"
         elif name == "ProjectsTagsGetResponse":
-            openapi_spec.components.schemas.setdefault(name, TAGS_SCHEMA)
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.TAGS_SCHEMA)
+            )
             ref = f"#/components/schemas/{name}"
         elif name == "ProjectsTagsPutResponse":
-            openapi_spec.components.schemas.setdefault(name, TAGS_SCHEMA)
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.TAGS_SCHEMA)
+            )
             ref = f"#/components/schemas/{name}"
 
         # Project/Domain Roles
         elif name == "ProjectsUsersRolesGetResponse":
-            openapi_spec.components.schemas.setdefault(name, ROLES_SCHEMA)
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.ROLES_SCHEMA)
+            )
             ref = f"#/components/schemas/{name}"
         elif name == "ProjectsGroupsRolesGetResponse":
-            openapi_spec.components.schemas.setdefault(name, ROLES_SCHEMA)
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.ROLES_SCHEMA)
+            )
             ref = f"#/components/schemas/{name}"
         elif name == "DomainsUsersRolesGetResponse":
-            openapi_spec.components.schemas.setdefault(name, ROLES_SCHEMA)
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.ROLES_SCHEMA)
+            )
             ref = f"#/components/schemas/{name}"
         elif name == "DomainsGroupsRolesGetResponse":
-            openapi_spec.components.schemas.setdefault(name, ROLES_SCHEMA)
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.ROLES_SCHEMA)
+            )
             ref = f"#/components/schemas/{name}"
 
         # Domains
@@ -689,7 +538,9 @@ class KeystoneGenerator(OpenStackServerSourceBase):
             )
             ref = f"#/components/schemas/{name}"
         elif name == "DomainsPostResponse":
-            openapi_spec.components.schemas.setdefault(name, DOMAIN_SCHEMA)
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.DOMAIN_SCHEMA)
+            )
             ref = f"#/components/schemas/{name}"
         elif name == "DomainPatchRequest":
             openapi_spec.components.schemas.setdefault(
@@ -697,13 +548,19 @@ class KeystoneGenerator(OpenStackServerSourceBase):
             )
             ref = f"#/components/schemas/{name}"
         elif name == "DomainPatchResponse":
-            openapi_spec.components.schemas.setdefault(name, DOMAIN_SCHEMA)
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.DOMAIN_SCHEMA)
+            )
             ref = f"#/components/schemas/{name}"
         elif name == "DomainsGetResponse":
-            openapi_spec.components.schemas.setdefault(name, DOMAINS_SCHEMA)
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.DOMAINS_SCHEMA)
+            )
             ref = f"#/components/schemas/{name}"
         elif name == "DomainGetResponse":
-            openapi_spec.components.schemas.setdefault(name, DOMAIN_SCHEMA)
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.DOMAIN_SCHEMA)
+            )
             ref = f"#/components/schemas/{name}"
 
         # Users
@@ -718,13 +575,19 @@ class KeystoneGenerator(OpenStackServerSourceBase):
             )
             ref = f"#/components/schemas/{name}"
         elif name == "UserPatchResponse":
-            openapi_spec.components.schemas.setdefault(name, USER_SCHEMA)
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.USER_SCHEMA)
+            )
             ref = f"#/components/schemas/{name}"
         elif name == "UsersGetResponse":
-            openapi_spec.components.schemas.setdefault(name, USERS_SCHEMA)
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.USERS_SCHEMA)
+            )
             ref = f"#/components/schemas/{name}"
         elif name == "UserGetResponse":
-            openapi_spec.components.schemas.setdefault(name, USER_SCHEMA)
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.USER_SCHEMA)
+            )
             ref = f"#/components/schemas/{name}"
 
         # Groups
@@ -739,18 +602,26 @@ class KeystoneGenerator(OpenStackServerSourceBase):
             )
             ref = f"#/components/schemas/{name}"
         elif name == "GroupPatchResponse":
-            openapi_spec.components.schemas.setdefault(name, GROUP_SCHEMA)
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.GROUP_SCHEMA)
+            )
             ref = f"#/components/schemas/{name}"
         elif name == "GroupsGetResponse":
-            openapi_spec.components.schemas.setdefault(name, GROUPS_SCHEMA)
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.GROUPS_SCHEMA)
+            )
             ref = f"#/components/schemas/{name}"
         elif name == "GroupGetResponse":
-            openapi_spec.components.schemas.setdefault(name, GROUP_SCHEMA)
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.GROUP_SCHEMA)
+            )
             ref = f"#/components/schemas/{name}"
 
         # Roles
         elif name == "RolesGetResponse":
-            openapi_spec.components.schemas.setdefault(name, ROLES_SCHEMA)
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.ROLES_SCHEMA)
+            )
             ref = f"#/components/schemas/{name}"
         elif name == "RolesPostRequest":
             openapi_spec.components.schemas.setdefault(
@@ -758,10 +629,14 @@ class KeystoneGenerator(OpenStackServerSourceBase):
             )
             ref = f"#/components/schemas/{name}"
         elif name == "RolesPostResponse":
-            openapi_spec.components.schemas.setdefault(name, ROLE_SCHEMA)
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.ROLE_SCHEMA)
+            )
             ref = f"#/components/schemas/{name}"
         elif name == "RoleGetResponse":
-            openapi_spec.components.schemas.setdefault(name, ROLE_SCHEMA)
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.ROLE_SCHEMA)
+            )
             ref = f"#/components/schemas/{name}"
         elif name == "RolePatchRequest":
             openapi_spec.components.schemas.setdefault(
@@ -769,23 +644,25 @@ class KeystoneGenerator(OpenStackServerSourceBase):
             )
             ref = f"#/components/schemas/{name}"
         elif name == "RolePatchResponse":
-            openapi_spec.components.schemas.setdefault(name, ROLE_SCHEMA)
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.ROLE_SCHEMA)
+            )
             ref = f"#/components/schemas/{name}"
 
         # Role Implies
         elif name == "RolesImpliesGetResponse":
             openapi_spec.components.schemas.setdefault(
-                name, ROLES_INFERENCE_SCHEMA
+                name, TypeSchema(**keystone_schemas.ROLES_INFERENCE_SCHEMA)
             )
             ref = f"#/components/schemas/{name}"
         elif name == "RolesImplyGetResponse":
             openapi_spec.components.schemas.setdefault(
-                name, ROLE_INFERENCE_SCHEMA
+                name, TypeSchema(**keystone_schemas.ROLE_INFERENCE_SCHEMA)
             )
             ref = f"#/components/schemas/{name}"
         elif name == "RolesImplyPutResponse":
             openapi_spec.components.schemas.setdefault(
-                name, ROLE_INFERENCE_SCHEMA
+                name, TypeSchema(**keystone_schemas.ROLE_INFERENCE_SCHEMA)
             )
             ref = f"#/components/schemas/{name}"
 
@@ -799,7 +676,7 @@ class KeystoneGenerator(OpenStackServerSourceBase):
             "DomainsConfigDefaultGetResponse",
         ]:
             openapi_spec.components.schemas.setdefault(
-                name, DOMAIN_CONFIGS_SCHEMA
+                name, TypeSchema(**keystone_schemas.DOMAIN_CONFIGS_SCHEMA)
             )
             ref = f"#/components/schemas/{name}"
         elif name in [
@@ -811,12 +688,131 @@ class KeystoneGenerator(OpenStackServerSourceBase):
             "DomainsConfigDefaultGroupGetResponse",
         ]:
             openapi_spec.components.schemas.setdefault(
-                name, DOMAIN_CONFIG_SCHEMA
+                name, TypeSchema(**keystone_schemas.DOMAIN_CONFIG_SCHEMA)
             )
             ref = f"#/components/schemas/{name}"
+
+        # Auth
         elif name == "AuthTokensPostRequest":
             openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**auth_schema.token_issue)
+                name, TypeSchema(**keystone_schemas.AUTH_TOKEN_ISSUE_SCHEMA)
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name in ["AuthTokensGetResponse", "AuthTokensPostResponse"]:
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.AUTH_SCOPED_TOKEN_SCHEMA)
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name == "AuthReceiptSchema":
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.AUTH_RECEIPT_SCHEMA)
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name in [
+            "AuthProjectsGetResponse",
+            "Os_FederationProjectsGetResponse",
+        ]:
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.AUTH_PROJECTS_SCHEMA)
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name in [
+            "AuthDomainsGetResponse",
+            "Os_FederationDomainsGetResponse",
+        ]:
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.AUTH_DOMAINS_SCHEMA)
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name == "AuthSystemGetResponse":
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.AUTH_SYSTEMS_SCHEMA)
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name == "AuthCatalogGetResponse":
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.AUTH_CATALOG_SCHEMA)
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name in [
+            "AuthOs_FederationSaml2PostRequest",
+            "AuthOs_FederationSaml2EcpPostRequest",
+        ]:
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.AUTH_TOKEN_ISSUE_SCHEMA)
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name in [
+            "AuthOs_FederationSaml2PostResponse",
+            "AuthOs_FederationSaml2EcpPostResponse",
+        ]:
+            mime_type = "text/xml"
+            openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(
+                    type="string",
+                    format="xml",
+                    descripion="SAML assertion in XML format",
+                ),
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name in [
+            "AuthOs_FederationWebssoGetResponse",
+            "AuthOs_FederationWebssoPostResponse",
+            "AuthOs_FederationIdentity_ProvidersProtocolsWebssoGetResponse",
+            "AuthOs_FederationIdentity_ProvidersProtocolsWebssoPostResponse",
+            "Os_FederationIdentity_ProvidersProtocolsAuthGetResponse",
+            "Os_FederationIdentity_ProvidersProtocolsAuthPostResponse",
+        ]:
+            # Federation based auth returns unscoped token even it is not
+            # described explicitly in apiref
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.AUTH_TOKEN_SCHEMA)
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name in [
+            "AuthOs_FederationWebssoPostRequest",
+            "AuthOs_FederationIdentity_ProvidersProtocolsWebssoPostRequest",
+        ]:
+            ref = None
+        # ### Application Credentials
+        elif name == "UsersAccess_RuleGetResponse":
+            openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(
+                    **keystone_schemas.APPLICATION_CREDENTIAL_ACCESS_RULES_SCHEMA
+                ),
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name == "UsersAccess_RulesGetResponse":
+            openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(
+                    **keystone_schemas.APPLICATION_CREDENTIAL_ACCESS_RULE_SCHEMA
+                ),
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name == "UsersApplication_CredentialGetResponse":
+            openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(**keystone_schemas.APPLICATION_CREDENTIAL_SCHEMA),
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name in [
+            "UsersApplication_CredentialsGetResponse",
+            "UsersApplication_CredentialsPostResponse",
+        ]:
+            openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(**keystone_schemas.APPLICATION_CREDENTIALS_SCHEMA),
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name == "UsersApplication_CredentialsPostRequest":
+            openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(
+                    **application_credential_schema.application_credential_create
+                ),
             )
             ref = f"#/components/schemas/{name}"
         else:

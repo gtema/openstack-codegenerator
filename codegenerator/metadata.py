@@ -103,10 +103,18 @@ class MetadataGenerator(BaseGenerator):
                     if path.endswith("}"):
                         if method == "get":
                             operation_key = "show"
+                        elif method == "head":
+                            operation_key = "check"
                         elif method == "put":
                             operation_key = "update"
                         elif method == "patch":
-                            operation_key = "patch"
+                            if (
+                                "application/json"
+                                in operation.requestBody.get("content", {})
+                            ):
+                                operation_key = "update"
+                            else:
+                                operation_key = "patch"
                         elif method == "post":
                             operation_key = "create"
                         elif method == "delete":
@@ -170,12 +178,24 @@ class MetadataGenerator(BaseGenerator):
                         # level
                         if method == "get":
                             operation_key = "list"
+                        elif method == "head":
+                            operation_key = "check"
+                        elif method == "patch":
+                            if (
+                                "application/json"
+                                in operation.requestBody.get("content", {})
+                            ):
+                                operation_key = "update"
+                            else:
+                                operation_key = "patch"
                         elif method == "post":
                             operation_key = "create"
                         elif method == "put":
                             operation_key = "replace"
                         elif method == "delete":
                             operation_key = "delete_all"
+                    elif method == "head":
+                        operation_key = "check"
                     elif method == "get":
                         operation_key = "get"
                     elif method == "post":
@@ -183,7 +203,12 @@ class MetadataGenerator(BaseGenerator):
                     elif method == "put":
                         operation_key = path.split("/")[-1]
                     elif method == "patch":
-                        operation_key = "patch"
+                        if "application/json" in operation.requestBody.get(
+                            "content", {}
+                        ):
+                            operation_key = "update"
+                        else:
+                            operation_key = "patch"
                     elif method == "delete":
                         operation_key = "delete"
                     if not operation_key:
@@ -321,7 +346,10 @@ class MetadataGenerator(BaseGenerator):
                                 rust_cli_params.operation_type = "json"
 
                             op_model.targets["rust-sdk"] = rust_sdk_params
-                            if rust_cli_params:
+                            if rust_cli_params and not (
+                                args.service_type == "identity"
+                                and operation_key == "check"
+                            ):
                                 op_model.targets["rust-cli"] = rust_cli_params
                             resource_model.operations[operation_key] = op_model
                     pass
@@ -439,6 +467,8 @@ def get_operation_type_by_key(operation_key):
         return "list"
     elif operation_key == "get":
         return "get"
+    elif operation_key == "check":
+        return "get"
     elif operation_key == "show":
         return "show"
     elif operation_key in ["update", "replace"]:
@@ -509,6 +539,8 @@ def get_module_name(name):
         return "get"
     elif name == "show":
         return "show"
+    elif name == "check":
+        return "head"
     elif name == "update":
         return "set"
     elif name == "replace":
