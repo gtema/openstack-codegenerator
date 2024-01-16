@@ -10,7 +10,7 @@ use serde::Serialize;
 use {{ mod }};
 {%- endfor %}
 
-{% if method|lower == "patch" %}
+{% if is_json_patch %}
 use json_patch::Patch;
 {%- endif %}
 
@@ -185,7 +185,7 @@ impl{{ type_manager.get_request_static_lifetimes(request) }} RestEndpoint for Re
 
         params.into_body()
     }
-{% elif method|lower == "patch" %}
+{% elif is_json_patch %}
     fn body(&self) -> Result<Option<(&'static str, Vec<u8>)>, BodyError> {
         Ok(Some((
             "{{ mime_type }}",
@@ -233,7 +233,7 @@ mod tests {
     use serde::Deserialize;
     use serde::Serialize;
     use serde_json::json;
-    {%- if method == "patch" %}
+    {%- if is_json_patch %}
     use serde_json::from_value;
     use json_patch::Patch;
     {%- endif %}
@@ -241,7 +241,7 @@ mod tests {
     #[test]
     fn test_service_type() {
         assert_eq!(Request::builder()
-            {{ ".patch(from_value::<Patch>(json!([])).unwrap())" if method == "patch" else "" }}
+            {{ ".patch(from_value::<Patch>(json!([])).unwrap())" if is_json_patch else "" }}
             {{ request.get_mandatory_init() }}
             .build().unwrap().service_type(), ServiceType::{{ sdk_service_name }});
     }
@@ -251,14 +251,14 @@ mod tests {
 {%- if response_key %}
         assert_eq!(
             Request::builder()
-                {{ ".patch(from_value::<Patch>(json!([])).unwrap())" if method == "patch" else "" }}
+                {{ ".patch(from_value::<Patch>(json!([])).unwrap())" if is_json_patch else "" }}
                 {{ request.get_mandatory_init() }}
                 .build().unwrap().response_key().unwrap(),
             "{{ response_key }}"
         );
 {%- else %}
         assert!(Request::builder()
-            {{ ".patch(from_value::<Patch>(json!([])).unwrap())" if method == "patch" else "" }}
+            {{ ".patch(from_value::<Patch>(json!([])).unwrap())" if is_json_patch else "" }}
             {{ request.get_mandatory_init() }}
             .build().unwrap().response_key().is_none())
 {%- endif %}
@@ -291,7 +291,7 @@ mod tests {
             .{{ v.local_name }}("{{ k }}")
             {%- endif %}
             {%- endfor %}
-            {{ ".patch(from_value::<Patch>(json!([])).unwrap())" if method == "patch" else "" }}
+            {{ ".patch(from_value::<Patch>(json!([])).unwrap())" if is_json_patch else "" }}
             {{ request.get_mandatory_init() }}
             .build().unwrap();
 {%- if method.upper() != "HEAD" %}
@@ -330,7 +330,7 @@ mod tests {
             .{{ v.local_name }}("{{ k }}")
             {%- endif %}
             {%- endfor %}
-            {{ ".patch(from_value::<Patch>(json!([])).unwrap())" if method == "patch" else "" }}
+            {{ ".patch(from_value::<Patch>(json!([])).unwrap())" if is_json_patch else "" }}
             {{ request.get_mandatory_init() }}
             .headers(
                 [(

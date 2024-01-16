@@ -148,6 +148,16 @@ class StructInput(common_rust.Struct):
     is_group: bool = False
     is_required: bool = False
 
+    @property
+    def imports(self):
+        imports: set[str] = set(["serde::Deserialize"])
+        for field in self.fields.values():
+            imports.update(field.data_type.imports)
+        if self.additional_fields_type:
+            imports.add("crate::common::parse_key_val")
+            imports.update(self.additional_fields_type.imports)
+        return imports
+
 
 class EnumGroupStructInputField(StructInputField):
     """Container for complex Enum field"""

@@ -292,6 +292,7 @@ class RustSdkGenerator(BaseGenerator):
         openapi_parser = model.OpenAPISchemaParser()
         operation_params: list[model.RequestParameter] = []
         type_manager: TypeManager | None = None
+        is_json_patch: bool = False
         # Collect all operation parameters
         for param in openapi_spec["paths"][path].get(
             "parameters", []
@@ -358,6 +359,8 @@ class RustSdkGenerator(BaseGenerator):
                     raise RuntimeError(
                         "No supported mime types for patch operation found"
                     )
+                if mime_type != "application/json":
+                    is_json_patch = True
 
             mod_path = common.get_rust_sdk_mod_path(
                 args.service_type,
@@ -410,6 +413,7 @@ class RustSdkGenerator(BaseGenerator):
                 response_key=args.response_key or response_key,
                 response_list_item_key=args.response_list_item_key,
                 mime_type=mime_type,
+                is_json_patch=is_json_patch,
             )
 
             work_dir = Path(target_dir, "rust", "openstack_sdk", "src")

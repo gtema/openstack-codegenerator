@@ -923,7 +923,9 @@ def get_operation_variants(spec: dict, operation_name: str):
                     logging.debug("Microversion discriminator for bodies")
                     for variant in json_body_schema["oneOf"]:
                         variant_spec = variant.get("x-openstack", {})
-                        operation_variants.append({"body": variant})
+                        operation_variants.append(
+                            {"body": variant, "mime_type": mime_type}
+                        )
                     # operation_variants.extend([{"body": x} for x in json_body_schema(["oneOf"])])
                 elif discriminator == "action":
                     # We are in the action. Need to find matching body
@@ -949,6 +951,7 @@ def get_operation_variants(spec: dict, operation_name: str):
                                             "min-ver": subvariant_spec.get(
                                                 "min-ver"
                                             ),
+                                            "mime_type": mime_type,
                                         }
                                     )
                             else:
@@ -960,6 +963,7 @@ def get_operation_variants(spec: dict, operation_name: str):
                                         "body": variant,
                                         "mode": "action",
                                         "min-ver": variant_spec.get("min-ver"),
+                                        "mime_type": mime_type,
                                     }
                                 )
                             break
@@ -969,7 +973,9 @@ def get_operation_variants(spec: dict, operation_name: str):
                             % operation_name
                         )
             else:
-                operation_variants.append({"body": json_body_schema})
+                operation_variants.append(
+                    {"body": json_body_schema, "mime_type": mime_type}
+                )
         elif "application/octet-stream" in content:
             mime_type = "application/octet-stream"
             operation_variants.append({"mime_type": mime_type})

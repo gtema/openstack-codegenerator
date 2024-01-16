@@ -251,6 +251,8 @@ def get_rust_service_type_from_str(xtype: str):
             return "BlockStorage"
         case "compute":
             return "Compute"
+        case "identity":
+            return "Identity"
         case "image":
             return "Image"
         case "network":

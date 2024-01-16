@@ -162,7 +162,7 @@ impl Command for {{ target_class_name }}Cmd {
       {%- elif operation_type == "create" %}
         {% include 'rust_cli/invoke_create.j2' %}
 
-      {%- elif operation_type == "set" and method == "patch" %}
+      {%- elif operation_type == "set" and method == "patch" and is_json_patch %}
 {#- Patch implementation #}
         {% include 'rust_cli/invoke_patch.j2' %}
       {%- else %}
