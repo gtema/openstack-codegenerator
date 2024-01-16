@@ -1,20 +1,19 @@
 #!/usr/bin/env bash
 #
-DATA=(
-# Block Storage
-#
-# sdk
-# image
-"--openapi-yaml-spec openapi_specs/block_storage/v3/volume.spec.yaml --openapi-operation-id volumes.get --target rust-sdk --service-type block_storage --api-version v3 --command-type list"
-"--openapi-yaml-spec openapi_specs/block_storage/v3/volume.spec.yaml --openapi-operation-id volumes.get_detail --target rust-sdk --service-type block_storage --api-version v3 --command-type list"
-"--openapi-yaml-spec openapi_specs/block_storage/v3/volume.spec.yaml --openapi-operation-id volume.get --target rust-sdk --service-type block_storage --api-version v3 --command-type show"
-# cli
-# image
-"--openapi-yaml-spec openapi_specs/block_storage/v3/volume.spec.yaml --openapi-operation-id volumes.get_detail --target rust-cli --service-type block_storage --api-version v3 --command-type list --alternative-target-name volume --sdk-mod-path volumes::detail::get"
-"--openapi-yaml-spec openapi_specs/block_storage/v3/volume.spec.yaml --openapi-operation-id volume.get --target rust-cli --service-type block_storage --api-version v3 --command-type show"
+
+WRK_DIR=wrk
+METADATA=metadata
+DST=~/workspace/github/gtema/openstack
+NET_RESOURCES=(
+  "volume"
 )
 
-for item in "${DATA[@]}"; do
-  python codegenerator/cli.py $item --work-dir wrk
-done;
+openstack-codegenerator --work-dir ${WRK_DIR} --target rust-sdk --metadata ${METADATA}/block-storage_metadata.yaml --service block-storage
+openstack-codegenerator --work-dir ${WRK_DIR} --target rust-cli --metadata ${METADATA}/block-storage_metadata.yaml --service block-storage
 
+
+for resource in "${NET_RESOURCES[@]}"; do
+  cp -av "${WRK_DIR}/rust/openstack_sdk/src/api/block_storage/v3/${resource}" ${DST}/openstack_sdk/src/api/block_storage/v3
+  cp -av "${WRK_DIR}/rust/openstack_sdk/src/api/block_storage/v3/${resource}.rs" ${DST}/openstack_sdk/src/api/block_storage/v3
+  cp -av "${WRK_DIR}/rust/openstack_cli/src/block_storage/v3/${resource}" ${DST}/openstack_cli/src/block_storage/v3
+done;

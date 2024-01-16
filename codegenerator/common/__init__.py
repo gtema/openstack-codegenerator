@@ -212,8 +212,7 @@ def get_resource_names_from_url(path: str):
     if path.startswith("/v2/schemas/"):
         # Image schemas should not be singularized (schema/images,
         # schema/image)
-        if path.endswith("s") and not path_resource_names[-1].endswith("s"):
-            path_resource_names[-1] += "s"
+        path_resource_names[-1] = path_elements[-1]
     if path.startswith("/v2/images") and path.endswith("/actions/deactivate"):
         path_resource_names = ["image"]
     if path.startswith("/v2/images") and path.endswith("/actions/reactivate"):

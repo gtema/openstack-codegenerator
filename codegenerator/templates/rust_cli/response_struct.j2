@@ -65,12 +65,12 @@ impl fmt::Display for {{ subtype.name }} {
             format!("{{v.local_name}}={}", self.{{ v.local_name }}{{ ".clone().map(|v| v.to_string()).unwrap_or(\"\".to_string())" if v.type_hint.startswith("Option") }}),
          {%- endfor %}
         ]);
-        return write!(
+        write!(
             f,
             "{}",
             data
             .join(";")
-        );
+        )
     }
 }
 {%- elif subtype.base_type == "vec" %}
@@ -78,7 +78,7 @@ impl fmt::Display for {{ subtype.name }} {
 pub struct Vec{{ subtype.item_type.type_hint}}(Vec<{{subtype.item_type.type_hint}}>);
 impl fmt::Display for Vec{{ subtype.item_type.type_hint }} {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        return write!(
+        write!(
             f,
             "[{}]",
             self.0
@@ -86,7 +86,7 @@ impl fmt::Display for Vec{{ subtype.item_type.type_hint }} {
                 .map(|v| v.to_string() )
                 .collect::<Vec<String>>()
                 .join(",")
-        );
+        )
     }
 }
 {%- elif subtype.base_type == "dict"  %}

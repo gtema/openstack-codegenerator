@@ -123,6 +123,10 @@ VOLUME_SCHEMA: dict[str, Any] = {
             "type": "boolean",
             "description": "If true, this volume can attach to more than one instance.",
         },
+        "status": {
+            "type": "string",
+            "description": "The volume status.",
+        },
         "migration_status": {
             "type": "string",
             "description": "The volume migration status. Admin only.",
@@ -323,7 +327,7 @@ VOLUME_PARAMETERS = {
             "type": "string",
             "format": "date-time",
         },
-        "description": "Filters reuslts by a time that resources are updated at with time comaprison operators: gt/gte/eq/neq/lt/lte.",
+        "description": "Filters reuslts by a time that resources are updated at with time comparison operators: gt/gte/eq/neq/lt/lte.",
         "x-openstack": {"min-ver": "3.60"},
     },
     "consumes_quota": {
