@@ -245,6 +245,8 @@ class JsonSchemaParser:
             )
         elif schema == {}:
             return PrimitiveNull()
+        elif not type_ and "format" in schema:
+            return ConstraintString(**schema)
         raise RuntimeError("Cannot determine type for %s", schema)
 
     def parse_object(

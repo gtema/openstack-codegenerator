@@ -150,6 +150,12 @@ class MetadataGenerator(BaseGenerator):
                     ):
                         operation_key = "reactivate"
                     elif (
+                        args.service_type == "block-storage"
+                        and "volume-transfers" in path
+                        and path.endswith("}/accept")
+                    ):
+                        operation_key = "accept"
+                    elif (
                         len(
                             [
                                 x

@@ -31,7 +31,7 @@ class Boolean(BasePrimitiveType):
     original_data_type: BaseCompoundType | BaseCompoundType | None = None
 
     def get_sample(self):
-        return "False"
+        return "false"
 
 
 class Number(BasePrimitiveType):
@@ -70,12 +70,14 @@ class Integer(BasePrimitiveType):
 
 
 class Null(BasePrimitiveType):
-    type_hint: str = "Option<String>"
+    type_hint: str = "Value"
+    imports: set[str] = set(["serde_json::Value"])
+    builder_macros: set[str] = set(['default = "Value::Null"'])
     clap_macros: set[str] = set()
     original_data_type: BaseCompoundType | BaseCompoundType | None = None
 
     def get_sample(self):
-        return "None::<String>"
+        return "Value::Null"
 
 
 class String(BasePrimitiveType):
@@ -90,6 +92,9 @@ class JsonValue(BasePrimitiveType):
     type_hint: str = "Value"
     imports: set[str] = set(["serde_json::Value"])
     builder_macros: set[str] = set(["setter(into)"])
+
+    def get_sample(self):
+        return "json!({})"
 
 
 class Option(BaseCombinedType):
@@ -435,12 +440,8 @@ class TypeManager:
         attr_name = "_".join(
             x.lower() for x in re.split(common.SPLIT_NAME_RE, name)
         )
-        if attr_name == "type":
-            attr_name = "_type"
-        elif attr_name == "self":
-            attr_name = "_self"
-        elif attr_name == "enum":
-            attr_name = "_self"
+        if attr_name in ["type", "self", "enum", "ref"]:
+            attr_name = f"_{attr_name}"
         return attr_name
 
     def get_remote_attribute_name(self, name: str) -> str:

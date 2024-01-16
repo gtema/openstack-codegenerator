@@ -128,7 +128,9 @@ Some({{ val }})
 {#- Macros to render setting Request data from CLI input #}
 {%- macro set_request_data_from_input(dst_var, param, val_var) %}
 {%- set is_nullable = param.is_nullable if param.is_nullable is defined else False %}
-{%- if param.type_hint in ["Option<i32>", "Option<i64>", "Option<f32>", "Option<f64>", "Option<bool>"] %}
+{%- if param.type_hint in ["Option<Option<bool>>"] %}
+    {{ dst_var }}.{{ param.remote_name }}({{ "*" + val_var }});
+{%- elif param.type_hint in ["Option<i32>", "Option<i64>", "Option<f32>", "Option<f64>", "Option<bool>"] %}
     {{ dst_var }}.{{ param.remote_name }}({{ "*" + val_var }});
 {%- elif param.type_hint in ["i32", "i64", "f32", "f64", "bool"] %}
     {{ dst_var }}.{{ param.remote_name }}({{ val_var | replace("&", "" )}});

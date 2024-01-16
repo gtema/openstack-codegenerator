@@ -1,0 +1,2098 @@
+resources:
+  block-storage.version:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      get:
+        operation_id: :get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+  block-storage.volume:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      list_detailed:
+        operation_id: volumes/detail:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list_detailed
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list_detailed
+            find_implemented_by_sdk: true
+      list:
+        operation_id: volumes:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+      create:
+        operation_id: volumes:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      revert:
+        operation_id: volumes/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: revert
+            operation_name: revert
+          rust-cli:
+            module_name: revert
+            sdk_mod_name: revert
+            operation_name: revert
+            find_implemented_by_sdk: true
+      os-reset-status:
+        operation_id: volumes/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_reset_status
+            operation_name: os-reset_status
+          rust-cli:
+            module_name: os_reset_status
+            sdk_mod_name: os_reset_status
+            operation_name: os-reset_status
+            find_implemented_by_sdk: true
+      os-force-delete:
+        operation_id: volumes/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_force_delete
+            operation_name: os-force_delete
+          rust-cli:
+            module_name: os_force_delete
+            sdk_mod_name: os_force_delete
+            operation_name: os-force_delete
+            find_implemented_by_sdk: true
+      os-force-detach:
+        operation_id: volumes/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_force_detach
+            operation_name: os-force_detach
+          rust-cli:
+            module_name: os_force_detach
+            sdk_mod_name: os_force_detach
+            operation_name: os-force_detach
+            find_implemented_by_sdk: true
+      os-migrate-volume:
+        operation_id: volumes/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_migrate_volume
+            operation_name: os-migrate_volume
+          rust-cli:
+            module_name: os_migrate_volume
+            sdk_mod_name: os_migrate_volume
+            operation_name: os-migrate_volume
+            find_implemented_by_sdk: true
+      os-migrate-volume-completion:
+        operation_id: volumes/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_migrate_volume_completion
+            operation_name: os-migrate_volume_completion
+          rust-cli:
+            module_name: os_migrate_volume_completion
+            sdk_mod_name: os_migrate_volume_completion
+            operation_name: os-migrate_volume_completion
+            find_implemented_by_sdk: true
+      os-attach:
+        operation_id: volumes/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_attach
+            operation_name: os-attach
+          rust-cli:
+            module_name: os_attach
+            sdk_mod_name: os_attach
+            operation_name: os-attach
+            find_implemented_by_sdk: true
+      os-detach:
+        operation_id: volumes/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_detach
+            operation_name: os-detach
+          rust-cli:
+            module_name: os_detach
+            sdk_mod_name: os_detach
+            operation_name: os-detach
+            find_implemented_by_sdk: true
+      os-reserve:
+        operation_id: volumes/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_reserve
+            operation_name: os-reserve
+          rust-cli:
+            module_name: os_reserve
+            sdk_mod_name: os_reserve
+            operation_name: os-reserve
+            find_implemented_by_sdk: true
+      os-unreserve:
+        operation_id: volumes/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_unreserve
+            operation_name: os-unreserve
+          rust-cli:
+            module_name: os_unreserve
+            sdk_mod_name: os_unreserve
+            operation_name: os-unreserve
+            find_implemented_by_sdk: true
+      os-begin-detaching:
+        operation_id: volumes/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_begin_detaching
+            operation_name: os-begin_detaching
+          rust-cli:
+            module_name: os_begin_detaching
+            sdk_mod_name: os_begin_detaching
+            operation_name: os-begin_detaching
+            find_implemented_by_sdk: true
+      os-roll-detaching:
+        operation_id: volumes/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_roll_detaching
+            operation_name: os-roll_detaching
+          rust-cli:
+            module_name: os_roll_detaching
+            sdk_mod_name: os_roll_detaching
+            operation_name: os-roll_detaching
+            find_implemented_by_sdk: true
+      os-initialize-connection:
+        operation_id: volumes/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_initialize_connection
+            operation_name: os-initialize_connection
+          rust-cli:
+            module_name: os_initialize_connection
+            sdk_mod_name: os_initialize_connection
+            operation_name: os-initialize_connection
+            find_implemented_by_sdk: true
+      os-terminate-connection:
+        operation_id: volumes/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_terminate_connection
+            operation_name: os-terminate_connection
+          rust-cli:
+            module_name: os_terminate_connection
+            sdk_mod_name: os_terminate_connection
+            operation_name: os-terminate_connection
+            find_implemented_by_sdk: true
+      os-volume-upload-image:
+        operation_id: volumes/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_volume_upload_image
+            operation_name: os-volume_upload_image
+          rust-cli:
+            module_name: os_volume_upload_image
+            sdk_mod_name: os_volume_upload_image
+            operation_name: os-volume_upload_image
+            find_implemented_by_sdk: true
+      os-extend:
+        operation_id: volumes/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_extend
+            operation_name: os-extend
+          rust-cli:
+            module_name: os_extend
+            sdk_mod_name: os_extend
+            operation_name: os-extend
+            find_implemented_by_sdk: true
+      os-update-readonly-flag:
+        operation_id: volumes/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_update_readonly_flag
+            operation_name: os-update_readonly_flag
+          rust-cli:
+            module_name: os_update_readonly_flag
+            sdk_mod_name: os_update_readonly_flag
+            operation_name: os-update_readonly_flag
+            find_implemented_by_sdk: true
+      os-retype:
+        operation_id: volumes/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_retype
+            operation_name: os-retype
+          rust-cli:
+            module_name: os_retype
+            sdk_mod_name: os_retype
+            operation_name: os-retype
+            find_implemented_by_sdk: true
+      os-set-bootable:
+        operation_id: volumes/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_set_bootable
+            operation_name: os-set_bootable
+          rust-cli:
+            module_name: os_set_bootable
+            sdk_mod_name: os_set_bootable
+            operation_name: os-set_bootable
+            find_implemented_by_sdk: true
+      os-reimage:
+        operation_id: volumes/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_reimage
+            operation_name: os-reimage
+          rust-cli:
+            module_name: os_reimage
+            sdk_mod_name: os_reimage
+            operation_name: os-reimage
+            find_implemented_by_sdk: true
+      os-set-image-metadata:
+        operation_id: volumes/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_set_image_metadata
+            operation_name: os-set_image_metadata
+          rust-cli:
+            module_name: os_set_image_metadata
+            sdk_mod_name: os_set_image_metadata
+            operation_name: os-set_image_metadata
+            find_implemented_by_sdk: true
+      os-show-image-metadata:
+        operation_id: volumes/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_show_image_metadata
+            operation_name: os-show_image_metadata
+          rust-cli:
+            module_name: os_show_image_metadata
+            sdk_mod_name: os_show_image_metadata
+            operation_name: os-show_image_metadata
+            find_implemented_by_sdk: true
+      os-unset-image-metadata:
+        operation_id: volumes/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_unset_image_metadata
+            operation_name: os-unset_image_metadata
+          rust-cli:
+            module_name: os_unset_image_metadata
+            sdk_mod_name: os_unset_image_metadata
+            operation_name: os-unset_image_metadata
+            find_implemented_by_sdk: true
+      os-unmanage:
+        operation_id: volumes/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_unmanage
+            operation_name: os-unmanage
+          rust-cli:
+            module_name: os_unmanage
+            sdk_mod_name: os_unmanage
+            operation_name: os-unmanage
+            find_implemented_by_sdk: true
+      show:
+        operation_id: volumes/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            find_implemented_by_sdk: true
+      update:
+        operation_id: volumes/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            find_implemented_by_sdk: true
+      delete:
+        operation_id: volumes/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: fake
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: block_storage::v3::volume
+            name_field: name
+            name_filter_supported: false
+            list_mod: list_detailed
+  block-storage.volume/summary:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      get:
+        operation_id: volumes/summary:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+  block-storage.message:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      list:
+        operation_id: messages:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      show:
+        operation_id: messages/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      delete:
+        operation_id: messages/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  block-storage.cluster:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      list_detailed:
+        operation_id: clusters/detail:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list_detailed
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list_detailed
+      list:
+        operation_id: clusters:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+      show:
+        operation_id: clusters/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: clusters/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+  block-storage.type:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      list:
+        operation_id: types:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: types/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: create
+            operation_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+            operation_name: create
+      update:
+        operation_id: types/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: types/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+      add-project-access:
+        operation_id: types/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: add_project_access
+            operation_name: addProjectAccess
+          rust-cli:
+            module_name: add_project_access
+            sdk_mod_name: add_project_access
+            operation_name: addProjectAccess
+      remove-project-access:
+        operation_id: types/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: remove_project_access
+            operation_name: removeProjectAccess
+          rust-cli:
+            module_name: remove_project_access
+            sdk_mod_name: remove_project_access
+            operation_name: removeProjectAccess
+      show:
+        operation_id: types/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+  block-storage.group_type:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      list:
+        operation_id: group_types:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: group_types:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: group_types/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: group_types/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: group_types/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  block-storage.group_type/group_spec:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      list:
+        operation_id: group_types/group_type_id/group_specs:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: group_types/group_type_id/group_specs:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: group_types/group_type_id/group_specs/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: group_types/group_type_id/group_specs/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: group_types/group_type_id/group_specs/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  block-storage.group:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      list_detailed:
+        operation_id: groups/detail:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list_detailed
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list_detailed
+      list:
+        operation_id: groups:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+      create:
+        operation_id: groups:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      reset-status:
+        operation_id: groups/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: reset_status
+            operation_name: reset_status
+          rust-cli:
+            module_name: reset_status
+            sdk_mod_name: reset_status
+            operation_name: reset_status
+      delete:
+        operation_id: groups/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: delete
+            operation_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            operation_name: delete
+      create-from-src:
+        operation_id: groups/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: create_from_src
+            operation_name: create-from-src
+          rust-cli:
+            module_name: create_from_src
+            sdk_mod_name: create_from_src
+            operation_name: create-from-src
+      enable-replication:
+        operation_id: groups/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: enable_replication
+            operation_name: enable_replication
+          rust-cli:
+            module_name: enable_replication
+            sdk_mod_name: enable_replication
+            operation_name: enable_replication
+      disable-replication:
+        operation_id: groups/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: disable_replication
+            operation_name: disable_replication
+          rust-cli:
+            module_name: disable_replication
+            sdk_mod_name: disable_replication
+            operation_name: disable_replication
+      failover-replication:
+        operation_id: groups/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: failover_replication
+            operation_name: failover_replication
+          rust-cli:
+            module_name: failover_replication
+            sdk_mod_name: failover_replication
+            operation_name: failover_replication
+      list-replication-targets:
+        operation_id: groups/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: list_replication_targets
+            operation_name: list_replication_targets
+          rust-cli:
+            module_name: list_replication_targets
+            sdk_mod_name: list_replication_targets
+            operation_name: list_replication_targets
+      show:
+        operation_id: groups/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: groups/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+  block-storage.group_snapshot:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      list_detailed:
+        operation_id: group_snapshots/detail:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list_detailed
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list_detailed
+      list:
+        operation_id: group_snapshots:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+      create:
+        operation_id: group_snapshots:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      reset-status:
+        operation_id: group_snapshots/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: reset_status
+            operation_name: reset_status
+          rust-cli:
+            module_name: reset_status
+            sdk_mod_name: reset_status
+            operation_name: reset_status
+      show:
+        operation_id: group_snapshots/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      delete:
+        operation_id: group_snapshots/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  block-storage.snapshot:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      list_detailed:
+        operation_id: snapshots/detail:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list_detailed
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list_detailed
+      list:
+        operation_id: snapshots:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+      create:
+        operation_id: snapshots:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      os-reset-status:
+        operation_id: snapshots/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_reset_status
+            operation_name: os-reset_status
+          rust-cli:
+            module_name: os_reset_status
+            sdk_mod_name: os_reset_status
+            operation_name: os-reset_status
+      os-force-delete:
+        operation_id: snapshots/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_force_delete
+            operation_name: os-force_delete
+          rust-cli:
+            module_name: os_force_delete
+            sdk_mod_name: os_force_delete
+            operation_name: os-force_delete
+      os-update-snapshot-status:
+        operation_id: snapshots/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_update_snapshot_status
+            operation_name: os-update_snapshot_status
+          rust-cli:
+            module_name: os_update_snapshot_status
+            sdk_mod_name: os_update_snapshot_status
+            operation_name: os-update_snapshot_status
+      os-unmanage:
+        operation_id: snapshots/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_unmanage
+            operation_name: os-unmanage
+          rust-cli:
+            module_name: os_unmanage
+            sdk_mod_name: os_unmanage
+            operation_name: os-unmanage
+      show:
+        operation_id: snapshots/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: snapshots/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: snapshots/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  block-storage.limit:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      get:
+        operation_id: limits:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+  block-storage.snapshot/metadata:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      list:
+        operation_id: snapshots/snapshot_id/metadata:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      replace:
+        operation_id: snapshots/snapshot_id/metadata:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: replace
+          rust-cli:
+            module_name: replace
+            sdk_mod_name: replace
+      create:
+        operation_id: snapshots/snapshot_id/metadata:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: snapshots/snapshot_id/metadata/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: snapshots/snapshot_id/metadata/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: snapshots/snapshot_id/metadata/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  block-storage.volume/metadata:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      list:
+        operation_id: volumes/volume_id/metadata:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      replace:
+        operation_id: volumes/volume_id/metadata:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: replace
+          rust-cli:
+            module_name: replace
+            sdk_mod_name: replace
+      create:
+        operation_id: volumes/volume_id/metadata:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: volumes/volume_id/metadata/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: volumes/volume_id/metadata/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: volumes/volume_id/metadata/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  block-storage.consistencygroup:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      list_detailed:
+        operation_id: consistencygroups/detail:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list_detailed
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list_detailed
+      list:
+        operation_id: consistencygroups:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+      create:
+        operation_id: consistencygroups:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: consistencygroups/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: consistencygroups/id/update:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: consistencygroups/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  block-storage.manageable_volume:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      list_detailed:
+        operation_id: manageable_volumes/detail:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list_detailed
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list_detailed
+      get:
+        operation_id: manageable_volumes:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+      create:
+        operation_id: manageable_volumes:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+  block-storage.manageable_snapshot:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      list_detailed:
+        operation_id: manageable_snapshots/detail:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list_detailed
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list_detailed
+      get:
+        operation_id: manageable_snapshots:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+      create:
+        operation_id: manageable_snapshots:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+  block-storage.backup:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      list_detailed:
+        operation_id: backups/detail:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list_detailed
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list_detailed
+      list:
+        operation_id: backups:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+      create:
+        operation_id: backups:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: backups/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: backups/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: backups/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+      os-reset-status:
+        operation_id: backups/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_reset_status
+            operation_name: os-reset_status
+          rust-cli:
+            module_name: os_reset_status
+            sdk_mod_name: os_reset_status
+            operation_name: os-reset_status
+      os-force-delete:
+        operation_id: backups/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_force_delete
+            operation_name: os-force_delete
+          rust-cli:
+            module_name: os_force_delete
+            sdk_mod_name: os_force_delete
+            operation_name: os-force_delete
+  block-storage.attachment:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      list_detailed:
+        operation_id: attachments/detail:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list_detailed
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list_detailed
+      list:
+        operation_id: attachments:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+      create:
+        operation_id: attachments:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      os-complete:
+        operation_id: attachments/id/action:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: os_complete
+            operation_name: os-complete
+          rust-cli:
+            module_name: os_complete
+            sdk_mod_name: os_complete
+            operation_name: os-complete
+      show:
+        operation_id: attachments/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: attachments/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: attachments/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  block-storage.worker/cleanup:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      create:
+        operation_id: workers/cleanup:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+  block-storage.resource_filter:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      get:
+        operation_id: resource_filters:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+  block-storage.volume_transfer:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      list_detailed:
+        operation_id: volume-transfers/detail:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list_detailed
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list_detailed
+      list:
+        operation_id: volume-transfers:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+      create:
+        operation_id: volume-transfers:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      accept:
+        operation_id: volume-transfers/id/accept:post
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: accept
+          rust-cli:
+            module_name: accept
+            sdk_mod_name: accept
+      show:
+        operation_id: volume-transfers/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      delete:
+        operation_id: volume-transfers/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  block-storage.default_type:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      show:
+        operation_id: default-types/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: default-types/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: default-types/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+      list:
+        operation_id: default-types:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+  block-storage.extension:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      list:
+        operation_id: extensions:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: extensions:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: extensions/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      delete:
+        operation_id: extensions/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  block-storage.os_availability_zone:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      get:
+        operation_id: os-availability-zone:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+  block-storage.backup/import_record:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      create:
+        operation_id: backups/import_record:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+  block-storage.backup/restore:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      create:
+        operation_id: backups/id/restore:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+  block-storage.backup/export_record:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      get:
+        operation_id: backups/id/export_record:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+  block-storage.capability:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      show:
+        operation_id: capabilities/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+  block-storage.cgsnapshot:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      list_detailed:
+        operation_id: cgsnapshots/detail:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list_detailed
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list_detailed
+      list:
+        operation_id: cgsnapshots:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+      create:
+        operation_id: cgsnapshots:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: cgsnapshots/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      delete:
+        operation_id: cgsnapshots/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  block-storage.consistencygroup/create_from_src:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      create:
+        operation_id: consistencygroups/create_from_src:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+  block-storage.consistencygroup/delete:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      create:
+        operation_id: consistencygroups/id/delete:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+  block-storage.os_host:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      list:
+        operation_id: os-hosts:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      replace:
+        operation_id: os-hosts:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: replace
+          rust-cli:
+            module_name: replace
+            sdk_mod_name: replace
+      show:
+        operation_id: os-hosts/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: os-hosts/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+  block-storage.qos_spec:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      list:
+        operation_id: qos-specs:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: qos-specs:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: qos-specs/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: qos-specs/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: qos-specs/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  block-storage.qos_spec/association:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      get:
+        operation_id: qos-specs/id/associations:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+  block-storage.qos_spec/associate:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      get:
+        operation_id: qos-specs/id/associate:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+  block-storage.qos_spec/disassociate:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      get:
+        operation_id: qos-specs/id/disassociate:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+  block-storage.qos_spec/disassociate_all:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      get:
+        operation_id: qos-specs/id/disassociate_all:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+  block-storage.qos_spec/delete_key:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      delete_keys:
+        operation_id: qos-specs/id/delete_keys:put
+        operation_type: action
+        targets:
+          rust-sdk:
+            module_name: delete_keys
+          rust-cli:
+            module_name: delete_keys
+            sdk_mod_name: delete_keys
+  block-storage.os_quota_class_set:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      show:
+        operation_id: os-quota-class-sets/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: os-quota-class-sets/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+  block-storage.os_quota_set/default:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      get:
+        operation_id: os-quota-sets/id/defaults:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+  block-storage.os_quota_set:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      show:
+        operation_id: os-quota-sets/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: os-quota-sets/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: os-quota-sets/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  block-storage.scheduler_stat/get_pool:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      get:
+        operation_id: scheduler-stats/get_pools:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+  block-storage.os_service:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      list:
+        operation_id: os-services:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      update:
+        operation_id: os-services/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+  block-storage.os_snapshot_manage:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      list_detailed:
+        operation_id: os-snapshot-manage/detail:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list_detailed
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list_detailed
+      get:
+        operation_id: os-snapshot-manage:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+      create:
+        operation_id: os-snapshot-manage:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+  block-storage.type/extra_spec:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      list:
+        operation_id: types/type_id/extra_specs:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: types/type_id/extra_specs:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: types/type_id/extra_specs/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: types/type_id/extra_specs/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: types/type_id/extra_specs/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  block-storage.volume/encryption:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      list:
+        operation_id: volumes/volume_id/encryption:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      show:
+        operation_id: volumes/volume_id/encryption/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+  block-storage.os_volume_manage:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      list_detailed:
+        operation_id: os-volume-manage/detail:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list_detailed
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list_detailed
+      get:
+        operation_id: os-volume-manage:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+      create:
+        operation_id: os-volume-manage:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+  block-storage.os_volume_transfer:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      list_detailed:
+        operation_id: os-volume-transfer/detail:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list_detailed
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list_detailed
+      list:
+        operation_id: os-volume-transfer:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+      create:
+        operation_id: os-volume-transfer:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: os-volume-transfer/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      delete:
+        operation_id: os-volume-transfer/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  block-storage.os_volume_transfer/accept:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      create:
+        operation_id: os-volume-transfer/id/accept:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+  block-storage.type/os_volume_type_access:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      get:
+        operation_id: types/type_id/os-volume-type-access:get
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: get
+            sdk_mod_name: get
+  block-storage.type/encryption:
+    spec_file: wrk/openapi_specs/block-storage/v3.yaml
+    api_version: v3
+    operations:
+      list:
+        operation_id: types/type_id/encryption:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+      create:
+        operation_id: types/type_id/encryption:post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      show:
+        operation_id: types/type_id/encryption/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: types/type_id/encryption/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      delete:
+        operation_id: types/type_id/encryption/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete

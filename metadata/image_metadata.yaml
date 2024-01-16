@@ -153,7 +153,7 @@ resources:
             module_name: get
             sdk_mod_name: get
             operation_type: json
-  image.schema/metadef/propertys:
+  image.schema/metadef/properties:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
     operations:
