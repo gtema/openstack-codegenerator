@@ -176,6 +176,7 @@ class JsonSchemaParser:
         schema,
         results: list[ADT],
         name: str | None = None,
+        parent_name: str | None = None,
         min_ver: str | None = None,
         max_ver: str | None = None,
         ignore_read_only: bool | None = False,
@@ -183,19 +184,35 @@ class JsonSchemaParser:
         type_ = schema.get("type")
         if "oneOf" in schema:
             return self.parse_oneOf(
-                schema, results, name=name, ignore_read_only=ignore_read_only
+                schema,
+                results,
+                name=name,
+                parent_name=parent_name,
+                ignore_read_only=ignore_read_only,
             )
         elif "enum" in schema:
             return self.parse_enum(
-                schema, results, name=name, ignore_read_only=ignore_read_only
+                schema,
+                results,
+                name=name,
+                parent_name=parent_name,
+                ignore_read_only=ignore_read_only,
             )
         elif "allOf" in schema:
             return self.parse_allOf(
-                schema, results, name=name, ignore_read_only=ignore_read_only
+                schema,
+                results,
+                name=name,
+                parent_name=parent_name,
+                ignore_read_only=ignore_read_only,
             )
         elif isinstance(type_, list):
             return self.parse_typelist(
-                schema, results, name=name, ignore_read_only=ignore_read_only
+                schema,
+                results,
+                name=name,
+                parent_name=parent_name,
+                ignore_read_only=ignore_read_only,
             )
         elif isinstance(type_, str):
             if type_ == "object":
@@ -203,6 +220,7 @@ class JsonSchemaParser:
                     schema,
                     results,
                     name=name,
+                    parent_name=parent_name,
                     min_ver=min_ver,
                     max_ver=max_ver,
                     ignore_read_only=ignore_read_only,
@@ -212,6 +230,7 @@ class JsonSchemaParser:
                     schema,
                     results,
                     name=name,
+                    parent_name=parent_name,
                     ignore_read_only=ignore_read_only,
                 )
             elif type_ == "string":
@@ -239,6 +258,7 @@ class JsonSchemaParser:
                 schema,
                 results,
                 name=name,
+                parent_name=parent_name,
                 min_ver=min_ver,
                 max_ver=max_ver,
                 ignore_read_only=ignore_read_only,
@@ -254,6 +274,7 @@ class JsonSchemaParser:
         schema,
         results: list[ADT],
         name: str | None = None,
+        parent_name: str | None = None,
         min_ver: str | None = None,
         max_ver: str | None = None,
         ignore_read_only: bool | None = False,
@@ -277,6 +298,7 @@ class JsonSchemaParser:
                     v,
                     results,
                     name=k,
+                    parent_name=name,
                     min_ver=min_ver,
                     max_ver=max_ver,
                     ignore_read_only=ignore_read_only,
@@ -350,6 +372,20 @@ class JsonSchemaParser:
 
         if obj:
             obj.description = schema.get("description")
+            if obj.reference and obj.reference in [
+                x.reference for x in results
+            ]:
+                # Structure with the same name is already present. Prefix the
+                # new one with the parent name
+                if parent_name and name:
+                    new_name = parent_name + "_" + name
+
+                    if Reference(name=new_name, type=obj.reference.type) in [
+                        x.reference for x in results
+                    ]:
+                        raise NotImplementedError
+                    else:
+                        obj.reference.name = new_name
             results.append(obj)
         return obj
 
@@ -358,6 +394,7 @@ class JsonSchemaParser:
         schema,
         results: list[ADT],
         name: str | None = None,
+        parent_name: str | None = None,
         ignore_read_only: bool | None = False,
     ):
         obj = OneOfType()
@@ -388,6 +425,7 @@ class JsonSchemaParser:
         schema,
         results: list[ADT],
         name: str | None = None,
+        parent_name: str | None = None,
         ignore_read_only: bool | None = False,
     ):
         obj = OneOfType()
@@ -415,6 +453,7 @@ class JsonSchemaParser:
         schema,
         results: list[ADT],
         name: str | None = None,
+        parent_name: str | None = None,
         ignore_read_only: bool | None = False,
     ):
         # todo: decide whether some constraints can be under items
@@ -439,6 +478,7 @@ class JsonSchemaParser:
         schema,
         results: list[ADT],
         name: str | None = None,
+        parent_name: str | None = None,
         ignore_read_only: bool | None = False,
     ):
         # todo: decide whether some constraints can be under items
@@ -463,6 +503,7 @@ class JsonSchemaParser:
         schema,
         results: list[ADT],
         name: str | None = None,
+        parent_name: str | None = None,
         ignore_read_only: bool | None = False,
     ):
         sch = copy.deepcopy(schema)

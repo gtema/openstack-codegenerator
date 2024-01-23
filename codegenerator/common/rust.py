@@ -271,7 +271,7 @@ class EnumKind(BaseModel):
     @property
     def type_hint(self):
         if isinstance(self.data_type, Struct):
-            return self.data_type.name
+            return self.data_type.name + self.data_type.static_lifetime
         return self.data_type.type_hint
 
     @property

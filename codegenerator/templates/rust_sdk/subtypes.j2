@@ -17,7 +17,7 @@ pub {{ subtype.base_type }} {{ subtype.name }}{{ ("<" + ",".join(subtype.lifetim
     {{ macros.docstring(field.description, indent=4) }}
     {{ field.serde_macros }}
     {{ field.builder_macros }}
-    {{ field.local_name }}: {{ field.type_hint }},
+    pub(crate) {{ field.local_name }}: {{ field.type_hint }},
   {%- endfor %}
   {%- elif subtype["kinds"] is defined %}
   {#- Enum kinds #}

@@ -169,14 +169,14 @@ pub struct Request<'a> {
 
     /// A `server` object.
     #[builder(setter(into))]
-    server: Server<'a>,
+    pub(crate) server: Server<'a>,
 
     /// scheduler hints description
     #[builder(default, setter(into))]
-    os_scheduler_hints: Option<OsSchedulerHints<'a>>,
+    pub(crate) os_scheduler_hints: Option<OsSchedulerHints<'a>>,
 
     #[builder(default, setter(into))]
-    os_sch_hnt_scheduler_hints: Option<OsSchHntSchedulerHints<'a>>,
+    pub(crate) os_sch_hnt_scheduler_hints: Option<OsSchHntSchedulerHints<'a>>,
 
     #[builder(setter(name = "_headers"), default, private)]
     _headers: Option<HeaderMap>,
@@ -193,7 +193,10 @@ pub struct Request<'a> {
 
         template = env.get_template("rust_sdk/request_struct.j2")
         content = template.render(
-            type_manager=type_manager, method=None, params={}
+            type_manager=type_manager,
+            method=None,
+            params={},
+            is_json_patch=False,
         )
 
         self.assertEqual(

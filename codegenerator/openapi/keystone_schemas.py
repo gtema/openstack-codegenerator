@@ -18,7 +18,6 @@ from keystone.application_credential import (
     schema as application_credential_schema,
 )
 from keystone.assignment import schema as assignment_schema
-from keystone.auth import schema as auth_schema
 from keystone.identity import schema as identity_schema
 from keystone.resource import schema as ks_schema
 
@@ -255,11 +254,187 @@ GROUPS_SCHEMA = {
     "properties": {"projects": {"type": "array", "items": GROUP_SCHEMA}},
 }
 
+
 # Auth
 
 AUTH_TOKEN_ISSUE_SCHEMA = {
     "type": "object",
-    "properties": {"auth": copy.deepcopy(auth_schema.token_issue)},
+    "properties": {
+        "auth": {
+            "type": "object",
+            "description": "An auth object.",
+            "properties": {
+                "identity": {
+                    "type": "object",
+                    "description": "An identity object.",
+                    "properties": {
+                        "methods": {
+                            "type": "array",
+                            "description": "The authentication method.",
+                            "items": {
+                                "type": "string",
+                                "enum": ["password", "token", "totp"],
+                            },
+                        },
+                        "password": {
+                            "type": "object",
+                            "description": "The password object, contains the authentication information.",
+                            "properties": {
+                                "user": {
+                                    "type": "object",
+                                    "description": "A `user` object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "description": "User ID",
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "description": "User Name",
+                                        },
+                                        "password": {
+                                            "type": "string",
+                                            "description": "User Password",
+                                        },
+                                        "domain": {
+                                            "type": "object",
+                                            "description": "User Domain object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string",
+                                                    "description": "User Domain ID",
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "description": "User Domain Name",
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                        "token": {
+                            "type": "object",
+                            "description": "A `token` object",
+                            "properties": {
+                                "id": {
+                                    "type": "string",
+                                    "description": "Authorization Token value",
+                                },
+                            },
+                            "required": [
+                                "id",
+                            ],
+                        },
+                        "totp": {
+                            "type": "object",
+                            "description": "Multi Factor Authentication information",
+                            "properties": {
+                                "user": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "description": "The user ID",
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "description": "The user name",
+                                        },
+                                        "domain": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string",
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                },
+                                            },
+                                        },
+                                        "passcode": {
+                                            "type": "string",
+                                            "description": "MFA passcode",
+                                        },
+                                    },
+                                    "required": ["passcode"],
+                                },
+                            },
+                            "required": [
+                                "user",
+                            ],
+                        },
+                    },
+                    "required": [
+                        "methods",
+                    ],
+                },
+                "scope": {
+                    "type": "object",
+                    "description": "The authorization scope, including the system (Since v3.10), a project, or a domain (Since v3.4). If multiple scopes are specified in the same request (e.g. project and domain or domain and system) an HTTP 400 Bad Request will be returned, as a token cannot be simultaneously scoped to multiple authorization targets. An ID is sufficient to uniquely identify a project but if a project is specified by name, then the domain of the project must also be specified in order to uniquely identify the project by name. A domain scope may be specified by either the domain’s ID or name with equivalent results.",
+                    "properties": {
+                        "project": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "description": "Project Name",
+                                },
+                                "id": {
+                                    "type": "string",
+                                    "description": "Project Id",
+                                },
+                                "domain": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "description": "Project domain Id",
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "description": "Project domain name",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                        "domain": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "string",
+                                    "description": "Domain id",
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "description": "Domain name",
+                                },
+                            },
+                        },
+                        "OS-TRUST:trust": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "string",
+                                },
+                            },
+                        },
+                        "system": {
+                            "type": "object",
+                            "properties": {
+                                "all": {"type": "boolean"},
+                            },
+                        },
+                    },
+                },
+            },
+            "required": [
+                "identity",
+            ],
+        },
+    },
 }
 
 AUTH_PROJECTS_SCHEMA = {
