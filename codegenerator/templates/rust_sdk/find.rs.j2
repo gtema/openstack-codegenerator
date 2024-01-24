@@ -1,3 +1,4 @@
+{%- import 'rust_macros.j2' as macros with context -%}
 use derive_builder::Builder;
 use http::{HeaderMap, HeaderName, HeaderValue};
 use serde::de::DeserializeOwned;
@@ -21,6 +22,11 @@ use crate::api::{{ mod_path | join("::") }}::{
 pub struct Request<'a> {
     #[builder(setter(into), default)]
     id: Cow<'a, str>,
+
+{%- for k, param in type_manager.parameters.items() %}
+    {{ param.builder_macros }}
+    {{ param.local_name }}: {{ param.type_hint }},
+{%- endfor %}
 
     #[builder(setter(name = "_headers"), default, private)]
     _headers: Option<HeaderMap>,
@@ -64,6 +70,9 @@ impl<'a> Findable for Request<'a> {
     fn get_ep(&self) -> Get::Request<'a> {
         let mut ep = Get::Request::builder();
         ep.id(self.id.clone());
+{%- for k, param in type_manager.parameters.items() %}
+        ep.{{ param.remote_name }}(self.{{ param.local_name}}.clone());
+{%- endfor %}
         if let Some(headers) = &self._headers {
             ep.headers(headers.iter().map(|(k, v)| (Some(k.clone()), v.clone())));
         }
@@ -73,6 +82,9 @@ impl<'a> Findable for Request<'a> {
     {%- if name_filter_supported %}
     fn list_ep(&self) -> List::Request<'a> {
         let mut ep = List::Request::builder();
+{%- for k, param in type_manager.parameters.items() %}
+        ep.{{ param.remote_name }}(self.{{ param.local_name}}.clone());
+{%- endfor %}
         if let Some(headers) = &self._headers {
             ep.headers(headers.iter().map(|(k, v)| (Some(k.clone()), v.clone())));
         }
@@ -82,6 +94,9 @@ impl<'a> Findable for Request<'a> {
     {%- else %}
     fn list_ep(&self) -> List::Request<'a> {
         let mut ep = List::Request::builder();
+{%- for k, param in type_manager.parameters.items() %}
+        ep.{{ param.remote_name }}(self.{{ param.local_name}}.clone());
+{%- endfor %}
         if let Some(headers) = &self._headers {
             ep.headers(headers.iter().map(|(k, v)| (Some(k.clone()), v.clone())));
         }

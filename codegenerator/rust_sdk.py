@@ -25,8 +25,11 @@ from codegenerator.common import rust as common_rust
 
 class String(common_rust.String):
     lifetimes: set[str] = set(["'a"])
-    imports: set[str] = set(["std::borrow::Cow"])
     type_hint: str = "Cow<'a, str>"
+
+    @property
+    def imports(self) -> set[str]:
+        return set(["std::borrow::Cow"])
 
 
 class Enum(common_rust.Enum):
@@ -48,8 +51,7 @@ class Enum(common_rust.Enum):
         return "#[derive(Debug, Deserialize, Clone, Serialize)]"
 
     def get_sample(self):
-        first_kind_name = list(self.kinds.keys())[0]
-        first_kind_val = list(self.kinds.values())[0]
+        (first_kind_name, first_kind_val) = list(self.kinds.items())[0]
         res = (
             self.name
             + "::"
@@ -266,17 +268,6 @@ class RustSdkGenerator(BaseGenerator):
             args,
         )
 
-        if args.operation_type == "find":
-            yield self.generate_find_mod(
-                target_dir,
-                args.sdk_mod_path.split("::"),
-                res.split(".")[-1],
-                args.name_field,
-                args.list_mod,
-                args.name_filter_supported,
-            )
-            return
-
         if not openapi_spec:
             openapi_spec = common.get_openapi_spec(args.openapi_yaml_spec)
         if not operation_id:
@@ -284,6 +275,21 @@ class RustSdkGenerator(BaseGenerator):
         (path, method, spec) = common.find_openapi_operation(
             openapi_spec, operation_id
         )
+        if args.operation_type == "find":
+            yield self.generate_find_mod(
+                target_dir,
+                args.sdk_mod_path.split("::"),
+                res.split(".")[-1],
+                args.name_field,
+                args.list_mod,
+                openapi_spec,
+                path,
+                method,
+                spec,
+                args.name_filter_supported,
+            )
+            return
+
         # srv_name, res_name = res.split(".") if res else (None, None)
         path_resources = common.get_resource_names_from_url(path)
         res_name = path_resources[-1]
@@ -471,6 +477,10 @@ class RustSdkGenerator(BaseGenerator):
         resource_name,
         name_field: str,
         list_mod: str,
+        openapi_spec,
+        path: str,
+        method: str,
+        spec,
         name_filter_supported: bool = False,
     ):
         """Generate `find` operation module"""
@@ -481,6 +491,25 @@ class RustSdkGenerator(BaseGenerator):
             "/".join(mod_path),
             "find.rs",
         )
+        # Collect all operation parameters
+        openapi_parser = model.OpenAPISchemaParser()
+        path_resources = common.get_resource_names_from_url(path)
+        res_name = path_resources[-1]
+        operation_params: list[model.RequestParameter] = []
+
+        for param in openapi_spec["paths"][path].get(
+            "parameters", []
+        ) + spec.get("parameters", []):
+            if ("{" + param["name"] + "}") in path and param["in"] == "path":
+                # Respect path params that appear in path and not path params
+                param_ = openapi_parser.parse_parameter(param)
+                if param_.name == f"{res_name}_id":
+                    path = path.replace(f"{res_name}_id", "id")
+                    # for i.e. routers/{router_id} we want local_name to be `id` and not `router_id`
+                    param_.name = "id"
+                operation_params.append(param_)
+        type_manager = TypeManager()
+        type_manager.set_parameters(operation_params)
 
         context = dict(
             mod_path=mod_path,
@@ -488,6 +517,7 @@ class RustSdkGenerator(BaseGenerator):
             list_mod=list_mod,
             name_filter_supported=name_filter_supported,
             name_field=name_field,
+            type_manager=type_manager,
         )
 
         # Generate methods for the GET resource command

@@ -1,10 +1,12 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash -e
 
 WRK_DIR=wrk
 METADATA=metadata
 DST=~/workspace/github/gtema/openstack
 NET_RESOURCES=(
   "project"
+  "auth"
+  "user"
 )
 
 openstack-codegenerator --work-dir ${WRK_DIR} --target rust-sdk --metadata ${METADATA}/identity_metadata.yaml --service identity

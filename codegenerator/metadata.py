@@ -131,6 +131,10 @@ class MetadataGenerator(BaseGenerator):
                             operation_key = "download"
                         else:
                             raise NotImplementedError
+                    elif path == "/v3/users/{user_id}/password":
+                        if method == "post":
+                            operation_key = "update"
+
                     elif response_schema and (
                         method == "get"
                         and (
@@ -433,7 +437,7 @@ class MetadataGenerator(BaseGenerator):
                     list_mod="list_detailed" if list_detailed_op else "list",
                 )
                 res_data.operations["find"] = OperationModel(
-                    operation_id="fake",
+                    operation_id=list_op_.operation_id,
                     operation_type="find",
                     targets={"rust-sdk": sdk_params},
                 )

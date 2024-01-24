@@ -7,7 +7,7 @@ pub struct {{ data_type.name }}{{ type_manager.get_request_static_lifetimes(data
   {%- for field in data_type.fields.values() %}
     {{ macros.docstring(field.description, indent=4) }}
     {{ field.builder_macros }}
-    {{ field.local_name }}: {{ field.type_hint }},
+    pub(crate) {{ field.local_name }}: {{ field.type_hint }},
   {%- endfor %}
 
 {%- for k, param in type_manager.parameters.items() %}

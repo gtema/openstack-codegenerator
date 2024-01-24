@@ -1,5 +1,5 @@
 resources:
-  compute.Version:
+  compute.version:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
@@ -12,10 +12,6 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
-  compute.version:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
       show:
         operation_id: versions/id:get
         operation_type: show
@@ -131,7 +127,7 @@ resources:
             operation_name: removeTenantAccess
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: flavors/detail:get
         operation_type: find
         targets:
           rust-sdk:
@@ -1024,7 +1020,7 @@ resources:
             sdk_mod_name: get
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: os-hypervisors/detail:get
         operation_type: find
         targets:
           rust-sdk:
@@ -1157,7 +1153,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: os-keypairs:get
         operation_type: find
         targets:
           rust-sdk:
@@ -1330,7 +1326,7 @@ resources:
             sdk_mod_name: list_detailed
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: os-quota-sets/id/detail:get
         operation_type: find
         targets:
           rust-sdk:
@@ -1519,7 +1515,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: os-server-groups:get
         operation_type: find
         targets:
           rust-sdk:
@@ -2265,7 +2261,7 @@ resources:
             operation_name: resume
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: servers/detail:get
         operation_type: find
         targets:
           rust-sdk:
@@ -2453,7 +2449,7 @@ resources:
             operation_name: force_complete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: servers/server_id/migrations:get
         operation_type: find
         targets:
           rust-sdk:
@@ -2612,7 +2608,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: servers/server_id/os-volume_attachments:get
         operation_type: find
         targets:
           rust-sdk:

@@ -40,6 +40,13 @@ class String(common_rust.String):
 
     clap_macros: set[str] = set()
     original_data_type: BaseCompoundType | BaseCompoundType | None = None
+    # imports: set[str] =  set(["dialoguer::Password"])
+
+    @property
+    def imports(self) -> set[str]:
+        if self.format and self.format == "password":
+            return set(["dialoguer::Password"])
+        return set([])
 
 
 class IntString(common.BasePrimitiveType):
@@ -88,6 +95,19 @@ class StructInputField(common_rust.StructField):
     """Structure field of the CLI input"""
 
     additional_clap_macros: set[str] = set()
+
+    @property
+    def type_hint(self):
+        typ_hint = self.data_type.type_hint
+        if self.is_optional:
+            typ_hint = f"Option<{typ_hint}>"
+        # Password input must be optional
+        if (
+            getattr(self.data_type, "format", None) == "password"
+            and not self.is_optional
+        ):
+            typ_hint = f"Option<{typ_hint}>"
+        return typ_hint
 
     @property
     def builder_macros(self):
@@ -473,6 +493,19 @@ class RequestTypeManager(common_rust.TypeManager):
                     original_data_type=original_data_type,
                     item_type=JsonValue(),
                 )
+            elif isinstance(item_type, model.Array) and isinstance(
+                item_type.item_type, model.ConstraintString
+            ):
+                if item_type.reference:
+                    self.refs.pop(item_type.reference, None)
+                original_data_type = self.convert_model(item_type)
+                typ = self.data_type_mapping[model.Array](
+                    description=common_rust.sanitize_rust_docstrings(
+                        type_model.description
+                    ),
+                    original_data_type=original_data_type,
+                    item_type=String(),
+                )
 
         if typ:
             if model_ref:
@@ -798,7 +831,7 @@ class RustCliGenerator(BaseGenerator):
             ) or param["in"] != "path":
                 # Respect path params that appear in path and not path params
                 param_ = openapi_parser.parse_parameter(param)
-                if param_.name == f"{res_name}_id":
+                if param_.name == f"{resource_name}_id":
                     # for i.e. routers/{router_id} we want local_name to be `id` and not `router_id`
                     param_.name = "id"
                 operation_params.append(param_)
@@ -995,7 +1028,10 @@ class RustCliGenerator(BaseGenerator):
                             result_is_list = True
 
                 additional_imports.add(
-                    "openstack_sdk::api::" + "::".join(sdk_mod_path)
+                    "openstack_sdk::api::"
+                    + "::".join(
+                        f"r#{x}" if x in ["type"] else x for x in sdk_mod_path
+                    )
                 )
                 root_type = response_type_manager.get_root_data_type()
                 if args.operation_type == "list":
@@ -1049,7 +1085,10 @@ class RustCliGenerator(BaseGenerator):
                         "::".join(
                             [
                                 "openstack_sdk::api",
-                                "::".join(sdk_mod_path[:-1]),
+                                "::".join(
+                                    f"r#{x}" if x in ["type"] else x
+                                    for x in sdk_mod_path[:-1]
+                                ),
                                 "find",
                             ]
                         )

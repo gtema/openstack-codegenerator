@@ -18,7 +18,6 @@ from keystone.application_credential import (
     schema as application_credential_schema,
 )
 from keystone.assignment import schema as assignment_schema
-from keystone.auth import schema as auth_schema
 from keystone.identity import schema as identity_schema
 from keystone.resource import schema as ks_schema
 
@@ -101,7 +100,7 @@ PROJECT_LIST_PARAMETERS = {
     "name": {
         "in": "query",
         "name": "name",
-        "description": "Filters the response by a project name.",
+        "description": "Filters the response by a resource name.",
         "schema": {"type": "string"},
     },
     "parent_id": {
@@ -229,6 +228,51 @@ DOMAIN_CONFIG_SCHEMA = {
     ]
 }
 
+USER_LIST_PARAMETERS = {
+    "domain_id": {
+        "in": "query",
+        "name": "domain_id",
+        "description": "Filters the response by a domain ID.",
+        "schema": {"type": "string", "format": "uuid"},
+    },
+    "enabled": {
+        "in": "query",
+        "name": "enabled",
+        "description": "If set to true, then only enabled projects will be returned. Any value other than 0 (including no value) will be interpreted as true.",
+        "schema": {"type": "boolean"},
+    },
+    "idp_id": {
+        "in": "query",
+        "name": "idp_id",
+        "description": "Filters the response by a domain ID.",
+        "schema": {"type": "string", "format": "uuid"},
+    },
+    "name": {
+        "in": "query",
+        "name": "name",
+        "description": "Filters the response by a resource name.",
+        "schema": {"type": "string"},
+    },
+    "password_expires_at": {
+        "in": "query",
+        "name": "password_expires_at",
+        "description": "Filter results based on which user passwords have expired. The query should include an operator and a timestamp with a colon (:) separating the two, for example: `password_expires_at={operator}:{timestamp}`.\nValid operators are: `lt`, `lte`, `gt`, `gte`, `eq`, and `neq`.\nValid timestamps are of the form: YYYY-MM-DDTHH:mm:ssZ.",
+        "schema": {"type": "string", "format": "date-time"},
+    },
+    "protocol_id": {
+        "in": "query",
+        "name": "protocol_id",
+        "description": "Filters the response by a protocol ID.",
+        "schema": {"type": "string", "format": "uuid"},
+    },
+    "unique_id": {
+        "in": "query",
+        "name": "unique_id",
+        "description": "Filters the response by a unique ID.",
+        "schema": {"type": "string", "format": "uuid"},
+    },
+}
+
 USER_SCHEMA = {
     "type": "object",
     "properties": {
@@ -237,9 +281,119 @@ USER_SCHEMA = {
     },
 }
 
+USER_CREATE_SCHEMA = {
+    "type": "object",
+    "properties": {"user": identity_schema.user_create},
+}
+
+USER_PATCH_SCHEMA = {
+    "type": "object",
+    "properties": {"user": identity_schema.user_update},
+}
+
+
+USER_CONTAINER_SCHEMA = {
+    "type": "object",
+    "properties": {"user": USER_SCHEMA},
+}
+
 USERS_SCHEMA = {
     "type": "object",
-    "properties": {"projects": {"type": "array", "items": USER_SCHEMA}},
+    "properties": {"users": {"type": "array", "items": USER_SCHEMA}},
+}
+
+USER_PWD_CHANGE_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {"user": identity_schema.password_change},
+}
+
+# Set `password` format for password change operation
+USER_PWD_CHANGE_SCHEMA["properties"]["user"]["properties"]["password"][
+    "format"
+] = "password"
+USER_PWD_CHANGE_SCHEMA["properties"]["user"]["properties"][
+    "original_password"
+]["format"] = "password"
+
+USER_GROUP_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "description": {
+            "type": "string",
+            "description": "The description of the group.",
+        },
+        "domain_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The ID of the domain of the group.",
+        },
+        "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The ID of the group.",
+        },
+        "name": {
+            "type": "string",
+            "description": "The name of the group.",
+        },
+        "membership_expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date and time when the group membership expires. A null value indicates that the membership never expires.",
+            "x-openstack": {"min-ver": "3.14"},
+        },
+    },
+}
+
+USER_GROUPS_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "groups": {
+            "type": "array",
+            "description": "A list of group objects",
+            "items": USER_GROUP_SCHEMA,
+        }
+    },
+}
+
+USER_PROJECT_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "description": {
+            "type": "string",
+            "description": "The description of the project.",
+        },
+        "domain_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The ID of the domain of the project.",
+        },
+        "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The ID of the project.",
+        },
+        "parent_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The parent id of the project.",
+        },
+        "name": {
+            "type": "string",
+            "description": "The name of the project.",
+        },
+    },
+}
+
+USER_PROJECTS_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "projects": {
+            "type": "array",
+            "description": "A list of project objects",
+            "items": USER_PROJECT_SCHEMA,
+        }
+    },
 }
 
 GROUP_SCHEMA = {
@@ -252,14 +406,243 @@ GROUP_SCHEMA = {
 
 GROUPS_SCHEMA = {
     "type": "object",
-    "properties": {"projects": {"type": "array", "items": GROUP_SCHEMA}},
+    "properties": {"groups": {"type": "array", "items": GROUP_SCHEMA}},
 }
+
 
 # Auth
 
 AUTH_TOKEN_ISSUE_SCHEMA = {
     "type": "object",
-    "properties": {"auth": copy.deepcopy(auth_schema.token_issue)},
+    "properties": {
+        "auth": {
+            "type": "object",
+            "description": "An auth object.",
+            "properties": {
+                "identity": {
+                    "type": "object",
+                    "description": "An identity object.",
+                    "properties": {
+                        "methods": {
+                            "type": "array",
+                            "description": "The authentication method.",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "password",
+                                    "token",
+                                    "totp",
+                                    "application_credential",
+                                ],
+                            },
+                        },
+                        "password": {
+                            "type": "object",
+                            "description": "The password object, contains the authentication information.",
+                            "properties": {
+                                "user": {
+                                    "type": "object",
+                                    "description": "A `user` object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "description": "User ID",
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "description": "User Name",
+                                        },
+                                        "password": {
+                                            "type": "string",
+                                            "format": "password",
+                                            "description": "User Password",
+                                        },
+                                        "domain": {
+                                            "type": "object",
+                                            "description": "User Domain object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string",
+                                                    "description": "User Domain ID",
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "description": "User Domain Name",
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                        "token": {
+                            "type": "object",
+                            "description": "A `token` object",
+                            "properties": {
+                                "id": {
+                                    "type": "string",
+                                    "format": "password",
+                                    "description": "Authorization Token value",
+                                },
+                            },
+                            "required": [
+                                "id",
+                            ],
+                        },
+                        "totp": {
+                            "type": "object",
+                            "description": "Multi Factor Authentication information",
+                            "properties": {
+                                "user": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "description": "The user ID",
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "description": "The user name",
+                                        },
+                                        "domain": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string",
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                },
+                                            },
+                                        },
+                                        "passcode": {
+                                            "type": "string",
+                                            "format": "password",
+                                            "description": "MFA passcode",
+                                        },
+                                    },
+                                    "required": ["passcode"],
+                                },
+                            },
+                            "required": [
+                                "user",
+                            ],
+                        },
+                        "application_credential": {
+                            "type": "object",
+                            "description": "An application credential object.",
+                            "properties": {
+                                "id": {
+                                    "type": "string",
+                                    "descripion": "The ID of the application credential used for authentication. If not provided, the application credential must be identified by its name and its owning user.",
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "descripion": "The name of the application credential used for authentication. If provided, must be accompanied by a user object.",
+                                },
+                                "secret": {
+                                    "type": "string",
+                                    "format": "password",
+                                    "description": "The secret for authenticating the application credential.",
+                                },
+                                "user": {
+                                    "type": "object",
+                                    "description": "A user object, required if an application credential is identified by name and not ID.",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "description": "The user ID",
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "description": "The user name",
+                                        },
+                                        "domain": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string",
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            "required": ["secret"],
+                        },
+                    },
+                    "required": [
+                        "methods",
+                    ],
+                },
+                "scope": {
+                    "type": "object",
+                    "description": "The authorization scope, including the system (Since v3.10), a project, or a domain (Since v3.4). If multiple scopes are specified in the same request (e.g. project and domain or domain and system) an HTTP 400 Bad Request will be returned, as a token cannot be simultaneously scoped to multiple authorization targets. An ID is sufficient to uniquely identify a project but if a project is specified by name, then the domain of the project must also be specified in order to uniquely identify the project by name. A domain scope may be specified by either the domain’s ID or name with equivalent results.",
+                    "properties": {
+                        "project": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "description": "Project Name",
+                                },
+                                "id": {
+                                    "type": "string",
+                                    "description": "Project Id",
+                                },
+                                "domain": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "description": "Project domain Id",
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "description": "Project domain name",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                        "domain": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "string",
+                                    "description": "Domain id",
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "description": "Domain name",
+                                },
+                            },
+                        },
+                        "OS-TRUST:trust": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "string",
+                                },
+                            },
+                        },
+                        "system": {
+                            "type": "object",
+                            "properties": {
+                                "all": {"type": "boolean"},
+                            },
+                        },
+                    },
+                },
+            },
+            "required": [
+                "identity",
+            ],
+        },
+    },
 }
 
 AUTH_PROJECTS_SCHEMA = {
@@ -570,13 +953,23 @@ APPLICATION_CREDENTIAL_ACCESS_RULES_SCHEMA = {
     },
 }
 
-APPLICATION_CREDENTIAL_ACCESS_RULE_SCHEMA = copy.deepcopy(
-    application_credential_schema._access_rules_properties["items"]
-)
-
-APPLICATION_CREDENTIAL_SCHEMA = {
+APPLICATION_CREDENTIAL_ACCESS_RULE_SCHEMA = {
     "type": "object",
     "properties": {
+        "access_rule": copy.deepcopy(
+            application_credential_schema._access_rules_properties["items"]
+        ),
+    },
+}
+
+APPLICATION_CREDENTIAL_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The ID of the application credential.",
+        },
         "project_id": {
             "type": "string",
             "format": "uuid",
@@ -584,6 +977,37 @@ APPLICATION_CREDENTIAL_SCHEMA = {
         },
         **application_credential_schema._application_credential_properties,
     },
+}
+APPLICATION_CREDENTIAL_SCHEMA["properties"].pop("secret", None)
+
+APPLICATION_CREDENTIAL_CONTAINER_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "application_credential": copy.deepcopy(APPLICATION_CREDENTIAL_SCHEMA)
+    },
+}
+
+APPLICATION_CREDENTIAL_CREATE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "application_credential": copy.deepcopy(
+            application_credential_schema.application_credential_create
+        )
+    },
+}
+
+APPLICATION_CREDENTIAL_CREATE_RESPONSE_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "application_credential": copy.deepcopy(APPLICATION_CREDENTIAL_SCHEMA)
+    },
+}
+# Update `secret` field
+APPLICATION_CREDENTIAL_CREATE_RESPONSE_SCHEMA["properties"][
+    "application_credential"
+]["properties"]["secret"] = {
+    "type": "string",
+    "description": "The secret for the application credential, either generated by the server or provided by the user. This is only ever shown once in the response to a create request. It is not stored nor ever shown again. If the secret is lost, a new application credential must be created.",
 }
 
 APPLICATION_CREDENTIALS_SCHEMA = {
@@ -593,5 +1017,14 @@ APPLICATION_CREDENTIALS_SCHEMA = {
             "type": "array",
             "items": copy.deepcopy(APPLICATION_CREDENTIAL_SCHEMA),
         },
+    },
+}
+
+APPLICATION_CREDENTIALS_LIST_PARAMETERS = {
+    "application_credentials_name": {
+        "in": "query",
+        "name": "name",
+        "description": "The name of the application credential. Must be unique to a user.",
+        "schema": {"type": "string"},
     },
 }
