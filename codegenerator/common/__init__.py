@@ -46,7 +46,6 @@ def _deep_merge(
 
 class BasePrimitiveType(BaseModel):
     lifetimes: set[str] | None = None
-    imports: set[str] = set()
     builder_macros: set[str] = set([])
 
 

@@ -2696,36 +2696,21 @@ resources:
             module_name: find
             sdk_mod_path: identity::v3::user
             name_field: name
-            name_filter_supported: false
+            name_filter_supported: true
             list_mod: list
   identity.user/password:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
     operations:
-      check:
-        operation_id: users/user_id/password:head
-        operation_type: get
-        targets:
-          rust-sdk:
-            module_name: head
-      get:
-        operation_id: users/user_id/password:get
-        operation_type: get
-        targets:
-          rust-sdk:
-            module_name: get
-          rust-cli:
-            module_name: get
-            sdk_mod_name: get
-      create:
+      update:
         operation_id: users/user_id/password:post
-        operation_type: create
+        operation_type: set
         targets:
           rust-sdk:
-            module_name: create
+            module_name: set
           rust-cli:
-            module_name: create
-            sdk_mod_name: create
+            module_name: set
+            sdk_mod_name: set
   identity.user/group:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -2736,15 +2721,15 @@ resources:
         targets:
           rust-sdk:
             module_name: head
-      get:
+      list:
         operation_id: users/user_id/groups:get
-        operation_type: get
+        operation_type: list
         targets:
           rust-sdk:
-            module_name: get
+            module_name: list
           rust-cli:
-            module_name: get
-            sdk_mod_name: get
+            module_name: list
+            sdk_mod_name: list
   identity.user/project:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -2755,27 +2740,8 @@ resources:
         targets:
           rust-sdk:
             module_name: head
-      get:
-        operation_id: users/user_id/projects:get
-        operation_type: get
-        targets:
-          rust-sdk:
-            module_name: get
-          rust-cli:
-            module_name: get
-            sdk_mod_name: get
-  identity.user/credential/OS_EC2:
-    spec_file: wrk/openapi_specs/identity/v3.yaml
-    api_version: v3
-    operations:
-      check:
-        operation_id: users/user_id/credentials/OS-EC2/credential_id:head
-        operation_type: get
-        targets:
-          rust-sdk:
-            module_name: head
       list:
-        operation_id: users/user_id/credentials/OS-EC2:get
+        operation_id: users/user_id/projects:get
         operation_type: list
         targets:
           rust-sdk:
@@ -2783,33 +2749,6 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
-      create:
-        operation_id: users/user_id/credentials/OS-EC2:post
-        operation_type: create
-        targets:
-          rust-sdk:
-            module_name: create
-          rust-cli:
-            module_name: create
-            sdk_mod_name: create
-      show:
-        operation_id: users/user_id/credentials/OS-EC2/credential_id:get
-        operation_type: show
-        targets:
-          rust-sdk:
-            module_name: get
-          rust-cli:
-            module_name: show
-            sdk_mod_name: get
-      delete:
-        operation_id: users/user_id/credentials/OS-EC2/credential_id:delete
-        operation_type: delete
-        targets:
-          rust-sdk:
-            module_name: delete
-          rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
   identity.user/OS_OAUTH1/access_token:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3

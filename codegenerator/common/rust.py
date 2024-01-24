@@ -27,6 +27,7 @@ class Boolean(BasePrimitiveType):
     """Basic Boolean"""
 
     type_hint: str = "bool"
+    imports: set[str] = set([])
     clap_macros: set[str] = set(["action=clap::ArgAction::Set"])
     original_data_type: BaseCompoundType | BaseCompoundType | None = None
 
@@ -36,6 +37,7 @@ class Boolean(BasePrimitiveType):
 
 class Number(BasePrimitiveType):
     format: str | None = None
+    imports: set[str] = set([])
     clap_macros: set[str] = set()
     original_data_type: BaseCompoundType | BaseCompoundType | None = None
 
@@ -54,6 +56,7 @@ class Number(BasePrimitiveType):
 
 class Integer(BasePrimitiveType):
     format: str | None = None
+    imports: set[str] = set([])
     clap_macros: set[str] = set()
     original_data_type: BaseCompoundType | BaseCompoundType | None = None
 
@@ -81,8 +84,15 @@ class Null(BasePrimitiveType):
 
 
 class String(BasePrimitiveType):
+    format: str | None = None
     type_hint: str = "String"
     builder_macros: set[str] = set(["setter(into)"])
+
+    # NOTE(gtema): it is not possible to override field with computed
+    # property, thus it must be a property here
+    @property
+    def imports(self) -> set[str]:
+        return set([])
 
     def get_sample(self):
         return '"foo"'
@@ -489,7 +499,6 @@ class TypeManager:
             xtyp = self.primitive_type_mapping.get(type_model.__class__)
             if not xtyp:
                 raise RuntimeError("No mapping for %s" % type_model)
-            # logging.debug("Returning %s for %s", typ, type_model.__class__)
             return xtyp(**type_model.model_dump())
 
         # Composite/Compound type

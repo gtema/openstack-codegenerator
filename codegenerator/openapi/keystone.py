@@ -56,7 +56,7 @@ class KeystoneGenerator(OpenStackServerSourceBase):
         proc.start()
         proc.join()
         if proc.exitcode != 0:
-            raise RuntimeError("Error generating Keystone OpenAPI schma")
+            raise RuntimeError("Error generating Keystone OpenAPI schema")
         return Path(target_dir, "openapi_specs", "identity", "v3.yaml")
 
     def _generate(self, target_dir, args, *pargs, **kwargs):
@@ -128,6 +128,9 @@ class KeystoneGenerator(OpenStackServerSourceBase):
                 continue
             # if not route.rule.startswith("/v3/domains"):
             #    continue
+            if "/credentials/OS-EC2" in route.rule:
+                continue
+
             self._process_route(route, openapi_spec)
 
         self._sanitize_param_ver_info(openapi_spec, self.min_api_version)
@@ -251,6 +254,13 @@ class KeystoneGenerator(OpenStackServerSourceBase):
                 func = view
             # Set operationId
             operation_id = operation_id_prefix + f":{method.lower()}"  # noqa
+            # There is a variety of operations that make absolutely no sense and
+            # are just not filtered by Keystone itself
+            if path == "/v3/users/{user_id}/password" and method in [
+                "GET",
+                "HEAD",
+            ]:
+                continue
 
             # Current Keystone code is having a bug of exposing same controller
             # API for both /RESOURCE and /RESOURCE/{ID}. Routing is then
@@ -373,6 +383,8 @@ class KeystoneGenerator(OpenStackServerSourceBase):
             "/v3/domains/{project_id}/groups/{user_id}/roles/{role_id}",
         ] and method in ["GET", "HEAD", "PUT"]:
             response_code = "204"
+        elif path == "/v3/users/{user_id}/password" and method == "POST":
+            response_code = "204"
         rsp = responses_spec.setdefault(response_code, dict(description="Ok"))
         if response_code != "204" and method not in ["DELETE", "HEAD"]:
             # Arrange response placeholder
@@ -437,6 +449,15 @@ class KeystoneGenerator(OpenStackServerSourceBase):
 
         elif operationId == "projects:get":
             for key, val in keystone_schemas.PROJECT_LIST_PARAMETERS.items():
+                openapi_spec.components.parameters.setdefault(
+                    key, ParameterSchema(**val)
+                )
+                ref = f"#/components/parameters/{key}"
+                if ref not in [x.ref for x in operation_spec.parameters]:
+                    operation_spec.parameters.append(ParameterSchema(ref=ref))
+
+        elif operationId == "users:get":
+            for key, val in keystone_schemas.USER_LIST_PARAMETERS.items():
                 openapi_spec.components.parameters.setdefault(
                     key, ParameterSchema(**val)
                 )
@@ -566,17 +587,17 @@ class KeystoneGenerator(OpenStackServerSourceBase):
         # Users
         elif name == "UserPatchRequest":
             openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**identity_schema.user_update)
+                name, TypeSchema(**keystone_schemas.USER_PATCH_SCHEMA)
             )
             ref = f"#/components/schemas/{name}"
         elif name == "UsersPostRequest":
             openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**identity_schema.user_create)
+                name, TypeSchema(**keystone_schemas.USER_CREATE_SCHEMA)
             )
             ref = f"#/components/schemas/{name}"
         elif name == "UserPatchResponse":
             openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**keystone_schemas.USER_SCHEMA)
+                name, TypeSchema(**keystone_schemas.USER_CONTAINER_SCHEMA)
             )
             ref = f"#/components/schemas/{name}"
         elif name == "UsersGetResponse":
@@ -586,7 +607,22 @@ class KeystoneGenerator(OpenStackServerSourceBase):
             ref = f"#/components/schemas/{name}"
         elif name == "UserGetResponse":
             openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**keystone_schemas.USER_SCHEMA)
+                name, TypeSchema(**keystone_schemas.USER_CONTAINER_SCHEMA)
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name == "UsersPasswordPostRequest":
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.USER_PWD_CHANGE_SCHEMA)
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name == "UsersGroupsGetResponse":
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.USER_GROUPS_SCHEMA)
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name == "UsersProjectsGetResponse":
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**keystone_schemas.USER_PROJECTS_SCHEMA)
             )
             ref = f"#/components/schemas/{name}"
 

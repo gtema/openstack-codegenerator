@@ -40,6 +40,13 @@ class String(common_rust.String):
 
     clap_macros: set[str] = set()
     original_data_type: BaseCompoundType | BaseCompoundType | None = None
+    # imports: set[str] =  set(["dialoguer::Password"])
+
+    @property
+    def imports(self) -> set[str]:
+        if self.format and self.format == "password":
+            return set(["dialoguer::Password"])
+        return set([])
 
 
 class IntString(common.BasePrimitiveType):
@@ -88,6 +95,19 @@ class StructInputField(common_rust.StructField):
     """Structure field of the CLI input"""
 
     additional_clap_macros: set[str] = set()
+
+    @property
+    def type_hint(self):
+        typ_hint = self.data_type.type_hint
+        if self.is_optional:
+            typ_hint = f"Option<{typ_hint}>"
+        # Password input must be optional
+        if (
+            getattr(self.data_type, "format", None) == "password"
+            and not self.is_optional
+        ):
+            typ_hint = f"Option<{typ_hint}>"
+        return typ_hint
 
     @property
     def builder_macros(self):
@@ -473,6 +493,19 @@ class RequestTypeManager(common_rust.TypeManager):
                     original_data_type=original_data_type,
                     item_type=JsonValue(),
                 )
+            elif isinstance(item_type, model.Array) and isinstance(
+                item_type.item_type, model.ConstraintString
+            ):
+                if item_type.reference:
+                    self.refs.pop(item_type.reference, None)
+                original_data_type = self.convert_model(item_type)
+                typ = self.data_type_mapping[model.Array](
+                    description=common_rust.sanitize_rust_docstrings(
+                        type_model.description
+                    ),
+                    original_data_type=original_data_type,
+                    item_type=String(),
+                )
 
         if typ:
             if model_ref:
@@ -480,6 +513,7 @@ class RequestTypeManager(common_rust.TypeManager):
         else:
             # Not hacked anything, invoke superior method
             typ = super().convert_model(type_model)
+            logging.debug("Returning %s for %s", typ, type_model.__class__)
         return typ
 
     def _get_struct_type(self, type_model: model.Struct) -> common_rust.Struct:

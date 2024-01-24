@@ -215,7 +215,7 @@ class NovaGenerator(OpenStackServerSourceBase):
             "ServersActionAddfixedipResponse",
             "ServersActionRemovefixedipResponse",
         ]:
-            return None
+            return (None, None)
         elif name in [
             "ServersActionCreateimageResponse",
             "ServersActionCreatebackupResponse",
@@ -505,7 +505,7 @@ class NovaGenerator(OpenStackServerSourceBase):
             ref = f"#/components/schemas/{name}"
         # /servers/{server_id}/migrations
         elif name == "ServersMigrationsActionForce_CompleteResponse":
-            return None
+            return (None, None)
         elif name == "ServersMigrationsListResponse":
             schema = openapi_spec.components.schemas.setdefault(
                 name, TypeSchema(**nova_schemas.SERVER_MIGRATION_LIST_SCHEMA)
@@ -619,7 +619,7 @@ class NovaGenerator(OpenStackServerSourceBase):
             "ServersTagUpdateResponse",
         ]:
             # Operations without body
-            return None
+            return (None, None)
         else:
             (ref, mime_type) = super()._get_schema_ref(
                 openapi_spec, name, description, action_name=action_name

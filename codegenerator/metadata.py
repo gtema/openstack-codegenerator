@@ -131,6 +131,10 @@ class MetadataGenerator(BaseGenerator):
                             operation_key = "download"
                         else:
                             raise NotImplementedError
+                    elif path == "/v3/users/{user_id}/password":
+                        if method == "post":
+                            operation_key = "update"
+
                     elif response_schema and (
                         method == "get"
                         and (

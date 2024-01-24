@@ -169,8 +169,16 @@ Some({{ val }})
   {%- endif %}
   {%- endfor %}
 {%- elif param.data_type.__class__.__name__ == "StructInput" %}
-    let sub = {{ sdk_mod_path[-1] }}::{{ param.data_type.name }}Builder::default();
+    let mut sub = {{ sdk_mod_path[-1] }}::{{ param.data_type.name }}Builder::default();
     {%- for k, v in param.data_type.fields.items() %}
+      {%- if v.is_optional %}
+        if let Some(val) = &{{ val_var }}.{{ v.local_name }} {
+          {{ set_request_data_from_input("sub", v, "val") }}
+        }
+      {%- else %}
+          {{ set_request_data_from_input("sub", v, "&args." + v.local_name) }}
+      {%- endif %}
+
     {%- endfor %}
     {{ dst_var }}.{{ param.remote_name }}(sub.build().expect("A valid object"));
 {%- elif param.data_type.__class__.__name__ == "String" %}
@@ -211,7 +219,7 @@ Some({{ val }})
             serde_json::from_value::<{{ sdk_mod_path[-1] }}::{{ original_type.name }}>(v.clone()))
         .collect::<Vec<{{ sdk_mod_path[-1] }}:: {{ original_type.name }}>>();
     {{ dst_var }}.{{ param.remote_name }}(sub);
-    {%- elif param.data_type.item_type.__class__.__name__ == "String" and param.data_type.item_type.original_data_type.__class__.__name__ == "StructInput" %}
+    {%- elif param.data_type.item_type.__class__.__name__ == "String" and original_item_type.__class__.__name__ == "StructInput" %}
     {#- Single field structure replaced with only string #}
     {%- set original_type = param.data_type.item_type.original_data_type %}
     {%- set original_field = original_type.fields[param.data_type.item_type.original_data_type.fields.keys()|list|first] %}
@@ -223,6 +231,14 @@ Some({{ val }})
             )
         .collect();
     {{ dst_var }}.{{ param.remote_name }}(sub);
+    {%- elif param.data_type.item_type.__class__.__name__ == "String" and original_type.__class__.__name__ == "ArrayInput" %}
+    {#- Single field structure replaced with only string #}
+    {{ dst_var }}.{{ param.remote_name }}(
+        val.iter()
+            .cloned()
+            .map(|x| Vec::from([x.split(",").collect()]))
+            .collect::<Vec<_>>(),
+        );
   {%- elif param["setter_type"] is defined %}
     {#- Param with setter present #}
     {{ dst_var }}.{{ param.remote_name }}(

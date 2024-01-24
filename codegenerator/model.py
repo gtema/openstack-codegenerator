@@ -11,6 +11,8 @@
 # under the License.
 #
 import copy
+import hashlib
+import json
 import logging
 from typing import Any
 from typing import Type
@@ -21,15 +23,24 @@ from pydantic import BaseModel
 from codegenerator import common
 
 
+def dicthash_(data: dict[str, Any]) -> str:
+    """Calculate hash of the dictionary"""
+    dh = hashlib.md5()
+    encoded = json.dumps(data, sort_keys=True).encode()
+    dh.update(encoded)
+    return dh.hexdigest()
+
+
 class Reference(BaseModel):
     """Reference of the complex type to the occurence instance"""
 
     #: Name of the object that uses the type under reference
     name: str
     type: Type | None = None
+    hash_: str | None = None
 
     def __hash__(self):
-        return hash((self.name, self.type))
+        return hash((self.name, self.type, self.hash_))
 
 
 class PrimitiveType(BaseModel):
@@ -368,13 +379,21 @@ class JsonSchemaParser:
             raise RuntimeError("Object %s is not supported", schema)
 
         if name:
-            obj.reference = Reference(name=name, type=obj.__class__)
+            obj.reference = Reference(
+                name=name, type=obj.__class__, hash_=dicthash_(schema)
+            )
 
         if obj:
             obj.description = schema.get("description")
-            if obj.reference and obj.reference in [
-                x.reference for x in results
-            ]:
+            if (
+                obj.reference
+                and f"{obj.reference.name}{obj.reference.type}"
+                in [
+                    f"{x.reference.name}{x.reference.type}"
+                    for x in results
+                    if x.reference
+                ]
+            ):
                 # Structure with the same name is already present. Prefix the
                 # new one with the parent name
                 if parent_name and name:
@@ -416,7 +435,9 @@ class JsonSchemaParser:
             else:
                 obj.kinds.append(kind_type)
         if name:
-            obj.reference = Reference(name=name, type=obj.__class__)
+            obj.reference = Reference(
+                name=name, type=obj.__class__, hash_=dicthash_(schema)
+            )
         results.append(obj)
         return obj
 
@@ -444,7 +465,9 @@ class JsonSchemaParser:
             else:
                 obj.kinds.append(kind_type)
         if name:
-            obj.reference = Reference(name=name, type=obj.__class__)
+            obj.reference = Reference(
+                name=name, type=obj.__class__, hash_=dicthash_(schema)
+            )
         results.append(obj)
         return obj
 
@@ -469,7 +492,9 @@ class JsonSchemaParser:
         else:
             obj = Array(item_type=item_type)
         if name:
-            obj.reference = Reference(name=name, type=obj.__class__)
+            obj.reference = Reference(
+                name=name, type=obj.__class__, hash_=dicthash_(schema)
+            )
         results.append(obj)
         return obj
 
@@ -494,7 +519,9 @@ class JsonSchemaParser:
                 obj.base_types.append(PrimitiveBoolean)
 
         if name:
-            obj.reference = Reference(name=name, type=obj.__class__)
+            obj.reference = Reference(
+                name=name, type=obj.__class__, hash_=dicthash_(schema)
+            )
         results.append(obj)
         return obj
 
@@ -590,7 +617,9 @@ class OpenAPISchemaParser(JsonSchemaParser):
 
         if isinstance(dt, ADT):
             # Set reference into the data_type so that it doesn't mess with main body types
-            dt.reference = Reference(name=param_name, type=RequestParameter)
+            dt.reference = Reference(
+                name=param_name, type=RequestParameter, hash_=dicthash_(schema)
+            )
 
         if dt:
             return RequestParameter(

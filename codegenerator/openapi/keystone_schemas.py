@@ -100,7 +100,7 @@ PROJECT_LIST_PARAMETERS = {
     "name": {
         "in": "query",
         "name": "name",
-        "description": "Filters the response by a project name.",
+        "description": "Filters the response by a resource name.",
         "schema": {"type": "string"},
     },
     "parent_id": {
@@ -228,6 +228,51 @@ DOMAIN_CONFIG_SCHEMA = {
     ]
 }
 
+USER_LIST_PARAMETERS = {
+    "domain_id": {
+        "in": "query",
+        "name": "domain_id",
+        "description": "Filters the response by a domain ID.",
+        "schema": {"type": "string", "format": "uuid"},
+    },
+    "enabled": {
+        "in": "query",
+        "name": "enabled",
+        "description": "If set to true, then only enabled projects will be returned. Any value other than 0 (including no value) will be interpreted as true.",
+        "schema": {"type": "boolean"},
+    },
+    "idp_id": {
+        "in": "query",
+        "name": "idp_id",
+        "description": "Filters the response by a domain ID.",
+        "schema": {"type": "string", "format": "uuid"},
+    },
+    "name": {
+        "in": "query",
+        "name": "name",
+        "description": "Filters the response by a resource name.",
+        "schema": {"type": "string"},
+    },
+    "password_expires_at": {
+        "in": "query",
+        "name": "password_expires_at",
+        "description": "Filter results based on which user passwords have expired. The query should include an operator and a timestamp with a colon (:) separating the two, for example: `password_expires_at={operator}:{timestamp}`.\nValid operators are: `lt`, `lte`, `gt`, `gte`, `eq`, and `neq`.\nValid timestamps are of the form: YYYY-MM-DDTHH:mm:ssZ.",
+        "schema": {"type": "string", "format": "date-time"},
+    },
+    "protocol_id": {
+        "in": "query",
+        "name": "protocol_id",
+        "description": "Filters the response by a protocol ID.",
+        "schema": {"type": "string", "format": "uuid"},
+    },
+    "unique_id": {
+        "in": "query",
+        "name": "unique_id",
+        "description": "Filters the response by a unique ID.",
+        "schema": {"type": "string", "format": "uuid"},
+    },
+}
+
 USER_SCHEMA = {
     "type": "object",
     "properties": {
@@ -236,9 +281,119 @@ USER_SCHEMA = {
     },
 }
 
+USER_CREATE_SCHEMA = {
+    "type": "object",
+    "properties": {"user": identity_schema.user_create},
+}
+
+USER_PATCH_SCHEMA = {
+    "type": "object",
+    "properties": {"user": identity_schema.user_update},
+}
+
+
+USER_CONTAINER_SCHEMA = {
+    "type": "object",
+    "properties": {"user": USER_SCHEMA},
+}
+
 USERS_SCHEMA = {
     "type": "object",
-    "properties": {"projects": {"type": "array", "items": USER_SCHEMA}},
+    "properties": {"users": {"type": "array", "items": USER_SCHEMA}},
+}
+
+USER_PWD_CHANGE_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {"user": identity_schema.password_change},
+}
+
+# Set `password` format for password change operation
+USER_PWD_CHANGE_SCHEMA["properties"]["user"]["properties"]["password"][
+    "format"
+] = "password"
+USER_PWD_CHANGE_SCHEMA["properties"]["user"]["properties"][
+    "original_password"
+]["format"] = "password"
+
+USER_GROUP_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "description": {
+            "type": "string",
+            "description": "The description of the group.",
+        },
+        "domain_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The ID of the domain of the group.",
+        },
+        "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The ID of the group.",
+        },
+        "name": {
+            "type": "string",
+            "description": "The name of the group.",
+        },
+        "membership_expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date and time when the group membership expires. A null value indicates that the membership never expires.",
+            "x-openstack": {"min-ver": "3.14"},
+        },
+    },
+}
+
+USER_GROUPS_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "groups": {
+            "type": "array",
+            "description": "A list of group objects",
+            "items": USER_GROUP_SCHEMA,
+        }
+    },
+}
+
+USER_PROJECT_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "description": {
+            "type": "string",
+            "description": "The description of the project.",
+        },
+        "domain_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The ID of the domain of the project.",
+        },
+        "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The ID of the project.",
+        },
+        "parent_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The parent id of the project.",
+        },
+        "name": {
+            "type": "string",
+            "description": "The name of the project.",
+        },
+    },
+}
+
+USER_PROJECTS_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "projects": {
+            "type": "array",
+            "description": "A list of project objects",
+            "items": USER_PROJECT_SCHEMA,
+        }
+    },
 }
 
 GROUP_SCHEMA = {
@@ -251,7 +406,7 @@ GROUP_SCHEMA = {
 
 GROUPS_SCHEMA = {
     "type": "object",
-    "properties": {"projects": {"type": "array", "items": GROUP_SCHEMA}},
+    "properties": {"groups": {"type": "array", "items": GROUP_SCHEMA}},
 }
 
 
@@ -294,6 +449,7 @@ AUTH_TOKEN_ISSUE_SCHEMA = {
                                         },
                                         "password": {
                                             "type": "string",
+                                            "format": "password",
                                             "description": "User Password",
                                         },
                                         "domain": {
@@ -320,6 +476,7 @@ AUTH_TOKEN_ISSUE_SCHEMA = {
                             "properties": {
                                 "id": {
                                     "type": "string",
+                                    "format": "password",
                                     "description": "Authorization Token value",
                                 },
                             },
@@ -355,6 +512,7 @@ AUTH_TOKEN_ISSUE_SCHEMA = {
                                         },
                                         "passcode": {
                                             "type": "string",
+                                            "format": "password",
                                             "description": "MFA passcode",
                                         },
                                     },

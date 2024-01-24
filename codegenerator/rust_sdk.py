@@ -25,8 +25,11 @@ from codegenerator.common import rust as common_rust
 
 class String(common_rust.String):
     lifetimes: set[str] = set(["'a"])
-    imports: set[str] = set(["std::borrow::Cow"])
     type_hint: str = "Cow<'a, str>"
+
+    @property
+    def imports(self) -> set[str]:
+        return set(["std::borrow::Cow"])
 
 
 class Enum(common_rust.Enum):
