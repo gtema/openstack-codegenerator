@@ -428,7 +428,12 @@ AUTH_TOKEN_ISSUE_SCHEMA = {
                             "description": "The authentication method.",
                             "items": {
                                 "type": "string",
-                                "enum": ["password", "token", "totp"],
+                                "enum": [
+                                    "password",
+                                    "token",
+                                    "totp",
+                                    "application_credential",
+                                ],
                             },
                         },
                         "password": {
@@ -522,6 +527,51 @@ AUTH_TOKEN_ISSUE_SCHEMA = {
                             "required": [
                                 "user",
                             ],
+                        },
+                        "application_credential": {
+                            "type": "object",
+                            "description": "An application credential object.",
+                            "properties": {
+                                "id": {
+                                    "type": "string",
+                                    "descripion": "The ID of the application credential used for authentication. If not provided, the application credential must be identified by its name and its owning user.",
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "descripion": "The name of the application credential used for authentication. If provided, must be accompanied by a user object.",
+                                },
+                                "secret": {
+                                    "type": "string",
+                                    "format": "password",
+                                    "description": "The secret for authenticating the application credential.",
+                                },
+                                "user": {
+                                    "type": "object",
+                                    "description": "A user object, required if an application credential is identified by name and not ID.",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "description": "The user ID",
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "description": "The user name",
+                                        },
+                                        "domain": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string",
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            "required": ["secret"],
                         },
                     },
                     "required": [
@@ -903,13 +953,23 @@ APPLICATION_CREDENTIAL_ACCESS_RULES_SCHEMA = {
     },
 }
 
-APPLICATION_CREDENTIAL_ACCESS_RULE_SCHEMA = copy.deepcopy(
-    application_credential_schema._access_rules_properties["items"]
-)
-
-APPLICATION_CREDENTIAL_SCHEMA = {
+APPLICATION_CREDENTIAL_ACCESS_RULE_SCHEMA = {
     "type": "object",
     "properties": {
+        "access_rule": copy.deepcopy(
+            application_credential_schema._access_rules_properties["items"]
+        ),
+    },
+}
+
+APPLICATION_CREDENTIAL_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The ID of the application credential.",
+        },
         "project_id": {
             "type": "string",
             "format": "uuid",
@@ -917,6 +977,37 @@ APPLICATION_CREDENTIAL_SCHEMA = {
         },
         **application_credential_schema._application_credential_properties,
     },
+}
+APPLICATION_CREDENTIAL_SCHEMA["properties"].pop("secret", None)
+
+APPLICATION_CREDENTIAL_CONTAINER_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "application_credential": copy.deepcopy(APPLICATION_CREDENTIAL_SCHEMA)
+    },
+}
+
+APPLICATION_CREDENTIAL_CREATE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "application_credential": copy.deepcopy(
+            application_credential_schema.application_credential_create
+        )
+    },
+}
+
+APPLICATION_CREDENTIAL_CREATE_RESPONSE_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "application_credential": copy.deepcopy(APPLICATION_CREDENTIAL_SCHEMA)
+    },
+}
+# Update `secret` field
+APPLICATION_CREDENTIAL_CREATE_RESPONSE_SCHEMA["properties"][
+    "application_credential"
+]["properties"]["secret"] = {
+    "type": "string",
+    "description": "The secret for the application credential, either generated by the server or provided by the user. This is only ever shown once in the response to a create request. It is not stored nor ever shown again. If the secret is lost, a new application credential must be created.",
 }
 
 APPLICATION_CREDENTIALS_SCHEMA = {
@@ -926,5 +1017,14 @@ APPLICATION_CREDENTIALS_SCHEMA = {
             "type": "array",
             "items": copy.deepcopy(APPLICATION_CREDENTIAL_SCHEMA),
         },
+    },
+}
+
+APPLICATION_CREDENTIALS_LIST_PARAMETERS = {
+    "application_credentials_name": {
+        "in": "query",
+        "name": "name",
+        "description": "The name of the application credential. Must be unique to a user.",
+        "schema": {"type": "string"},
     },
 }

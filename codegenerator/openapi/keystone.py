@@ -17,9 +17,6 @@ from pathlib import Path
 
 from ruamel.yaml.scalarstring import LiteralScalarString
 
-from keystone.application_credential import (
-    schema as application_credential_schema,
-)
 from keystone.assignment import schema as assignment_schema
 from keystone.identity import schema as identity_schema
 from keystone.resource import schema as ks_schema
@@ -465,6 +462,20 @@ class KeystoneGenerator(OpenStackServerSourceBase):
                 if ref not in [x.ref for x in operation_spec.parameters]:
                     operation_spec.parameters.append(ParameterSchema(ref=ref))
 
+        elif operationId == "users/user_id/application_credentials:get":
+            for (
+                key,
+                val,
+            ) in (
+                keystone_schemas.APPLICATION_CREDENTIALS_LIST_PARAMETERS.items()
+            ):
+                openapi_spec.components.parameters.setdefault(
+                    key, ParameterSchema(**val)
+                )
+                ref = f"#/components/parameters/{key}"
+                if ref not in [x.ref for x in operation_spec.parameters]:
+                    operation_spec.parameters.append(ParameterSchema(ref=ref))
+
     def _get_schema_ref(
         self,
         openapi_spec,
@@ -816,7 +827,7 @@ class KeystoneGenerator(OpenStackServerSourceBase):
             openapi_spec.components.schemas.setdefault(
                 name,
                 TypeSchema(
-                    **keystone_schemas.APPLICATION_CREDENTIAL_ACCESS_RULES_SCHEMA
+                    **keystone_schemas.APPLICATION_CREDENTIAL_ACCESS_RULE_SCHEMA
                 ),
             )
             ref = f"#/components/schemas/{name}"
@@ -824,30 +835,39 @@ class KeystoneGenerator(OpenStackServerSourceBase):
             openapi_spec.components.schemas.setdefault(
                 name,
                 TypeSchema(
-                    **keystone_schemas.APPLICATION_CREDENTIAL_ACCESS_RULE_SCHEMA
+                    **keystone_schemas.APPLICATION_CREDENTIAL_ACCESS_RULES_SCHEMA
                 ),
             )
             ref = f"#/components/schemas/{name}"
-        elif name == "UsersApplication_CredentialGetResponse":
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**keystone_schemas.APPLICATION_CREDENTIAL_SCHEMA),
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name in [
-            "UsersApplication_CredentialsGetResponse",
-            "UsersApplication_CredentialsPostResponse",
-        ]:
+        elif name == "UsersApplication_CredentialsGetResponse":
             openapi_spec.components.schemas.setdefault(
                 name,
                 TypeSchema(**keystone_schemas.APPLICATION_CREDENTIALS_SCHEMA),
             )
             ref = f"#/components/schemas/{name}"
-        elif name == "UsersApplication_CredentialsPostRequest":
+        elif name in [
+            "UsersApplication_CredentialGetResponse",
+        ]:
             openapi_spec.components.schemas.setdefault(
                 name,
                 TypeSchema(
-                    **application_credential_schema.application_credential_create
+                    **keystone_schemas.APPLICATION_CREDENTIAL_CONTAINER_SCHEMA
+                ),
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name in "UsersApplication_CredentialsPostRequest":
+            openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(
+                    **keystone_schemas.APPLICATION_CREDENTIAL_CREATE_SCHEMA
+                ),
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name in "UsersApplication_CredentialsPostResponse":
+            openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(
+                    **keystone_schemas.APPLICATION_CREDENTIAL_CREATE_RESPONSE_SCHEMA
                 ),
             )
             ref = f"#/components/schemas/{name}"

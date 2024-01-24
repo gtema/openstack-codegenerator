@@ -414,7 +414,7 @@ resources:
             module_name: create
             sdk_mod_name: create
       find:
-        operation_id: fake
+        operation_id: domains:get
         operation_type: find
         targets:
           rust-sdk:
@@ -759,7 +759,7 @@ resources:
             module_name: create
             sdk_mod_name: create
       find:
-        operation_id: fake
+        operation_id: groups:get
         operation_type: find
         targets:
           rust-sdk:
@@ -1954,7 +1954,7 @@ resources:
             module_name: create
             sdk_mod_name: create
       find:
-        operation_id: fake
+        operation_id: projects:get
         operation_type: find
         targets:
           rust-sdk:
@@ -2326,7 +2326,7 @@ resources:
             module_name: create
             sdk_mod_name: create
       find:
-        operation_id: fake
+        operation_id: roles:get
         operation_type: find
         targets:
           rust-sdk:
@@ -2689,7 +2689,7 @@ resources:
             module_name: create
             sdk_mod_name: create
       find:
-        operation_id: fake
+        operation_id: users:get
         operation_type: find
         targets:
           rust-sdk:
@@ -2851,6 +2851,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            find_implemented_by_sdk: true
       delete:
         operation_id: users/user_id/application_credentials/application_credential_id:delete
         operation_type: delete
@@ -2860,6 +2861,17 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: users/user_id/application_credentials:get
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: identity::v3::user::application_credential
+            name_field: name
+            name_filter_supported: true
+            list_mod: list
   identity.user/access_rule:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -2888,6 +2900,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            find_implemented_by_sdk: true
       delete:
         operation_id: users/user_id/access_rules/access_rule_id:delete
         operation_type: delete
@@ -2897,3 +2910,14 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            find_implemented_by_sdk: true
+      find:
+        operation_id: users/user_id/access_rules:get
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: identity::v3::user::access_rule
+            name_field: name
+            name_filter_supported: false
+            list_mod: list

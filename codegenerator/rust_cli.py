@@ -513,7 +513,6 @@ class RequestTypeManager(common_rust.TypeManager):
         else:
             # Not hacked anything, invoke superior method
             typ = super().convert_model(type_model)
-            logging.debug("Returning %s for %s", typ, type_model.__class__)
         return typ
 
     def _get_struct_type(self, type_model: model.Struct) -> common_rust.Struct:
@@ -832,7 +831,7 @@ class RustCliGenerator(BaseGenerator):
             ) or param["in"] != "path":
                 # Respect path params that appear in path and not path params
                 param_ = openapi_parser.parse_parameter(param)
-                if param_.name == f"{res_name}_id":
+                if param_.name == f"{resource_name}_id":
                     # for i.e. routers/{router_id} we want local_name to be `id` and not `router_id`
                     param_.name = "id"
                 operation_params.append(param_)
