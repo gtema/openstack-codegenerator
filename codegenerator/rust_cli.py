@@ -1028,7 +1028,10 @@ class RustCliGenerator(BaseGenerator):
                             result_is_list = True
 
                 additional_imports.add(
-                    "openstack_sdk::api::" + "::".join(sdk_mod_path)
+                    "openstack_sdk::api::"
+                    + "::".join(
+                        f"r#{x}" if x in ["type"] else x for x in sdk_mod_path
+                    )
                 )
                 root_type = response_type_manager.get_root_data_type()
                 if args.operation_type == "list":
@@ -1082,7 +1085,10 @@ class RustCliGenerator(BaseGenerator):
                         "::".join(
                             [
                                 "openstack_sdk::api",
-                                "::".join(sdk_mod_path[:-1]),
+                                "::".join(
+                                    f"r#{x}" if x in ["type"] else x
+                                    for x in sdk_mod_path[:-1]
+                                ),
                                 "find",
                             ]
                         )

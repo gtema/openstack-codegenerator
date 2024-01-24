@@ -377,7 +377,6 @@ class MetadataGenerator(BaseGenerator):
                 (path, _, spec) = common.find_openapi_operation(
                     openapi_spec, show_op.operation_id
                 )
-                print(f"find for {list_op}")
                 mod_path = common.get_rust_sdk_mod_path(
                     args.service_type,
                     res_data.api_version or "",

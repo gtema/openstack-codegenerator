@@ -128,7 +128,7 @@ Some({{ val }})
 {#- Macros to render setting Request data from CLI input #}
 {%- macro set_request_data_from_input(dst_var, param, val_var) %}
 {%- set is_nullable = param.is_nullable if param.is_nullable is defined else False %}
-{%- if param.type_hint in ["Option<Option<bool>>"] %}
+{%- if param.type_hint in ["Option<Option<bool>>", "Option<Option<i32>>", "Opeion<Option<i64>>"] %}
     {{ dst_var }}.{{ param.remote_name }}({{ "*" + val_var }});
 {%- elif param.type_hint in ["Option<i32>", "Option<i64>", "Option<f32>", "Option<f64>", "Option<bool>"] %}
     {{ dst_var }}.{{ param.remote_name }}({{ "*" + val_var }});
@@ -169,18 +169,19 @@ Some({{ val }})
   {%- endif %}
   {%- endfor %}
 {%- elif param.data_type.__class__.__name__ == "StructInput" %}
-    let mut sub = {{ sdk_mod_path[-1] }}::{{ param.data_type.name }}Builder::default();
+    {% set builder_name = param.local_name + "_builder" %}
+    let mut {{ builder_name }} = {{ sdk_mod_path[-1] }}::{{ param.data_type.name }}Builder::default();
     {%- for k, v in param.data_type.fields.items() %}
       {%- if v.is_optional %}
         if let Some(val) = &{{ val_var }}.{{ v.local_name }} {
-          {{ set_request_data_from_input("sub", v, "val") }}
+          {{ set_request_data_from_input(builder_name, v, "val") }}
         }
       {%- else %}
-          {{ set_request_data_from_input("sub", v, "&args." + v.local_name) }}
+          {{ set_request_data_from_input(builder_name, v, "&" + val_var + "." + v.local_name) }}
       {%- endif %}
 
     {%- endfor %}
-    {{ dst_var }}.{{ param.remote_name }}(sub.build().expect("A valid object"));
+    {{ dst_var }}.{{ param.remote_name }}({{ builder_name }}.build().expect("A valid object"));
 {%- elif param.data_type.__class__.__name__ == "String" %}
     {{ dst_var }}.{{ param.remote_name }}({{ "Some(" if is_nullable }}{{ val_var }}{{ ".into())" if is_nullable }});
 {%- elif param.data_type.__class__.__name__ == "Option" %}
@@ -193,13 +194,14 @@ Some({{ val }})
 {%- macro sdk_enum_array_setter(param, field, val_var, dst_var) %}
     {%- set original_type = field.data_type.original_data_type %}
     {%- if field.data_type.item_type.__class__.__name__ == "JsonValue" and original_type.__class__.__name__ == "StructInput" %}
-    let sub: Vec<{{ sdk_mod_path[-1] }}::{{ original_type.name }}> = {{ val_var }}
+    {% set builder_name = param.local_name + "_builder" %}
+    let {{ builder_name }}: Vec<{{ sdk_mod_path[-1] }}::{{ original_type.name }}> = {{ val_var }}
         .iter()
         .flat_map(|v|
             serde_json::from_value::<{{ sdk_mod_path[-1] }}::{{ original_type.name }}>(v.clone()))
         .collect();
     {{ dst_var }}.{{ param.remote_name }}(
-        {{ sdk_mod_path[-1] }}::{{ field.remote_name }}(sub)
+        {{ sdk_mod_path[-1] }}::{{ field.remote_name }}({{ builder_name }})
     );
     {%- else %}
     {#- Normal array #}
@@ -213,24 +215,26 @@ Some({{ val }})
   {%- set original_type = param.data_type.original_data_type %}
   {%- set original_item_type = param.data_type.item_type.original_data_type %}
   {%- if param.data_type.item_type.__class__.__name__ == "JsonValue" and original_type.__class__.__name__ == "StructInput" %}
-    let sub: Vec<{{ sdk_mod_path[-1] }}::{{ original_type.name }}> = {{ val_var }}
+    {% set builder_name = param.local_name + "_builder" %}
+    let {{ builder_name }}: Vec<{{ sdk_mod_path[-1] }}::{{ original_type.name }}> = {{ val_var }}
         .iter()
         .flat_map(|v|
             serde_json::from_value::<{{ sdk_mod_path[-1] }}::{{ original_type.name }}>(v.clone()))
         .collect::<Vec<{{ sdk_mod_path[-1] }}:: {{ original_type.name }}>>();
-    {{ dst_var }}.{{ param.remote_name }}(sub);
+    {{ dst_var }}.{{ param.remote_name }}({{ builder_name }});
     {%- elif param.data_type.item_type.__class__.__name__ == "String" and original_item_type.__class__.__name__ == "StructInput" %}
     {#- Single field structure replaced with only string #}
     {%- set original_type = param.data_type.item_type.original_data_type %}
     {%- set original_field = original_type.fields[param.data_type.item_type.original_data_type.fields.keys()|list|first] %}
-    let sub: Vec<{{ sdk_mod_path[-1] }}::{{ original_type.name }}> = {{ val_var }}
+    {% set builder_name = param.local_name + "_builder" %}
+    let {{ builder_name }}: Vec<{{ sdk_mod_path[-1] }}::{{ original_type.name }}> = {{ val_var }}
         .iter()
         .flat_map(|v| {{ sdk_mod_path[-1] }}::{{ original_type.name }}Builder::default()
             .{{ original_field.remote_name }}(v)
             .build()
             )
         .collect();
-    {{ dst_var }}.{{ param.remote_name }}(sub);
+    {{ dst_var }}.{{ param.remote_name }}({{ builder_name }});
     {%- elif param.data_type.item_type.__class__.__name__ == "String" and original_type.__class__.__name__ == "ArrayInput" %}
     {#- Single field structure replaced with only string #}
     {{ dst_var }}.{{ param.remote_name }}(

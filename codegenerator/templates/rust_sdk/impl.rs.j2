@@ -138,7 +138,7 @@ impl{{ type_manager.get_request_static_lifetimes(request) }} RestEndpoint for Re
     }
 
     fn parameters(&self) -> QueryParams {
-    {%- if type_manager.parameters|length > 0 %}
+    {%- if type_manager.parameters.values()|selectattr("location", "equalto", "query")|list|length > 0 %}
         let mut params = QueryParams::default();
 
      {%- for param in type_manager.parameters.values() %}

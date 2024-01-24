@@ -563,7 +563,7 @@ resources:
             sdk_mod_name: reactivate
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: images:get
         operation_type: find
         targets:
           rust-sdk:
@@ -760,7 +760,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: tasks:get
         operation_type: find
         targets:
           rust-sdk:

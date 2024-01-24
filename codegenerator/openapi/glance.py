@@ -159,7 +159,7 @@ IMAGE_PARAMETERS = {
         "in": "query",
         "name": "tag",
         "description": LiteralScalarString(
-            "Filters the response by the specified tag value. May be repeated, but keep in mind that you’re making a conjunctive query, so only images containing all the tags specified will appear in the response."
+            "Filters the response by the specified tag value. May be repeated, but keep in mind that you're making a conjunctive query, so only images containing all the tags specified will appear in the response."
         ),
         "schema": {"type": "array", "items": {"type": "string"}},
         "style": "form",

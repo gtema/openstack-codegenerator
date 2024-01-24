@@ -360,7 +360,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: volumes/detail:get
         operation_type: find
         targets:
           rust-sdk:

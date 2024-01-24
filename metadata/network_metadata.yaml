@@ -94,7 +94,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: address-groups:get
         operation_type: find
         targets:
           rust-sdk:
@@ -156,7 +156,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: address-scopes:get
         operation_type: find
         targets:
           rust-sdk:
@@ -218,7 +218,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: agents:get
         operation_type: find
         targets:
           rust-sdk:
@@ -280,7 +280,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: auto-allocated-topology:get
         operation_type: find
         targets:
           rust-sdk:
@@ -523,7 +523,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: routers:get
         operation_type: find
         targets:
           rust-sdk:
@@ -585,7 +585,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: flavors:get
         operation_type: find
         targets:
           rust-sdk:
@@ -647,7 +647,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: service_profiles:get
         operation_type: find
         targets:
           rust-sdk:
@@ -758,7 +758,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: flavors/flavor_id/service_profiles:get
         operation_type: find
         targets:
           rust-sdk:
@@ -820,7 +820,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: floatingips/floatingip_id/port_forwardings:get
         operation_type: find
         targets:
           rust-sdk:
@@ -931,7 +931,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: floatingips:get
         operation_type: find
         targets:
           rust-sdk:
@@ -993,7 +993,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: routers/router_id/conntrack_helpers:get
         operation_type: find
         targets:
           rust-sdk:
@@ -1055,7 +1055,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: ndp-proxies:get
         operation_type: find
         targets:
           rust-sdk:
@@ -1215,7 +1215,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: local-ips:get
         operation_type: find
         targets:
           rust-sdk:
@@ -1326,7 +1326,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: log/logs:get
         operation_type: find
         targets:
           rust-sdk:
@@ -1437,7 +1437,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: metering/metering-labels:get
         operation_type: find
         targets:
           rust-sdk:
@@ -1499,7 +1499,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: metering/metering-label-rules:get
         operation_type: find
         targets:
           rust-sdk:
@@ -1610,7 +1610,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: network-segment-ranges:get
         operation_type: find
         targets:
           rust-sdk:
@@ -1734,7 +1734,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: qos/policies:get
         operation_type: find
         targets:
           rust-sdk:
@@ -1845,7 +1845,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: qos/policies/policy_id/bandwidth_limit_rules:get
         operation_type: find
         targets:
           rust-sdk:
@@ -1907,7 +1907,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: qos/policies/policy_id/dscp_marking_rules:get
         operation_type: find
         targets:
           rust-sdk:
@@ -1969,7 +1969,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: qos/policies/policy_id/minimum_bandwidth_rules:get
         operation_type: find
         targets:
           rust-sdk:
@@ -2031,7 +2031,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: qos/policies/policy_id/minimum-packet-rate-rules:get
         operation_type: find
         targets:
           rust-sdk:
@@ -2093,7 +2093,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: qos/alias-minimum-packet-rate-rules:get
         operation_type: find
         targets:
           rust-sdk:
@@ -2155,7 +2155,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: policies/policy_id/packet_rate_limit_rules:get
         operation_type: find
         targets:
           rust-sdk:
@@ -2217,7 +2217,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: qos/alias-bandwidth-limit-rules:get
         operation_type: find
         targets:
           rust-sdk:
@@ -2279,7 +2279,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: qos/alias-dscp-marking-rules:get
         operation_type: find
         targets:
           rust-sdk:
@@ -2341,7 +2341,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: qos/alias-minimum-bandwidth-rules:get
         operation_type: find
         targets:
           rust-sdk:
@@ -2469,7 +2469,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: rbac-policies:get
         operation_type: find
         targets:
           rust-sdk:
@@ -2531,7 +2531,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: default-security-group-rules:get
         operation_type: find
         targets:
           rust-sdk:
@@ -2593,7 +2593,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: security-groups:get
         operation_type: find
         targets:
           rust-sdk:
@@ -2655,7 +2655,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: security-group-rules:get
         operation_type: find
         targets:
           rust-sdk:
@@ -2717,7 +2717,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: segments:get
         operation_type: find
         targets:
           rust-sdk:
@@ -2848,7 +2848,7 @@ resources:
             sdk_mod_name: remove_prefixes
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: subnetpools:get
         operation_type: find
         targets:
           rust-sdk:
@@ -3503,7 +3503,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: networks:get
         operation_type: find
         targets:
           rust-sdk:
@@ -3565,7 +3565,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: subnets:get
         operation_type: find
         targets:
           rust-sdk:
@@ -3637,7 +3637,7 @@ resources:
             sdk_mod_name: add_allowed_address_pairs
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: ports:get
         operation_type: find
         targets:
           rust-sdk:
@@ -3699,7 +3699,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: vpn/endpoint-groups:get
         operation_type: find
         targets:
           rust-sdk:
@@ -3761,7 +3761,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: vpn/vpnservices:get
         operation_type: find
         targets:
           rust-sdk:
@@ -3823,7 +3823,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: vpn/ipsec-site-connections:get
         operation_type: find
         targets:
           rust-sdk:
@@ -3885,7 +3885,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: vpn/ipsecpolicies:get
         operation_type: find
         targets:
           rust-sdk:
@@ -3947,7 +3947,7 @@ resources:
             sdk_mod_name: delete
             find_implemented_by_sdk: true
       find:
-        operation_id: fake
+        operation_id: vpn/ikepolicies:get
         operation_type: find
         targets:
           rust-sdk:

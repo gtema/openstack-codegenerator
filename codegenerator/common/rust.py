@@ -293,6 +293,7 @@ class Enum(BaseCompoundType):
     base_type: str = "enum"
     kinds: dict[str, EnumKind]
     literals: list[Any] | None = None
+    original_data_type: BaseCompoundType | BaseCompoundType | None = None
     _kind_type_class = EnumKind
 
     @property

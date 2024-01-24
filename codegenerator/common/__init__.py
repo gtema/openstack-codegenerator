@@ -66,7 +66,7 @@ class BaseCompoundType(BaseModel):
 def get_openapi_spec(path: str | Path):
     """Load OpenAPI spec from a file"""
     with open(path, "r") as fp:
-        spec_data = jsonref.replace_refs(yaml.safe_load(fp))
+        spec_data = jsonref.replace_refs(yaml.safe_load(fp), proxies=False)
     return Spec.from_dict(spec_data)
 
 
