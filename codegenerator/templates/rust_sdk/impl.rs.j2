@@ -76,11 +76,13 @@ impl{{ type_manager.get_request_static_lifetimes(request) }} RequestBuilder{{ ty
 {%- endif %}
 {%- endfor %}
 
+{%- if request.fields is defined %}
   {%- for field in request.fields.values() %}
     {%- if "private" in field.builder_macros %}
       {{ macros.sdk_builder_setter(field)}}
     {%- endif %}
   {%- endfor %}
+{%- endif %}
 
     /// Add a single header to the {{ class_name }}.
     pub fn header(&mut self, header_name: &'static str, header_value: &'static str) -> &mut Self
@@ -119,6 +121,21 @@ impl{{ type_manager.get_request_static_lifetimes(request) }} RequestBuilder{{ ty
       }
 
   {%- endif %}
+
+  {%- if request.__class__.__name__ == "BTreeMap" %}
+    pub fn properties<I, K, V>(&mut self, iter: I) -> &mut Self
+      where
+          I: Iterator<Item = (K, V)>,
+          K: Into<Cow<'a, str>>,
+          V: Into<{{ request.value_type.type_hint }}>,
+      {
+          self._properties
+              .get_or_insert_with(BTreeMap::new)
+              .extend(iter.map(|(k, v)| (k.into(), v.into())));
+          self
+      }
+
+  {%- endif %}
 }
 
 impl{{ type_manager.get_request_static_lifetimes(request) }} RestEndpoint for Request{{ type_manager.get_request_static_lifetimes(request) }} {
@@ -127,14 +144,7 @@ impl{{ type_manager.get_request_static_lifetimes(request) }} RestEndpoint for Re
     }
 
     fn endpoint(&self) -> Cow<'static, str> {
-        format!(
-            "{{ url }}",
-{%- for k, v in type_manager.parameters.items() %}
-{%- if v.location == "path" %}
-                {{ k }} = self.{{ v.local_name }}.as_ref(),
-{%- endif %}
-{% endfor %}
-        ).into()
+      {{ macros.sdk_build_url(url, type_manager.parameters, "", true) }}.into()
     }
 
     fn parameters(&self) -> QueryParams {
@@ -163,7 +173,7 @@ impl{{ type_manager.get_request_static_lifetimes(request) }} RestEndpoint for Re
     {%- endif %}
     }
 
-{% if request.fields %}
+{% if request.fields is defined and request.fields %}
     fn body(&self) -> Result<Option<(&'static str, Vec<u8>)>, BodyError> {
         let mut params = JsonBodyParams::default();
 
@@ -191,6 +201,17 @@ impl{{ type_manager.get_request_static_lifetimes(request) }} RestEndpoint for Re
             "{{ mime_type }}",
             serde_json::to_string(&self.patch)?.into_bytes(),
         )))
+    }
+
+{%- elif request.__class__.__name__ == "BTreeMap" %}
+    fn body(&self) -> Result<Option<(&'static str, Vec<u8>)>, BodyError> {
+        let mut params = JsonBodyParams::default();
+
+        for (key, val) in &self._properties {
+            params.push(key.clone(), serde_json::Value::from(val.clone()));
+        }
+
+        params.into_body()
     }
 {%- endif %}
 
@@ -269,14 +290,7 @@ mod tests {
         let client = MockServerClient::new();
         let mock = client.server.mock(|when, then| {
             when.method(httpmock::Method::{{ method | upper }})
-            .path(format!(
-                "/{{ url }}",
-                    {%- for k, v in type_manager.parameters.items() %}
-                    {%- if v.location == "path" %}
-                    {{ k }} = "{{ k }}",
-                    {%- endif %}
-                    {%- endfor %}
-             ));
+            .path({{ macros.sdk_build_url(url, type_manager.parameters, "/") }});
 
             then.status(200)
                 .header("content-type", "application/json")
@@ -307,14 +321,7 @@ mod tests {
         let client = MockServerClient::new();
         let mock = client.server.mock(|when, then| {
             when.method(httpmock::Method::{{ method|upper }})
-                .path(format!(
-                    "/{{ url }}",
-                {%- for k, v in type_manager.parameters.items() %}
-                {%- if v.location == "path" %}
-                {{ k }} = "{{ k }}",
-                {%- endif %}
-                {%- endfor %}
-                 ))
+                .path({{ macros.sdk_build_url(url, type_manager.parameters, "/") }})
                 .header("foo", "bar")
                 .header("not_foo", "not_bar");
             then.status(200)

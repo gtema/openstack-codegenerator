@@ -822,6 +822,9 @@ class TypeManager:
                         )
                         v.fields[field_names[0]].is_optional = False
                 return v
+            elif not k or (k.name == "Body" and isinstance(v, Dictionary)):
+                # Response is a free style Dictionary
+                return v
         # No root has been found, make a dummy one
         root = self.data_type_mapping[model.Struct](name="Request")
         return root

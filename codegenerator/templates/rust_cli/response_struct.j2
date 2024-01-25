@@ -1,52 +1,73 @@
 {%- import 'rust_macros.j2' as macros with context -%}
 {%- with data_type = response_type_manager.get_root_data_type() %}
-{%- if data_type.fields %}
-/// {{ target_class_name }} response representation
-#[derive(Deserialize, Debug, Clone, Serialize, StructTable)]
-pub struct ResponseData {
-  {%- for k, v in data_type.fields.items() %}
-    {{ macros.docstring(v.description, indent=4) }}
-    {{ v.serde_macros }}
-    {{ v.get_structable_macros(data_type, sdk_service_name, resource_name) }}
-    {{ v.local_name }}: {{ v.type_hint }},
-  {%- endfor %}
+{%- if data_type.__class__.__name__ == "StructResponse" %}
+  {%- if data_type.fields %}
+    /// {{ target_class_name }} response representation
+    #[derive(Deserialize, Debug, Clone, Serialize, StructTable)]
+    pub struct ResponseData {
+      {%- for k, v in data_type.fields.items() %}
+        {{ macros.docstring(v.description, indent=4) }}
+        {{ v.serde_macros }}
+        {{ v.get_structable_macros(data_type, sdk_service_name, resource_name) }}
+        {{ v.local_name }}: {{ v.type_hint }},
+      {%- endfor %}
 
-}
-{%- elif data_type.tuple_fields is defined %}
-{#- tuple struct requires custom implementation of StructTable #}
-/// {{ target_class_name }} response representation
-#[derive(Deserialize, Debug, Clone, Serialize)]
-pub struct ResponseData(
-  {%- for field in data_type.tuple_fields %}
-    {{ field.type_hint }},
-  {%- endfor %}
-);
-
-impl StructTable for ResponseData {
-    fn build(&self, options: &OutputConfig) -> (Vec<String>,
-Vec<Vec<String>>) {
-        let headers: Vec<String> = Vec::from(["Value".to_string()]);
-        let res: Vec<Vec<String>> = Vec::from([Vec::from([self.0.
-to_string()])]);
-        (headers, res)
     }
-}
+  {%- elif data_type.tuple_fields is defined %}
+    {#- tuple struct requires custom implementation of StructTable #}
+    /// {{ target_class_name }} response representation
+    #[derive(Deserialize, Debug, Clone, Serialize)]
+    pub struct ResponseData(
+      {%- for field in data_type.tuple_fields %}
+        {{ field.type_hint }},
+      {%- endfor %}
+    );
 
-impl StructTable for Vec<ResponseData> {
-    fn build(&self, options: &OutputConfig) -> (Vec<String>,
-Vec<Vec<String>>) {
-        let headers: Vec<String> = Vec::from(["Values".to_string()]);
-        let res: Vec<Vec<String>> =
-            Vec::from([Vec::from([self.into_iter().map(|v| v.0.
-to_string()).collect::<Vec<_>>().join(", ")])]);
-        (headers, res)
+    impl StructTable for ResponseData {
+        fn build(&self, options: &OutputConfig) -> (Vec<String>,
+    Vec<Vec<String>>) {
+            let headers: Vec<String> = Vec::from(["Value".to_string()]);
+            let res: Vec<Vec<String>> = Vec::from([Vec::from([self.0.
+    to_string()])]);
+            (headers, res)
+        }
     }
-}
-{%- else %}
-{#- No response data at all #}
-/// {{ target_class_name }} response representation
-#[derive(Deserialize, Debug, Clone, Serialize, StructTable)]
-pub struct ResponseData {}
+
+    impl StructTable for Vec<ResponseData> {
+        fn build(&self, options: &OutputConfig) -> (Vec<String>,
+    Vec<Vec<String>>) {
+            let headers: Vec<String> = Vec::from(["Values".to_string()]);
+            let res: Vec<Vec<String>> =
+                Vec::from([Vec::from([self.into_iter().map(|v| v.0.
+    to_string()).collect::<Vec<_>>().join(", ")])]);
+            (headers, res)
+        }
+    }
+  {%- else %}
+    {#- No response data at all #}
+    /// {{ target_class_name }} response representation
+    #[derive(Deserialize, Debug, Clone, Serialize, StructTable)]
+    pub struct ResponseData {}
+  {%- endif %}
+
+{%- elif data_type.__class__.__name__ == "HashMapResponse" %}
+    #[derive(Deserialize, Debug, Clone, Serialize)]
+    pub struct ResponseData(HashMap<String, serde_json::Value>);
+
+    impl StructTable for ResponseData {
+        fn build(&self, options: &OutputConfig) -> (Vec<String>,
+    Vec<Vec<String>>) {
+            let headers: Vec<String> = Vec::from(["Name".
+    to_string(), "Value".to_string()]);
+            let mut rows: Vec<Vec<String>> = Vec::new();
+            rows.extend(
+                self.0
+                    .iter()
+                    .map(|(k, v)| Vec::from([k.clone(), serde_json::to_string(&v).expect("Is a valid data")])),
+            );
+            (headers, rows)
+        }
+    }
 {%- endif %}
 {%- endwith %}
 

@@ -134,6 +134,12 @@ class MetadataGenerator(BaseGenerator):
                     elif path == "/v3/users/{user_id}/password":
                         if method == "post":
                             operation_key = "update"
+                    elif (
+                        args.service_type == "compute"
+                        and resource_name == "flavor/os_flavor_access"
+                        and method == "get"
+                    ):
+                        operation_key = "list"
 
                     elif response_schema and (
                         method == "get"
@@ -326,28 +332,53 @@ class MetadataGenerator(BaseGenerator):
                                 operation_key
                             )
 
-                            # Keypairs have non standard response key.
-                            # Help codegenerator by setting them into
-                            # metadata.
-                            if resource_name == "os_keypair":
-                                if operation_type in [
-                                    "create",
-                                    "show",
-                                ]:
-                                    rust_sdk_params.response_key = "keypair"
-                                    rust_cli_params.response_key = "keypair"
-                                if operation_type == "list":
-                                    rust_sdk_params.response_key = "keypairs"
-                                    rust_cli_params.response_key = "keypair"
-                                    rust_sdk_params.response_list_item_key = (
-                                        "keypair"
-                                    )
-                            # Image schemas are a JSON operation
-                            if (
-                                args.service_type == "image"
-                                and resource_name.startswith("schema")
-                            ):
-                                rust_cli_params.operation_type = "json"
+                            if args.service_type == "compute":
+                                # Keypairs have non standard response key.
+                                # Help codegenerator by setting them into
+                                # metadata.
+                                if resource_name == "os_keypair":
+                                    if operation_type in [
+                                        "create",
+                                        "show",
+                                    ]:
+                                        rust_sdk_params.response_key = (
+                                            "keypair"
+                                        )
+                                        rust_cli_params.response_key = (
+                                            "keypair"
+                                        )
+                                    elif operation_type == "list":
+                                        rust_sdk_params.response_key = (
+                                            "keypairs"
+                                        )
+                                        rust_cli_params.response_key = (
+                                            "keypair"
+                                        )
+                                        rust_sdk_params.response_list_item_key = (
+                                            "keypair"
+                                        )
+                                elif (
+                                    resource_name == "flavor/os_flavor_access"
+                                ):
+                                    if operation_type == "list":
+                                        rust_sdk_params.response_key = (
+                                            "flavor_access"
+                                        )
+                                        rust_cli_params.response_key = (
+                                            "flavor_access"
+                                        )
+                                elif resource_name == "flavor/os_extra_spec":
+                                    if operation_type == "create":
+                                        rust_sdk_params.response_key = (
+                                            "extra_specs"
+                                        )
+                                        rust_cli_params.response_key = (
+                                            "extra_specs"
+                                        )
+                            elif args.service_type == "image":
+                                # Image schemas are a JSON operation
+                                if resource_name.startswith("schema"):
+                                    rust_cli_params.operation_type = "json"
 
                             op_model.targets["rust-sdk"] = rust_sdk_params
                             if rust_cli_params and not (
