@@ -165,6 +165,9 @@ class BTreeMap(common_rust.Dictionary):
     def get_sample(self):
         return "BTreeMap::<String, String>::new().into_iter()"
 
+    def get_mandatory_init(self):
+        return ""
+
 
 class BTreeSet(common_rust.BTreeSet):
     builder_macros: set[str] = set(["private"])

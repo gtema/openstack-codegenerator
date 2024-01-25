@@ -13,5 +13,10 @@
     #[arg(long="property", value_name="key=value", value_parser=parse_key_val::<String, {{ type.additional_fields_type.type_hint }}>)]
     properties: Option<Vec<(String, {{ type.additional_fields_type.type_hint }})>>,
   {%- endif %}
+
+{%- elif type.__class__.__name__ == "DictionaryInput" %}
+    #[arg(long="property", value_name="key=value", value_parser=parse_key_val::<String, {{ type.value_type.type_hint }}>)]
+    properties: Option<Vec<(String, {{ type.value_type.type_hint }})>>,
+
 {%- endif %}
 {%- endwith %}

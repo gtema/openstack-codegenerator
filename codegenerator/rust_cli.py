@@ -1049,10 +1049,15 @@ class RustCliGenerator(BaseGenerator):
                         "crate::common::build_upload_asyncread"
                     )
                 if (
-                    isinstance(root_type, StructResponse)
-                    and root_type.fields
-                    or isinstance(root_type, TupleStruct)
-                    and root_type.tuple_fields
+                    (
+                        isinstance(root_type, StructResponse)
+                        and root_type.fields
+                    )
+                    or (
+                        isinstance(root_type, TupleStruct)
+                        and root_type.tuple_fields
+                    )
+                    or (isinstance(root_type, common_rust.Dictionary))
                 ):
                     additional_imports.add("openstack_sdk::api::QueryAsync")
                 else:

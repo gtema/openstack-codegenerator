@@ -13,7 +13,6 @@
 import copy
 from typing import Any
 
-from nova.api.openstack.compute.schemas import flavor_manage
 from nova.api.openstack.compute.schemas import flavors_extraspecs
 from nova.api.openstack.compute.schemas import quota_sets
 from nova.api.openstack.compute.schemas import remote_consoles
@@ -121,12 +120,57 @@ FLAVOR_SHORT_SCHEMA: dict[str, Any] = {
         "links": LINKS_SCHEMA,
     },
 }
-FLAVOR_SCHEMA: dict[str, Any] = copy.deepcopy(
-    flavor_manage.create_v20["properties"]["flavor"]
-)
-FLAVOR_SCHEMA["properties"].update(
-    {"extra_specs": FLAVOR_EXTRA_SPECS_SCHEMA, "links": LINKS_SCHEMA}
-)
+FLAVOR_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "The display name of a flavor.",
+        },
+        "id": {
+            "type": "string",
+            "description": "The ID of the flavor. While people often make this look like an int, this is really a string.",
+            "minLength": 1,
+            "maxLength": 255,
+            "pattern": "^(?! )[a-zA-Z0-9. _-]+(?<! )$",
+        },
+        "ram": {
+            "description": "The amount of RAM a flavor has, in MiB.",
+            **parameter_types.flavor_param_positive,
+        },
+        "vcpus": {
+            "description": "The number of virtual CPUs that will be allocated to the server.",
+            **parameter_types.flavor_param_positive,
+        },
+        "disk": {
+            "description": "The size of the root disk that will be created in GiB. If 0 the root disk will be set to exactly the size of the image used to deploy the instance. However, in this case the scheduler cannot select the compute host based on the virtual image size. Therefore, 0 should only be used for volume booted instances or for testing purposes. Volume-backed instances can be enforced for flavors with zero root disk via the os_compute_api:servers:create:zero_disk_flavor policy rule.",
+            **parameter_types.flavor_param_non_negative,
+        },
+        "OS-FLV-EXT-DATA:ephemeral": {
+            "description": "The size of the ephemeral disk that will be created, in GiB. Ephemeral disks may be written over on server state changes. So should only be used as a scratch space for applications that are aware of its limitations. Defaults to 0.",
+            **parameter_types.flavor_param_non_negative,
+        },
+        "swap": {
+            "description": "The size of a dedicated swap disk that will be allocated, in MiB. If 0 (the default), no dedicated swap disk will be created. Currently, the empty string (‘’) is used to represent 0. As of microversion 2.75 default return value of swap is 0 instead of empty string.",
+            **parameter_types.flavor_param_non_negative,
+        },
+        "rxtx_factor": {
+            "description": "The receive / transmit factor (as a float) that will be set on ports if the network backend supports the QOS extension. Otherwise it will be ignored. It defaults to 1.0.",
+            "type": ["number", "string"],
+            "pattern": r"^[0-9]+(\.[0-9]+)?$",
+            "minimum": 0,
+            "exclusiveMinimum": True,
+            "maximum": 3.40282e38,
+        },
+        "os-flavor-access:is_public": {
+            "description": "Whether the flavor is public (available to all projects) or scoped to a set of projects. Default is True if not specified.",
+            **parameter_types.boolean,
+        },
+        "extra_specs": FLAVOR_EXTRA_SPECS_SCHEMA,
+        "links": LINKS_SCHEMA,
+    },
+    "additionalProperties": False,
+}
 
 FLAVOR_CONTAINER_SCHEMA: dict[str, Any] = {
     "type": "object",

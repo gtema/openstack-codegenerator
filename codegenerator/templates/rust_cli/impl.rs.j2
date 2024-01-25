@@ -144,7 +144,8 @@ impl Command for {{ target_class_name }}Cmd {
     {# Response #}
     {%- with data_type = response_type_manager.get_root_data_type() %}
 
-    {%- if data_type.fields or (data_type.tuple_fields is defined and data_type.tuple_fields) %}
+
+    {%- if (data_type.__class__.__name__ == "StructResponse" and data_type.fields or (data_type.tuple_fields is defined and data_type.tuple_fields)) or (data_type.__class__.__name__ == "HashMapResponse") %}
     {#- there is result structure meand we can render response #}
 
       {%- if operation_type == "list" %}

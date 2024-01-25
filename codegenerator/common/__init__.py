@@ -126,7 +126,7 @@ def find_resource_schema(
             if (
                 parent
                 and resource_name
-                and parent == get_plural_form(resource_name)
+                and (parent == get_plural_form(resource_name))
             ):
                 return (schema["items"], parent)
             elif (
@@ -149,6 +149,9 @@ def find_resource_schema(
             if not parent and resource_name in props:
                 # we are at the top level and there is property with the resource
                 # name - it is what we are searching for
+                el_type = props[resource_name]["type"]
+                if el_type == "array":
+                    return (props[resource_name]["items"], resource_name)
                 return (props[resource_name], resource_name)
             for name, item in props.items():
                 (r, path) = find_resource_schema(item, name, resource_name)

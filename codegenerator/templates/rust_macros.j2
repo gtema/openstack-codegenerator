@@ -183,7 +183,13 @@ Some({{ val }})
     {%- endfor %}
     {{ dst_var }}.{{ param.remote_name }}({{ builder_name }}.build().expect("A valid object"));
 {%- elif param.data_type.__class__.__name__ == "String" %}
-    {{ dst_var }}.{{ param.remote_name }}({{ "Some(" if is_nullable }}{{ val_var }}{{ ".into())" if is_nullable }});
+  {%- if is_nullable and not param.is_optional %}
+    {{ dst_var }}.{{ param.remote_name }}({{ val_var | replace("&", "") }}.clone());
+  {%- elif is_nullable and param.is_optional %}
+    {{ dst_var }}.{{ param.remote_name }}(Some({{ val_var }}.into()));
+  {%- else %}
+    {{ dst_var }}.{{ param.remote_name }}({{ val_var | replace("&", "") }}.clone());
+  {%- endif %}
 {%- elif param.data_type.__class__.__name__ == "Option" %}
     {{ dst_var }}.{{ param.remote_name }}({{ val_var }}.clone().map(|v| v.into()));
 {%- else %}
