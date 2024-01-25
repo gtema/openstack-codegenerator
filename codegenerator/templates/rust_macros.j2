@@ -311,3 +311,18 @@ Some({{ val }})
 {%- endif %}
 {%- endfor %}
 {%- endmacro %}
+
+{%- macro sdk_build_url(url, params, prefix = "", from_attr = False) %}
+  {%- if params.values()|selectattr("location", "equalto", "path")|list|length > 0 -%}
+    format!(
+      "{{ prefix }}{{ url }}",
+          {%- for k, v in params.items() %}
+          {%- if v.location == "path" %}
+          {{ k }} = {{ ('"' + k + '"') if not from_attr else ('self.' + v.local_name + '.as_ref()') }},
+          {%- endif %}
+          {%- endfor %}
+      )
+  {%- else %}
+    "{{ prefix }}{{ url }}".to_string()
+  {%- endif %}
+{%- endmacro %}
