@@ -25,7 +25,15 @@ from codegenerator.common import BaseCombinedType
 from codegenerator.common import BaseCompoundType
 
 
-BASIC_FIELDS = ["id", "name", "created_at", "updated_at"]
+BASIC_FIELDS = [
+    "id",
+    "name",
+    "created_at",
+    "updated_at",
+    "uuid",
+    "state",
+    "status",
+]
 
 
 class BooleanFlag(common_rust.Boolean):
@@ -215,7 +223,11 @@ class StructFieldResponse(common_rust.StructField):
         return f"#[serde({', '.join(sorted(macros))})]"
 
     def get_structable_macros(
-        self, struct: "StructResponse", service_name: str, resource_name: str
+        self,
+        struct: "StructResponse",
+        service_name: str,
+        resource_name: str,
+        operation_type: str,
     ):
         macros = set([])
         if self.is_optional:
@@ -228,17 +240,20 @@ class StructFieldResponse(common_rust.StructField):
         ).lower()
         # Check the known alias of the field by FQAN
         alias = common.FQAN_ALIAS_MAP.get(fqan)
-        if (
-            "id" in struct.fields.keys()
-            and not (self.local_name in BASIC_FIELDS or alias in BASIC_FIELDS)
-        ) or (
-            "id" not in struct.fields.keys()
-            and (self.local_name not in list(struct.fields.keys())[-10:])
-        ):
-            # Only add "wide" flag if field is not in the basic fields AND
-            # there is at least "id" field existing in the struct OR the
-            # field is not in the first 10
-            macros.add("wide")
+        if operation_type == "list":
+            if (
+                "id" in struct.fields.keys()
+                and not (
+                    self.local_name in BASIC_FIELDS or alias in BASIC_FIELDS
+                )
+            ) or (
+                "id" not in struct.fields.keys()
+                and (self.local_name not in list(struct.fields.keys())[-10:])
+            ):
+                # Only add "wide" flag if field is not in the basic fields AND
+                # there is at least "id" field existing in the struct OR the
+                # field is not in the first 10
+                macros.add("wide")
         return f"#[structable({', '.join(sorted(macros))})]"
 
 
