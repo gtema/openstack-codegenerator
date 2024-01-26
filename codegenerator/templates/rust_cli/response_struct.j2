@@ -8,12 +8,19 @@
       {%- for k, v in data_type.fields.items() %}
         {{ macros.docstring(v.description, indent=4) }}
         {{ v.serde_macros }}
-        {{ v.get_structable_macros(data_type, sdk_service_name, resource_name) }}
+        {{ v.get_structable_macros(data_type, sdk_service_name, resource_name, operation_type) }}
         {{ v.local_name }}: {{ v.type_hint }},
       {%- endfor %}
 
     }
-  {%- elif data_type.tuple_fields is defined %}
+  {%- else %}
+    {#- No response data at all #}
+    /// {{ target_class_name }} response representation
+    #[derive(Deserialize, Debug, Clone, Serialize, StructTable)]
+    pub struct ResponseData {}
+  {%- endif %}
+
+{%- elif data_type.__class__.__name__ == "TupleStruct" %}
     {#- tuple struct requires custom implementation of StructTable #}
     /// {{ target_class_name }} response representation
     #[derive(Deserialize, Debug, Clone, Serialize)]
@@ -43,13 +50,6 @@
             (headers, res)
         }
     }
-  {%- else %}
-    {#- No response data at all #}
-    /// {{ target_class_name }} response representation
-    #[derive(Deserialize, Debug, Clone, Serialize, StructTable)]
-    pub struct ResponseData {}
-  {%- endif %}
-
 {%- elif data_type.__class__.__name__ == "HashMapResponse" %}
     #[derive(Deserialize, Debug, Clone, Serialize)]
     pub struct ResponseData(HashMap<String, serde_json::Value>);
