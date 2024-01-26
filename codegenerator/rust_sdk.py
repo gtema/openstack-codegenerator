@@ -163,7 +163,13 @@ class BTreeMap(common_rust.Dictionary):
         return lt
 
     def get_sample(self):
-        return "BTreeMap::<String, String>::new().into_iter()"
+        if isinstance(self.value_type, common_rust.Option):
+            return (
+                "BTreeMap::<String, Option<String>>::new().into_iter()"
+                ".map(|(k, v)| (k, v.map(Into::into)))"
+            )
+        else:
+            return "BTreeMap::<String, String>::new().into_iter()"
 
     def get_mandatory_init(self):
         return ""
@@ -498,21 +504,25 @@ class RustSdkGenerator(BaseGenerator):
         openapi_parser = model.OpenAPISchemaParser()
         path_resources = common.get_resource_names_from_url(path)
         res_name = path_resources[-1]
-        operation_params: list[model.RequestParameter] = []
+        operation_path_params: list[model.RequestParameter] = []
+        operation_query_params: list[model.RequestParameter] = []
 
         for param in openapi_spec["paths"][path].get(
             "parameters", []
         ) + spec.get("parameters", []):
             if ("{" + param["name"] + "}") in path and param["in"] == "path":
-                # Respect path params that appear in path and not path params
+                # Respect path params that appear in path and not in path params
                 param_ = openapi_parser.parse_parameter(param)
                 if param_.name == f"{res_name}_id":
                     path = path.replace(f"{res_name}_id", "id")
                     # for i.e. routers/{router_id} we want local_name to be `id` and not `router_id`
                     param_.name = "id"
-                operation_params.append(param_)
+                operation_path_params.append(param_)
+            if param["in"] == "query":
+                # Capture query params to estimate lifetime of the operation
+                operation_query_params.append(param)
         type_manager = TypeManager()
-        type_manager.set_parameters(operation_params)
+        type_manager.set_parameters(operation_path_params)
 
         context = dict(
             mod_path=mod_path,
@@ -521,6 +531,9 @@ class RustSdkGenerator(BaseGenerator):
             name_filter_supported=name_filter_supported,
             name_field=name_field,
             type_manager=type_manager,
+            list_lifetime="<'a>"
+            if operation_query_params or operation_path_params
+            else "",
         )
 
         # Generate methods for the GET resource command

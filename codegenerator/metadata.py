@@ -60,9 +60,36 @@ class MetadataGenerator(BaseGenerator):
                 [x for x in common.get_resource_names_from_url(path)]
             )
             if args.service_type == "compute" and resource_name in [
-                "os_volumes_boot"
+                "agent",
+                "baremetal_node",
+                "cell",
+                "cell/capacity",
+                "cell/info",
+                "cell/sync_instance",
+                "certificate",
+                "cloudpipe",
+                "fping",
+                "fixed_ip",
+                "floating_ip_dns",
+                "floating_ip_dns/entry",
+                "floating_ip_pool",
+                "floating_ip_bulk",
+                "host",
+                "host/reboot",
+                "host/shutdown",
+                "host/startup",
+                "image",
+                "image/metadata",
+                "network",
+                "security_group_default_rule",
+                "security_group_rule",
+                "security_group",
+                "snapshot",
+                "tenant_network",
+                "volume",
+                "volumes_boot",
             ]:
-                # We do not need to produce anything for old os_volumes_boot
+                # We do not need to produce anything for deprecated APIs
                 continue
             resource_model = metadata.resources.setdefault(
                 f"{args.service_type}.{resource_name}",
@@ -136,10 +163,16 @@ class MetadataGenerator(BaseGenerator):
                             operation_key = "update"
                     elif (
                         args.service_type == "compute"
-                        and resource_name == "flavor/os_flavor_access"
+                        and resource_name == "flavor/flavor_access"
                         and method == "get"
                     ):
                         operation_key = "list"
+                    elif (
+                        args.service_type == "compute"
+                        and resource_name == "aggregate/image"
+                        and method == "post"
+                    ):
+                        operation_key = "action"
 
                     elif response_schema and (
                         method == "get"
@@ -239,15 +272,18 @@ class MetadataGenerator(BaseGenerator):
                                 body_schema = operation.requestBody["content"][
                                     "application/json"
                                 ]["schema"]
-                                bodies = body_schema["oneOf"]
-                                discriminator = body_schema.get(
-                                    "x-openstack", {}
-                                ).get("discriminator")
-                                if discriminator != "action":
-                                    raise RuntimeError(
-                                        "Cannot generate metadata for %s since requet body is not having action discriminator"
-                                        % path
-                                    )
+                                bodies = body_schema.get(
+                                    "oneOf", [body_schema]
+                                )
+                                if len(bodies) > 1:
+                                    discriminator = body_schema.get(
+                                        "x-openstack", {}
+                                    ).get("discriminator")
+                                    if discriminator != "action":
+                                        raise RuntimeError(
+                                            "Cannot generate metadata for %s since requet body is not having action discriminator"
+                                            % path
+                                        )
                                 for body in bodies:
                                     action_name = body.get(
                                         "x-openstack", {}
@@ -309,6 +345,14 @@ class MetadataGenerator(BaseGenerator):
                                     op_model.targets[
                                         "rust-cli"
                                     ] = rust_cli_params
+
+                                    op_model = post_process_operation(
+                                        args.service_type,
+                                        resource_name,
+                                        operation_name,
+                                        op_model,
+                                    )
+
                                     resource_model.operations[
                                         operation_name
                                     ] = op_model
@@ -332,60 +376,20 @@ class MetadataGenerator(BaseGenerator):
                                 operation_key
                             )
 
-                            if args.service_type == "compute":
-                                # Keypairs have non standard response key.
-                                # Help codegenerator by setting them into
-                                # metadata.
-                                if resource_name == "os_keypair":
-                                    if operation_type in [
-                                        "create",
-                                        "show",
-                                    ]:
-                                        rust_sdk_params.response_key = (
-                                            "keypair"
-                                        )
-                                        rust_cli_params.response_key = (
-                                            "keypair"
-                                        )
-                                    elif operation_type == "list":
-                                        rust_sdk_params.response_key = (
-                                            "keypairs"
-                                        )
-                                        rust_cli_params.response_key = (
-                                            "keypair"
-                                        )
-                                        rust_sdk_params.response_list_item_key = (
-                                            "keypair"
-                                        )
-                                elif (
-                                    resource_name == "flavor/os_flavor_access"
-                                ):
-                                    if operation_type == "list":
-                                        rust_sdk_params.response_key = (
-                                            "flavor_access"
-                                        )
-                                        rust_cli_params.response_key = (
-                                            "flavor_access"
-                                        )
-                                elif resource_name == "flavor/os_extra_spec":
-                                    if operation_type == "create":
-                                        rust_sdk_params.response_key = (
-                                            "extra_specs"
-                                        )
-                                        rust_cli_params.response_key = (
-                                            "extra_specs"
-                                        )
-                            elif args.service_type == "image":
-                                # Image schemas are a JSON operation
-                                if resource_name.startswith("schema"):
-                                    rust_cli_params.operation_type = "json"
-
                             op_model.targets["rust-sdk"] = rust_sdk_params
                             if rust_cli_params and not (
                                 args.service_type == "identity"
                                 and operation_key == "check"
                             ):
                                 op_model.targets["rust-cli"] = rust_cli_params
+
+                            op_model = post_process_operation(
+                                args.service_type,
+                                resource_name,
+                                operation_key,
+                                op_model,
+                            )
+
                             resource_model.operations[operation_key] = op_model
                     pass
         for res_name, res_data in metadata.resources.items():
@@ -589,3 +593,45 @@ def get_module_name(name):
     elif name in ["default"]:
         return "default"
     return "_".join(x.lower() for x in re.split(common.SPLIT_NAME_RE, name))
+
+
+def post_process_operation(
+    service_type: str, resource_name: str, operation_name: str, operation
+):
+    if service_type == "compute":
+        operation = post_process_compute_operation(
+            resource_name, operation_name, operation
+        )
+    elif service_type == "image":
+        operation = post_process_image_operation(
+            resource_name, operation_name, operation
+        )
+    return operation
+
+
+def post_process_compute_operation(
+    resource_name: str, operation_name: str, operation
+):
+    if resource_name == "aggregate":
+        if operation_name in ["set-metadata", "add-host", "remove-host"]:
+            operation.targets["rust-sdk"].response_key = "aggregate"
+            operation.targets["rust-cli"].response_key = "aggregate"
+    elif resource_name == "availability_zone":
+        if operation_name in ["get", "list_detailed"]:
+            operation.targets["rust-sdk"].response_key = "availabilityZoneInfo"
+            operation.targets["rust-cli"].response_key = "availabilityZoneInfo"
+    elif resource_name == "keypair":
+        if operation_name == "list":
+            operation.targets["rust-sdk"].response_list_item_key = "keypair"
+
+    return operation
+
+
+def post_process_image_operation(
+    resource_name: str, operation_name: str, operation
+):
+    if resource_name.startswith("schema"):
+        # Image schemas are a JSON operation
+        operation.targets["rust-cli"].operation_type = "json"
+
+    return operation

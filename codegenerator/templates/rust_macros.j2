@@ -139,7 +139,11 @@ Some({{ val }})
 {%- elif param.data_type.__class__.__name__ in ["JsonValue"] %}
     // let sub: {{ sdk_mod_path[-1] }}
 {%- elif param.data_type.__class__.__name__ == "DictionaryInput" %}
+  {%- if param.data_type.value_type.__class__.__name__ == "Option" %}
+    {{ dst_var }}.{{ param.remote_name }}({{ val_var | replace("&", "") }}.iter().cloned().map(|(k, v)| (k, v.map(Into::into))));
+  {%- else %}
     {{ dst_var }}.{{ param.remote_name }}({{ val_var }}.iter().cloned());
+  {%- endif %}
 {%- elif param.data_type.__class__.__name__ == "StringEnum" %}
     let tmp = match {{ val_var }} {
       {%- for variant in param.data_type.variants.keys() | sort %}

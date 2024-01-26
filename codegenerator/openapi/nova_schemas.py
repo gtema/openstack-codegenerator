@@ -285,26 +285,30 @@ AGGREGATE_SCHEMA: dict[str, Any] = {
             "format": "date-time",
             "description": "The date and time when the resource was created.",
         },
+        "deleted": {
+            "type": "boolean",
+            "description": "A boolean indicates whether this aggregate is deleted or not, if it has not been deleted, false will appear.",
+        },
         "deleted_at": {
             "type": ["string", "null"],
             "format": "date-time",
             "description": "The date and time when the resource was deleted. If the resource has not been deleted yet, this field will be null.",
+        },
+        "id": {
+            "type": "integer",
+            "description": "The ID of the host aggregate.",
+        },
+        "metadata": parameter_types.metadata,
+        "hosts": {
+            "type": "array",
+            "description": "A list of host ids in this aggregate.",
+            "items": {"type": "string"},
         },
         "updated_at": {
             "type": ["string", "null"],
             "format": "date-time",
             "description": "The date and time when the resource was updated, if the resource has not been updated, this field will show as null.",
         },
-        "deleted": {
-            "type": "boolean",
-            "description": "A boolean indicates whether this aggregate is deleted or not, if it has not been deleted, false will appear.",
-        },
-        "hosts": {
-            "type": "array",
-            "description": "A list of host ids in this aggregate.",
-            "items": {"type": "string"},
-        },
-        "metadata": parameter_types.metadata_with_null,
         "uuid": {
             "type": "string",
             "format": "uuid",
@@ -490,7 +494,7 @@ HYPERVISOR_SHORT_SCHEMA: dict[str, Any] = {
             "description": "The hypervisor host name provided by the Nova virt driver. For the Ironic driver, it is the Ironic node uuid.",
         },
         "id": {
-            "type": ["integer", "string"],
+            "type": "string",
             "description": "The id of the hypervisor. From version 2.53 it is a string as UUID",
         },
         "state": {

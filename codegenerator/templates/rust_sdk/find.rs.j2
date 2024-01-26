@@ -66,7 +66,7 @@ where {
 
 impl<'a> Findable for Request<'a> {
     type G = Get::Request<'a>;
-    type L = List::Request<'a>;
+    type L = List::Request{{ list_lifetime }};
     fn get_ep(&self) -> Get::Request<'a> {
         let mut ep = Get::Request::builder();
         ep.id(self.id.clone());
@@ -80,7 +80,7 @@ impl<'a> Findable for Request<'a> {
     }
 
     {%- if name_filter_supported %}
-    fn list_ep(&self) -> List::Request<'a> {
+    fn list_ep(&self) -> List::Request{{ list_lifetime }} {
         let mut ep = List::Request::builder();
 {%- for k, param in type_manager.parameters.items() %}
         ep.{{ param.remote_name }}(self.{{ param.local_name}}.clone());
@@ -92,7 +92,7 @@ impl<'a> Findable for Request<'a> {
         ep.build().unwrap()
     }
     {%- else %}
-    fn list_ep(&self) -> List::Request<'a> {
+    fn list_ep(&self) -> List::Request{{ list_lifetime }} {
         let mut ep = List::Request::builder();
 {%- for k, param in type_manager.parameters.items() %}
         ep.{{ param.remote_name }}(self.{{ param.local_name}}.clone());

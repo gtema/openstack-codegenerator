@@ -126,7 +126,7 @@ def find_resource_schema(
             if (
                 parent
                 and resource_name
-                and (parent == get_plural_form(resource_name))
+                and parent == get_plural_form(resource_name)
             ):
                 return (schema["items"], parent)
             elif (
@@ -184,9 +184,9 @@ def get_resource_names_from_url(path: str):
         if "{" not in path_element:
             el = path_element.replace("-", "_")
             if el[-3:] == "ies":
-                path_resource_names.append(el[0:-3] + "y")
+                part = el[0:-3] + "y"
             elif el[-4:] == "sses":
-                path_resource_names.append(el[0:-2])
+                part = el[0:-2]
             elif (
                 el[-1] == "s"
                 and el[-3:] != "dns"
@@ -195,9 +195,13 @@ def get_resource_names_from_url(path: str):
                 # quota/details
                 and el != "details"
             ):
-                path_resource_names.append(el[0:-1])
+                part = el[0:-1]
             else:
-                path_resource_names.append(el)
+                part = el
+            if part.startswith("os_"):
+                # We should remove `os_` prefix from resource name
+                part = part[3:]
+            path_resource_names.append(part)
     if len(path_resource_names) > 1 and (
         path_resource_names[-1]
         in [

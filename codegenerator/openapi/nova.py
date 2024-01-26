@@ -421,6 +421,8 @@ class NovaGenerator(OpenStackServerSourceBase):
                 name, TypeSchema(**nova_schemas.AGGREGATE_CONTAINER_SCHEMA)
             )
             ref = f"#/components/schemas/{name}"
+        elif name == "Os_AggregatesImagesResponse":
+            return (None, None)
         # /os-assisted-volume-snapshots
         elif name == "Os_Assisted_Volume_SnapshotsCreateResponse":
             schema = openapi_spec.components.schemas.setdefault(
