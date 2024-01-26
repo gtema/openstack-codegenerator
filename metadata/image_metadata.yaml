@@ -329,7 +329,6 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
-            response_key: properties
       create:
         operation_id: metadefs/namespaces/namespace/properties:post
         operation_type: create

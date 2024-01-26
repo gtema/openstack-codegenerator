@@ -136,7 +136,7 @@ resources:
             name_field: name
             name_filter_supported: false
             list_mod: list_detailed
-  compute.flavor/os_extra_spec:
+  compute.flavor/extra_spec:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
@@ -155,11 +155,9 @@ resources:
         targets:
           rust-sdk:
             module_name: create
-            response_key: extra_specs
           rust-cli:
             module_name: create
             sdk_mod_name: create
-            response_key: extra_specs
       show:
         operation_id: flavors/flavor_id/os-extra_specs/id:get
         operation_type: show
@@ -187,7 +185,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-  compute.flavor/os_flavor_access:
+  compute.flavor/flavor_access:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
@@ -197,106 +195,9 @@ resources:
         targets:
           rust-sdk:
             module_name: list
-            response_key: flavor_access
           rust-cli:
             module_name: list
             sdk_mod_name: list
-            response_key: flavor_access
-  compute.image:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
-      list:
-        operation_id: images:get
-        operation_type: list
-        targets:
-          rust-sdk:
-            module_name: list
-      list_detailed:
-        operation_id: images/detail:get
-        operation_type: list
-        targets:
-          rust-sdk:
-            module_name: list_detailed
-          rust-cli:
-            module_name: list
-            sdk_mod_name: list_detailed
-      show:
-        operation_id: images/id:get
-        operation_type: show
-        targets:
-          rust-sdk:
-            module_name: get
-          rust-cli:
-            module_name: show
-            sdk_mod_name: get
-      delete:
-        operation_id: images/id:delete
-        operation_type: delete
-        targets:
-          rust-sdk:
-            module_name: delete
-          rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
-  compute.image/metadata:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
-      list:
-        operation_id: images/image_id/metadata:get
-        operation_type: list
-        targets:
-          rust-sdk:
-            module_name: list
-          rust-cli:
-            module_name: list
-            sdk_mod_name: list
-      replace:
-        operation_id: images/image_id/metadata:put
-        operation_type: set
-        targets:
-          rust-sdk:
-            module_name: replace
-          rust-cli:
-            module_name: replace
-            sdk_mod_name: replace
-      create:
-        operation_id: images/image_id/metadata:post
-        operation_type: create
-        targets:
-          rust-sdk:
-            module_name: create
-          rust-cli:
-            module_name: create
-            sdk_mod_name: create
-      show:
-        operation_id: images/image_id/metadata/id:get
-        operation_type: show
-        targets:
-          rust-sdk:
-            module_name: get
-          rust-cli:
-            module_name: show
-            sdk_mod_name: get
-      update:
-        operation_id: images/image_id/metadata/id:put
-        operation_type: set
-        targets:
-          rust-sdk:
-            module_name: set
-          rust-cli:
-            module_name: set
-            sdk_mod_name: set
-      delete:
-        operation_id: images/image_id/metadata/id:delete
-        operation_type: delete
-        targets:
-          rust-sdk:
-            module_name: delete
-          rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
   compute.limit:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
@@ -310,47 +211,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
-  compute.os_agent:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
-      list:
-        operation_id: os-agents:get
-        operation_type: list
-        targets:
-          rust-sdk:
-            module_name: list
-          rust-cli:
-            module_name: list
-            sdk_mod_name: list
-      create:
-        operation_id: os-agents:post
-        operation_type: create
-        targets:
-          rust-sdk:
-            module_name: create
-          rust-cli:
-            module_name: create
-            sdk_mod_name: create
-      update:
-        operation_id: os-agents/id:put
-        operation_type: set
-        targets:
-          rust-sdk:
-            module_name: set
-          rust-cli:
-            module_name: set
-            sdk_mod_name: set
-      delete:
-        operation_id: os-agents/id:delete
-        operation_type: delete
-        targets:
-          rust-sdk:
-            module_name: delete
-          rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
-  compute.os_aggregate:
+  compute.aggregate:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
@@ -381,6 +242,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            find_implemented_by_sdk: true
       update:
         operation_id: os-aggregates/id:put
         operation_type: set
@@ -390,6 +252,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            find_implemented_by_sdk: true
       delete:
         operation_id: os-aggregates/id:delete
         operation_type: delete
@@ -399,6 +262,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            find_implemented_by_sdk: true
       add-host:
         operation_id: os-aggregates/id/action:post
         operation_type: action
@@ -406,10 +270,13 @@ resources:
           rust-sdk:
             module_name: add_host
             operation_name: add_host
+            response_key: aggregate
           rust-cli:
             module_name: add_host
             sdk_mod_name: add_host
             operation_name: add_host
+            response_key: aggregate
+            find_implemented_by_sdk: true
       remove-host:
         operation_id: os-aggregates/id/action:post
         operation_type: action
@@ -417,10 +284,13 @@ resources:
           rust-sdk:
             module_name: remove_host
             operation_name: remove_host
+            response_key: aggregate
           rust-cli:
             module_name: remove_host
             sdk_mod_name: remove_host
             operation_name: remove_host
+            response_key: aggregate
+            find_implemented_by_sdk: true
       set-metadata:
         operation_id: os-aggregates/id/action:post
         operation_type: action
@@ -428,24 +298,39 @@ resources:
           rust-sdk:
             module_name: set_metadata
             operation_name: set_metadata
+            response_key: aggregate
           rust-cli:
             module_name: set_metadata
             sdk_mod_name: set_metadata
             operation_name: set_metadata
-  compute.os_aggregate/image:
+            response_key: aggregate
+            find_implemented_by_sdk: true
+      find:
+        operation_id: os-aggregates:get
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: compute::v2::aggregate
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
+  compute.aggregate/image:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
-      create:
+      cache:
         operation_id: os-aggregates/id/images:post
-        operation_type: create
+        operation_type: action
         targets:
           rust-sdk:
-            module_name: create
+            module_name: cache
+            operation_name: cache
           rust-cli:
-            module_name: create
-            sdk_mod_name: create
-  compute.os_assisted_volume_snapshot:
+            module_name: cache
+            sdk_mod_name: cache
+            operation_name: cache
+  compute.assisted_volume_snapshot:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
@@ -467,7 +352,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-  compute.os_availability_zone:
+  compute.availability_zone:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
@@ -477,228 +362,23 @@ resources:
         targets:
           rust-sdk:
             module_name: get
+            response_key: availabilityZoneInfo
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            response_key: availabilityZoneInfo
       list_detailed:
         operation_id: os-availability-zone/detail:get
         operation_type: list
         targets:
           rust-sdk:
             module_name: list_detailed
+            response_key: availabilityZoneInfo
           rust-cli:
             module_name: list
             sdk_mod_name: list_detailed
-  compute.os_baremetal_node:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
-      list:
-        operation_id: os-baremetal-nodes:get
-        operation_type: list
-        targets:
-          rust-sdk:
-            module_name: list
-          rust-cli:
-            module_name: list
-            sdk_mod_name: list
-      create:
-        operation_id: os-baremetal-nodes:post
-        operation_type: create
-        targets:
-          rust-sdk:
-            module_name: create
-          rust-cli:
-            module_name: create
-            sdk_mod_name: create
-      show:
-        operation_id: os-baremetal-nodes/id:get
-        operation_type: show
-        targets:
-          rust-sdk:
-            module_name: get
-          rust-cli:
-            module_name: show
-            sdk_mod_name: get
-      delete:
-        operation_id: os-baremetal-nodes/id:delete
-        operation_type: delete
-        targets:
-          rust-sdk:
-            module_name: delete
-          rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
-      add-interface:
-        operation_id: os-baremetal-nodes/id/action:post
-        operation_type: action
-        targets:
-          rust-sdk:
-            module_name: add_interface
-            operation_name: add_interface
-          rust-cli:
-            module_name: add_interface
-            sdk_mod_name: add_interface
-            operation_name: add_interface
-      remove-interface:
-        operation_id: os-baremetal-nodes/id/action:post
-        operation_type: action
-        targets:
-          rust-sdk:
-            module_name: remove_interface
-            operation_name: remove_interface
-          rust-cli:
-            module_name: remove_interface
-            sdk_mod_name: remove_interface
-            operation_name: remove_interface
-  compute.os_cell:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
-      list:
-        operation_id: os-cells:get
-        operation_type: list
-        targets:
-          rust-sdk:
-            module_name: list
-      create:
-        operation_id: os-cells:post
-        operation_type: create
-        targets:
-          rust-sdk:
-            module_name: create
-          rust-cli:
-            module_name: create
-            sdk_mod_name: create
-      list_detailed:
-        operation_id: os-cells/detail:get
-        operation_type: list
-        targets:
-          rust-sdk:
-            module_name: list_detailed
-          rust-cli:
-            module_name: list
-            sdk_mod_name: list_detailed
-      show:
-        operation_id: os-cells/id:get
-        operation_type: show
-        targets:
-          rust-sdk:
-            module_name: get
-          rust-cli:
-            module_name: show
-            sdk_mod_name: get
-      update:
-        operation_id: os-cells/id:put
-        operation_type: set
-        targets:
-          rust-sdk:
-            module_name: set
-          rust-cli:
-            module_name: set
-            sdk_mod_name: set
-      delete:
-        operation_id: os-cells/id:delete
-        operation_type: delete
-        targets:
-          rust-sdk:
-            module_name: delete
-          rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
-  compute.os_cell/capacity:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
-      get:
-        operation_id: os-cells/id/capacities:get
-        operation_type: get
-        targets:
-          rust-sdk:
-            module_name: get
-          rust-cli:
-            module_name: get
-            sdk_mod_name: get
-  compute.os_cell/info:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
-      get:
-        operation_id: os-cells/info:get
-        operation_type: get
-        targets:
-          rust-sdk:
-            module_name: get
-          rust-cli:
-            module_name: get
-            sdk_mod_name: get
-  compute.os_cell/sync_instance:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
-      create:
-        operation_id: os-cells/sync_instances:post
-        operation_type: create
-        targets:
-          rust-sdk:
-            module_name: create
-          rust-cli:
-            module_name: create
-            sdk_mod_name: create
-  compute.os_certificate:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
-      create:
-        operation_id: os-certificates:post
-        operation_type: create
-        targets:
-          rust-sdk:
-            module_name: create
-          rust-cli:
-            module_name: create
-            sdk_mod_name: create
-      show:
-        operation_id: os-certificates/id:get
-        operation_type: show
-        targets:
-          rust-sdk:
-            module_name: get
-          rust-cli:
-            module_name: show
-            sdk_mod_name: get
-  compute.os_cloudpipe:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
-      list:
-        operation_id: os-cloudpipe:get
-        operation_type: list
-        targets:
-          rust-sdk:
-            module_name: list
-          rust-cli:
-            module_name: list
-            sdk_mod_name: list
-      create:
-        operation_id: os-cloudpipe:post
-        operation_type: create
-        targets:
-          rust-sdk:
-            module_name: create
-          rust-cli:
-            module_name: create
-            sdk_mod_name: create
-      update:
-        operation_id: os-cloudpipe/id:put
-        operation_type: set
-        targets:
-          rust-sdk:
-            module_name: set
-          rust-cli:
-            module_name: set
-            sdk_mod_name: set
-  compute.os_console_auth_token:
+            response_key: availabilityZoneInfo
+  compute.console_auth_token:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
@@ -711,117 +391,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-  compute.os_fixed_ip:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
-      show:
-        operation_id: os-fixed-ips/id:get
-        operation_type: show
-        targets:
-          rust-sdk:
-            module_name: get
-          rust-cli:
-            module_name: show
-            sdk_mod_name: get
-      reserve:
-        operation_id: os-fixed-ips/id/action:post
-        operation_type: action
-        targets:
-          rust-sdk:
-            module_name: reserve
-            operation_name: reserve
-          rust-cli:
-            module_name: reserve
-            sdk_mod_name: reserve
-            operation_name: reserve
-      unreserve:
-        operation_id: os-fixed-ips/id/action:post
-        operation_type: action
-        targets:
-          rust-sdk:
-            module_name: unreserve
-            operation_name: unreserve
-          rust-cli:
-            module_name: unreserve
-            sdk_mod_name: unreserve
-            operation_name: unreserve
-  compute.os_floating_ip_dns:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
-      list:
-        operation_id: os-floating-ip-dns:get
-        operation_type: list
-        targets:
-          rust-sdk:
-            module_name: list
-          rust-cli:
-            module_name: list
-            sdk_mod_name: list
-      update:
-        operation_id: os-floating-ip-dns/id:put
-        operation_type: set
-        targets:
-          rust-sdk:
-            module_name: set
-          rust-cli:
-            module_name: set
-            sdk_mod_name: set
-      delete:
-        operation_id: os-floating-ip-dns/id:delete
-        operation_type: delete
-        targets:
-          rust-sdk:
-            module_name: delete
-          rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
-  compute.os_floating_ip_dns/entry:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
-      show:
-        operation_id: os-floating-ip-dns/domain_id/entries/id:get
-        operation_type: show
-        targets:
-          rust-sdk:
-            module_name: get
-          rust-cli:
-            module_name: show
-            sdk_mod_name: get
-      update:
-        operation_id: os-floating-ip-dns/domain_id/entries/id:put
-        operation_type: set
-        targets:
-          rust-sdk:
-            module_name: set
-          rust-cli:
-            module_name: set
-            sdk_mod_name: set
-      delete:
-        operation_id: os-floating-ip-dns/domain_id/entries/id:delete
-        operation_type: delete
-        targets:
-          rust-sdk:
-            module_name: delete
-          rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
-  compute.os_floating_ip_pool:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
-      get:
-        operation_id: os-floating-ip-pools:get
-        operation_type: get
-        targets:
-          rust-sdk:
-            module_name: get
-          rust-cli:
-            module_name: get
-            sdk_mod_name: get
-  compute.os_floating_ip:
+  compute.floating_ip:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
@@ -861,7 +431,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-  compute.os_floating_ips_bulk:
+  compute.floating_ips_bulk:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
@@ -901,99 +471,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
-  compute.os_fping:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
-      list:
-        operation_id: os-fping:get
-        operation_type: list
-        targets:
-          rust-sdk:
-            module_name: list
-          rust-cli:
-            module_name: list
-            sdk_mod_name: list
-      show:
-        operation_id: os-fping/id:get
-        operation_type: show
-        targets:
-          rust-sdk:
-            module_name: get
-          rust-cli:
-            module_name: show
-            sdk_mod_name: get
-  compute.os_host:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
-      list:
-        operation_id: os-hosts:get
-        operation_type: list
-        targets:
-          rust-sdk:
-            module_name: list
-          rust-cli:
-            module_name: list
-            sdk_mod_name: list
-      show:
-        operation_id: os-hosts/id:get
-        operation_type: show
-        targets:
-          rust-sdk:
-            module_name: get
-          rust-cli:
-            module_name: show
-            sdk_mod_name: get
-      update:
-        operation_id: os-hosts/id:put
-        operation_type: set
-        targets:
-          rust-sdk:
-            module_name: set
-          rust-cli:
-            module_name: set
-            sdk_mod_name: set
-  compute.os_host/reboot:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
-      get:
-        operation_id: os-hosts/id/reboot:get
-        operation_type: get
-        targets:
-          rust-sdk:
-            module_name: get
-          rust-cli:
-            module_name: get
-            sdk_mod_name: get
-  compute.os_host/shutdown:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
-      get:
-        operation_id: os-hosts/id/shutdown:get
-        operation_type: get
-        targets:
-          rust-sdk:
-            module_name: get
-          rust-cli:
-            module_name: get
-            sdk_mod_name: get
-  compute.os_host/startup:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
-      get:
-        operation_id: os-hosts/id/startup:get
-        operation_type: get
-        targets:
-          rust-sdk:
-            module_name: get
-          rust-cli:
-            module_name: get
-            sdk_mod_name: get
-  compute.os_hypervisor:
+  compute.hypervisor:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
@@ -1029,11 +507,11 @@ resources:
         targets:
           rust-sdk:
             module_name: find
-            sdk_mod_path: compute::v2::os_hypervisor
+            sdk_mod_path: compute::v2::hypervisor
             name_field: name
             name_filter_supported: false
             list_mod: list_detailed
-  compute.os_hypervisor/statistic:
+  compute.hypervisor/statistic:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
@@ -1046,7 +524,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
-  compute.os_hypervisor/search:
+  compute.hypervisor/search:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
@@ -1059,7 +537,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
-  compute.os_hypervisor/server:
+  compute.hypervisor/server:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
@@ -1072,7 +550,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
-  compute.os_hypervisor/uptime:
+  compute.hypervisor/uptime:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
@@ -1085,7 +563,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
-  compute.os_instance_usage_audit_log:
+  compute.instance_usage_audit_log:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
@@ -1107,7 +585,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-  compute.os_keypair:
+  compute.keypair:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
@@ -1117,34 +595,28 @@ resources:
         targets:
           rust-sdk:
             module_name: list
-            response_key: keypairs
             response_list_item_key: keypair
           rust-cli:
             module_name: list
             sdk_mod_name: list
-            response_key: keypair
       create:
         operation_id: os-keypairs:post
         operation_type: create
         targets:
           rust-sdk:
             module_name: create
-            response_key: keypair
           rust-cli:
             module_name: create
             sdk_mod_name: create
-            response_key: keypair
       show:
         operation_id: os-keypairs/id:get
         operation_type: show
         targets:
           rust-sdk:
             module_name: get
-            response_key: keypair
           rust-cli:
             module_name: show
             sdk_mod_name: get
-            response_key: keypair
             find_implemented_by_sdk: true
       delete:
         operation_id: os-keypairs/id:delete
@@ -1162,11 +634,11 @@ resources:
         targets:
           rust-sdk:
             module_name: find
-            sdk_mod_path: compute::v2::os_keypair
+            sdk_mod_path: compute::v2::keypair
             name_field: name
             name_filter_supported: false
             list_mod: list
-  compute.os_migration:
+  compute.migration:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
@@ -1179,91 +651,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
-  compute.os_network:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
-      list:
-        operation_id: os-networks:get
-        operation_type: list
-        targets:
-          rust-sdk:
-            module_name: list
-          rust-cli:
-            module_name: list
-            sdk_mod_name: list
-      create:
-        operation_id: os-networks/add:post
-        operation_type: create
-        targets:
-          rust-sdk:
-            module_name: create
-          rust-cli:
-            module_name: create
-            sdk_mod_name: create
-      show:
-        operation_id: os-networks/id:get
-        operation_type: show
-        targets:
-          rust-sdk:
-            module_name: get
-          rust-cli:
-            module_name: show
-            sdk_mod_name: get
-      delete:
-        operation_id: os-networks/id:delete
-        operation_type: delete
-        targets:
-          rust-sdk:
-            module_name: delete
-          rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
-      disassociate:
-        operation_id: os-networks/id/action:post
-        operation_type: action
-        targets:
-          rust-sdk:
-            module_name: disassociate
-            operation_name: disassociate
-          rust-cli:
-            module_name: disassociate
-            sdk_mod_name: disassociate
-            operation_name: disassociate
-      disassociate-host:
-        operation_id: os-networks/id/action:post
-        operation_type: action
-        targets:
-          rust-sdk:
-            module_name: disassociate_host
-            operation_name: disassociate_host
-          rust-cli:
-            module_name: disassociate_host
-            sdk_mod_name: disassociate_host
-            operation_name: disassociate_host
-      disassociate-project:
-        operation_id: os-networks/id/action:post
-        operation_type: action
-        targets:
-          rust-sdk:
-            module_name: disassociate_project
-            operation_name: disassociate_project
-          rust-cli:
-            module_name: disassociate_project
-            sdk_mod_name: disassociate_project
-            operation_name: disassociate_project
-      associate-host:
-        operation_id: os-networks/id/action:post
-        operation_type: action
-        targets:
-          rust-sdk:
-            module_name: associate_host
-            operation_name: associate_host
-          rust-cli:
-            module_name: associate_host
-            sdk_mod_name: associate_host
-            operation_name: associate_host
-  compute.os_quota_class_set:
+  compute.quota_class_set:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
@@ -1285,7 +673,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
-  compute.os_quota_set:
+  compute.quota_set:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
@@ -1335,11 +723,11 @@ resources:
         targets:
           rust-sdk:
             module_name: find
-            sdk_mod_path: compute::v2::os_quota_set
+            sdk_mod_path: compute::v2::quota_set
             name_field: name
             name_filter_supported: false
             list_mod: list_detailed
-  compute.os_quota_set/default:
+  compute.quota_set/default:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
@@ -1352,118 +740,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
-  compute.os_security_group_default_rule:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
-      list:
-        operation_id: os-security-group-default-rules:get
-        operation_type: list
-        targets:
-          rust-sdk:
-            module_name: list
-          rust-cli:
-            module_name: list
-            sdk_mod_name: list
-      create:
-        operation_id: os-security-group-default-rules:post
-        operation_type: create
-        targets:
-          rust-sdk:
-            module_name: create
-          rust-cli:
-            module_name: create
-            sdk_mod_name: create
-      show:
-        operation_id: os-security-group-default-rules/id:get
-        operation_type: show
-        targets:
-          rust-sdk:
-            module_name: get
-          rust-cli:
-            module_name: show
-            sdk_mod_name: get
-      delete:
-        operation_id: os-security-group-default-rules/id:delete
-        operation_type: delete
-        targets:
-          rust-sdk:
-            module_name: delete
-          rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
-  compute.os_security_group_rule:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
-      create:
-        operation_id: os-security-group-rules:post
-        operation_type: create
-        targets:
-          rust-sdk:
-            module_name: create
-          rust-cli:
-            module_name: create
-            sdk_mod_name: create
-      delete:
-        operation_id: os-security-group-rules/id:delete
-        operation_type: delete
-        targets:
-          rust-sdk:
-            module_name: delete
-          rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
-  compute.os_security_group:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
-      list:
-        operation_id: os-security-groups:get
-        operation_type: list
-        targets:
-          rust-sdk:
-            module_name: list
-          rust-cli:
-            module_name: list
-            sdk_mod_name: list
-      create:
-        operation_id: os-security-groups:post
-        operation_type: create
-        targets:
-          rust-sdk:
-            module_name: create
-          rust-cli:
-            module_name: create
-            sdk_mod_name: create
-      show:
-        operation_id: os-security-groups/id:get
-        operation_type: show
-        targets:
-          rust-sdk:
-            module_name: get
-          rust-cli:
-            module_name: show
-            sdk_mod_name: get
-      update:
-        operation_id: os-security-groups/id:put
-        operation_type: set
-        targets:
-          rust-sdk:
-            module_name: set
-          rust-cli:
-            module_name: set
-            sdk_mod_name: set
-      delete:
-        operation_id: os-security-groups/id:delete
-        operation_type: delete
-        targets:
-          rust-sdk:
-            module_name: delete
-          rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
-  compute.os_server_external_event:
+  compute.server_external_event:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
@@ -1476,7 +753,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
-  compute.os_server_group:
+  compute.server_group:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
@@ -1524,11 +801,11 @@ resources:
         targets:
           rust-sdk:
             module_name: find
-            sdk_mod_path: compute::v2::os_server_group
+            sdk_mod_path: compute::v2::server_group
             name_field: name
             name_filter_supported: false
             list_mod: list
-  compute.os_service:
+  compute.service:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
@@ -1559,7 +836,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-  compute.os_simple_tenant_usage:
+  compute.simple_tenant_usage:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
@@ -1581,138 +858,6 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-  compute.os_snapshot:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
-      list:
-        operation_id: os-snapshots:get
-        operation_type: list
-        targets:
-          rust-sdk:
-            module_name: list
-      create:
-        operation_id: os-snapshots:post
-        operation_type: create
-        targets:
-          rust-sdk:
-            module_name: create
-          rust-cli:
-            module_name: create
-            sdk_mod_name: create
-      list_detailed:
-        operation_id: os-snapshots/detail:get
-        operation_type: list
-        targets:
-          rust-sdk:
-            module_name: list_detailed
-          rust-cli:
-            module_name: list
-            sdk_mod_name: list_detailed
-      show:
-        operation_id: os-snapshots/id:get
-        operation_type: show
-        targets:
-          rust-sdk:
-            module_name: get
-          rust-cli:
-            module_name: show
-            sdk_mod_name: get
-      delete:
-        operation_id: os-snapshots/id:delete
-        operation_type: delete
-        targets:
-          rust-sdk:
-            module_name: delete
-          rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
-  compute.os_tenant_network:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
-      list:
-        operation_id: os-tenant-networks:get
-        operation_type: list
-        targets:
-          rust-sdk:
-            module_name: list
-          rust-cli:
-            module_name: list
-            sdk_mod_name: list
-      create:
-        operation_id: os-tenant-networks:post
-        operation_type: create
-        targets:
-          rust-sdk:
-            module_name: create
-          rust-cli:
-            module_name: create
-            sdk_mod_name: create
-      show:
-        operation_id: os-tenant-networks/id:get
-        operation_type: show
-        targets:
-          rust-sdk:
-            module_name: get
-          rust-cli:
-            module_name: show
-            sdk_mod_name: get
-      delete:
-        operation_id: os-tenant-networks/id:delete
-        operation_type: delete
-        targets:
-          rust-sdk:
-            module_name: delete
-          rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
-  compute.os_volume:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
-      list:
-        operation_id: os-volumes:get
-        operation_type: list
-        targets:
-          rust-sdk:
-            module_name: list
-      create:
-        operation_id: os-volumes:post
-        operation_type: create
-        targets:
-          rust-sdk:
-            module_name: create
-          rust-cli:
-            module_name: create
-            sdk_mod_name: create
-      list_detailed:
-        operation_id: os-volumes/detail:get
-        operation_type: list
-        targets:
-          rust-sdk:
-            module_name: list_detailed
-          rust-cli:
-            module_name: list
-            sdk_mod_name: list_detailed
-      show:
-        operation_id: os-volumes/id:get
-        operation_type: show
-        targets:
-          rust-sdk:
-            module_name: get
-          rust-cli:
-            module_name: show
-            sdk_mod_name: get
-      delete:
-        operation_id: os-volumes/id:delete
-        operation_type: delete
-        targets:
-          rust-sdk:
-            module_name: delete
-          rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
   compute.server:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
@@ -2462,7 +1607,7 @@ resources:
             name_field: name
             name_filter_supported: false
             list_mod: list
-  compute.server/os_instance_action:
+  compute.server/instance_action:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
@@ -2484,7 +1629,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-  compute.server/os_interface:
+  compute.server/interface:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
@@ -2524,7 +1669,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-  compute.server/os_server_password:
+  compute.server/server_password:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
@@ -2546,7 +1691,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-  compute.server/os_virtual_interface:
+  compute.server/virtual_interface:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
@@ -2559,7 +1704,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
-  compute.server/os_volume_attachment:
+  compute.server/volume_attachment:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
@@ -2617,7 +1762,7 @@ resources:
         targets:
           rust-sdk:
             module_name: find
-            sdk_mod_path: compute::v2::server::os_volume_attachment
+            sdk_mod_path: compute::v2::server::volume_attachment
             name_field: name
             name_filter_supported: false
             list_mod: list
@@ -2634,7 +1779,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
-  compute.server/os_security_group:
+  compute.server/security_group:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:

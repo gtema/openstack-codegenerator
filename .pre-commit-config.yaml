@@ -41,7 +41,10 @@ repos:
     rev: v1.4.1
     hooks:
       - id: mypy
-        files: '^codegenerator/.*\.py$'
+        language: python
+        types: [python]
+        args: ["codegenerator"]
+        pass_filenames: false
         additional_dependencies:
           - types-decorator
           - types-PyYAML

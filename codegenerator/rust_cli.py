@@ -270,19 +270,32 @@ class DictionaryInput(common_rust.Dictionary):
 
     @property
     def imports(self):
-        imports = set(["crate::common::parse_key_val"])
+        imports = set([])
+        if not isinstance(self.value_type, common_rust.Option):
+            imports.add("crate::common::parse_key_val")
+        else:
+            imports.add("crate::common::parse_key_val_opt")
         imports.update(self.value_type.imports)
         return imports
 
     @property
     def clap_macros(self):
-        return set(
+        macros = set(
             [
                 "long",
                 'value_name="key=value"',
-                f"value_parser=parse_key_val::<String, {self.value_type.type_hint}>",
             ]
         )
+
+        if not isinstance(self.value_type, common_rust.Option):
+            macros.add(
+                f"value_parser=parse_key_val::<String, {self.value_type.type_hint}>",
+            )
+        else:
+            macros.add(
+                f"value_parser=parse_key_val_opt::<String, {self.value_type.item_type.type_hint}>",
+            )
+        return macros
 
 
 class StringEnum(common_rust.StringEnum):
@@ -458,6 +471,7 @@ class RequestTypeManager(common_rust.TypeManager):
         typ: BasePrimitiveType | BaseCombinedType | BaseCompoundType | None = (
             None
         )
+
         if isinstance(type_model, model.Reference):
             model_ref = type_model
             type_model = self._get_adt_by_reference(model_ref)
@@ -949,7 +963,19 @@ class RustCliGenerator(BaseGenerator):
                                         ).get("action-name")
                                         == args.operation_name
                                     ):
-                                        response_def = candidate
+                                        if resource_name in candidate.get(
+                                            "properties", {}
+                                        ):
+                                            # If there is a object with
+                                            # resource_name in the props -
+                                            # this must be what we want to
+                                            # look at
+                                            response_def = candidate[
+                                                "properties"
+                                            ][resource_name]
+                                        else:
+                                            response_def = candidate
+                                        break
                                     elif (
                                         resource_name
                                         and candidate.get("type") == "object"
