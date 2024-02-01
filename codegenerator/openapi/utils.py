@@ -32,6 +32,8 @@ def merge_api_ref_doc(
     :param doc_ver_prefix: Use additional path prefix to find url match
 
     """
+    # Set of processed operationIds.
+    processed_operations: set[str] = set()
     with open(api_ref_src, "r") as fp:
         html_doc = fp.read()
 
@@ -75,6 +77,7 @@ def merge_api_ref_doc(
                 "span", class_="label"
             )
             method = method_span.string
+
             # Find operation
             path_spec = openapi_spec.paths.get(url)
             if (
@@ -153,6 +156,15 @@ def merge_api_ref_doc(
                 )
                 continue
 
+            if (
+                op_spec.operationId in processed_operations
+                and not url.endswith("/action")
+            ):
+                # Do not update operation we have already processed
+                continue
+            else:
+                processed_operations.add(op_spec.operationId)
+
             # Find the button in the operaion container to get ID of the
             # details section
             details_button = op.find("button")
@@ -216,6 +228,10 @@ def merge_api_ref_doc(
                             schema_specs,
                             doc_source_param_mapping,
                         )
+
+                        if url.endswith("/action"):
+                            for sch in schema_specs:
+                                sch.summary = summary
                     # Neutron sometimes has h4 instead of h3 and "Response Parameters" instead of "Response"
                     elif (
                         details_child.h3
@@ -470,9 +486,19 @@ def _get_schema_candidates(
 
                 elif not action_name and section_description:
                     if candidate_action_name and (
-                        candidate_action_name in section_summary
-                        or candidate_action_name
-                        in "".join(section_description)
+                        re.search(
+                            rf"\b{candidate_action_name}\b", section_summary
+                        )
+                        or (
+                            url.endswith("/volumes/{volume_id}/action")
+                            # Cinder doc does not contain action name in the
+                            # summary, but looking only to description causes
+                            # faulty matches in Nova
+                            and re.search(
+                                rf"\b{candidate_action_name}\b",
+                                section_description,
+                            )
+                        )
                     ):
                         # This is an action we are hopefully interested in
                         # Now we can have single schema or multiple (i.e. microversions)

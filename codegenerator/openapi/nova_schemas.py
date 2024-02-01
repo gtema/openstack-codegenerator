@@ -2202,6 +2202,60 @@ SERVER_PASSWORD_SCHEMA: dict[str, Any] = {
         }
     },
 }
+SERVER_SECURITY_GROUPS_LIST_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "security_groups": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "The ID of the security group.",
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "The security group name.",
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Security group description.",
+                    },
+                    "tenant_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "The UUID of the tenant in a multi-tenancy cloud.",
+                    },
+                    "rules": {
+                        "type": "array",
+                        "description": "The list of security group rules.",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "id": {"type": "string", "format": "uuid"},
+                                "from_port": {"type": "integer"},
+                                "to_port": {"type": "integer"},
+                                "ip_protocol": {"type": "string"},
+                                "ip_range": {"type": "object"},
+                                "group": {
+                                    "type": "object",
+                                    "properties": {"name": {"type": "string"}},
+                                },
+                                "parent_group_id": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    },
+}
+
 
 VOLUME_ATTACHMENT_SCHEMA: dict[str, Any] = {
     "type": "object",

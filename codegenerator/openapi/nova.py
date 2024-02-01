@@ -594,6 +594,12 @@ class NovaGenerator(OpenStackServerSourceBase):
                 name, TypeSchema(**nova_schemas.SERVER_TOPOLOGY_SCHEMA)
             )
             ref = f"#/components/schemas/{name}"
+        elif name == "ServersOs_Security_GroupsListResponse":
+            schema = openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(**nova_schemas.SERVER_SECURITY_GROUPS_LIST_SCHEMA),
+            )
+            ref = f"#/components/schemas/{name}"
         elif name in [
             "ServersTagsListResponse",
             "ServersTagsUpdate_All",
