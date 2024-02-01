@@ -31,7 +31,7 @@
     );
 
     impl StructTable for ResponseData {
-        fn build(&self, options: &OutputConfig) -> (Vec<String>,
+        fn build(&self, _: &OutputConfig) -> (Vec<String>,
     Vec<Vec<String>>) {
             let headers: Vec<String> = Vec::from(["Value".to_string()]);
             let res: Vec<Vec<String>> = Vec::from([Vec::from([self.0.
@@ -41,7 +41,7 @@
     }
 
     impl StructTable for Vec<ResponseData> {
-        fn build(&self, options: &OutputConfig) -> (Vec<String>,
+        fn build(&self, _: &OutputConfig) -> (Vec<String>,
     Vec<Vec<String>>) {
             let headers: Vec<String> = Vec::from(["Values".to_string()]);
             let res: Vec<Vec<String>> =
@@ -55,7 +55,7 @@
     pub struct ResponseData(HashMap<String, serde_json::Value>);
 
     impl StructTable for ResponseData {
-        fn build(&self, options: &OutputConfig) -> (Vec<String>,
+        fn build(&self, _options: &OutputConfig) -> (Vec<String>,
     Vec<Vec<String>>) {
             let headers: Vec<String> = Vec::from(["Name".
     to_string(), "Value".to_string()]);

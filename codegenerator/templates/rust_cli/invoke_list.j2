@@ -1,6 +1,6 @@
 {#- List operation #}
-{%- if data_type.__class__.__name__ == "StructResponse" %}
-    {%- if "limit" in type_manager.get_parameters("query")|list|map(attribute=0) %}
+{%- if data_type.__class__.__name__ in ["StructResponse", "TupleStruct"] %}
+    {%- if is_list_paginated %}
     {#- paginated list #}
         let data: Vec<serde_json::Value> = paged(ep, Pagination::Limit(self.args.max_items)).query_async(client).await?;
     {%- else %}

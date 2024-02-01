@@ -1,14 +1,8 @@
 {%- import 'rust_macros.j2' as macros with context -%}
-{{ macros.mod_docstring(command_description) }}
 use async_trait::async_trait;
 use clap::Args;
 use serde::{Deserialize, Serialize};
 use tracing::info;
-use http::Response;
-{%- if not result_def %}
-use http::{HeaderName, HeaderValue};
-use bytes::Bytes;
-{%- endif %}
 
 use anyhow::Result;
 
@@ -16,18 +10,19 @@ use crate::output::OutputProcessor;
 use crate::Cli;
 use crate::OutputConfig;
 use crate::StructTable;
-use crate::{Command, error::OpenStackCliError};
-use structable_derive::StructTable;
-use std::fmt;
+use crate::{OSCCommand, OpenStackCliError};
 
-use openstack_sdk::{AsyncOpenStack, types::ServiceType};
+use openstack_sdk::AsyncOpenStack;
 
 {% for mod in additional_imports | sort %}
 use {{ mod }};
 {%- endfor %}
 
-/// Command arguments
+{{ macros.docstring(command_description) }}
 #[derive(Args, Clone, Debug)]
+{%- if command_summary %}
+#[command(about = "{{ command_summary }}")]
+{%- endif %}
 pub struct {{ target_class_name }}Args {
     /// Request Query parameters
     #[command(flatten)]
@@ -93,7 +88,7 @@ pub struct {{ target_class_name }}Cmd {
 {%- include 'rust_cli/response_struct.j2' %}
 
 #[async_trait]
-impl Command for {{ target_class_name }}Cmd {
+impl OSCCommand for {{ target_class_name }}Cmd {
     async fn take_action(
         &self,
         parsed_args: &Cli,
@@ -145,7 +140,7 @@ impl Command for {{ target_class_name }}Cmd {
     {%- with data_type = response_type_manager.get_root_data_type() %}
 
 
-    {%- if (data_type.__class__.__name__ == "StructResponse" and data_type.fields or (data_type.tuple_fields is defined and data_type.tuple_fields)) or (data_type.__class__.__name__ == "HashMapResponse") %}
+    {%- if (data_type.__class__.__name__ == "StructResponse" and data_type.fields) or data_type.__class__.__name__ == "TupleStruct" or data_type.__class__.__name__ == "HashMapResponse" %}
     {#- there is result structure meand we can render response #}
 
       {%- if operation_type == "list" %}
@@ -177,12 +172,12 @@ impl Command for {{ target_class_name }}Cmd {
       {%- endif %}
     {%- elif operation_type not in ["delete", "download", "upload", "json"] %}
       {#- there is no result structure - raw mode #}
-        let rsp: Response<Bytes> = ep.raw_query_async(client).await?;
+        let _rsp: Response<Bytes> = ep.raw_query_async(client).await?;
 
       {%- if resource_header_metadata %}
        {#- metadata from headers for now can be only returned when there is no response struct #}
         let mut metadata: HashMap<String, String> = HashMap::new();
-        let headers = rsp.headers();
+        let headers = _rsp.headers();
 
         let mut regexes: Vec<Regex> = vec![
         {%- for hdr, spec in resource_header_metadata.items() %}
@@ -220,7 +215,7 @@ impl Command for {{ target_class_name }}Cmd {
         // Maybe output some headers metadata
         op.output_human::<ResponseData>(&data)?;
     {%- elif operation_type == "delete" %}
-        let rsp: Response<Bytes> = ep.raw_query_async(client).await?;
+        let _rsp: Response<Bytes> = ep.raw_query_async(client).await?;
     {%- elif operation_type == "download" %}
       {%- include 'rust_cli/invoke_download.j2' %}
 

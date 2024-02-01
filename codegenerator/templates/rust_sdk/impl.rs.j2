@@ -178,12 +178,16 @@ impl{{ type_manager.get_request_static_lifetimes(request) }} RestEndpoint for Re
         let mut params = JsonBodyParams::default();
 
         {% for k, v in request.fields.items() %}
+        {%- if v.data_type.__class__.__name__ != "Null" %}
         {%- if v.is_optional %}
         if let Some(val) = &self.{{ v.local_name }} {
             params.push("{{ k }}", serde_json::to_value(val)?);
         }
         {%- else %}
         params.push("{{ k }}", serde_json::to_value(&self.{{v.local_name}})?);
+        {%- endif %}
+        {%- else %}
+        params.push("{{ k }}", Value::Null);
         {%- endif %}
         {%- endfor %}
 

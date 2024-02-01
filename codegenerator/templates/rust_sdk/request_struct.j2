@@ -7,9 +7,11 @@
 #[builder(setter(strip_option))]
 pub struct {{ data_type.name  }}{{ type_manager.get_request_static_lifetimes(data_type) }} {
   {%- for field in data_type.fields.values() %}
+    {%- if field.data_type.__class__.__name__ != "Null" %}
     {{ macros.docstring(field.description, indent=4) }}
     {{ field.builder_macros }}
     pub(crate) {{ field.local_name }}: {{ field.type_hint }},
+    {%- endif %}
   {%- endfor %}
 
 {%- for k, param in type_manager.parameters.items() %}

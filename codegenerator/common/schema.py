@@ -24,6 +24,7 @@ class TypeSchema(BaseModel):
     type: Optional[str | List[str]] = None
     format: Optional[str] = None
     description: Optional[str] = None
+    summary: str | None = None
     default: Optional[Any] = None
     items: Optional[Dict[str, Any]] = None
     # circular reference cause issues on deserializing

@@ -1297,3 +1297,34 @@ class TestModel(TestCase):
             k = res.kinds[0]
             self.assertIsInstance(k, model.Array)
             self.assertIsInstance(k.item_type, model.Array)
+
+    def test_server_unshelve(self):
+        schema = {
+            "type": "object",
+            "properties": {
+                "unshelve": {
+                    "oneOf": [
+                        {
+                            "type": ["object"],
+                            "properties": {
+                                "availability_zone": {
+                                    "oneOf": [
+                                        {"type": ["null"]},
+                                        {"type": "string"},
+                                    ]
+                                },
+                                "host": {"type": "string"},
+                            },
+                            "additionalProperties": False,
+                        },
+                        {"type": ["null"]},
+                    ]
+                }
+            },
+            "additionalProperties": False,
+            "x-openstack": {"min-ver": "2.91", "action-name": "unshelve"},
+            "required": ["unshelve"],
+        }
+        parser = model.OpenAPISchemaParser()
+        (res, all_models) = parser.parse(schema)
+        self.assertEqual(4, len(all_models))

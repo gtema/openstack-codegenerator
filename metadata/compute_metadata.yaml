@@ -1419,46 +1419,6 @@ resources:
             name_field: name
             name_filter_supported: true
             list_mod: list_detailed
-  compute.server/console:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
-      list:
-        operation_id: servers/server_id/consoles:get
-        operation_type: list
-        targets:
-          rust-sdk:
-            module_name: list
-          rust-cli:
-            module_name: list
-            sdk_mod_name: list
-      create:
-        operation_id: servers/server_id/consoles:post
-        operation_type: create
-        targets:
-          rust-sdk:
-            module_name: create
-          rust-cli:
-            module_name: create
-            sdk_mod_name: create
-      show:
-        operation_id: servers/server_id/consoles/id:get
-        operation_type: show
-        targets:
-          rust-sdk:
-            module_name: get
-          rust-cli:
-            module_name: show
-            sdk_mod_name: get
-      delete:
-        operation_id: servers/server_id/consoles/id:delete
-        operation_type: delete
-        targets:
-          rust-sdk:
-            module_name: delete
-          rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
   compute.server/diagnostic:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
@@ -1617,18 +1577,22 @@ resources:
         targets:
           rust-sdk:
             module_name: list
+            response_key: instanceActions
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            response_key: instanceActions
       show:
         operation_id: servers/server_id/os-instance-actions/id:get
         operation_type: show
         targets:
           rust-sdk:
             module_name: get
+            response_key: instanceAction
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            response_key: instanceAction
   compute.server/interface:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
@@ -1691,19 +1655,6 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-  compute.server/virtual_interface:
-    spec_file: wrk/openapi_specs/compute/v2.yaml
-    api_version: v2
-    operations:
-      get:
-        operation_id: servers/server_id/os-virtual-interfaces:get
-        operation_type: get
-        targets:
-          rust-sdk:
-            module_name: get
-          rust-cli:
-            module_name: get
-            sdk_mod_name: get
   compute.server/volume_attachment:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
@@ -1714,27 +1665,33 @@ resources:
         targets:
           rust-sdk:
             module_name: list
+            response_key: volumeAttachments
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            response_key: volumeAttachments
       create:
         operation_id: servers/server_id/os-volume_attachments:post
         operation_type: create
         targets:
           rust-sdk:
             module_name: create
+            response_key: volumeAttachment
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            response_key: volumeAttachment
       show:
         operation_id: servers/server_id/os-volume_attachments/id:get
         operation_type: show
         targets:
           rust-sdk:
             module_name: get
+            response_key: volumeAttachment
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            response_key: volumeAttachment
             find_implemented_by_sdk: true
       update:
         operation_id: servers/server_id/os-volume_attachments/id:put
@@ -1742,9 +1699,11 @@ resources:
         targets:
           rust-sdk:
             module_name: set
+            response_key: volumeAttachment
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            response_key: volumeAttachment
             find_implemented_by_sdk: true
       delete:
         operation_id: servers/server_id/os-volume_attachments/id:delete
@@ -1783,15 +1742,15 @@ resources:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
-      get:
+      list:
         operation_id: servers/server_id/os-security-groups:get
-        operation_type: get
+        operation_type: list
         targets:
           rust-sdk:
-            module_name: get
+            module_name: list
           rust-cli:
-            module_name: get
-            sdk_mod_name: get
+            module_name: list
+            sdk_mod_name: list
   compute.server/tag:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
@@ -1854,12 +1813,14 @@ resources:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
     operations:
-      get:
+      list:
         operation_id: servers/server_id/topology:get
-        operation_type: get
+        operation_type: list
         targets:
           rust-sdk:
-            module_name: get
+            module_name: list
+            response_key: nodes
           rust-cli:
-            module_name: get
-            sdk_mod_name: get
+            module_name: list
+            sdk_mod_name: list
+            response_key: nodes

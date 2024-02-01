@@ -137,7 +137,7 @@ Some({{ val }})
 {%- elif param.data_type.__class__.__name__ in ["ArrayInput"] %}
     {{ sdk_plain_array_setter(param, val_var, dst_var) }}
 {%- elif param.data_type.__class__.__name__ in ["JsonValue"] %}
-    // let sub: {{ sdk_mod_path[-1] }}
+    {{ dst_var }}.{{ param.remote_name }}({{ val_var | replace("&", "" )}}.clone());
 {%- elif param.data_type.__class__.__name__ == "DictionaryInput" %}
   {%- if param.data_type.value_type.__class__.__name__ == "Option" %}
     {{ dst_var }}.{{ param.remote_name }}({{ val_var | replace("&", "") }}.iter().cloned().map(|(k, v)| (k, v.map(Into::into))));
@@ -195,7 +195,26 @@ Some({{ val }})
     {{ dst_var }}.{{ param.remote_name }}({{ val_var | replace("&", "") }}.clone());
   {%- endif %}
 {%- elif param.data_type.__class__.__name__ == "Option" %}
+  {%- if param.data_type.item_type.__class__.__name__ == "StructInput" %}
+    if let Some(l{{ param.local_name }}) = &{{ val_var }} {
+    {% set builder_name = param.local_name + "_builder" %}
+    let mut {{ builder_name }} = {{ sdk_mod_path[-1] }}::{{ param.data_type.item_type.name }}Builder::default();
+    {%- for k, v in param.data_type.item_type.fields.items() %}
+      {%- if v.is_optional %}
+        if let Some(val) = &l{{ param.local_name }}.{{ v.local_name }} {
+          {{ set_request_data_from_input(builder_name, v, "val") }}
+        }
+      {%- else %}
+          {{ set_request_data_from_input(builder_name, v, "&l" + param.local_name + "." + v.local_name) }}
+      {%- endif %}
+
+    {%- endfor %}
+    {{ dst_var }}.{{ param.remote_name }}({{ builder_name }}.build().expect("A valid object"));
+    }
+
+  {%- else %}
     {{ dst_var }}.{{ param.remote_name }}({{ val_var }}.clone().map(|v| v.into()));
+  {%- endif %}
 {%- else %}
     {{ dst_var }}.{{ param.remote_name }}({{ val_var }});
 {%- endif %}
