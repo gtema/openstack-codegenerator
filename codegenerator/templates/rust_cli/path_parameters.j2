@@ -1,6 +1,6 @@
 
 /// Path parameters
-#[derive(Args, Clone, Debug)]
+#[derive(Args)]
 pub struct PathParameters {
 {%- for param in type_manager.parameters.values() %}
 {%- if param.location == "path"%}

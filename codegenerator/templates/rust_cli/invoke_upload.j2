@@ -1,4 +1,4 @@
-        let dst = self.args.file.clone();
+        let dst = self.file.clone();
         let data = build_upload_asyncread(dst).await?;
 
         let _rsp: Response<Bytes> = ep.raw_query_read_body_async(client, data).await?;

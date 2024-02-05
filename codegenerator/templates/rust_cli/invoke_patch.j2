@@ -11,7 +11,7 @@
 
     {%- for attr_name, field in root.fields.items() %}
       {%- if attr_name != "id" %}{# glance doesn't hide "ID" from change #}
-        if let Some(val) = &self.args.{{ field.local_name }} {
+        if let Some(val) = &self.{{ field.local_name }} {
           {%- if field.type_hint == "Option<Vec<String>>" %}
             new.{{ field.local_name }} = Some(VecString(val.clone()));
 
@@ -50,7 +50,7 @@
 
     {%- if root.additional_fields_type %}
 {#- additional properties are not present in the output and thus handleded on the raw json #}
-        if let Some(properties) = &self.args.properties {
+        if let Some(properties) = &self.properties {
             for (key, val) in properties {
                 new_json[key] = json!(val);
             }

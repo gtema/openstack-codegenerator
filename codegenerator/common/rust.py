@@ -75,7 +75,7 @@ class Integer(BasePrimitiveType):
 class Null(BasePrimitiveType):
     type_hint: str = "Value"
     imports: set[str] = set(["serde_json::Value"])
-    builder_macros: set[str] = set(['default = "Value::Null"'])
+    builder_macros: set[str] = set([])
     clap_macros: set[str] = set()
     original_data_type: BaseCompoundType | BaseCompoundType | None = None
 
@@ -352,11 +352,15 @@ class StringEnum(BaseCompoundType):
 
     def variant_serde_macros(self, variant: str):
         """Return serde macros"""
-        return (
-            "#[serde("
-            + ", ".join([f'rename="{x}"' for x in self.variants[variant]])
-            + ")]"
-        )
+        macros = set([])
+        vals = self.variants[variant]
+        if len(vals) > 1:
+            macros.add(f'rename(serialize = "{sorted(vals)[0]}")')
+            for val in vals:
+                macros.add(f'alias="{val}"')
+        else:
+            macros.add(f'rename = "{list(vals)[0]}"')
+        return "#[serde(" + ", ".join(sorted(macros)) + ")]"
 
 
 class RequestParameter(BaseModel):
@@ -762,6 +766,13 @@ class TypeManager:
             kinds.clear()
             jsonval_klass = self.primitive_type_mapping[model.PrimitiveAny]
             kinds.append({"local": jsonval_klass(), "class": jsonval_klass})
+        elif len(set(kinds_classes)) == 1 and string_klass in kinds_classes:
+            # in the output oneOf of same type (but maybe different formats)
+            # makes no sense
+            # Example is server addresses which are ipv4 or ipv6
+            bck = kinds[0].copy()
+            kinds.clear()
+            kinds.append(bck)
 
     def set_models(self, models):
         """Process (translate) ADT models into Rust SDK style"""
@@ -998,6 +1009,8 @@ def get_operation_variants(spec: dict, operation_name: str):
         elif "application/json-patch+json" in content:
             mime_type = "application/json-patch+json"
             operation_variants.append({"mime_type": mime_type})
+        elif content == {}:
+            operation_variants.append({"body": None})
     else:
         # Explicitly register variant without body
         operation_variants.append({"body": None})

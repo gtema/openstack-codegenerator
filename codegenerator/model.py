@@ -449,7 +449,19 @@ class JsonSchemaParser:
         parent_name: str | None = None,
         ignore_read_only: bool | None = False,
     ):
+        if len(schema.get("type")) == 1:
+            # Bad schema with type being a list of 1 entry
+            schema["type"] = schema["type"][0]
+            obj = self.parse_schema(
+                schema,
+                results,
+                name=name,
+                ignore_read_only=ignore_read_only,
+            )
+            return obj
+
         obj = OneOfType()
+
         for kind_type in schema.get("type"):
             kind_schema = copy.deepcopy(schema)
             kind_schema["type"] = kind_type

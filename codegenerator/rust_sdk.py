@@ -79,7 +79,13 @@ class StructField(common_rust.StructField):
         if "private" in macros:
             macros.add(f'setter(name="_{self.local_name}")')
         if self.is_optional:
-            macros.add("default")
+            default_set: bool = False
+            for macro in macros:
+                if "default" in macro:
+                    default_set = True
+                    break
+            if not default_set:
+                macros.add("default")
         return f"#[builder({', '.join(sorted(macros))})]"
 
     @property
@@ -131,13 +137,14 @@ class Struct(common_rust.Struct):
     def get_mandatory_init(self):
         res = []
         for field in self.fields.values():
-            if not field.is_optional:
-                el = field.data_type.get_sample()
-                if el:
-                    data = f".{field.local_name}("
-                    data += el
-                    data += ")"
-                    res.append(data)
+            if not isinstance(field.data_type, common_rust.Null):
+                if not field.is_optional:
+                    el = field.data_type.get_sample()
+                    if el:
+                        data = f".{field.local_name}("
+                        data += el
+                        data += ")"
+                        res.append(data)
         return "".join(res)
 
 

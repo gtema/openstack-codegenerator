@@ -6,9 +6,9 @@
  {%- for root_attr, root_field in root.fields.items() %}
   // Set Request.{{ root_field.remote_name }} data
   {%- if root_field.is_optional %}
-    if let Some(args) = &self.args.{{ root_field.local_name }} {
+    if let Some(args) = &self.{{ root_field.local_name }} {
   {%- else %}
-    let args = &self.args.{{ root_field.local_name }};
+    let args = &self.{{ root_field.local_name }};
   {%- endif %}
 
   {%- if root_field.data_type.__class__.__name__ == "StructInput" %}
@@ -50,12 +50,12 @@
   {%- endif %}
  {% endfor %}
   {%- if root.additional_fields_type %}
-    if let Some(properties) = &self.args.properties {
+    if let Some(properties) = &self.properties {
         ep_builder.properties(properties.iter().cloned());
     }
   {%- endif %}
 {%- elif root.__class__.__name__ == "DictionaryInput" %}
-    if let Some(properties) = &self.args.properties {
+    if let Some(properties) = &self.properties {
         ep_builder.properties(properties.iter().cloned());
     }
 {%- endif %}

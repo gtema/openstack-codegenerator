@@ -380,6 +380,8 @@ class OpenStackServerSourceBase:
                     # Versioned actions in nova can be themelves as a
                     # version_select wrapped callable (i.e. baremetal.action)
                     key = closurevars.nonlocals.get("key", None)
+                    slf = closurevars.nonlocals.get("self", None)
+
                     if key and key in versioned_methods:
                         # ACTION with version bounds
                         if len(versioned_methods[key]) > 1:
@@ -391,6 +393,20 @@ class OpenStackServerSourceBase:
                             start_version = ver_method.start_version
                             end_version = ver_method.end_version
                             func = ver_method.func
+                            logging.info("Versioned action %s", func)
+                    elif slf and key:
+                        vm = getattr(slf, "versioned_methods", None)
+                        if vm and key in vm:
+                            # ACTION with version bounds
+                            if len(vm[key]) > 1:
+                                raise RuntimeError(
+                                    "Multiple versioned methods for action %s",
+                                    action,
+                                )
+                            for ver_method in vm[key]:
+                                start_version = ver_method.start_version
+                                end_version = ver_method.end_version
+                                func = ver_method.func
                             logging.info("Versioned action %s", func)
                     else:
                         func = op_name
@@ -551,8 +567,8 @@ class OpenStackServerSourceBase:
         while hasattr(f, "__wrapped__"):
             closure = inspect.getclosurevars(f)
             closure_locals = closure.nonlocals
-            min_ver = closure_locals.get("min_version")
-            max_ver = closure_locals.get("max_version")
+            min_ver = closure_locals.get("min_version", start_version)
+            max_ver = closure_locals.get("max_version", end_version)
 
             if "errors" in closure_locals:
                 expected_errors = closure_locals["errors"]
@@ -831,7 +847,7 @@ class OpenStackServerSourceBase:
             if cont_schema_name in openapi_spec.components.schemas:
                 # if we have already oneOf - add there
                 cont_schema = openapi_spec.components.schemas[cont_schema_name]
-                if body_schemas[0] not in [
+                if cont_schema.oneOf and body_schemas[0] not in [
                     x["$ref"] for x in cont_schema.oneOf
                 ]:
                     cont_schema.oneOf.append({"$ref": body_schemas[0]})

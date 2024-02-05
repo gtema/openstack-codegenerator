@@ -59,6 +59,13 @@ class MetadataGenerator(BaseGenerator):
             resource_name = "/".join(
                 [x for x in common.get_resource_names_from_url(path)]
             )
+            if args.service_type == "object-store":
+                if path == "/v1/{account}":
+                    resource_name = "account"
+                elif path == "/v1/{account}/{container}":
+                    resource_name = "container"
+                if path == "/v1/{account}/{object}":
+                    resource_name = "object"
             if args.service_type == "compute" and resource_name in [
                 "agent",
                 "baremetal_node",
@@ -84,6 +91,8 @@ class MetadataGenerator(BaseGenerator):
                 "security_group_default_rule",
                 "security_group_rule",
                 "security_group",
+                "server/console",
+                "server/virtual_interface",
                 "snapshot",
                 "tenant_network",
                 "volume",
@@ -173,6 +182,18 @@ class MetadataGenerator(BaseGenerator):
                         and method == "post"
                     ):
                         operation_key = "action"
+                    elif (
+                        args.service_type == "compute"
+                        and resource_name == "server/security_group"
+                        and method == "get"
+                    ):
+                        operation_key = "list"
+                    elif (
+                        args.service_type == "compute"
+                        and resource_name == "server/topology"
+                        and method == "get"
+                    ):
+                        operation_key = "list"
 
                     elif response_schema and (
                         method == "get"
@@ -623,6 +644,24 @@ def post_process_compute_operation(
     elif resource_name == "keypair":
         if operation_name == "list":
             operation.targets["rust-sdk"].response_list_item_key = "keypair"
+    elif resource_name == "server/instance_action":
+        if operation_name == "list":
+            operation.targets["rust-sdk"].response_key = "instanceActions"
+            operation.targets["rust-cli"].response_key = "instanceActions"
+        else:
+            operation.targets["rust-sdk"].response_key = "instanceAction"
+            operation.targets["rust-cli"].response_key = "instanceAction"
+    elif resource_name == "server/topology":
+        if operation_name == "list":
+            operation.targets["rust-sdk"].response_key = "nodes"
+            operation.targets["rust-cli"].response_key = "nodes"
+    elif resource_name == "server/volume_attachment":
+        if operation_name == "list":
+            operation.targets["rust-sdk"].response_key = "volumeAttachments"
+            operation.targets["rust-cli"].response_key = "volumeAttachments"
+        elif operation_name in ["create", "show", "update"]:
+            operation.targets["rust-sdk"].response_key = "volumeAttachment"
+            operation.targets["rust-cli"].response_key = "volumeAttachment"
 
     return operation
 

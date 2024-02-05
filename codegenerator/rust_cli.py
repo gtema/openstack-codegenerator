@@ -141,6 +141,10 @@ class StructInputField(common_rust.StructField):
             # For substrucs (and maybe enums) we tell Clap to flatten subtype
             # instead of exposing attr itself
             return "#[command(flatten)]"
+        if isinstance(self.data_type, common_rust.Option) and isinstance(
+            self.data_type.item_type, common_rust.Struct
+        ):
+            return "#[command(flatten)]"
         macros = set(["long"])
         try:
             if self.data_type.clap_macros:
@@ -367,6 +371,12 @@ class RequestParameter(common_rust.RequestParameter):
         macros: set[str] = set()
         if not self.is_required:
             macros.add("long")
+        if self.location == "path":
+            # Sometime there is a collision of path params and body params.
+            # In order to prevent this force clap arg ID to be prefixed, while
+            # the value_name is turned back to the expected value
+            macros.add(f'id = "path_param_{self.local_name}"')
+            macros.add(f'value_name = "{self.local_name.upper()}"')
         return f"#[arg({', '.join(macros)})]"
 
 
@@ -495,6 +505,20 @@ class RequestTypeManager(common_rust.TypeManager):
             model_ref = type_model.reference
 
         # CLI hacks
+        if isinstance(type_model, model.Struct) and not type_model.reference:
+            # Check the root structure
+            if len(type_model.fields) == 1:
+                # Struct with only 1 key
+                only_field = list(type_model.fields.keys())[0]
+                if isinstance(
+                    type_model.fields[only_field].data_type,
+                    model.PrimitiveNull,
+                ):
+                    # The only field is null. No input is necessary
+                    logging.debug(
+                        "API accepts only 1 field of type Null. No input is required."
+                    )
+                    type_model.fields = {}
         if isinstance(type_model, model.Array):
             if isinstance(type_model.item_type, model.Reference):
                 item_type = self._get_adt_by_reference(type_model.item_type)
@@ -649,8 +673,8 @@ class ResponseTypeManager(common_rust.TypeManager):
     primitive_type_mapping: dict[
         Type[model.PrimitiveType], Type[BasePrimitiveType]
     ] = {
-        model.PrimitiveString: String,
-        model.ConstraintString: String,
+        model.PrimitiveString: common_rust.String,
+        model.ConstraintString: common_rust.String,
     }
 
     data_type_mapping = {
@@ -892,6 +916,7 @@ class RustCliGenerator(BaseGenerator):
                 ResponseTypeManager()
             )
             result_is_list: bool = False
+            is_list_paginated: bool = False
             if operation_params:
                 type_manager.set_parameters(operation_params)
 
@@ -931,8 +956,10 @@ class RustCliGenerator(BaseGenerator):
                         # struct is there. For the cli it makes no sense and
                         # we filter it out from the parsed data
                         object_to_remove = "OS-SCH-HNT:scheduler_hints"
-                        if parsed_type.reference == model.Reference(
-                            name=object_to_remove, type=model.Struct
+                        if (
+                            parsed_type.reference
+                            and parsed_type.reference.name == object_to_remove
+                            and parsed_type.reference.type == model.Struct
                         ):
                             request_types.remove(parsed_type)
                         elif parsed_type.reference is None and isinstance(
@@ -1068,21 +1095,53 @@ class RustCliGenerator(BaseGenerator):
                         ):
                             result_is_list = True
 
-                additional_imports.add(
-                    "openstack_sdk::api::"
-                    + "::".join(
-                        f"r#{x}" if x in ["type"] else x for x in sdk_mod_path
-                    )
-                )
                 root_type = response_type_manager.get_root_data_type()
+
+                mod_import_name = "openstack_sdk::api::" + "::".join(
+                    f"r#{x}" if x in ["type"] else x for x in sdk_mod_path
+                )
+
+                if not (
+                    args.find_implemented_by_sdk
+                    and args.operation_type
+                    in [
+                        "show",
+                        "download",
+                    ]
+                ):
+                    additional_imports.add(mod_import_name)
+
+                if args.find_implemented_by_sdk and args.operation_type in [
+                    "show",
+                    "set",
+                    "download",
+                ]:
+                    additional_imports.add("openstack_sdk::api::find")
+                    additional_imports.add(
+                        "::".join(
+                            [
+                                "openstack_sdk::api",
+                                "::".join(
+                                    f"r#{x}" if x in ["type"] else x
+                                    for x in sdk_mod_path[:-1]
+                                ),
+                                "find",
+                            ]
+                        )
+                    )
+
                 if args.operation_type == "list":
                     # Make plural form for listing
                     target_class_name = common.get_plural_form(
                         target_class_name
                     )
-                    additional_imports.update(
-                        ["openstack_sdk::api::{paged, Pagination}"]
-                    )
+                    if "limit" in [
+                        k for (k, _) in type_manager.get_parameters("query")
+                    ]:
+                        is_list_paginated = True
+                        additional_imports.add(
+                            "openstack_sdk::api::{paged, Pagination}"
+                        )
                 if args.operation_type == "download":
                     additional_imports.add("crate::common::download_file")
                 if args.operation_type == "upload":
@@ -1103,6 +1162,11 @@ class RustCliGenerator(BaseGenerator):
                     additional_imports.add("openstack_sdk::api::QueryAsync")
                 else:
                     additional_imports.add("openstack_sdk::api::RawQueryAsync")
+                    additional_imports.add("http::Response")
+                    additional_imports.add("bytes::Bytes")
+
+                if isinstance(root_type, StructResponse):
+                    additional_imports.add("structable_derive::StructTable")
 
                 if resource_header_metadata:
                     additional_imports.add(
@@ -1121,24 +1185,12 @@ class RustCliGenerator(BaseGenerator):
                     ):
                         additional_imports.add("regex::Regex")
 
-                additional_imports.update(type_manager.get_imports())
-                additional_imports.update(response_type_manager.get_imports())
-                # Deserialize is already in template since it is uncoditionally required
-                additional_imports.discard("serde::Deserialize")
-                if args.find_implemented_by_sdk:
-                    additional_imports.add("openstack_sdk::api::find")
-                    additional_imports.add(
-                        "::".join(
-                            [
-                                "openstack_sdk::api",
-                                "::".join(
-                                    f"r#{x}" if x in ["type"] else x
-                                    for x in sdk_mod_path[:-1]
-                                ),
-                                "find",
-                            ]
-                        )
-                    )
+                for st in response_type_manager.get_subtypes():
+                    if isinstance(st, StructResponse) or getattr(
+                        st, "base_type", None
+                    ) in ["vec", "dict"]:
+                        additional_imports.add("std::fmt")
+                        break
 
                 if is_image_download:
                     additional_imports.add("openstack_sdk::api::find")
@@ -1153,11 +1205,35 @@ class RustCliGenerator(BaseGenerator):
                         )
                     )
 
+                additional_imports.update(type_manager.get_imports())
+                additional_imports.update(response_type_manager.get_imports())
+                # Deserialize is already in template since it is uncoditionally required
+                additional_imports.discard("serde::Deserialize")
+
+                command_description: str = spec.get("description")
+                command_summary: str = spec.get("summary")
+                if args.operation_type == "action":
+                    command_description = operation_body.get(
+                        "description", command_description
+                    )
+                    command_summary = operation_body.get(
+                        "summary", command_summary
+                    )
+
+                if command_summary and microversion:
+                    command_summary += f" (microversion = {microversion})"
+                if not command_description:
+                    command_description = (
+                        "Command without description in OpenAPI"
+                    )
                 context = dict(
                     operation_id=operation_id,
                     operation_type=args.operation_type,
                     command_description=common_rust.sanitize_rust_docstrings(
-                        spec.get("description")
+                        command_description
+                    ),
+                    command_summary=common_rust.sanitize_rust_docstrings(
+                        command_summary
                     ),
                     type_manager=type_manager,
                     resource_name=resource_name,
@@ -1186,6 +1262,7 @@ class RustCliGenerator(BaseGenerator):
                     result_is_list=result_is_list,
                     is_image_download=is_image_download,
                     is_json_patch=is_json_patch,
+                    is_list_paginated=is_list_paginated,
                 )
 
                 if not args.cli_mod_path:
