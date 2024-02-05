@@ -10,6 +10,7 @@ NET_RESOURCES=(
   "availability_zone"
   "hypervisor"
   "keypair"
+  "server"
 )
 
 openstack-codegenerator --work-dir ${WRK_DIR} --target rust-sdk --metadata ${METADATA}/compute_metadata.yaml --service compute
