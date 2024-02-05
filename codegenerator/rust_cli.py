@@ -1222,6 +1222,10 @@ class RustCliGenerator(BaseGenerator):
 
                 if command_summary and microversion:
                     command_summary += f" (microversion = {microversion})"
+                if not command_description:
+                    command_description = (
+                        "Command without description in OpenAPI"
+                    )
                 context = dict(
                     operation_id=operation_id,
                     operation_type=args.operation_type,

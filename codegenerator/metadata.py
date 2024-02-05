@@ -59,6 +59,13 @@ class MetadataGenerator(BaseGenerator):
             resource_name = "/".join(
                 [x for x in common.get_resource_names_from_url(path)]
             )
+            if args.service_type == "object-store":
+                if path == "/v1/{account}":
+                    resource_name = "account"
+                elif path == "/v1/{account}/{container}":
+                    resource_name = "container"
+                if path == "/v1/{account}/{object}":
+                    resource_name = "object"
             if args.service_type == "compute" and resource_name in [
                 "agent",
                 "baremetal_node",

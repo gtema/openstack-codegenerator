@@ -1,6 +1,6 @@
 
 /// Query parameters
-#[derive(Args, Clone, Debug)]
+#[derive(Args)]
 pub struct QueryParameters {
 {%- for param in type_manager.parameters.values() %}
 {%- if param.location == "query" %}

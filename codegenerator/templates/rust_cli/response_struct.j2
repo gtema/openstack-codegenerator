@@ -3,7 +3,8 @@
 {%- if data_type.__class__.__name__ == "StructResponse" %}
   {%- if data_type.fields %}
     /// {{ target_class_name }} response representation
-    #[derive(Deserialize, Debug, Clone, Serialize, StructTable)]
+    #[derive(Deserialize, Serialize)]
+    #[derive(Clone, StructTable)]
     pub struct ResponseData {
       {%- for k, v in data_type.fields.items() %}
         {{ macros.docstring(v.description, indent=4) }}
@@ -16,14 +17,16 @@
   {%- else %}
     {#- No response data at all #}
     /// {{ target_class_name }} response representation
-    #[derive(Deserialize, Debug, Clone, Serialize, StructTable)]
+    #[derive(Deserialize, Serialize)]
+    #[derive(Clone, StructTable)]
     pub struct ResponseData {}
   {%- endif %}
 
 {%- elif data_type.__class__.__name__ == "TupleStruct" %}
     {#- tuple struct requires custom implementation of StructTable #}
     /// {{ target_class_name }} response representation
-    #[derive(Deserialize, Debug, Clone, Serialize)]
+    #[derive(Deserialize, Serialize)]
+    #[derive(Clone)]
     pub struct ResponseData(
       {%- for field in data_type.tuple_fields %}
         {{ field.type_hint }},
@@ -51,7 +54,8 @@
         }
     }
 {%- elif data_type.__class__.__name__ == "HashMapResponse" %}
-    #[derive(Deserialize, Debug, Clone, Serialize)]
+    /// Response data as HashMap type
+    #[derive(Deserialize, Serialize)]
     pub struct ResponseData(HashMap<String, serde_json::Value>);
 
     impl StructTable for ResponseData {
@@ -73,7 +77,10 @@
 
 {%- for subtype in response_type_manager.get_subtypes() %}
 {%- if subtype["fields"] is defined %}
-#[derive(Deserialize, Debug, Default, Clone, Serialize)]
+/// {{ subtype.base_type }} response type
+#[derive(Default)]
+#[derive(Clone)]
+#[derive(Deserialize, Serialize)]
 {{ subtype.base_type }} {{ subtype.name }} {
   {%- for k, v in subtype.fields.items() %}
     {{ v.local_name }}: {{ v.type_hint }},
@@ -84,7 +91,18 @@ impl fmt::Display for {{ subtype.name }} {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let data = Vec::from([
          {%- for k, v in subtype.fields.items() %}
-            format!("{{v.local_name}}={}", self.{{ v.local_name }}{{ ".clone().map(|v| v.to_string()).unwrap_or(\"\".to_string())" if v.type_hint.startswith("Option") }}),
+            format!(
+                "{{v.local_name}}={}",
+                self
+                    .{{ v.local_name }}
+                  {%- if v.type_hint.startswith("Option") %}
+                   {%- if v.type_hint not in ["Option<i32>", "Option<i64>", "Option<f32>", "Option<f64>", "Option<bool>"] %}
+                    .clone()
+                   {%- endif %}
+                    .map(|v| v.to_string())
+                    .unwrap_or("".to_string())
+                  {%- endif %}
+                ),
          {%- endfor %}
         ]);
         write!(
@@ -96,7 +114,10 @@ impl fmt::Display for {{ subtype.name }} {
     }
 }
 {%- elif subtype.base_type == "vec" %}
-#[derive(Deserialize, Default, Debug, Clone, Serialize)]
+/// Vector of {{ subtype.item_type.type_hint}} response type
+#[derive(Default)]
+#[derive(Clone)]
+#[derive(Deserialize, Serialize)]
 pub struct Vec{{ subtype.item_type.type_hint}}(Vec<{{subtype.item_type.type_hint}}>);
 impl fmt::Display for Vec{{ subtype.item_type.type_hint }} {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -112,7 +133,10 @@ impl fmt::Display for Vec{{ subtype.item_type.type_hint }} {
     }
 }
 {%- elif subtype.base_type == "dict"  %}
-#[derive(Deserialize, Default, Debug, Clone, Serialize)]
+/// HashMap of {{ subtype.value_type.type_hint }} response type
+#[derive(Default)]
+#[derive(Clone)]
+#[derive(Deserialize, Serialize)]
 pub struct HashMapString{{ subtype.value_type.type_hint}}(HashMap<String, {{subtype.value_type.type_hint}}>);
 impl fmt::Display for HashMapString{{ subtype.value_type.type_hint }} {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

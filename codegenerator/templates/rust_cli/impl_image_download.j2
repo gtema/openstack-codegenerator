@@ -1,5 +1,5 @@
         let find_ep = find::Request::builder()
-            .id(&self.args.path.image_id)
+            .id(&self.path.image_id)
             .build()
             .map_err(|x| OpenStackCliError::EndpointBuild(x.to_string()))?;
         let image_data: serde_json::Value = find(find_ep).query_async(client).await?;
@@ -25,4 +25,4 @@
             .unwrap_or("0")
             .parse()
             .unwrap();
-        download_file(self.args.file.clone().unwrap_or(image_name), size, data).await?;
+        download_file(self.file.clone().unwrap_or(image_name), size, data).await?;

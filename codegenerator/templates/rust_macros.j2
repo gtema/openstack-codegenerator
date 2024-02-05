@@ -275,7 +275,7 @@ Some({{ val }})
   {%- elif param["setter_type"] is defined %}
     {#- Param with setter present #}
     {{ dst_var }}.{{ param.remote_name }}(
-        {{ val_var }}.into_iter()
+        {{ val_var }}.iter()
     );
   {%- elif original_item_type and original_item_type.__class__.__name__ == "DictionaryInput" %}
     use std::collections::BTreeMap;
@@ -313,11 +313,11 @@ Some({{ val }})
 {%- for (k, v) in type_manager.get_parameters("path") %}
 {%- if not v.is_required %}
   {%- if k != "project_id" %}
-        if let Some(val) = &self.args.path.{{ v.local_name }} {
+        if let Some(val) = &self.path.{{ v.local_name }} {
           {{ builder }}.{{ v.local_name }}(val);
         }
   {%- else %}
-        if let Some(val) = &self.args.path.{{ v.local_name }} {
+        if let Some(val) = &self.path.{{ v.local_name }} {
             {{ builder }}.{{ v.local_name }}(val);
         } else {
             {{ builder }}.{{ v.local_name }}(client.get_current_project().expect("Project ID must be known").id);
@@ -330,7 +330,7 @@ Some({{ val }})
         .to_string();
     {{ builder }}.{{ v.local_name }}(resource_id.clone());
 {%- else %}
-    {{ builder }}.{{ v.local_name }}(&self.args.path.{{ v.local_name }});
+    {{ builder }}.{{ v.local_name }}(&self.path.{{ v.local_name }});
 {%- endif %}
 {%- endfor %}
 {%- endmacro %}
