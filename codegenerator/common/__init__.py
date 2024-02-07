@@ -154,6 +154,9 @@ def find_resource_schema(
                     return (props[resource_name]["items"], resource_name)
                 return (props[resource_name], resource_name)
             for name, item in props.items():
+                if name == "additionalProperties" and isinstance(item, bool):
+                    # Some schemas are broken
+                    continue
                 (r, path) = find_resource_schema(item, name, resource_name)
                 if r:
                     return (r, path)

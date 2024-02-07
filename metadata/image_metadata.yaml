@@ -748,7 +748,6 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-            find_implemented_by_sdk: true
       delete:
         operation_id: tasks/task_id:delete
         operation_type: delete
@@ -758,17 +757,6 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-            find_implemented_by_sdk: true
-      find:
-        operation_id: tasks:get
-        operation_type: find
-        targets:
-          rust-sdk:
-            module_name: find
-            sdk_mod_path: image::v2::task
-            name_field: name
-            name_filter_supported: false
-            list_mod: list
   image.info/import:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2

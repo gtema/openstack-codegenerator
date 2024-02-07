@@ -35,7 +35,7 @@
             {{ builder_name }}.{{ v.remote_name }}(secret.to_string());
       }
       {%- else %}
-          {{ macros.set_request_data_from_input(builder_name, v, "&args." + v.local_name) }}
+          {{ macros.set_request_data_from_input(builder_name, v, "args." + v.local_name) }}
       {%- endif %}
 
     {% endfor %}

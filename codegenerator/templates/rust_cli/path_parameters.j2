@@ -1,7 +1,7 @@
 
 /// Path parameters
 #[derive(Args)]
-pub struct PathParameters {
+struct PathParameters {
 {%- for param in type_manager.parameters.values() %}
 {%- if param.location == "path"%}
     {{ macros.docstring(param.description, indent=4) }}

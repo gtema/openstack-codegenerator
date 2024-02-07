@@ -303,6 +303,9 @@ class JsonSchemaParser:
         if properties:
             obj = Struct()
             for k, v in properties.items():
+                if k == "additionalProperties" and isinstance(v, bool):
+                    # Some schemas (in keystone) are Broken
+                    continue
                 if ignore_read_only and v.get("readOnly", False):
                     continue
                 data_type = self.parse_schema(
