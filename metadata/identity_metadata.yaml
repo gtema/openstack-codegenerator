@@ -1158,15 +1158,15 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-      update:
-        operation_id: OS-FEDERATION/identity_providers/idp_id:patch
-        operation_type: set
+      create:
+        operation_id: OS-FEDERATION/identity_providers/idp_id:put
+        operation_type: create
         targets:
           rust-sdk:
-            module_name: set
+            module_name: create
           rust-cli:
-            module_name: set
-            sdk_mod_name: set
+            module_name: create
+            sdk_mod_name: create
       delete:
         operation_id: OS-FEDERATION/identity_providers/idp_id:delete
         operation_type: delete
@@ -1176,6 +1176,15 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+      update:
+        operation_id: OS-FEDERATION/identity_providers/idp_id:patch
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
       list:
         operation_id: OS-FEDERATION/identity_providers:get
         operation_type: list
@@ -1204,15 +1213,15 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-      update:
-        operation_id: OS-FEDERATION/identity_providers/idp_id/protocols/protocol_id:patch
-        operation_type: set
+      create:
+        operation_id: OS-FEDERATION/identity_providers/idp_id/protocols/protocol_id:put
+        operation_type: create
         targets:
           rust-sdk:
-            module_name: set
+            module_name: create
           rust-cli:
-            module_name: set
-            sdk_mod_name: set
+            module_name: create
+            sdk_mod_name: create
       delete:
         operation_id: OS-FEDERATION/identity_providers/idp_id/protocols/protocol_id:delete
         operation_type: delete
@@ -1222,6 +1231,15 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+      update:
+        operation_id: OS-FEDERATION/identity_providers/idp_id/protocols/protocol_id:patch
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
       list:
         operation_id: OS-FEDERATION/identity_providers/idp_id/protocols:get
         operation_type: list
@@ -1250,15 +1268,15 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-      update:
-        operation_id: OS-FEDERATION/mappings/mapping_id:patch
-        operation_type: set
+      create:
+        operation_id: OS-FEDERATION/mappings/mapping_id:put
+        operation_type: create
         targets:
           rust-sdk:
-            module_name: set
+            module_name: create
           rust-cli:
-            module_name: set
-            sdk_mod_name: set
+            module_name: create
+            sdk_mod_name: create
       delete:
         operation_id: OS-FEDERATION/mappings/mapping_id:delete
         operation_type: delete
@@ -1268,6 +1286,15 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+      update:
+        operation_id: OS-FEDERATION/mappings/mapping_id:patch
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
       list:
         operation_id: OS-FEDERATION/mappings:get
         operation_type: list
@@ -1296,15 +1323,15 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-      update:
-        operation_id: OS-FEDERATION/service_providers/sp_id:patch
-        operation_type: set
+      create:
+        operation_id: OS-FEDERATION/service_providers/sp_id:put
+        operation_type: create
         targets:
           rust-sdk:
-            module_name: set
+            module_name: create
           rust-cli:
-            module_name: set
-            sdk_mod_name: set
+            module_name: create
+            sdk_mod_name: create
       delete:
         operation_id: OS-FEDERATION/service_providers/sp_id:delete
         operation_type: delete
@@ -1314,6 +1341,15 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+      update:
+        operation_id: OS-FEDERATION/service_providers/sp_id:patch
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
       list:
         operation_id: OS-FEDERATION/service_providers:get
         operation_type: list
@@ -2900,7 +2936,6 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-            find_implemented_by_sdk: true
       delete:
         operation_id: users/user_id/access_rules/access_rule_id:delete
         operation_type: delete
@@ -2910,14 +2945,3 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-            find_implemented_by_sdk: true
-      find:
-        operation_id: users/user_id/access_rules:get
-        operation_type: find
-        targets:
-          rust-sdk:
-            module_name: find
-            sdk_mod_path: identity::v3::user::access_rule
-            name_field: name
-            name_filter_supported: false
-            list_mod: list

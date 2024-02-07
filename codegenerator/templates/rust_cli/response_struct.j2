@@ -5,7 +5,7 @@
     /// {{ target_class_name }} response representation
     #[derive(Deserialize, Serialize)]
     #[derive(Clone, StructTable)]
-    pub struct ResponseData {
+    struct ResponseData {
       {%- for k, v in data_type.fields.items() %}
         {{ macros.docstring(v.description, indent=4) }}
         {{ v.serde_macros }}
@@ -19,7 +19,7 @@
     /// {{ target_class_name }} response representation
     #[derive(Deserialize, Serialize)]
     #[derive(Clone, StructTable)]
-    pub struct ResponseData {}
+    struct ResponseData {}
   {%- endif %}
 
 {%- elif data_type.__class__.__name__ == "TupleStruct" %}
@@ -27,7 +27,7 @@
     /// {{ target_class_name }} response representation
     #[derive(Deserialize, Serialize)]
     #[derive(Clone)]
-    pub struct ResponseData(
+    struct ResponseData(
       {%- for field in data_type.tuple_fields %}
         {{ field.type_hint }},
       {%- endfor %}
@@ -53,10 +53,11 @@
             (headers, res)
         }
     }
+
 {%- elif data_type.__class__.__name__ == "HashMapResponse" %}
     /// Response data as HashMap type
     #[derive(Deserialize, Serialize)]
-    pub struct ResponseData(HashMap<String, serde_json::Value>);
+    struct ResponseData(HashMap<String, serde_json::Value>);
 
     impl StructTable for ResponseData {
         fn build(&self, _options: &OutputConfig) -> (Vec<String>,
@@ -72,6 +73,7 @@
             (headers, rows)
         }
     }
+
 {%- endif %}
 {%- endwith %}
 
@@ -113,12 +115,13 @@ impl fmt::Display for {{ subtype.name }} {
         )
     }
 }
+
 {%- elif subtype.base_type == "vec" %}
 /// Vector of {{ subtype.item_type.type_hint}} response type
 #[derive(Default)]
 #[derive(Clone)]
 #[derive(Deserialize, Serialize)]
-pub struct Vec{{ subtype.item_type.type_hint}}(Vec<{{subtype.item_type.type_hint}}>);
+struct Vec{{ subtype.item_type.type_hint}}(Vec<{{subtype.item_type.type_hint}}>);
 impl fmt::Display for Vec{{ subtype.item_type.type_hint }} {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
@@ -132,12 +135,13 @@ impl fmt::Display for Vec{{ subtype.item_type.type_hint }} {
         )
     }
 }
+
 {%- elif subtype.base_type == "dict"  %}
 /// HashMap of {{ subtype.value_type.type_hint }} response type
 #[derive(Default)]
 #[derive(Clone)]
 #[derive(Deserialize, Serialize)]
-pub struct HashMapString{{ subtype.value_type.type_hint}}(HashMap<String, {{subtype.value_type.type_hint}}>);
+struct HashMapString{{ subtype.value_type.type_hint}}(HashMap<String, {{subtype.value_type.type_hint}}>);
 impl fmt::Display for HashMapString{{ subtype.value_type.type_hint }} {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
@@ -151,6 +155,5 @@ impl fmt::Display for HashMapString{{ subtype.value_type.type_hint }} {
             )
     }
 }
-
 {%- endif %}
 {%- endfor %}

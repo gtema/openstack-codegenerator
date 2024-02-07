@@ -1,7 +1,7 @@
 
 /// Query parameters
 #[derive(Args)]
-pub struct QueryParameters {
+struct QueryParameters {
 {%- for param in type_manager.parameters.values() %}
 {%- if param.location == "query" %}
     {{ macros.docstring(param.description, indent=4) }}

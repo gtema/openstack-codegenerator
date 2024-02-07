@@ -31,17 +31,20 @@ class TestRustCliResponseManager(TestCase):
     def test_parse_array_of_array_of_strings(self):
         expected_content = """
 /// foo response representation
-#[derive(Deserialize, Debug, Clone, Serialize, StructTable)]
-pub struct ResponseData {
+#[derive(Deserialize, Serialize)]
+#[derive(Clone, StructTable)]
+struct ResponseData {
 
-    /// aoaos
+/// aoaos
     #[serde()]
     #[structable()]
     foo: VecVecString,
-
 }
-#[derive(Deserialize, Default, Debug, Clone, Serialize)]
-pub struct VecString(Vec<String>);
+/// Vector of String response type
+#[derive(Default)]
+#[derive(Clone)]
+#[derive(Deserialize, Serialize)]
+struct VecString(Vec<String>);
 impl fmt::Display for VecString {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
@@ -55,8 +58,11 @@ impl fmt::Display for VecString {
         )
     }
 }
-#[derive(Deserialize, Default, Debug, Clone, Serialize)]
-pub struct VecVecString(Vec<VecString>);
+/// Vector of VecString response type
+#[derive(Default)]
+#[derive(Clone)]
+#[derive(Deserialize, Serialize)]
+struct VecVecString(Vec<VecString>);
 impl fmt::Display for VecVecString {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
@@ -70,6 +76,7 @@ impl fmt::Display for VecVecString {
         )
     }
 }
+
         """
         schema = {
             "type": "object",
@@ -109,6 +116,7 @@ impl fmt::Display for VecVecString {
             is_json_patch=False,
             sdk_service_name="srv",
             resource_name="res",
+            operation_type="dummy",
         )
         self.assertEqual(
             "".join([x.rstrip() for x in expected_content.split()]),

@@ -240,9 +240,9 @@ class Struct(BaseCompoundType):
     base_type: str = "struct"
     fields: dict[str, StructField] = {}
     field_type_class_: Type[StructField] | StructField = StructField
-    additional_fields_type: BasePrimitiveType | BaseCombinedType | BaseCompoundType | None = (
-        None
-    )
+    additional_fields_type: (
+        BasePrimitiveType | BaseCombinedType | BaseCompoundType | None
+    ) = None
 
     @property
     def type_hint(self):
@@ -435,6 +435,8 @@ class TypeManager:
     request_parameter_class: Type[RequestParameter] = RequestParameter
     option_type_class: Type[Option] | Option = Option
     string_enum_class: Type[StringEnum] | StringEnum = StringEnum
+
+    ignored_models: list[model.Reference] = []
 
     def __init__(self):
         self.models = []
@@ -778,6 +780,7 @@ class TypeManager:
         """Process (translate) ADT models into Rust SDK style"""
         self.models = models
         self.refs = {}
+        self.ignored_models = []
         unique_model_names: set[str] = set()
         for model_ in models:
             model_data_type = self.convert_model(model_)
@@ -791,12 +794,46 @@ class TypeManager:
                     # New name is still unused
                     model_data_type.name = new_name
                     unique_model_names.add(new_name)
+                elif isinstance(model_data_type, Struct):
+                    # This is already an exceptional case (identity.mapping
+                    # with remote being oneOf with multiple structs)
+                    # Try to make a name consisting of props
+                    props = model_data_type.fields.keys()
+                    new_new_name = name + "".join(
+                        x.title() for x in props
+                    ).replace("_", "")
+                    if new_new_name not in unique_model_names:
+                        for other_ref, other_model in self.refs.items():
+                            other_name = getattr(other_model, "name", None)
+                            if not other_name:
+                                continue
+                            if other_name in [
+                                name,
+                                new_name,
+                            ] and isinstance(other_model, Struct):
+                                # rename first occurence to the same scheme
+                                props = other_model.fields.keys()
+                                new_other_name = name + "".join(
+                                    x.title() for x in props
+                                ).replace("_", "")
+                                other_model.name = new_other_name
+                                unique_model_names.add(new_other_name)
+
+                        model_data_type.name = new_new_name
+                        unique_model_names.add(new_new_name)
+                    else:
+                        raise RuntimeError(
+                            "Model name %s is already present" % new_name
+                        )
                 else:
                     raise RuntimeError(
-                        "Model name %s is already present" % name
+                        "Model name %s is already present" % new_name
                     )
             elif name:
                 unique_model_names.add(name)
+
+        for ignore_model in self.ignored_models:
+            self.discard_model(ignore_model)
 
     def get_subtypes(self):
         """Get all subtypes excluding TLA"""
@@ -902,6 +939,61 @@ class TypeManager:
         for k, v in self.parameters.items():
             if v.location == location:
                 yield (k, v)
+
+    def discard_model(
+        self,
+        type_model: model.PrimitiveType | model.ADT | model.Reference,
+    ):
+        """Discard model from the manager"""
+        logging.debug(f"Request to discard {type_model}")
+        if isinstance(type_model, model.Reference):
+            type_model = self._get_adt_by_reference(type_model)
+        if not hasattr(type_model, "reference"):
+            return
+        for ref, data in list(self.refs.items()):
+            if ref == type_model.reference:
+                sub_ref: model.Reference | None = None
+                if ref.type == model.Struct:
+                    logging.debug(
+                        "Element is a struct. Purging also field types"
+                    )
+                    # For struct type we cascadely discard all field types as
+                    # well
+                    for v in type_model.fields.values():
+                        if isinstance(v.data_type, model.Reference):
+                            sub_ref = v.data_type
+                        else:
+                            sub_ref = getattr(v.data_type, "reference", None)
+                        if sub_ref:
+                            logging.debug(f"Need to purge also {sub_ref}")
+                            self.discard_model(sub_ref)
+                elif ref.type == model.OneOfType:
+                    logging.debug(
+                        "Element is a OneOf. Purging also kinds types"
+                    )
+                    for v in type_model.kinds:
+                        if isinstance(v, model.Reference):
+                            sub_ref = v
+                        else:
+                            sub_ref = getattr(v, "reference", None)
+                        if sub_ref:
+                            logging.debug(f"Need to purge also {sub_ref}")
+                            self.discard_model(sub_ref)
+                elif ref.type == model.Array:
+                    logging.debug(
+                        f"Element is a Array. Purging also item type {type_model.item_type}"
+                    )
+                    if isinstance(type_model.item_type, model.Reference):
+                        sub_ref = type_model.item_type
+                    else:
+                        sub_ref = getattr(
+                            type_model.item_type, "reference", None
+                        )
+                    if sub_ref:
+                        logging.debug(f"Need to purge also {sub_ref}")
+                        self.discard_model(sub_ref)
+                logging.debug(f"Purging {ref} from models")
+                self.refs.pop(ref, None)
 
 
 def sanitize_rust_docstrings(doc: str | None) -> str | None:

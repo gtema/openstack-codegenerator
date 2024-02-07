@@ -196,7 +196,6 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-            find_implemented_by_sdk: true
       update:
         operation_id: agents/id:put
         operation_type: set
@@ -206,7 +205,6 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
-            find_implemented_by_sdk: true
       delete:
         operation_id: agents/id:delete
         operation_type: delete
@@ -216,17 +214,6 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-            find_implemented_by_sdk: true
-      find:
-        operation_id: agents:get
-        operation_type: find
-        targets:
-          rust-sdk:
-            module_name: find
-            sdk_mod_path: network::v2::agent
-            name_field: name
-            name_filter_supported: false
-            list_mod: list
   network.auto_allocated_topology:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -258,7 +245,6 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-            find_implemented_by_sdk: true
       update:
         operation_id: auto-allocated-topology/id:put
         operation_type: set
@@ -268,7 +254,6 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
-            find_implemented_by_sdk: true
       delete:
         operation_id: auto-allocated-topology/id:delete
         operation_type: delete
@@ -278,17 +263,6 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-            find_implemented_by_sdk: true
-      find:
-        operation_id: auto-allocated-topology:get
-        operation_type: find
-        targets:
-          rust-sdk:
-            module_name: find
-            sdk_mod_path: network::v2::auto_allocated_topology
-            name_field: name
-            name_filter_supported: false
-            list_mod: list
   network.availability_zone:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -625,7 +599,6 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-            find_implemented_by_sdk: true
       update:
         operation_id: service_profiles/id:put
         operation_type: set
@@ -635,7 +608,6 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
-            find_implemented_by_sdk: true
       delete:
         operation_id: service_profiles/id:delete
         operation_type: delete
@@ -645,17 +617,6 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-            find_implemented_by_sdk: true
-      find:
-        operation_id: service_profiles:get
-        operation_type: find
-        targets:
-          rust-sdk:
-            module_name: find
-            sdk_mod_path: network::v2::service_profile
-            name_field: name
-            name_filter_supported: false
-            list_mod: list
   network.flavor/next_provider:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -736,7 +697,6 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-            find_implemented_by_sdk: true
       update:
         operation_id: flavors/flavor_id/service_profiles/id:put
         operation_type: set
@@ -746,7 +706,6 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
-            find_implemented_by_sdk: true
       delete:
         operation_id: flavors/flavor_id/service_profiles/id:delete
         operation_type: delete
@@ -756,17 +715,6 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-            find_implemented_by_sdk: true
-      find:
-        operation_id: flavors/flavor_id/service_profiles:get
-        operation_type: find
-        targets:
-          rust-sdk:
-            module_name: find
-            sdk_mod_path: network::v2::flavor::service_profile
-            name_field: name
-            name_filter_supported: false
-            list_mod: list
   network.floatingip/port_forwarding:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -798,7 +746,6 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-            find_implemented_by_sdk: true
       update:
         operation_id: floatingips/floatingip_id/port_forwardings/id:put
         operation_type: set
@@ -808,7 +755,6 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
-            find_implemented_by_sdk: true
       delete:
         operation_id: floatingips/floatingip_id/port_forwardings/id:delete
         operation_type: delete
@@ -818,17 +764,6 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-            find_implemented_by_sdk: true
-      find:
-        operation_id: floatingips/floatingip_id/port_forwardings:get
-        operation_type: find
-        targets:
-          rust-sdk:
-            module_name: find
-            sdk_mod_path: network::v2::floatingip::port_forwarding
-            name_field: name
-            name_filter_supported: false
-            list_mod: list
   network.floatingip_pool:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -909,7 +844,6 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-            find_implemented_by_sdk: true
       update:
         operation_id: floatingips/id:put
         operation_type: set
@@ -919,7 +853,6 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
-            find_implemented_by_sdk: true
       delete:
         operation_id: floatingips/id:delete
         operation_type: delete
@@ -929,17 +862,6 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-            find_implemented_by_sdk: true
-      find:
-        operation_id: floatingips:get
-        operation_type: find
-        targets:
-          rust-sdk:
-            module_name: find
-            sdk_mod_path: network::v2::floatingip
-            name_field: floating_ip_address
-            name_filter_supported: true
-            list_mod: list
   network.router/conntrack_helper:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -971,7 +893,6 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-            find_implemented_by_sdk: true
       update:
         operation_id: routers/router_id/conntrack_helpers/id:put
         operation_type: set
@@ -981,7 +902,6 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
-            find_implemented_by_sdk: true
       delete:
         operation_id: routers/router_id/conntrack_helpers/id:delete
         operation_type: delete
@@ -991,17 +911,6 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-            find_implemented_by_sdk: true
-      find:
-        operation_id: routers/router_id/conntrack_helpers:get
-        operation_type: find
-        targets:
-          rust-sdk:
-            module_name: find
-            sdk_mod_path: network::v2::router::conntrack_helper
-            name_field: name
-            name_filter_supported: false
-            list_mod: list
   network.ndp_proxy:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -1477,7 +1386,6 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-            find_implemented_by_sdk: true
       update:
         operation_id: metering/metering-label-rules/id:put
         operation_type: set
@@ -1487,7 +1395,6 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
-            find_implemented_by_sdk: true
       delete:
         operation_id: metering/metering-label-rules/id:delete
         operation_type: delete
@@ -1497,17 +1404,6 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-            find_implemented_by_sdk: true
-      find:
-        operation_id: metering/metering-label-rules:get
-        operation_type: find
-        targets:
-          rust-sdk:
-            module_name: find
-            sdk_mod_path: network::v2::metering::metering_label_rule
-            name_field: name
-            name_filter_supported: false
-            list_mod: list
   network.network_ip_availability:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -1823,7 +1719,6 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-            find_implemented_by_sdk: true
       update:
         operation_id: qos/policies/policy_id/bandwidth_limit_rules/id:put
         operation_type: set
@@ -1833,7 +1728,6 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
-            find_implemented_by_sdk: true
       delete:
         operation_id: qos/policies/policy_id/bandwidth_limit_rules/id:delete
         operation_type: delete
@@ -1843,17 +1737,6 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-            find_implemented_by_sdk: true
-      find:
-        operation_id: qos/policies/policy_id/bandwidth_limit_rules:get
-        operation_type: find
-        targets:
-          rust-sdk:
-            module_name: find
-            sdk_mod_path: network::v2::qos::policy::bandwidth_limit_rule
-            name_field: name
-            name_filter_supported: false
-            list_mod: list
   network.qos/policy/dscp_marking_rule:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -1885,7 +1768,6 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-            find_implemented_by_sdk: true
       update:
         operation_id: qos/policies/policy_id/dscp_marking_rules/id:put
         operation_type: set
@@ -1895,7 +1777,6 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
-            find_implemented_by_sdk: true
       delete:
         operation_id: qos/policies/policy_id/dscp_marking_rules/id:delete
         operation_type: delete
@@ -1905,17 +1786,6 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-            find_implemented_by_sdk: true
-      find:
-        operation_id: qos/policies/policy_id/dscp_marking_rules:get
-        operation_type: find
-        targets:
-          rust-sdk:
-            module_name: find
-            sdk_mod_path: network::v2::qos::policy::dscp_marking_rule
-            name_field: name
-            name_filter_supported: false
-            list_mod: list
   network.qos/policy/minimum_bandwidth_rule:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -1947,7 +1817,6 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-            find_implemented_by_sdk: true
       update:
         operation_id: qos/policies/policy_id/minimum_bandwidth_rules/id:put
         operation_type: set
@@ -1957,7 +1826,6 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
-            find_implemented_by_sdk: true
       delete:
         operation_id: qos/policies/policy_id/minimum_bandwidth_rules/id:delete
         operation_type: delete
@@ -1967,17 +1835,6 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-            find_implemented_by_sdk: true
-      find:
-        operation_id: qos/policies/policy_id/minimum_bandwidth_rules:get
-        operation_type: find
-        targets:
-          rust-sdk:
-            module_name: find
-            sdk_mod_path: network::v2::qos::policy::minimum_bandwidth_rule
-            name_field: name
-            name_filter_supported: false
-            list_mod: list
   network.qos/policy/minimum_packet_rate_rule:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -2009,7 +1866,6 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-            find_implemented_by_sdk: true
       update:
         operation_id: qos/policies/policy_id/minimum-packet-rate-rules/id:put
         operation_type: set
@@ -2019,7 +1875,6 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
-            find_implemented_by_sdk: true
       delete:
         operation_id: qos/policies/policy_id/minimum-packet-rate-rules/id:delete
         operation_type: delete
@@ -2029,17 +1884,6 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-            find_implemented_by_sdk: true
-      find:
-        operation_id: qos/policies/policy_id/minimum-packet-rate-rules:get
-        operation_type: find
-        targets:
-          rust-sdk:
-            module_name: find
-            sdk_mod_path: network::v2::qos::policy::minimum_packet_rate_rule
-            name_field: name
-            name_filter_supported: false
-            list_mod: list
   network.qos/alias_minimum_packet_rate_rule:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -2071,7 +1915,6 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-            find_implemented_by_sdk: true
       update:
         operation_id: qos/alias-minimum-packet-rate-rules/id:put
         operation_type: set
@@ -2081,7 +1924,6 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
-            find_implemented_by_sdk: true
       delete:
         operation_id: qos/alias-minimum-packet-rate-rules/id:delete
         operation_type: delete
@@ -2091,17 +1933,6 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-            find_implemented_by_sdk: true
-      find:
-        operation_id: qos/alias-minimum-packet-rate-rules:get
-        operation_type: find
-        targets:
-          rust-sdk:
-            module_name: find
-            sdk_mod_path: network::v2::qos::alias_minimum_packet_rate_rule
-            name_field: name
-            name_filter_supported: false
-            list_mod: list
   network.policy/packet_rate_limit_rule:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -2133,7 +1964,6 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-            find_implemented_by_sdk: true
       update:
         operation_id: policies/policy_id/packet_rate_limit_rules/id:put
         operation_type: set
@@ -2143,7 +1973,6 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
-            find_implemented_by_sdk: true
       delete:
         operation_id: policies/policy_id/packet_rate_limit_rules/id:delete
         operation_type: delete
@@ -2153,17 +1982,6 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-            find_implemented_by_sdk: true
-      find:
-        operation_id: policies/policy_id/packet_rate_limit_rules:get
-        operation_type: find
-        targets:
-          rust-sdk:
-            module_name: find
-            sdk_mod_path: network::v2::policy::packet_rate_limit_rule
-            name_field: name
-            name_filter_supported: false
-            list_mod: list
   network.qos/alias_bandwidth_limit_rule:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -2195,7 +2013,6 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-            find_implemented_by_sdk: true
       update:
         operation_id: qos/alias-bandwidth-limit-rules/id:put
         operation_type: set
@@ -2205,7 +2022,6 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
-            find_implemented_by_sdk: true
       delete:
         operation_id: qos/alias-bandwidth-limit-rules/id:delete
         operation_type: delete
@@ -2215,17 +2031,6 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-            find_implemented_by_sdk: true
-      find:
-        operation_id: qos/alias-bandwidth-limit-rules:get
-        operation_type: find
-        targets:
-          rust-sdk:
-            module_name: find
-            sdk_mod_path: network::v2::qos::alias_bandwidth_limit_rule
-            name_field: name
-            name_filter_supported: false
-            list_mod: list
   network.qos/alias_dscp_marking_rule:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -2257,7 +2062,6 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-            find_implemented_by_sdk: true
       update:
         operation_id: qos/alias-dscp-marking-rules/id:put
         operation_type: set
@@ -2267,7 +2071,6 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
-            find_implemented_by_sdk: true
       delete:
         operation_id: qos/alias-dscp-marking-rules/id:delete
         operation_type: delete
@@ -2277,17 +2080,6 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-            find_implemented_by_sdk: true
-      find:
-        operation_id: qos/alias-dscp-marking-rules:get
-        operation_type: find
-        targets:
-          rust-sdk:
-            module_name: find
-            sdk_mod_path: network::v2::qos::alias_dscp_marking_rule
-            name_field: name
-            name_filter_supported: false
-            list_mod: list
   network.qos/alias_minimum_bandwidth_rule:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -2319,7 +2111,6 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-            find_implemented_by_sdk: true
       update:
         operation_id: qos/alias-minimum-bandwidth-rules/id:put
         operation_type: set
@@ -2329,7 +2120,6 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
-            find_implemented_by_sdk: true
       delete:
         operation_id: qos/alias-minimum-bandwidth-rules/id:delete
         operation_type: delete
@@ -2339,17 +2129,6 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-            find_implemented_by_sdk: true
-      find:
-        operation_id: qos/alias-minimum-bandwidth-rules:get
-        operation_type: find
-        targets:
-          rust-sdk:
-            module_name: find
-            sdk_mod_path: network::v2::qos::alias_minimum_bandwidth_rule
-            name_field: name
-            name_filter_supported: false
-            list_mod: list
   network.quota:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -2447,7 +2226,6 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-            find_implemented_by_sdk: true
       update:
         operation_id: rbac-policies/id:put
         operation_type: set
@@ -2457,7 +2235,6 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
-            find_implemented_by_sdk: true
       delete:
         operation_id: rbac-policies/id:delete
         operation_type: delete
@@ -2467,17 +2244,6 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-            find_implemented_by_sdk: true
-      find:
-        operation_id: rbac-policies:get
-        operation_type: find
-        targets:
-          rust-sdk:
-            module_name: find
-            sdk_mod_path: network::v2::rbac_policy
-            name_field: name
-            name_filter_supported: false
-            list_mod: list
   network.default_security_group_rule:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -2509,7 +2275,6 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-            find_implemented_by_sdk: true
       update:
         operation_id: default-security-group-rules/id:put
         operation_type: set
@@ -2519,7 +2284,6 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
-            find_implemented_by_sdk: true
       delete:
         operation_id: default-security-group-rules/id:delete
         operation_type: delete
@@ -2529,17 +2293,6 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-            find_implemented_by_sdk: true
-      find:
-        operation_id: default-security-group-rules:get
-        operation_type: find
-        targets:
-          rust-sdk:
-            module_name: find
-            sdk_mod_path: network::v2::default_security_group_rule
-            name_field: name
-            name_filter_supported: false
-            list_mod: list
   network.security_group:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -2633,7 +2386,6 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-            find_implemented_by_sdk: true
       update:
         operation_id: security-group-rules/id:put
         operation_type: set
@@ -2643,7 +2395,6 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
-            find_implemented_by_sdk: true
       delete:
         operation_id: security-group-rules/id:delete
         operation_type: delete
@@ -2653,17 +2404,6 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-            find_implemented_by_sdk: true
-      find:
-        operation_id: security-group-rules:get
-        operation_type: find
-        targets:
-          rust-sdk:
-            module_name: find
-            sdk_mod_path: network::v2::security_group_rule
-            name_field: name
-            name_filter_supported: false
-            list_mod: list
   network.segment:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2

@@ -1,0 +1,139 @@
+resources:
+  object-store.account:
+    spec_file: ../openstack-openapi/specs/object-store/v1.2.yaml
+    api_version: v1
+    operations:
+      check:
+        operation_id: account.head
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: head
+          rust-cli:
+            module_name: head
+            sdk_mod_name: head
+      show:
+        operation_id: account.get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      create:
+        operation_id: account.post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      delete:
+        operation_id: account.delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  object-store.container:
+    spec_file: ../openstack-openapi/specs/object-store/v1.2.yaml
+    api_version: v1
+    operations:
+      check:
+        operation_id: container.head
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: head
+          rust-cli:
+            module_name: head
+            sdk_mod_name: head
+      show:
+        operation_id: container.get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: container.put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      create:
+        operation_id: container.post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      delete:
+        operation_id: container.delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+  object-store.version:
+    spec_file: ../openstack-openapi/specs/object-store/v1.2.yaml
+    api_version: v1
+    operations:
+      check:
+        operation_id: object.head
+        operation_type: get
+        targets:
+          rust-sdk:
+            module_name: head
+          rust-cli:
+            module_name: head
+            sdk_mod_name: head
+      show:
+        operation_id: object.get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+      update:
+        operation_id: object.put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+      create:
+        operation_id: object.post
+        operation_type: create
+        targets:
+          rust-sdk:
+            module_name: create
+          rust-cli:
+            module_name: create
+            sdk_mod_name: create
+      delete:
+        operation_id: object.delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete

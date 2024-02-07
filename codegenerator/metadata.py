@@ -280,13 +280,28 @@ class MetadataGenerator(BaseGenerator):
                             f"Cannot identify op name for {path}:{method}"
                         )
 
+                    # Next hacks
+                    if args.service_type == "identity" and resource_name in [
+                        "OS_FEDERATION/identity_provider",
+                        "OS_FEDERATION/identity_provider/protocol",
+                        "OS_FEDERATION/mapping",
+                        "OS_FEDERATION/service_provider",
+                    ]:
+                        if method == "put":
+                            operation_key = "create"
+                        elif method == "patch":
+                            operation_key = "update"
+
                     if operation_key in resource_model:
                         raise RuntimeError("Operation name conflict")
                     else:
                         if (
                             operation_key == "action"
                             and args.service_type
-                            in ["compute", "block-storage"]
+                            in [
+                                "compute",
+                                "block-storage",
+                            ]
                         ):
                             # For action we actually have multiple independent operations
                             try:
@@ -302,7 +317,7 @@ class MetadataGenerator(BaseGenerator):
                                     ).get("discriminator")
                                     if discriminator != "action":
                                         raise RuntimeError(
-                                            "Cannot generate metadata for %s since requet body is not having action discriminator"
+                                            "Cannot generate metadata for %s since request body is not having action discriminator"
                                             % path
                                         )
                                 for body in bodies:
@@ -317,7 +332,11 @@ class MetadataGenerator(BaseGenerator):
                                     if (
                                         resource_name == "flavor"
                                         and action_name
-                                        in ["update", "create", "delete"]
+                                        in [
+                                            "update",
+                                            "create",
+                                            "delete",
+                                        ]
                                     ):
                                         # Flavor update/create/delete
                                         # operations are exposed ALSO as wsgi
@@ -466,6 +485,12 @@ class MetadataGenerator(BaseGenerator):
                     continue
                 if "id" not in response_schema.get("properties", {}).keys():
                     # Resource has no ID in show method => find impossible
+                    continue
+                elif (
+                    "name" not in response_schema.get("properties", {}).keys()
+                    and res_name != "floatingip"
+                ):
+                    # Resource has no NAME => find useless
                     continue
 
                 list_op_ = list_detailed_op or list_op
@@ -623,6 +648,10 @@ def post_process_operation(
         operation = post_process_compute_operation(
             resource_name, operation_name, operation
         )
+    elif service_type == "identity":
+        operation = post_process_identity_operation(
+            resource_name, operation_name, operation
+        )
     elif service_type == "image":
         operation = post_process_image_operation(
             resource_name, operation_name, operation
@@ -663,6 +692,12 @@ def post_process_compute_operation(
             operation.targets["rust-sdk"].response_key = "volumeAttachment"
             operation.targets["rust-cli"].response_key = "volumeAttachment"
 
+    return operation
+
+
+def post_process_identity_operation(
+    resource_name: str, operation_name: str, operation
+):
     return operation
 
 

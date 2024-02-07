@@ -242,7 +242,6 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-            find_implemented_by_sdk: true
       update:
         operation_id: os-aggregates/id:put
         operation_type: set
@@ -252,7 +251,6 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
-            find_implemented_by_sdk: true
       delete:
         operation_id: os-aggregates/id:delete
         operation_type: delete
@@ -262,7 +260,6 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-            find_implemented_by_sdk: true
       add-host:
         operation_id: os-aggregates/id/action:post
         operation_type: action
@@ -276,7 +273,6 @@ resources:
             sdk_mod_name: add_host
             operation_name: add_host
             response_key: aggregate
-            find_implemented_by_sdk: true
       remove-host:
         operation_id: os-aggregates/id/action:post
         operation_type: action
@@ -290,7 +286,6 @@ resources:
             sdk_mod_name: remove_host
             operation_name: remove_host
             response_key: aggregate
-            find_implemented_by_sdk: true
       set-metadata:
         operation_id: os-aggregates/id/action:post
         operation_type: action
@@ -304,17 +299,6 @@ resources:
             sdk_mod_name: set_metadata
             operation_name: set_metadata
             response_key: aggregate
-            find_implemented_by_sdk: true
-      find:
-        operation_id: os-aggregates:get
-        operation_type: find
-        targets:
-          rust-sdk:
-            module_name: find
-            sdk_mod_path: compute::v2::aggregate
-            name_field: name
-            name_filter_supported: false
-            list_mod: list
   compute.aggregate/image:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
@@ -490,7 +474,6 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list_detailed
-            find_implemented_by_sdk: true
       show:
         operation_id: os-hypervisors/id:get
         operation_type: show
@@ -500,17 +483,6 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-            find_implemented_by_sdk: true
-      find:
-        operation_id: os-hypervisors/detail:get
-        operation_type: find
-        targets:
-          rust-sdk:
-            module_name: find
-            sdk_mod_path: compute::v2::hypervisor
-            name_field: name
-            name_filter_supported: false
-            list_mod: list_detailed
   compute.hypervisor/statistic:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
@@ -686,7 +658,6 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-            find_implemented_by_sdk: true
       update:
         operation_id: os-quota-sets/id:put
         operation_type: set
@@ -696,7 +667,6 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
-            find_implemented_by_sdk: true
       delete:
         operation_id: os-quota-sets/id:delete
         operation_type: delete
@@ -706,7 +676,6 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-            find_implemented_by_sdk: true
       list_detailed:
         operation_id: os-quota-sets/id/detail:get
         operation_type: list
@@ -716,17 +685,6 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list_detailed
-            find_implemented_by_sdk: true
-      find:
-        operation_id: os-quota-sets/id/detail:get
-        operation_type: find
-        targets:
-          rust-sdk:
-            module_name: find
-            sdk_mod_path: compute::v2::quota_set
-            name_field: name
-            name_filter_supported: false
-            list_mod: list_detailed
   compute.quota_set/default:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
@@ -1534,7 +1492,6 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
-            find_implemented_by_sdk: true
       delete:
         operation_id: servers/server_id/migrations/id:delete
         operation_type: delete
@@ -1544,7 +1501,6 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-            find_implemented_by_sdk: true
       force-complete:
         operation_id: servers/server_id/migrations/id/action:post
         operation_type: action
@@ -1556,17 +1512,6 @@ resources:
             module_name: force_complete
             sdk_mod_name: force_complete
             operation_name: force_complete
-            find_implemented_by_sdk: true
-      find:
-        operation_id: servers/server_id/migrations:get
-        operation_type: find
-        targets:
-          rust-sdk:
-            module_name: find
-            sdk_mod_path: compute::v2::server::migration
-            name_field: name
-            name_filter_supported: false
-            list_mod: list
   compute.server/instance_action:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2
@@ -1692,7 +1637,6 @@ resources:
             module_name: show
             sdk_mod_name: get
             response_key: volumeAttachment
-            find_implemented_by_sdk: true
       update:
         operation_id: servers/server_id/os-volume_attachments/id:put
         operation_type: set
@@ -1704,7 +1648,6 @@ resources:
             module_name: set
             sdk_mod_name: set
             response_key: volumeAttachment
-            find_implemented_by_sdk: true
       delete:
         operation_id: servers/server_id/os-volume_attachments/id:delete
         operation_type: delete
@@ -1714,17 +1657,6 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
-            find_implemented_by_sdk: true
-      find:
-        operation_id: servers/server_id/os-volume_attachments:get
-        operation_type: find
-        targets:
-          rust-sdk:
-            module_name: find
-            sdk_mod_path: compute::v2::server::volume_attachment
-            name_field: name
-            name_filter_supported: false
-            list_mod: list
   compute.server/remote_console:
     spec_file: wrk/openapi_specs/compute/v2.yaml
     api_version: v2

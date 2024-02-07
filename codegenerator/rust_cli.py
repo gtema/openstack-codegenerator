@@ -322,9 +322,12 @@ class StringEnum(common_rust.StringEnum):
 
 
 class ArrayInput(common_rust.Array):
-    original_data_type: common_rust.BaseCompoundType | common_rust.BaseCombinedType | common_rust.BasePrimitiveType | None = (
-        None
-    )
+    original_data_type: (
+        common_rust.BaseCompoundType
+        | common_rust.BaseCombinedType
+        | common_rust.BasePrimitiveType
+        | None
+    ) = None
 
     @property
     def clap_macros(self):
@@ -536,9 +539,10 @@ class RequestTypeManager(common_rust.TypeManager):
                 # input conversion possible
                 original_data_type = self.convert_model(item_type)
                 # We are not interested to see unused data in the submodels
-                if not item_type.reference:
-                    raise NotImplementedError
-                self.refs.pop(item_type.reference, None)
+                self.ignored_models.append(item_type)
+                # self.ignored_models.extend(
+                #    x.data_type for x in item_type.fields.values()
+                # )
                 typ = self.data_type_mapping[model.Array](
                     description=common_rust.sanitize_rust_docstrings(
                         type_model.description
@@ -549,8 +553,6 @@ class RequestTypeManager(common_rust.TypeManager):
             elif isinstance(item_type, model.Array) and isinstance(
                 item_type.item_type, model.ConstraintString
             ):
-                if item_type.reference:
-                    self.refs.pop(item_type.reference, None)
                 original_data_type = self.convert_model(item_type)
                 typ = self.data_type_mapping[model.Array](
                     description=common_rust.sanitize_rust_docstrings(
@@ -582,7 +584,8 @@ class RequestTypeManager(common_rust.TypeManager):
             is_nullable: bool = False
             field_data_type = self.convert_model(field.data_type)
             if isinstance(field_data_type, self.option_type_class):
-                # Unwrap Option into "is_nullable" NOTE: but perhaps
+                # Unwrap Option into "is_nullable"
+                # NOTE: but perhaps
                 # Option<Option> is better (not set vs set explicitly to None
                 # )
                 is_nullable = True
@@ -630,11 +633,11 @@ class RequestTypeManager(common_rust.TypeManager):
         """Convert `model.Array` into corresponding Rust model"""
         item_type = self.convert_model(type_model.item_type)
         struct_class = self.data_type_mapping[model.Struct]
-        item_ref: model.Reference | None = None
-        if isinstance(type_model.item_type, model.Reference):
-            item_ref = type_model.item_type
-        elif hasattr(type_model.item_type, "reference"):
-            item_ref = type_model.item_type.reference
+        # item_ref: model.Reference | None = None
+        # if isinstance(type_model.item_type, model.Reference):
+        #     item_ref = type_model.item_type
+        # elif hasattr(type_model.item_type, "reference"):
+        #     item_ref = type_model.item_type.reference
         if isinstance(item_type, struct_class):
             if len(item_type.fields.keys()) == 1:
                 # Server.security_groups is an object with only name -> simplify
@@ -652,16 +655,14 @@ class RequestTypeManager(common_rust.TypeManager):
                         type_model.item_type,
                         simplified_data_type,
                     )
-                    if item_ref:
-                        self.refs.pop(item_ref)
+                    self.ignored_models.append(only_field)
                     item_type = simplified_data_type
         elif isinstance(item_type, DictionaryInput):
             # Array of Freestyle objects in CLI can be only represented as
             # array of JsonValue
             simplified_data_type = JsonValue()
             simplified_data_type.original_data_type = item_type
-            if item_ref:
-                self.refs.pop(item_ref)
+            # self.ignored_models.append(item_ref)
             item_type = simplified_data_type
 
         return self.data_type_mapping[model.Array](
@@ -715,7 +716,8 @@ class ResponseTypeManager(common_rust.TypeManager):
 
         # CLI response PRE hacks
         if isinstance(type_model, model.Array):
-            if isinstance(type_model.item_type, String):
+            item_type = type_model.item_type
+            if isinstance(item_type, String):
                 # Array of string is replaced by `VecString` type
                 typ = VecString()
             elif (
@@ -725,7 +727,14 @@ class ResponseTypeManager(common_rust.TypeManager):
             ):
                 # Array of "links" is replaced by Json Value
                 typ = common_rust.JsonValue()
-
+                self.ignored_models.append(type_model.item_type)
+            elif (
+                isinstance(item_type, model.Reference)
+                and type_model.item_type.type == model.Struct
+            ):
+                # Array of complex Structs is replaced on output by Json Value
+                typ = common_rust.JsonValue()
+                self.ignored_models.append(item_type)
         if typ:
             if model_ref:
                 self.refs[model_ref] = typ
@@ -742,20 +751,37 @@ class ResponseTypeManager(common_rust.TypeManager):
                     typ.description
                 )
             )
+        if (
+            typ
+            and isinstance(typ, ArrayResponse)
+            and isinstance(typ.item_type, common_rust.Enum)
+        ):
+            # Array of complex Enums is replaced on output by Json Value
+            self.ignored_models.append(typ.item_type)
+            typ = common_rust.JsonValue()
         return typ
 
     def _simplify_oneof_combinations(self, type_model, kinds):
         """Simplify certain known oneOf combinations"""
         kinds_classes = [x["class"] for x in kinds]
-        if String in kinds_classes and common_rust.Number in kinds_classes:
+        if (
+            common_rust.String in kinds_classes
+            and common_rust.Number in kinds_classes
+        ):
             # oneOf [string, number] => NumString
             kinds.clear()
             kinds.append({"local": NumString(), "class": NumString})
-        elif String in kinds_classes and common_rust.Integer in kinds_classes:
+        elif (
+            common_rust.String in kinds_classes
+            and common_rust.Integer in kinds_classes
+        ):
             # oneOf [string, integer] => NumString
             kinds.clear()
             kinds.append({"local": IntString(), "class": IntString})
-        elif String in kinds_classes and common_rust.Boolean in kinds_classes:
+        elif (
+            common_rust.String in kinds_classes
+            and common_rust.Boolean in kinds_classes
+        ):
             # oneOf [string, boolean] => String
             kinds.clear()
             kinds.append({"local": BoolString(), "class": BoolString})
