@@ -93,7 +93,7 @@ def get_plural_form(resource: str) -> str:
 
 def find_resource_schema(
     schema: dict, parent: str | None = None, resource_name: str | None = None
-):
+) -> tuple[dict | None, str | None]:
     """Find the actual resource schema in the body schema
 
     Traverse through the body schema searching for an element that represent
@@ -128,7 +128,16 @@ def find_resource_schema(
                 and resource_name
                 and parent == get_plural_form(resource_name)
             ):
-                return (schema["items"], parent)
+                items = schema["items"]
+                if (
+                    items.get("type") == "object"
+                    and resource_name in items.get("properties", [])
+                    and len(items.get("properties", []).keys()) == 1
+                ):
+                    # Most likely this is Keypair where we have keypairs.keypair.{}
+                    return (items["properties"][resource_name], parent)
+                else:
+                    return (items, parent)
             elif (
                 not parent and schema.get("items", {}).get("type") == "object"
             ):
@@ -147,8 +156,8 @@ def find_resource_schema(
                 else schema.get("properties", {})
             )
             if not parent and resource_name in props:
-                # we are at the top level and there is property with the resource
-                # name - it is what we are searching for
+                # we are at the top level and there is property with the
+                # resource name - it is what we are searching for
                 el_type = props[resource_name]["type"]
                 if el_type == "array":
                     return (props[resource_name]["items"], resource_name)
@@ -165,7 +174,12 @@ def find_resource_schema(
                 keys = list(props.keys())
                 if len(keys) == 1:
                     # there is only one field in the object
-                    return (props[keys[0]], keys[0])
+                    if props[keys[0]].get("type") == "object":
+                        # and it is itself an object
+                        return (props[keys[0]], keys[0])
+                    else:
+                        # only field is not an object
+                        return (schema, None)
                 else:
                     return (schema, None)
     except Exception as ex:
@@ -174,6 +188,103 @@ def find_resource_schema(
         )
         raise
     return (None, None)
+
+
+def find_response_schema(
+    responses: dict, response_key: str, action_name: str | None = None
+):
+    """Locate response schema
+
+    Some operations are having variety of possible responses (depending on
+    microversion, action, etc). Try to locate suitable response for the client.
+
+    The function iterates over all defined responses and for 2** appies the
+    following logic:
+
+    - if action_name is present AND oneOf is present AND action_name is in one
+      of the oneOf schemas -> return this schema
+
+    - if action_name is not present AND oneOf is present AND response_key is in
+      one of the OneOf candidates' properties (this is an object) -> return it
+
+    - action_name is not present AND oneOf is not present and (response_key or
+      plural of the response_key) in candidate -> return it
+
+    :param dict responses: Dictionary with responses as defined in OpenAPI spec
+    :param str response_key: Response key to be searching in responses (when
+        aciton_name is not given) :param str action_name: Action name to be
+    searching response for
+    """
+    for code, rspec in responses.items():
+        if not code.startswith("2"):
+            continue
+        content = rspec.get("content", {})
+        if "application/json" in content:
+            response_spec = content["application/json"]
+            schema = response_spec["schema"]
+            oneof = schema.get("oneOf")
+            discriminator = schema.get("x-openstack", {}).get("discriminator")
+            if oneof:
+                if not discriminator:
+                    # Server create returns server or reservation info. For the
+                    # cli it is not very helpful and we look for response
+                    # candidate with the resource_name in the response
+                    for candidate in oneof:
+                        if (
+                            action_name
+                            and candidate.get("x-openstack", {}).get(
+                                "action-name"
+                            )
+                            == action_name
+                        ):
+                            if response_key in candidate.get("properties", {}):
+                                # If there is a object with resource_name in
+                                # the props - this must be what we want to look
+                                # at
+                                return candidate["properties"][response_key]
+                            else:
+                                return candidate
+                        elif (
+                            not action_name
+                            and response_key
+                            and candidate.get("type") == "object"
+                            and response_key in candidate.get("properties", {})
+                        ):
+                            # Actually for the sake of the CLI it may make
+                            # sense to merge all candidates
+                            return candidate["properties"][response_key]
+                else:
+                    raise NotImplementedError
+            elif (
+                not action_name
+                and schema
+                and (
+                    response_key in schema
+                    or (
+                        schema.get("type") == "object"
+                        and (
+                            response_key in schema.get("properties", [])
+                            or get_plural_form(response_key)
+                            in schema.get("properties", [])
+                        )
+                    )
+                )
+            ):
+                return schema
+    if not action_name:
+        # Could not find anything with the given response_key. If there is any
+        # 200/204 response - return it
+        for code in ["200", "204"]:
+            if code in responses:
+                schema = (
+                    responses[code]
+                    .get("content", {})
+                    .get("application/json", {})
+                    .get("schema")
+                )
+                if schema and "type" in schema:
+                    return schema
+    return None
 
 
 def get_resource_names_from_url(path: str):
