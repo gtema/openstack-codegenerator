@@ -392,7 +392,7 @@ class RequestParameter(common_rust.RequestParameter):
             # the value_name is turned back to the expected value
             macros.add(f'id = "path_param_{self.local_name}"')
             macros.add(f'value_name = "{self.local_name.upper()}"')
-        return f"#[arg({', '.join(macros)})]"
+        return f"#[arg({', '.join(sorted(macros))})]"
 
 
 class RequestTypeManager(common_rust.TypeManager):
