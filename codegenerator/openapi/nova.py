@@ -491,7 +491,7 @@ class NovaGenerator(OpenStackServerSourceBase):
             ref = f"#/components/schemas/{name}"
         elif name == "Os_KeypairShowResponse":
             schema = openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**nova_schemas.KEYPAIR_SCHEMA)
+                name, TypeSchema(**nova_schemas.KEYPAIR_CONTAINER_SCHEMA)
             )
             ref = f"#/components/schemas/{name}"
         elif name == "Os_KeypairsCreateResponse":
