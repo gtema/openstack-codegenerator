@@ -32,6 +32,12 @@ pub {{ subtype.base_type }} {{ subtype.name }}{{ ("<" + ",".join(subtype.lifetim
     {{ k }},
   {%- endfor %}
   {%- endif %}
+
+  {%- if subtype.base_type == "struct" and subtype.additional_fields_type %}
+
+    #[builder(setter(name = "_properties"), default, private)]
+    _properties: BTreeMap<Cow<'a, str>, {{ subtype.additional_fields_type.type_hint }}>,
+  {%- endif %}
 }
 
 {% if type_manager.subtype_requires_private_builders(subtype) %}
@@ -42,6 +48,22 @@ impl{{ ("<" + ",".join(subtype.lifetimes) + ">") if subtype.lifetimes else ""}} 
       {{ macros.sdk_builder_setter(field)}}
     {%- endif %}
   {%- endfor %}
+
+  {% if subtype.additional_fields_type is defined and subtype.additional_fields_type %}
+    pub fn properties<I, K, V>(&mut self, iter: I) -> &mut Self
+      where
+          I: Iterator<Item = (K, V)>,
+          K: Into<Cow<'a, str>>,
+          V: Into<{{ subtype.additional_fields_type.type_hint }}>,
+      {
+          self._properties
+              .get_or_insert_with(BTreeMap::new)
+              .extend(iter.map(|(k, v)| (k.into(), v.into())));
+          self
+      }
+
+  {%- endif %}
+
 }
-{%- endif %}
+{% endif %}
 {%- endfor %}

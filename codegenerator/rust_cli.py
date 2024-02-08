@@ -1152,6 +1152,7 @@ class RustCliGenerator(BaseGenerator):
                         )
                 if args.operation_type == "download":
                     additional_imports.add("crate::common::download_file")
+
                 if args.operation_type == "upload":
                     additional_imports.add(
                         "crate::common::build_upload_asyncread"
@@ -1212,11 +1213,15 @@ class RustCliGenerator(BaseGenerator):
                             ]
                         )
                     )
+                    # Discard unnecessry imports
+                    additional_imports.discard("http::Response")
+                    additional_imports.discard("bytes::Bytes")
 
                 additional_imports.update(type_manager.get_imports())
                 additional_imports.update(response_type_manager.get_imports())
                 # Deserialize is already in template since it is uncoditionally required
                 additional_imports.discard("serde::Deserialize")
+                additional_imports.discard("serde::Serialize")
 
                 command_description: str = spec.get("description")
                 command_summary: str = spec.get("summary")

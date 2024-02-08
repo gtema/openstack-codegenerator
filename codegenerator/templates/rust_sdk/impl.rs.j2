@@ -20,7 +20,6 @@ use derive_builder::Builder;
 use http::{HeaderMap, HeaderName, HeaderValue};
 
 use crate::api::rest_endpoint_prelude::*;
-use serde::Serialize;
 
 {% for mod in type_manager.get_imports() | sort %}
 use {{ mod }};
@@ -30,7 +29,7 @@ use {{ mod }};
 use json_patch::Patch;
 {%- endif %}
 
-{%- if operation_type == "list" %}
+{%- if operation_type == "list" and "limit" in type_manager.parameters.keys() or "marker" in type_manager.parameters.keys() %}
 use crate::api::Pageable;
 {%- endif %}
 
@@ -266,14 +265,17 @@ impl{{ type_manager.get_request_static_lifetimes(request) }} Pageable for Reques
 
 #[cfg(test)]
 mod tests {
+    #![allow(unused_imports)]
     use super::*;
-    use crate::api::{self, Query, RawQuery};
+{%- if method.upper() == "HEAD" %}
+    use crate::api::RawQuery;
+{%- else %}
+    use crate::api::Query;
+    use serde_json::json;
+{%- endif %}
     use crate::types::ServiceType;
     use crate::test::client::MockServerClient;
     use http::{HeaderName, HeaderValue};
-    use serde::Deserialize;
-    use serde::Serialize;
-    use serde_json::json;
     {%- if is_json_patch %}
     use serde_json::from_value;
     use json_patch::Patch;
@@ -370,7 +372,7 @@ mod tests {
             .header("not_foo", "not_bar")
             .build()
             .unwrap();
- {%- if method.upper() != "HEAD" %}
+{%- if method.upper() != "HEAD" %}
         let _: serde_json::Value = endpoint.query(&client).unwrap();
 {%- else %}
         let _ = endpoint.raw_query(&client).unwrap();

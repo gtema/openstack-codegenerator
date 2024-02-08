@@ -252,9 +252,19 @@ class Struct(BaseCompoundType):
 
     @property
     def imports(self):
-        imports: set[str] = set(["serde::Deserialize"])
-        for field in self.fields.values():
-            imports.update(field.data_type.imports)
+        imports: set[str] = set([])
+        field_types = [x.data_type for x in self.fields.values()]
+        if len(field_types) > 1 or (
+            len(field_types) == 1
+            and not isinstance(field_types[0], Null)
+            and not isinstance(field_types[0], Dictionary)
+            and not isinstance(field_types[0], Array)
+        ):
+            # We use structure only if it is not consisting from only Null
+            imports.add("serde::Deserialize")
+            imports.add("serde::Serialize")
+        for field_type in field_types:
+            imports.update(field_type.imports)
         if self.additional_fields_type:
             imports.add("std::collections::BTreeMap")
             imports.update(self.additional_fields_type.imports)
@@ -305,6 +315,8 @@ class Enum(BaseCompoundType):
     @property
     def imports(self):
         imports: set[str] = set()
+        imports.add("serde::Deserialize")
+        imports.add("serde::Serialize")
         for kind in self.kinds.values():
             imports.update(kind.data_type.imports)
         return imports
@@ -325,7 +337,7 @@ class Enum(BaseCompoundType):
 class StringEnum(BaseCompoundType):
     base_type: str = "enum"
     variants: dict[str, set[str]] = {}
-    imports: set[str] = set([])
+    imports: set[str] = set(["serde::Deserialize", "serde::Serialize"])
     lifetimes: set[str] = set()
     derive_container_macros: str = (
         "#[derive(Debug, Deserialize, Clone, Serialize)]"
@@ -765,6 +777,9 @@ class TypeManager:
         elif string_klass in kinds_classes and dict_klass in kinds_classes:
             # oneOf [string, dummy object] => JsonValue
             # Simple string can be easily represented by JsonValue
+            for c in kinds:
+                # Discard dict
+                self.ignored_models.append(c["model"])
             kinds.clear()
             jsonval_klass = self.primitive_type_mapping[model.PrimitiveAny]
             kinds.append({"local": jsonval_klass(), "class": jsonval_klass})
@@ -880,8 +895,11 @@ class TypeManager:
     def get_imports(self):
         """Get complete set of additional imports required by all models in scope"""
         imports: set[str] = set()
-        for item in self.refs.values():
-            imports.update(item.imports)
+        imports.update(self.get_root_data_type().imports)
+        for subt in self.get_subtypes():
+            imports.update(subt.imports)
+            # for item in self.refs.values():
+            #     imports.update(item.imports)
         for param in self.parameters.values():
             imports.update(param.data_type.imports)
         return imports
@@ -904,6 +922,8 @@ class TypeManager:
         for field in subtype.fields.values():
             if "private" in field.builder_macros:
                 return True
+        if isinstance(subtype, Struct) and subtype.additional_fields_type:
+            return True
         return False
 
     def set_parameters(self, parameters: list[model.RequestParameter]) -> None:
