@@ -167,6 +167,7 @@ class CinderV3Generator(OpenStackServerSourceBase):
         action_name=None,
     ):
         mime_type: str = "application/json"
+        # ### Volume
         if name == "VolumesListResponse":
             openapi_spec.components.schemas.setdefault(
                 name, TypeSchema(**cinder_schemas.VOLUMES_SCHEMA)
@@ -186,6 +187,68 @@ class CinderV3Generator(OpenStackServerSourceBase):
                 name, TypeSchema(**cinder_schemas.VOLUME_CONTAINER_SCHEMA)
             )
             ref = f"#/components/schemas/{name}"
+        # ### Volume Metadata
+        elif name in [
+            "VolumesMetadataListResponse",
+            "VolumesMetadataUpdate_All",
+            "VolumesMetadataUpdate_AllResponse",
+            "VolumesMetadataCreateResponse",
+            "VolumesActionOs-Set_Image_MetadataResponse",
+            "VolumesActionOs-Show_Image_MetadataResponse",
+        ]:
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**cinder_schemas.METADATA_CONTAINER_SCHEMA)
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name in [
+            "VolumesMetadataShowResponse",
+            "VolumesMetadataUpdate",
+            "VolumesMetadataUpdateResponse",
+        ]:
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**cinder_schemas.METADATA_ITEM_SCHEMA)
+            )
+            ref = f"#/components/schemas/{name}"
+        # Volume Actions
+        elif name == "VolumesActionRevertResponse":
+            return (None, None)
+        elif name == "VolumesActionOs-Reset_StatusRequest":
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**cinder_schemas.VOLUME_RESET_STATUS_SCHEMA)
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name in [
+            "VolumesActionOs-Reset_StatusResponse",
+            "VolumesActionOs-Force_DeleteResponse",
+            "VolumesActionOs-Force_DetachResponse",
+            "VolumesActionOs-Migrate_VolumeResponse",
+            "VolumesActionOs-Migrate_Volume_CompletionResponse",
+            "VolumesActionOs-AttachResponse",
+            "VolumesActionOs-DetachResponse",
+            "VolumesActionOs-ReserveResponse",
+            "VolumesActionOs-UnreserveResponse",
+            "VolumesActionOs-Begin_DetachingResponse",
+            "VolumesActionOs-Roll_DetachingResponse",
+            "VolumesActionOs-Initialize_ConnectionResponse",
+            "VolumesActionOs-Terminate_ConnectionResponse",
+            "VolumesActionOs-ExtendResponse",
+            "VolumesActionOs-Update_Readonly_FlagResponse",
+            "VolumesActionOs-RetypeResponse",
+            "VolumesActionOs-Set_BootableResponse",
+            "VolumesActionOs-ReimageResponse",
+            "VolumesActionOs-Unset_Image_MetadataResponse",
+            "VolumesActionOs-UnmanageResponse",
+        ]:
+            return (None, None)
+        elif name == "VolumesActionOs-Volume_Upload_ImageResponse":
+            openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(
+                    **cinder_schemas.VOLUME_UPLOAD_IMAGE_RESPONSE_SCHEMA
+                ),
+            )
+            ref = f"#/components/schemas/{name}"
+        # Default
         else:
             (ref, mime_type) = super()._get_schema_ref(
                 openapi_spec, name, description, action_name=action_name

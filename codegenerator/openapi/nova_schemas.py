@@ -780,7 +780,12 @@ KEYPAIR_LIST_SCHEMA: dict[str, Any] = {
         "keypairs": {
             "type": "array",
             "description": "Array of Keypair objects",
-            "items": copy.deepcopy(KEYPAIR_SHORT_SCHEMA),
+            "items": {
+                "type": "object",
+                "properties": {
+                    "keypair": copy.deepcopy(KEYPAIR_SHORT_SCHEMA),
+                },
+            },
         },
         "keypairs_links": copy.deepcopy(LINKS_SCHEMA),
     },
@@ -818,8 +823,18 @@ KEYPAIR_SCHEMA: dict[str, Any] = {
     },
 }
 
-KEYPAIR_CREATED_SCHEMA: dict[str, Any] = copy.deepcopy(KEYPAIR_SCHEMA)
-KEYPAIR_CREATED_SCHEMA["properties"]["private_key"] = {
+KEYPAIR_CONTAINER_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "description": "Keypair object",
+    "properties": {"keypair": KEYPAIR_SCHEMA},
+}
+
+KEYPAIR_CREATED_SCHEMA: dict[str, Any] = copy.deepcopy(
+    KEYPAIR_CONTAINER_SCHEMA
+)
+KEYPAIR_CREATED_SCHEMA["properties"]["keypair"]["properties"][
+    "private_key"
+] = {
     "type": "string",
     "description": "If you do not provide a public key on create, a new keypair will be built for you, and the private key will be returned during the initial create call. Make sure to save this, as there is no way to get this private key again in the future.",
     "x-openstack": {"max-ver": "2.91"},

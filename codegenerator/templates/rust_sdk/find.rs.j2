@@ -17,15 +17,13 @@
 {% import 'rust_macros.j2' as macros with context -%}
 use derive_builder::Builder;
 use http::{HeaderMap, HeaderName, HeaderValue};
-use serde::de::DeserializeOwned;
-use tracing::trace;
 
-use crate::api::common::CommaSeparatedList;
 use crate::api::find::Findable;
 use crate::api::rest_endpoint_prelude::*;
-use crate::api::ParamValue;
-
-use crate::api::{ApiError, Client, Pageable, Query, RestClient};
+{%- if not name_filter_supported %}
+use crate::api::{ApiError, RestClient};
+use tracing::trace;
+{%- endif %}
 
 use crate::api::{{ mod_path | join("::") }}::{
     get as Get,

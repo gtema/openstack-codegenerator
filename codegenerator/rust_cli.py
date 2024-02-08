@@ -264,6 +264,18 @@ class StructFieldResponse(common_rust.StructField):
 class StructResponse(common_rust.Struct):
     field_type_class_: Type[common_rust.StructField] = StructFieldResponse
 
+    @property
+    def imports(self):
+        imports: set[str] = set(["serde::Deserialize"])
+        for field in self.fields.values():
+            imports.update(field.data_type.imports)
+        # In difference to the SDK and Input we do not currently handle
+        # additional_fields of the struct in response
+        # if self.additional_fields_type:
+        #     imports.add("std::collections::BTreeMap")
+        #     imports.update(self.additional_fields_type.imports)
+        return imports
+
 
 class TupleStruct(common_rust.Struct):
     """Rust tuple struct without named fields"""
@@ -655,7 +667,7 @@ class RequestTypeManager(common_rust.TypeManager):
                         type_model.item_type,
                         simplified_data_type,
                     )
-                    self.ignored_models.append(only_field)
+                    self.ignored_models.append(type_model.item_type)
                     item_type = simplified_data_type
         elif isinstance(item_type, DictionaryInput):
             # Array of Freestyle objects in CLI can be only represented as
@@ -1007,73 +1019,36 @@ class RustCliGenerator(BaseGenerator):
             # Process response information
             # # Prepare information about response
             if method.upper() != "HEAD":
-                response_def = None
-                for code, rspec in spec["responses"].items():
-                    if not code.startswith("2"):
-                        continue
-                    content = rspec.get("content", {})
-                    if "application/json" in content:
-                        response_spec = content["application/json"]
-                        oneof = response_spec["schema"].get("oneOf")
-                        discriminator = (
-                            response_spec["schema"]
-                            .get("x-openstack", {})
-                            .get("discriminator")
-                        )
-                        if oneof:
-                            if not discriminator:
-                                # Server returns server or reservation info. For the cli it is not very helpful and we look for response candidate with the resource_name in the response
-                                for candidate in oneof:
-                                    if (
-                                        args.operation_type == "action"
-                                        and candidate.get(
-                                            "x-openstack", {}
-                                        ).get("action-name")
-                                        == args.operation_name
-                                    ):
-                                        if resource_name in candidate.get(
-                                            "properties", {}
-                                        ):
-                                            # If there is a object with
-                                            # resource_name in the props -
-                                            # this must be what we want to
-                                            # look at
-                                            response_def = candidate[
-                                                "properties"
-                                            ][resource_name]
-                                        else:
-                                            response_def = candidate
-                                        break
-                                    elif (
-                                        resource_name
-                                        and candidate.get("type") == "object"
-                                        and resource_name
-                                        in candidate.get("properties", {})
-                                    ):
-                                        # Actually for the sake of the CLI it may make sense to merge all candidates
-                                        response_def = candidate["properties"][
-                                            resource_name
-                                        ]
-                            else:
-                                raise NotImplementedError
-                        else:
-                            response_def, _ = common.find_resource_schema(
-                                response_spec["schema"],
-                                None,
-                                args.response_key or resource_name,
-                            )
-                        if not response_def:
-                            continue
+                response = common.find_response_schema(
+                    spec["responses"],
+                    args.response_key or resource_name,
+                    args.operation_name
+                    if args.operation_type == "action"
+                    else None,
+                )
 
-                        if response_def.get("type", "object") == "object":
+                if response:
+                    response_def, _ = common.find_resource_schema(
+                        response,
+                        None,
+                        args.response_key or resource_name,
+                    )
+
+                    if response_def:
+                        if response_def.get("type", "object") == "object" or (
+                            # BS metadata is defined with type: ["object",
+                            # "null"]
+                            isinstance(response_def.get("type"), list)
+                            and "object" in response_def["type"]
+                        ):
                             (_, response_types) = openapi_parser.parse(
                                 response_def
                             )
                             response_type_manager.set_models(response_types)
                             if method == "patch" and not request_types:
                                 # image patch is a jsonpatch based operation
-                                # where there is no request. For it we need
-                                # to look at the response and get writable
+                                # where there is no request. For it we need to
+                                # look at the response and get writable
                                 # parameters as a base
                                 is_json_patch = True
                                 if not args.find_implemented_by_sdk:
@@ -1109,9 +1084,16 @@ class RustCliGenerator(BaseGenerator):
                             response_type_manager.refs[
                                 model.Reference(name="Body", type=TupleStruct)
                             ] = tuple_struct
-                        response_props = response_spec["schema"].get(
-                            "properties", {}
-                        )
+                        elif (
+                            response_def["type"] == "array"
+                            and "items" in response_def
+                        ):
+                            (_, response_types) = openapi_parser.parse(
+                                response_def["items"]
+                            )
+                            response_type_manager.set_models(response_types)
+
+                        response_props = response.get("properties", {})
                         if (
                             response_props
                             and response_props[
@@ -1170,6 +1152,7 @@ class RustCliGenerator(BaseGenerator):
                         )
                 if args.operation_type == "download":
                     additional_imports.add("crate::common::download_file")
+
                 if args.operation_type == "upload":
                     additional_imports.add(
                         "crate::common::build_upload_asyncread"
@@ -1230,11 +1213,15 @@ class RustCliGenerator(BaseGenerator):
                             ]
                         )
                     )
+                    # Discard unnecessry imports
+                    additional_imports.discard("http::Response")
+                    additional_imports.discard("bytes::Bytes")
 
                 additional_imports.update(type_manager.get_imports())
                 additional_imports.update(response_type_manager.get_imports())
                 # Deserialize is already in template since it is uncoditionally required
                 additional_imports.discard("serde::Deserialize")
+                additional_imports.discard("serde::Serialize")
 
                 command_description: str = spec.get("description")
                 command_summary: str = spec.get("summary")

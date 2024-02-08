@@ -13,6 +13,8 @@
 import copy
 from typing import Any
 
+from cinder.api.schemas import admin_actions
+
 # NOTE(gtema): This is a temporary location for schemas not currently defined
 # in Glance. Once everything is stabilized those must be moved directly to Glabne
 
@@ -50,12 +52,24 @@ ATTACHMENTS_SCHEMA = {
 }
 
 METADATA_SCHEMA = {
-    "type": ["null", "object"],
+    "type": "object",
     "patternProperties": {
         "^[a-zA-Z0-9-_:. /]{1,255}$": {"type": "string", "maxLength": 255},
     },
     "additionalProperties": False,
     "description": "A metadata object. Contains one or more metadata key and value pairs that are associated with the resource.",
+}
+
+METADATA_CONTAINER_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "description": "Metadata key and value pairs. The maximum size for each metadata key and value pair is 255 bytes.",
+    "properties": {"metadata": METADATA_SCHEMA},
+}
+
+METADATA_ITEM_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "description": "Metadata key and value pairs. The maximum size for each metadata key and value pair is 255 bytes.",
+    "properties": {"meta": {"maxProperties": 1, **METADATA_SCHEMA}},
 }
 
 VOLUME_SHORT_SCHEMA: dict[str, Any] = {
@@ -338,5 +352,64 @@ VOLUME_PARAMETERS = {
         },
         "description": "Filters results by consumes_quota field. Resources that don’t use quotas are usually temporary internal resources created to perform an operation. Default is to not filter by it. Filtering by this option may not be always possible in a cloud, see List Resource Filters to determine whether this filter is available in your cloud.",
         "x-openstack": {"min-ver": "3.65"},
+    },
+}
+
+VOLUME_RESET_STATUS_SCHEMA: dict[str, Any] = admin_actions.reset
+
+VOLUME_UPLOAD_IMAGE_RESPONSE_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "container_format": {
+            "type": "string",
+            "description": "Container format for the new image. Default is bare.",
+        },
+        "disk_format": {
+            "type": "string",
+            "description": "Disk format for the new image. Default is raw.",
+        },
+        "display_description": {
+            "type": "string",
+            "description": "The volume description.",
+        },
+        "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The UUID of the volume.",
+        },
+        "image_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The uuid for the new image.",
+        },
+        "image_name": {
+            "type": "string",
+            "description": "The name for the new image.",
+        },
+        "protected": {
+            "type": "boolean",
+            "description": "Whether the new image is protected. Default=False.",
+            "x-openstack": {"min-ver": "3.1"},
+        },
+        "size": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The size of the volume, in gibibytes (GiB).",
+        },
+        "status": {"type": "integer", "description": "The volume status."},
+        "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date and time when the resource was updated.",
+        },
+        "visibility": {
+            "type": "string",
+            "description": "The visibility property of the new image. Default is private.",
+            "x-openstack": {"min-ver": "3.1"},
+        },
+        "volume_type": {
+            "type": "string",
+            "description": "The associated volume type name for the volume.",
+        },
     },
 }
