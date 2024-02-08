@@ -167,6 +167,7 @@ class CinderV3Generator(OpenStackServerSourceBase):
         action_name=None,
     ):
         mime_type: str = "application/json"
+        # ### Volume
         if name == "VolumesListResponse":
             openapi_spec.components.schemas.setdefault(
                 name, TypeSchema(**cinder_schemas.VOLUMES_SCHEMA)
@@ -186,6 +187,27 @@ class CinderV3Generator(OpenStackServerSourceBase):
                 name, TypeSchema(**cinder_schemas.VOLUME_CONTAINER_SCHEMA)
             )
             ref = f"#/components/schemas/{name}"
+        # ### Volume Metadata
+        elif name in [
+            "VolumesMetadataListResponse",
+            "VolumesMetadataUpdate_All",
+            "VolumesMetadataUpdate_AllResponse",
+            "VolumesMetadataCreateResponse",
+        ]:
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**cinder_schemas.METADATA_CONTAINER_SCHEMA)
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name in [
+            "VolumesMetadataShowResponse",
+            "VolumesMetadataUpdate",
+            "VolumesMetadataUpdateResponse",
+        ]:
+            openapi_spec.components.schemas.setdefault(
+                name, TypeSchema(**cinder_schemas.METADATA_ITEM_SCHEMA)
+            )
+            ref = f"#/components/schemas/{name}"
+
         else:
             (ref, mime_type) = super()._get_schema_ref(
                 openapi_spec, name, description, action_name=action_name

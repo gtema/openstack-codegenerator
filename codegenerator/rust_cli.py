@@ -1065,7 +1065,12 @@ class RustCliGenerator(BaseGenerator):
                         if not response_def:
                             continue
 
-                        if response_def.get("type", "object") == "object":
+                        if response_def.get("type", "object") == "object" or (
+                            # BS metadata is defined with type: ["object",
+                            # "null"]
+                            isinstance(response_def.get("type"), list)
+                            and "object" in response_def["type"]
+                        ):
                             (_, response_types) = openapi_parser.parse(
                                 response_def
                             )

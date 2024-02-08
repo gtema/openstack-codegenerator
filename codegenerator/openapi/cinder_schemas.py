@@ -58,6 +58,18 @@ METADATA_SCHEMA = {
     "description": "A metadata object. Contains one or more metadata key and value pairs that are associated with the resource.",
 }
 
+METADATA_CONTAINER_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "description": "Metadata key and value pairs. The maximum size for each metadata key and value pair is 255 bytes.",
+    "properties": {"metadata": METADATA_SCHEMA},
+}
+
+METADATA_ITEM_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "description": "Metadata key and value pairs. The maximum size for each metadata key and value pair is 255 bytes.",
+    "properties": {"meta": {"maxProperties": 1, **METADATA_SCHEMA}},
+}
+
 VOLUME_SHORT_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "A volume object.",
