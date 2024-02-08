@@ -135,7 +135,7 @@ Some({{ val }})
 {%- elif param.type_hint in ["i32", "i64", "f32", "f64", "bool"] %}
     {{ dst_var }}.{{ param.remote_name }}({{ val_var | replace("&", "" )}});
 {%- elif param.data_type.__class__.__name__ in ["ArrayInput"] %}
-    {{ sdk_plain_array_setter(param, val_var, dst_var) }}
+    {{ sdk_plain_array_setter(param, val_var.replace("&", ""), dst_var) }}
 {%- elif param.data_type.__class__.__name__ in ["JsonValue"] %}
     {{ dst_var }}.{{ param.remote_name }}({{ val_var | replace("&", "" )}}.clone());
 {%- elif param.data_type.__class__.__name__ == "DictionaryInput" %}

@@ -66,10 +66,12 @@
             rows.extend(
                 self.0
                     .iter()
-                  {%- if data_type.value_type.type_hint == "String" %}
-                    .map(|(k, v)| Vec::from([k.clone(), v.clone()])),
-                  {%- elif data_type.value_type.type_hint == "Value" %}
+                  {%- if data_type.value_type.type_hint == "Value" %}
                     .map(|(k, v)| Vec::from([k.clone(), serde_json::to_string(&v).expect("Is a valid data")])),
+                  {%- elif data_type.value_type.type_hint == "String" %}
+                    .map(|(k, v)| Vec::from([k.clone(), v.clone()])),
+                  {%- else %}
+                    .map(|(k, v)| Vec::from([k.clone(), v.to_string()])),
                   {%- endif %}
             );
             (headers, rows)
