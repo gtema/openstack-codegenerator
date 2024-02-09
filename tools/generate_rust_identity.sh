@@ -8,6 +8,9 @@ NET_RESOURCES=(
   "auth"
   "user"
   "os_federation"
+  "service"
+  "endpoint"
+  "region"
 )
 
 openstack-codegenerator --work-dir ${WRK_DIR} --target rust-sdk --metadata ${METADATA}/identity_metadata.yaml --service identity

@@ -488,11 +488,48 @@ class KeystoneGenerator(OpenStackServerSourceBase):
                 if ref not in [x.ref for x in operation_spec.parameters]:
                     operation_spec.parameters.append(ParameterSchema(ref=ref))
 
+        elif operationId == "services:get":
+            for (
+                key,
+                val,
+            ) in keystone_schemas.SERVICES_LIST_PARAMETERS.items():
+                openapi_spec.components.parameters.setdefault(
+                    key, ParameterSchema(**val)
+                )
+                ref = f"#/components/parameters/{key}"
+                if ref not in [x.ref for x in operation_spec.parameters]:
+                    operation_spec.parameters.append(ParameterSchema(ref=ref))
+
+        elif operationId == "endpoints:get":
+            for (
+                key,
+                val,
+            ) in keystone_schemas.ENDPOINTS_LIST_PARAMETERS.items():
+                openapi_spec.components.parameters.setdefault(
+                    key, ParameterSchema(**val)
+                )
+                ref = f"#/components/parameters/{key}"
+                if ref not in [x.ref for x in operation_spec.parameters]:
+                    operation_spec.parameters.append(ParameterSchema(ref=ref))
+
+        elif operationId == "regions:get":
+            for (
+                key,
+                val,
+            ) in keystone_schemas.REGIONS_LIST_PARAMETERS.items():
+                openapi_spec.components.parameters.setdefault(
+                    key, ParameterSchema(**val)
+                )
+                ref = f"#/components/parameters/{key}"
+                if ref not in [x.ref for x in operation_spec.parameters]:
+                    operation_spec.parameters.append(ParameterSchema(ref=ref))
+
         elif operationId in [
             "OS-FEDERATION/projects:get",
             "OS-FEDERATION/projects:head",
             "OS-FEDERATION/domains:get",
             "OS-FEDERATION/domains:head",
+            "endpoints/endpoint_id/OS-ENDPOINT-POLICY/policy:get",
         ]:
             operation_spec.deprecated = True
 
@@ -1032,6 +1069,83 @@ class KeystoneGenerator(OpenStackServerSourceBase):
                     format="xml",
                     descripion="Identity Provider metadata information in XML format",
                 ),
+            )
+            ref = f"#/components/schemas/{name}"
+        # ### Services
+        elif name == "ServicesGetResponse":
+            openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(**keystone_schemas.SERVICES_SCHEMA),
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name in [
+            "ServiceGetResponse",
+            "ServicesPostResponse",
+            "ServicePatchResponse",
+        ]:
+            openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(**keystone_schemas.SERVICE_CONTAINER_SCHEMA),
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name == "ServicesPostRequest":
+            openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(**keystone_schemas.SERVICE_CREATE_SCHEMA),
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name == "ServicePatchRequest":
+            openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(**keystone_schemas.SERVICE_UPDATE_SCHEMA),
+            )
+            ref = f"#/components/schemas/{name}"
+        # ### Endpoints
+        elif name == "EndpointsGetResponse":
+            openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(**keystone_schemas.ENDPOINTS_SCHEMA),
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name in [
+            "EndpointGetResponse",
+            "EndpointsPostResponse",
+            "EndpointPatchResponse",
+        ]:
+            openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(**keystone_schemas.ENDPOINT_CONTAINER_SCHEMA),
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name == "EndpointsPostRequest":
+            openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(**keystone_schemas.ENDPOINT_CREATE_SCHEMA),
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name == "EndpointsPostRequest":
+            openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(**keystone_schemas.ENDPOINT_UPDATE_SCHEMA),
+            )
+            ref = f"#/components/schemas/{name}"
+        # ### Regions
+        elif name == "RegionsGetResponse":
+            openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(**keystone_schemas.REGIONS_SCHEMA),
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name in [
+            "RegionGetResponse",
+            "RegionsPostRequest",
+            "RegionsPostResponse",
+            "RegionPatchRequest",
+            "RegionPatchResponse",
+        ]:
+            openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(**keystone_schemas.REGION_CONTAINER_SCHEMA),
             )
             ref = f"#/components/schemas/{name}"
         # Default
