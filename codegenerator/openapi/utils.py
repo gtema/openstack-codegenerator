@@ -393,9 +393,11 @@ def _find_schema_property(schema, target_prop_name):
             elif prop_type == "array":
                 # name under the "server"
                 candidate = _find_schema_property(
-                    prop_def.get("items")
-                    if isinstance(prop_def, dict)
-                    else prop_def.items,
+                    (
+                        prop_def.get("items")
+                        if isinstance(prop_def, dict)
+                        else prop_def.items
+                    ),
                     target_prop_name,
                 )
                 if candidate:

@@ -51,7 +51,7 @@ class Enum(common_rust.Enum):
         return "#[derive(Debug, Deserialize, Clone, Serialize)]"
 
     def get_sample(self):
-        (first_kind_name, first_kind_val) = list(self.kinds.items())[0]
+        (first_kind_name, first_kind_val) = list(sorted(self.kinds.items()))[0]
         res = (
             self.name
             + "::"
@@ -125,7 +125,7 @@ class Struct(common_rust.Struct):
 
     def get_sample(self):
         res = [self.name + "Builder::default()"]
-        for field in self.fields.values():
+        for field in sorted(self.fields.values(), key=lambda d: d.local_name):
             if not field.is_optional:
                 data = f".{field.local_name}("
                 data += field.data_type.get_sample()
@@ -237,6 +237,21 @@ class TypeManager(common_rust.TypeManager):
     request_parameter_class: Type[
         common_rust.RequestParameter
     ] = RequestParameter
+
+    def set_parameters(self, parameters: list[model.RequestParameter]) -> None:
+        """Set OpenAPI operation parameters into typemanager for conversion"""
+        super().set_parameters(parameters)
+        for k, param in self.parameters.items():
+            if isinstance(param.data_type, common_rust.CommaSeparatedList):
+                param.setter_name = param.local_name
+                param.setter_type = "csv"
+            elif isinstance(param.data_type, common_rust.BTreeSet):
+                param.setter_name = param.local_name
+                param.setter_type = "set"
+            elif isinstance(param.data_type, common_rust.Array):
+                param.setter_name = param.local_name
+                param.setter_type = "list"
+            self.parameters[k] = param
 
 
 class RustSdkGenerator(BaseGenerator):
@@ -538,9 +553,11 @@ class RustSdkGenerator(BaseGenerator):
             name_filter_supported=name_filter_supported,
             name_field=name_field,
             type_manager=type_manager,
-            list_lifetime="<'a>"
-            if operation_query_params or operation_path_params
-            else "",
+            list_lifetime=(
+                "<'a>"
+                if operation_query_params or operation_path_params
+                else ""
+            ),
         )
 
         # Generate methods for the GET resource command

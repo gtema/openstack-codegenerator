@@ -58,6 +58,7 @@ class ConstraintString(PrimitiveType):
     minLength: int | None = None
     maxLength: int | None = None
     pattern: str | None = None
+    enum: list[Any] | None = None
 
 
 class PrimitiveNumber(PrimitiveType):
@@ -588,6 +589,11 @@ class OpenAPISchemaParser(JsonSchemaParser):
             if len(param_typ) == 1:
                 param_typ = param_typ[0]
         if param_typ == "string":
+            # NOTE: this is commented out so far since most of enums are just
+            # too wrong to treat them as enums here
+            # if "enum" in param_schema:
+            #     dt = Enum(literals=param_schema["enum"], base_types=[ConstraintString])
+            # else:
             dt = ConstraintString(**param_schema)
         elif param_typ == "number":
             dt = ConstraintNumber(**param_schema)

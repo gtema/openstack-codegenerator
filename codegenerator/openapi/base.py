@@ -715,9 +715,11 @@ class OpenStackServerSourceBase:
                     (schema_ref, mime_type) = self._get_schema_ref(
                         openapi_spec,
                         schema_name,
-                        description=f"Response of the {operation_spec.operationId} operation"
-                        if not action_name
-                        else f"Response of the {operation_spec.operationId}:{action_name} action",  # noqa
+                        description=(
+                            f"Response of the {operation_spec.operationId} operation"
+                            if not action_name
+                            else f"Response of the {operation_spec.operationId}:{action_name} action"
+                        ),  # noqa
                         schema_def=ser_schema,
                         action_name=action_name,
                     )
