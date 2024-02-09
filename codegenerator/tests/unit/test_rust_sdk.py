@@ -133,6 +133,7 @@ class TestRustSdkModel(TestCase):
                     "std::collections::BTreeMap",
                     "std::borrow::Cow",
                     "serde::Deserialize",
+                    "serde::Serialize",
                     "serde_json::Value",
                 ]
             ),

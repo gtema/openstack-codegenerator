@@ -1236,3 +1236,177 @@ FEDERATION_SERVICE_PROVIDER_UPDATE_SCHEMA: dict[str, Any] = {
         "service_provider": federation_schema.service_provider_update
     },
 }
+
+SERVICE_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "description": {
+            "type": "string",
+            "description": "The service description.",
+        },
+        "enabled": {
+            "type": "boolean",
+            "description": "Defines whether the service and its endpoints appear in the service catalog.",
+        },
+        "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The UUID of the service to which the endpoint belongs.",
+        },
+        "name": {
+            "type": "string",
+            "description": "The service name.",
+        },
+        "type": {
+            "type": "string",
+            "description": "The service type, which describes the API implemented by the service.",
+        },
+    },
+}
+
+SERVICE_CONTAINER_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {"service": SERVICE_SCHEMA},
+}
+
+SERVICE_CREATE_SCHEMA = copy.deepcopy(SERVICE_CONTAINER_SCHEMA)
+SERVICE_CREATE_SCHEMA["properties"]["service"]["properties"].pop("id")
+SERVICE_CREATE_SCHEMA["properties"]["service"]["required"] = ["type"]
+SERVICE_UPDATE_SCHEMA = copy.deepcopy(SERVICE_CONTAINER_SCHEMA)
+SERVICE_UPDATE_SCHEMA["properties"]["service"]["properties"].pop("id")
+
+
+SERVICES_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {"services": {"type": "array", "items": SERVICE_SCHEMA}},
+}
+
+SERVICES_LIST_PARAMETERS = {
+    "service_type": {
+        "in": "query",
+        "name": "service",
+        "description": "Filters the response by a domain ID.",
+        "schema": {"type": "string"},
+    },
+}
+
+ENDPOINT_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "enabled": {
+            "type": "boolean",
+            "description": "Defines whether the service and its endpoints appear in the service catalog.",
+        },
+        "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The UUID of the service to which the endpoint belongs.",
+        },
+        "interface": {
+            "type": "string",
+            "enum": ["internal", "admin", "public"],
+            "description": "The interface type, which describes the visibility of the endpoint. Value is: - public. Visible by end users on a publicly available network interface. - internal. Visible by end users on an unmetered internal network interface. - admin. Visible by administrative users on a secure network interface.",
+        },
+        "region": {
+            "type": "string",
+            "description": "The geographic location of the service endpoint.",
+            "x-openstack": {"max-ver": "3.2"},
+        },
+        "region_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The geographic location of the service endpoint.",
+            "x-openstack": {"min-ver": "3.2"},
+        },
+        "service_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The UUID of the service to which the endpoint belongs.",
+        },
+        "url": {
+            "type": "string",
+            "format": "url",
+            "description": "The endpoint URL.",
+        },
+    },
+}
+
+ENDPOINT_CONTAINER_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {"endpoint": ENDPOINT_SCHEMA},
+}
+
+ENDPOINTS_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {"endpoints": {"type": "array", "items": ENDPOINT_SCHEMA}},
+}
+
+ENDPOINTS_LIST_PARAMETERS = {
+    "endpoint_service_id": {
+        "in": "query",
+        "name": "service_id",
+        "description": "Filters the response by a service ID.",
+        "schema": {"type": "string", "format": "uuid"},
+    },
+    "endpoint_region_id": {
+        "in": "query",
+        "name": "region",
+        "description": "Filters the response by a region ID.",
+        "schema": {"type": "string", "format": "uuid"},
+    },
+    "endpoint_interface": {
+        "in": "query",
+        "name": "interface",
+        "description": "Filters the response by an interface.",
+        "schema": {"type": "string", "enum": ["public", "internal", "admin"]},
+    },
+}
+
+ENDPOINT_CREATE_SCHEMA = copy.deepcopy(ENDPOINT_CONTAINER_SCHEMA)
+ENDPOINT_CREATE_SCHEMA["properties"]["endpoint"]["properties"].pop("id")
+ENDPOINT_CREATE_SCHEMA["properties"]["endpoint"]["required"] = [
+    "interface",
+    "service_id",
+    "url",
+]
+ENDPOINT_UPDATE_SCHEMA = copy.deepcopy(ENDPOINT_CONTAINER_SCHEMA)
+ENDPOINT_UPDATE_SCHEMA["properties"]["endpoint"]["properties"].pop("id")
+
+REGION_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "description": {
+            "type": "string",
+            "description": "The region description.",
+        },
+        "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The ID for the region.",
+        },
+        "parent_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "To make this region a child of another region, set this parameter to the ID of the parent region.",
+        },
+    },
+}
+
+REGION_CONTAINER_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {"region": REGION_SCHEMA},
+}
+
+REGIONS_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {"regions": {"type": "array", "items": REGION_SCHEMA}},
+}
+
+REGIONS_LIST_PARAMETERS = {
+    "region_parent_region_id": {
+        "in": "query",
+        "name": "parent_region_id",
+        "description": "Filters the response by a parent region, by ID.",
+        "schema": {"type": "string", "format": "uuid"},
+    },
+}

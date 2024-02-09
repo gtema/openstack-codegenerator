@@ -354,12 +354,17 @@ class StringEnum(BaseCompoundType):
 
     @property
     def clap_macros(self) -> set[str]:
-        """ "Return clap macros"""
+        """Return clap macros"""
+        return set()
+
+    @property
+    def builder_macros(self) -> set[str]:
+        """Return builder macros"""
         return set()
 
     def get_sample(self):
         """Generate sample data"""
-        variant = list(self.variants.keys())[0]
+        variant = list(sorted(self.variants.keys()))[0]
         return f"{self.name}::{variant}"
 
     def variant_serde_macros(self, variant: str):
@@ -381,7 +386,7 @@ class RequestParameter(BaseModel):
     remote_name: str
     local_name: str
     location: str
-    data_type: BaseCombinedType | BasePrimitiveType
+    data_type: BaseCombinedType | BasePrimitiveType | BaseCompoundType
     description: str | None = None
     is_required: bool = False
     setter_name: str | None = None
@@ -930,8 +935,6 @@ class TypeManager:
         """Set OpenAPI operation parameters into typemanager for conversion"""
         for parameter in parameters:
             data_type = self.convert_model(parameter.data_type)
-            # if not parameter.is_required:
-            #     data_type = Option(item_type=data_type)
             param = self.request_parameter_class(
                 remote_name=self.get_remote_attribute_name(parameter.name),
                 local_name=self.get_local_attribute_name(parameter.name),
@@ -940,16 +943,6 @@ class TypeManager:
                 description=sanitize_rust_docstrings(parameter.description),
                 is_required=parameter.is_required,
             )
-            if isinstance(data_type, CommaSeparatedList):
-                param.setter_name = param.local_name
-                param.setter_type = "csv"
-            if isinstance(data_type, BTreeSet):
-                param.setter_name = param.local_name
-                param.setter_type = "set"
-            if isinstance(data_type, Array):
-                param.setter_name = param.local_name
-                param.setter_type = "list"
-
             self.parameters[param.local_name] = param
 
     def get_parameters(

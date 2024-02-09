@@ -2464,6 +2464,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            find_implemented_by_sdk: true
       delete:
         operation_id: services/service_id:delete
         operation_type: delete
@@ -2473,6 +2474,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            find_implemented_by_sdk: true
       update:
         operation_id: services/service_id:patch
         operation_type: set
@@ -2482,6 +2484,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            find_implemented_by_sdk: true
       list:
         operation_id: services:get
         operation_type: list
@@ -2500,6 +2503,16 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+      find:
+        operation_id: services:get
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: identity::v3::service
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
   identity.system/user/role:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3

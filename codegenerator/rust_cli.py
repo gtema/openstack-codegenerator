@@ -48,6 +48,9 @@ class String(common_rust.String):
 
     clap_macros: set[str] = set()
     original_data_type: BaseCompoundType | BaseCompoundType | None = None
+    # Temporary add string enum for parameters which we do not want to handle
+    # as StringEnums
+    enum: set[str] | None = None
     # imports: set[str] =  set(["dialoguer::Password"])
 
     @property
@@ -392,6 +395,9 @@ class RequestParameter(common_rust.RequestParameter):
             # the value_name is turned back to the expected value
             macros.add(f'id = "path_param_{self.local_name}"')
             macros.add(f'value_name = "{self.local_name.upper()}"')
+        if hasattr(self.data_type, "enum") and self.data_type.enum:
+            values = ",".join(f'"{x}"' for x in sorted(self.data_type.enum))
+            macros.add(f"value_parser = [{values}]")
         return f"#[arg({', '.join(sorted(macros))})]"
 
 
@@ -1022,9 +1028,11 @@ class RustCliGenerator(BaseGenerator):
                 response = common.find_response_schema(
                     spec["responses"],
                     args.response_key or resource_name,
-                    args.operation_name
-                    if args.operation_type == "action"
-                    else None,
+                    (
+                        args.operation_name
+                        if args.operation_type == "action"
+                        else None
+                    ),
                 )
 
                 if response:

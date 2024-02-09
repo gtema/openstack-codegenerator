@@ -869,6 +869,8 @@ class NeutronGenerator(OpenStackServerSourceBase):
                             "items": {"type": "string", "format": "uuid"},
                         }
                     )
+                elif field == "binding:vif_details":
+                    js_schema.update({"type": "object"})
                 if data.get(f"allow_{method.lower()}", False):
                     send_props[field] = js_schema
                 if data.get("is_visible", False):
@@ -879,9 +881,11 @@ class NeutronGenerator(OpenStackServerSourceBase):
                         "type": "array",
                         "items": {
                             "type": "object",
-                            "properties": send_props
-                            if name.endswith("Request")
-                            else return_props,
+                            "properties": (
+                                send_props
+                                if name.endswith("Request")
+                                else return_props
+                            ),
                         },
                     }
                 }
@@ -890,9 +894,11 @@ class NeutronGenerator(OpenStackServerSourceBase):
                     schema.properties = {
                         resource_key: {
                             "type": "object",
-                            "properties": send_props
-                            if name.endswith("Request")
-                            else return_props,
+                            "properties": (
+                                send_props
+                                if name.endswith("Request")
+                                else return_props
+                            ),
                         }
                     }
                     if required_fields:
@@ -910,6 +916,15 @@ def get_schema(param_data):
     schema: dict[str, Any] = {}
     validate = param_data.get("validate")
     convert_to = param_data.get("convert_to")
+    typ_ = "string"
+    if convert_to:
+        if callable(convert_to):
+            fname = convert_to.__name__
+            if fname == "convert_to_boolean":
+                typ_ = "boolean"
+            elif fname == "convert_to_int":
+                typ_ = "integer"
+
     if validate:
         if "type:uuid" in validate:
             schema = {"type": "string", "format": "uuid"}
@@ -949,7 +964,7 @@ def get_schema(param_data):
             if length:
                 schema["maxLength"] = length
         elif "type:values" in validate:
-            schema = {"type": "string", "enum": list(validate["type:values"])}
+            schema = {"type": typ_, "enum": list(validate["type:values"])}
         elif "type:range" in validate:
             r = validate["type:range"]
             schema = {"type": "number", "minimum": r[0], "maximum": r[1]}
