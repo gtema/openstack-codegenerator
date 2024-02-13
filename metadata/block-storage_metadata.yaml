@@ -460,9 +460,11 @@ resources:
         targets:
           rust-sdk:
             module_name: list
+            response_key: volume_types
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            response_key: volume_types
       create:
         operation_id: types/id/action:post
         operation_type: action
@@ -470,19 +472,24 @@ resources:
           rust-sdk:
             module_name: create
             operation_name: create
+            response_key: volume_type
           rust-cli:
             module_name: create
             sdk_mod_name: create
             operation_name: create
+            response_key: volume_type
       update:
         operation_id: types/id:put
         operation_type: set
         targets:
           rust-sdk:
             module_name: set
+            response_key: volume_type
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            response_key: volume_type
+            find_implemented_by_sdk: true
       delete:
         operation_id: types/id:delete
         operation_type: delete
@@ -492,6 +499,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            find_implemented_by_sdk: true
       add-project-access:
         operation_id: types/id/action:post
         operation_type: action
@@ -503,6 +511,7 @@ resources:
             module_name: add_project_access
             sdk_mod_name: add_project_access
             operation_name: addProjectAccess
+            find_implemented_by_sdk: true
       remove-project-access:
         operation_id: types/id/action:post
         operation_type: action
@@ -514,15 +523,29 @@ resources:
             module_name: remove_project_access
             sdk_mod_name: remove_project_access
             operation_name: removeProjectAccess
+            find_implemented_by_sdk: true
       show:
         operation_id: types/id:get
         operation_type: show
         targets:
           rust-sdk:
             module_name: get
+            response_key: volume_type
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            response_key: volume_type
+            find_implemented_by_sdk: true
+      find:
+        operation_id: types:get
+        operation_type: find
+        targets:
+          rust-sdk:
+            module_name: find
+            sdk_mod_path: block_storage::v3::type
+            name_field: name
+            name_filter_supported: false
+            list_mod: list
   block-storage.group_type:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1985,9 +2008,11 @@ resources:
         targets:
           rust-sdk:
             module_name: get
+            response_key: volume_type_access
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            response_key: volume_type_access
   block-storage.type/encryption:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3

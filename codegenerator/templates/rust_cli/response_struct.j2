@@ -70,6 +70,8 @@
                     .map(|(k, v)| Vec::from([k.clone(), serde_json::to_string(&v).expect("Is a valid data")])),
                   {%- elif data_type.value_type.type_hint == "String" %}
                     .map(|(k, v)| Vec::from([k.clone(), v.clone()])),
+                  {%- elif data_type.value_type.__class__.__name__ == "Option" %}
+                    .map(|(k, v)| Vec::from([k.clone(), v.clone().unwrap_or("".to_string()).to_string()])),
                   {%- else %}
                     .map(|(k, v)| Vec::from([k.clone(), v.to_string()])),
                   {%- endif %}
@@ -145,15 +147,19 @@ impl fmt::Display for Vec{{ subtype.item_type.type_hint }} {
 #[derive(Default)]
 #[derive(Clone)]
 #[derive(Deserialize, Serialize)]
-struct HashMapString{{ subtype.value_type.type_hint}}(HashMap<String, {{subtype.value_type.type_hint}}>);
-impl fmt::Display for HashMapString{{ subtype.value_type.type_hint }} {
+struct {{ subtype.type_hint }}(HashMap<String, {{ subtype.value_type.type_hint }}>);
+impl fmt::Display for {{ subtype.type_hint }} {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
             "{{ '{{{}}}' }}",
             self.0
             .iter()
+           {%- if subtype.value_type.__class__.__name__ == "Option" %}
+            .map(|v| format!("{}={}", v.0, v.1.clone().unwrap_or("".to_string())))
+           {%- else %}
             .map(|v| format!("{}={}", v.0, v.1))
+           {%- endif %}
             .collect::<Vec<String>>()
             .join("\n")
             )

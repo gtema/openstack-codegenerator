@@ -15,7 +15,11 @@
   {%- endif %}
 
 {%- elif type.__class__.__name__ == "DictionaryInput" %}
+  {%- if type.value_type.__class__.__name__ != "Option" %}
     #[arg(long="property", value_name="key=value", value_parser=parse_key_val::<String, {{ type.value_type.type_hint }}>)]
+  {%- else %}
+    #[arg(long="property", value_name="key=value", value_parser=parse_key_val_opt::<String, {{ type.value_type.item_type.type_hint }}>)]
+  {%- endif %}
     properties: Option<Vec<(String, {{ type.value_type.type_hint }})>>,
 
 {%- endif %}

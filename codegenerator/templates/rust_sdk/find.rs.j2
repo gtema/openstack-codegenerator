@@ -25,7 +25,7 @@ use crate::api::{ApiError, RestClient};
 use tracing::trace;
 {%- endif %}
 
-use crate::api::{{ mod_path | join("::") }}::{
+use crate::api::{{ mod_path | join("::") | replace("::type", "::r#type") }}::{
     get as Get,
     {{ list_mod }} as List,
 };

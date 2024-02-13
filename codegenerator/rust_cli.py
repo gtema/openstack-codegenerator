@@ -366,7 +366,7 @@ class HashMapResponse(common_rust.Dictionary):
 
     @property
     def type_hint(self):
-        return f"HashMapString{self.value_type.type_hint}"
+        return f"HashMapString{self.value_type.type_hint.replace('<', '').replace('>', '')}"
 
     @property
     def imports(self):
