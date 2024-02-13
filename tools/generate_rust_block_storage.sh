@@ -6,6 +6,7 @@ METADATA=metadata
 DST=~/workspace/github/gtema/openstack
 NET_RESOURCES=(
   "volume"
+  "type"
 )
 
 openstack-codegenerator --work-dir ${WRK_DIR} --target rust-sdk --metadata ${METADATA}/block-storage_metadata.yaml --service block-storage
