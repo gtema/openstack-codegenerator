@@ -656,6 +656,10 @@ def post_process_operation(
         operation = post_process_image_operation(
             resource_name, operation_name, operation
         )
+    elif service_type in ["block-storage", "volume"]:
+        operation = post_process_block_storage_operation(
+            resource_name, operation_name, operation
+        )
     return operation
 
 
@@ -707,5 +711,22 @@ def post_process_image_operation(
     if resource_name.startswith("schema"):
         # Image schemas are a JSON operation
         operation.targets["rust-cli"].operation_type = "json"
+
+    return operation
+
+
+def post_process_block_storage_operation(
+    resource_name: str, operation_name: str, operation
+):
+    if resource_name == "type":
+        if operation_name == "list":
+            operation.targets["rust-cli"].response_key = "volume_types"
+            operation.targets["rust-sdk"].response_key = "volume_types"
+        elif operation_name in ["create", "show", "update"]:
+            operation.targets["rust-cli"].response_key = "volume_type"
+            operation.targets["rust-sdk"].response_key = "volume_type"
+    elif resource_name == "type/volume_type_access":
+        operation.targets["rust-cli"].response_key = "volume_type_access"
+        operation.targets["rust-sdk"].response_key = "volume_type_access"
 
     return operation

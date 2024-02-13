@@ -158,6 +158,17 @@ class CinderV3Generator(OpenStackServerSourceBase):
                 if ref not in [x.ref for x in operation_spec.parameters]:
                     operation_spec.parameters.append(ParameterSchema(ref=ref))
 
+        elif operationId in [
+            "project_id/types:get",
+        ]:
+            for key, val in cinder_schemas.VOLUME_TYPE_LIST_PARAMETERS.items():
+                openapi_spec.components.parameters.setdefault(
+                    key, ParameterSchema(**val)
+                )
+                ref = f"#/components/parameters/{key}"
+                if ref not in [x.ref for x in operation_spec.parameters]:
+                    operation_spec.parameters.append(ParameterSchema(ref=ref))
+
     def _get_schema_ref(
         self,
         openapi_spec,
@@ -248,6 +259,83 @@ class CinderV3Generator(OpenStackServerSourceBase):
                 ),
             )
             ref = f"#/components/schemas/{name}"
+        # ### Volume Type
+        elif name == "TypesListResponse":
+            openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(**cinder_schemas.VOLUME_TYPES_SCHEMA),
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name in [
+            "TypesCreateResponse",
+            "TypeShowResponse",
+            "TypeUpdateResponse",
+        ]:
+            openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(**cinder_schemas.VOLUME_TYPE_CONTAINER_SCHEMA),
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name in [
+            "TypesExtra_SpecsListResponse",
+            "TypesExtra_SpecsCreateResponse",
+        ]:
+            openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(**cinder_schemas.VOLUME_TYPE_EXTRA_SPECS_SCHEMA),
+            )
+            ref = f"#/components/schemas/{name}"
+
+        elif name in [
+            "TypesExtra_SpecShowResponse",
+            "TypesExtra_SpecUpdateResponse",
+        ]:
+            openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(**cinder_schemas.VOLUME_TYPE_EXTRA_SPEC_SCHEMA),
+            )
+            ref = f"#/components/schemas/{name}"
+
+        elif name == "TypesOs_Volume_Type_AccessListResponse":
+            openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(**cinder_schemas.VOLUME_TYPE_ACCESS_SCHEMA),
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name in [
+            "TypesActionAddprojectaccessResponse",
+            "TypesActionRemoveprojectaccessResponse",
+        ]:
+            return (None, None)
+
+        # ### Volume Type Encryption
+        # this is not really a list operation, but who cares
+        elif name == "TypesEncryptionListResponse":
+            openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(**cinder_schemas.VOLUME_TYPE_ENCRYPTION_SCHEMA),
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name == "TypesEncryptionShowResponse":
+            openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(
+                    **cinder_schemas.VOLUME_TYPE_ENCRYPTION_SHOW_SCHEMA
+                ),
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name in [
+            "TypesEncryptionCreateResponse",
+            "TypesEncryptionUpdateResponse",
+        ]:
+            openapi_spec.components.schemas.setdefault(
+                name,
+                TypeSchema(
+                    **cinder_schemas.VOLUME_TYPE_ENCRYPTION_CONTAINER_SCHEMA
+                ),
+            )
+            ref = f"#/components/schemas/{name}"
+
         # Default
         else:
             (ref, mime_type) = super()._get_schema_ref(

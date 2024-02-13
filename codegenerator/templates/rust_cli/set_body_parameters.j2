@@ -56,7 +56,14 @@
   {%- endif %}
 {%- elif root.__class__.__name__ == "DictionaryInput" %}
     if let Some(properties) = &self.properties {
+      {%- if root.value_type.__class__.__name__ == "Option" %}
+        ep_builder.properties(properties
+            .into_iter()
+            .map(|(k, v)| (k, v.as_ref().map(Into::into))),
+        );
+      {%- else %}
         ep_builder.properties(properties.iter().cloned());
+      {%- endif %}
     }
 {%- endif %}
 {%- endwith %}
