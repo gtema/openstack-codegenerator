@@ -92,11 +92,19 @@ enum {{ type.name }} {
 #[group(required={{ type.is_required | lower }}, multiple={{ "true" if type.__class__.__name__ != "EnumGroupStruct" else "false" }})]
 {%- endif %}
 struct {{ type.name }} {
+ {%- if type["is_group"] is defined and type.is_group %}
+  {%- for (_, field) in type.fields | dictsort %}
+    {{ macros.docstring(field.description, indent=4) }}
+    {{ field.clap_macros_ext(is_group=type.is_group) }}
+    {{ field.local_name }}: {{ field.type_hint }},
+  {%- endfor %}
+ {%- else %}
   {%- for field in type.fields.values() %}
     {{ macros.docstring(field.description, indent=4) }}
     {{ field.clap_macros_ext(is_group=type.is_group) }}
     {{ field.local_name }}: {{ field.type_hint }},
   {%- endfor %}
+ {%- endif %}
 }
 {%- endif %}
 {% endfor %}
