@@ -36,6 +36,7 @@ pub {{ subtype.base_type }} {{ subtype.name }}{{ ("<" + ",".join(subtype.lifetim
   {%- if subtype.base_type == "struct" and subtype.additional_fields_type %}
 
     #[builder(setter(name = "_properties"), default, private)]
+    #[serde(flatten)]
     _properties: BTreeMap<Cow<'a, str>, {{ subtype.additional_fields_type.type_hint }}>,
   {%- endif %}
 }
