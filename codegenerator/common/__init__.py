@@ -82,11 +82,23 @@ def find_openapi_operation(spec, operationId: str):
 
 
 def get_plural_form(resource: str) -> str:
-    """Get plural for of the resource"""
+    """Get plural for of the resource
+
+    Apply rules from https://www.fluentu.com/blog/english/plural-nouns/ to
+    build a plural form of the word
+    """
     if resource[-1] == "y":
         return resource[0:-1] + "ies"
-    if resource[-1] == "s":
-        return resource[0:-1] + "es"
+    elif resource[-1] == "o":
+        return resource + "es"
+    elif resource[-2:] == "is":
+        return resource[0:-2] + "es"
+    elif resource[-1] in ["s", "x", "z"] or resource[-2:] in ["sh", "ch"]:
+        return resource + "es"
+    elif resource[-1] == "f":
+        return resource[:-1] + "ves"
+    elif resource[-2:] == "fe":
+        return resource[:-2] + "ves"
     else:
         return resource + "s"
 
