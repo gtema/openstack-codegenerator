@@ -1,13 +1,13 @@
 {%- macro mod_docstring(v) %}
 {%- if v %}
-//! {{ v | wordwrap(width=75) | replace('\n', '\n//! ') }}
+//! {{ v | wrap_markdown(75) | replace('\n', '\n//! ') }}
 {%- endif %}
 {%- endmacro %}
 
 {%- macro docstring(doc, indent=0) %}
 {#- docstring for an element #}
 {%- if doc %}
-{{ (' ' * indent) }}/// {{ doc | trim("\n") | wordwrap(width=79-indent-4) | replace('\n', '\n' + (' ' * indent) + '/// ') }}
+{{ (' ' * indent) }}/// {{ doc | trim("\n") | wrap_markdown(79-indent-4) | replace('\n', '\n' + (' ' * indent) + '/// ') }}
 {%- endif %}
 {%- endmacro %}
 

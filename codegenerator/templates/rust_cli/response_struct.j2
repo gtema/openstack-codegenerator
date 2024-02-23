@@ -85,7 +85,7 @@
 
 {%- for subtype in response_type_manager.get_subtypes() %}
 {%- if subtype["fields"] is defined %}
-/// {{ subtype.base_type }} response type
+/// `{{ subtype.base_type }}` response type
 #[derive(Default)]
 #[derive(Clone)]
 #[derive(Deserialize, Serialize)]
@@ -123,7 +123,7 @@ impl fmt::Display for {{ subtype.name }} {
 }
 
 {%- elif subtype.base_type == "vec" %}
-/// Vector of {{ subtype.item_type.type_hint}} response type
+/// Vector of `{{ subtype.item_type.type_hint}}` response type
 #[derive(Default)]
 #[derive(Clone)]
 #[derive(Deserialize, Serialize)]
@@ -143,7 +143,7 @@ impl fmt::Display for Vec{{ subtype.item_type.type_hint }} {
 }
 
 {%- elif subtype.base_type == "dict"  %}
-/// HashMap of {{ subtype.value_type.type_hint }} response type
+/// HashMap of `{{ subtype.value_type.type_hint }}` response type
 #[derive(Default)]
 #[derive(Clone)]
 #[derive(Deserialize, Serialize)]

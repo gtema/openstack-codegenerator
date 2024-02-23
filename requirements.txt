@@ -6,7 +6,10 @@ sphinx
 ruamel.yaml
 jsonschema
 bs4[spec]
+# convert html into markdown
 markdownify[spec]
+# wrap markdown when rendering
+mdformat # MIT
 wsgi_intercept[spec]
 oslotest[spec]
 nova[spec]
