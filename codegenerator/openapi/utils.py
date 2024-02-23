@@ -530,4 +530,4 @@ def _get_schema_candidates(
 
 
 def get_sanitized_description(descr: str) -> LiteralScalarString:
-    return LiteralScalarString(md(descr))
+    return LiteralScalarString(md(descr, escape_underscores=False))
