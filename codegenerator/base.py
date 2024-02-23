@@ -15,6 +15,7 @@ import abc
 import logging
 from pathlib import Path
 import subprocess
+import mdformat as md
 
 from jinja2 import Environment
 from jinja2 import FileSystemLoader
@@ -24,11 +25,19 @@ from jinja2 import StrictUndefined
 
 class BaseGenerator:
     def __init__(self):
+        # Lower debug level of mdformat
+        logging.getLogger("markdown_it").setLevel(logging.INFO)
+
+        def wrap_markdown(input: str, width: int = 79) -> str:
+            """Apply mardownify to wrap the markdown"""
+            return md.text(input, options={"wrap": width})
+
         self.env = Environment(
             loader=FileSystemLoader("codegenerator/templates"),
             autoescape=select_autoescape(),
             undefined=StrictUndefined,
         )
+        self.env.filters["wrap_markdown"] = wrap_markdown
 
     def get_parser(self, parser):
         return parser
