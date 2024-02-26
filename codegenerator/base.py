@@ -23,14 +23,15 @@ from jinja2 import select_autoescape
 from jinja2 import StrictUndefined
 
 
+def wrap_markdown(input: str, width: int = 79) -> str:
+    """Apply mardownify to wrap the markdown"""
+    return md.text(input, options={"wrap": width})
+
+
 class BaseGenerator:
     def __init__(self):
         # Lower debug level of mdformat
         logging.getLogger("markdown_it").setLevel(logging.INFO)
-
-        def wrap_markdown(input: str, width: int = 79) -> str:
-            """Apply mardownify to wrap the markdown"""
-            return md.text(input, options={"wrap": width})
 
         self.env = Environment(
             loader=FileSystemLoader("codegenerator/templates"),

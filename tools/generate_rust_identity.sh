@@ -11,6 +11,7 @@ NET_RESOURCES=(
   "service"
   "endpoint"
   "region"
+  "role_assignment"
 )
 
 openstack-codegenerator --work-dir ${WRK_DIR} --target rust-sdk --metadata ${METADATA}/identity_metadata.yaml --service identity
