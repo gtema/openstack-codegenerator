@@ -41,13 +41,14 @@ class BooleanFlag(common_rust.Boolean):
 
     type_hint: str = "bool"
     clap_macros: set[str] = set(["action=clap::ArgAction::SetTrue"])
+    original_data_type: BaseCompoundType | BasePrimitiveType | None = None
 
 
 class String(common_rust.String):
     """CLI String type"""
 
     clap_macros: set[str] = set()
-    original_data_type: BaseCompoundType | BaseCompoundType | None = None
+    original_data_type: BaseCompoundType | BaseCombinedType | None = None
     # Temporary add string enum for parameters which we do not want to handle
     # as StringEnums
     enum: set[str] | None = None
@@ -382,7 +383,7 @@ class CommaSeparatedList(common_rust.CommaSeparatedList):
 
 
 class RequestParameter(common_rust.RequestParameter):
-    """OpenAPI request parameter in the Rust SDK form"""
+    """OpenAPI request parameter in the Rust form"""
 
     @property
     def clap_macros(self):
@@ -395,6 +396,8 @@ class RequestParameter(common_rust.RequestParameter):
             # the value_name is turned back to the expected value
             macros.add(f'id = "path_param_{self.local_name}"')
             macros.add(f'value_name = "{self.local_name.upper()}"')
+        elif self.location == "query":
+            macros.update(self.data_type.clap_macros)
         if hasattr(self.data_type, "enum") and self.data_type.enum:
             values = ",".join(f'"{x}"' for x in sorted(self.data_type.enum))
             macros.add(f"value_parser = [{values}]")
@@ -429,6 +432,7 @@ class RequestTypeManager(common_rust.TypeManager):
 
     def get_local_attribute_name(self, name: str) -> str:
         """Get localized attribute name"""
+        name = name.replace(".", "_")
         attr_name = "_".join(
             x.lower() for x in re.split(common.SPLIT_NAME_RE, name)
         )
@@ -686,6 +690,16 @@ class RequestTypeManager(common_rust.TypeManager):
         return self.data_type_mapping[model.Array](
             name=self.get_model_name(type_model.reference), item_type=item_type
         )
+
+    def set_parameters(self, parameters: list[model.RequestParameter]) -> None:
+        """Set OpenAPI operation parameters into typemanager for conversion"""
+        super().set_parameters(parameters)
+        for k, param in self.parameters.items():
+            if param.is_flag:
+                param.data_type = BooleanFlag(
+                    original_data_type=param.data_type, **param.model_dump()
+                )
+            self.parameters[k] = param
 
 
 class ResponseTypeManager(common_rust.TypeManager):

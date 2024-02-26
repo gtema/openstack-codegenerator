@@ -572,6 +572,7 @@ class RequestParameter(BaseModel):
     data_type: PrimitiveType | ADT
     description: str | None = None
     is_required: bool = False
+    is_flag: bool = False
 
 
 class OpenAPISchemaParser(JsonSchemaParser):
@@ -601,6 +602,8 @@ class OpenAPISchemaParser(JsonSchemaParser):
             dt = ConstraintInteger(**param_schema)
         elif param_typ == "boolean":
             dt = PrimitiveBoolean(**param_schema)
+        elif param_typ == "null":
+            dt = PrimitiveNull(**param_schema)
         elif param_typ == "array":
             try:
                 items_type = param_schema.get("items").get("type")
@@ -642,6 +645,13 @@ class OpenAPISchemaParser(JsonSchemaParser):
                 name=param_name, type=RequestParameter, hash_=dicthash_(schema)
             )
 
+        is_flag: bool = False
+        os_ext = schema.get("x-openstack", {})
+        if not isinstance(os_ext, dict):
+            raise RuntimeError(f"x-openstack must be a dictionary in {schema}")
+        if "is-flag" in os_ext:
+            is_flag = os_ext["is-flag"]
+
         if dt:
             return RequestParameter(
                 name=param_name,
@@ -649,6 +659,7 @@ class OpenAPISchemaParser(JsonSchemaParser):
                 data_type=dt,
                 description=schema.get("description"),
                 is_required=schema.get("required", False),
+                is_flag=is_flag,
             )
         raise NotImplementedError("Parameter %s is not covered yet" % schema)
 

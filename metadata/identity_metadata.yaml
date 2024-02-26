@@ -2275,15 +2275,15 @@ resources:
         targets:
           rust-sdk:
             module_name: head
-      get:
+      list:
         operation_id: role_assignments:get
-        operation_type: get
+        operation_type: list
         targets:
           rust-sdk:
-            module_name: get
+            module_name: list
           rust-cli:
-            module_name: get
-            sdk_mod_name: get
+            module_name: list
+            sdk_mod_name: list
   identity.role_inference:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3

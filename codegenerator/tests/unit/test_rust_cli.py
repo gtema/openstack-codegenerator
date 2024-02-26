@@ -18,7 +18,7 @@ from jinja2 import FileSystemLoader
 from jinja2 import select_autoescape
 from jinja2 import StrictUndefined
 
-
+from codegenerator import base
 from codegenerator import model
 from codegenerator import rust_cli
 
@@ -34,13 +34,13 @@ class TestRustCliResponseManager(TestCase):
 #[derive(Deserialize, Serialize)]
 #[derive(Clone, StructTable)]
 struct ResponseData {
-
-/// aoaos
+    /// aoaos
+    ///
     #[serde()]
     #[structable()]
     foo: VecVecString,
 }
-/// Vector of String response type
+/// Vector of `String` response type
 #[derive(Default)]
 #[derive(Clone)]
 #[derive(Deserialize, Serialize)]
@@ -58,7 +58,7 @@ impl fmt::Display for VecString {
         )
     }
 }
-/// Vector of VecString response type
+/// Vector of `VecString` response type
 #[derive(Default)]
 #[derive(Clone)]
 #[derive(Deserialize, Serialize)]
@@ -106,6 +106,7 @@ impl fmt::Display for VecVecString {
             autoescape=select_autoescape(),
             undefined=StrictUndefined,
         )
+        env.filters["wrap_markdown"] = base.wrap_markdown
         template = env.get_template("rust_cli/response_struct.j2")
 
         content = template.render(

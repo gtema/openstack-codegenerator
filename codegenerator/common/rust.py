@@ -389,6 +389,7 @@ class RequestParameter(BaseModel):
     data_type: BaseCombinedType | BasePrimitiveType | BaseCompoundType
     description: str | None = None
     is_required: bool = False
+    is_flag: bool = False
     setter_name: str | None = None
     setter_type: str | None = None
 
@@ -417,6 +418,7 @@ class TypeManager:
     ] = {}
     parameters: dict[str, Type[RequestParameter] | RequestParameter] = {}
 
+    #: Base mapping of the primitive data-types
     base_primitive_type_mapping: dict[
         Type[model.PrimitiveType],
         Type[BasePrimitiveType] | Type[BaseCombinedType],
@@ -431,14 +433,17 @@ class TypeManager:
         model.PrimitiveAny: JsonValue,
     }
 
+    #: Extension for primitives data-type mapping
     primitive_type_mapping: dict[
         Type[model.PrimitiveType],
         Type[BasePrimitiveType] | Type[BaseCombinedType],
     ]
 
+    #: Extensions of the data-type mapping
     data_type_mapping: dict[
         Type[model.ADT], Type[BaseCombinedType] | Type[BaseCompoundType]
     ]
+    #: Base data-type mapping
     base_data_type_mapping: dict[
         Type[model.ADT], Type[BaseCombinedType] | Type[BaseCompoundType]
     ] = {
@@ -449,10 +454,15 @@ class TypeManager:
         model.CommaSeparatedList: CommaSeparatedList,
         model.Set: BTreeSet,
     }
+    #: RequestParameter Type class
     request_parameter_class: Type[RequestParameter] = RequestParameter
+
+    #: Option Type class
     option_type_class: Type[Option] | Option = Option
+    #: StringEnum Type class
     string_enum_class: Type[StringEnum] | StringEnum = StringEnum
 
+    #: List of the models to be ignored
     ignored_models: list[model.Reference] = []
 
     def __init__(self):
@@ -471,6 +481,7 @@ class TypeManager:
 
     def get_local_attribute_name(self, name: str) -> str:
         """Get localized attribute name"""
+        name = name.replace(".", "_")
         attr_name = "_".join(
             x.lower() for x in re.split(common.SPLIT_NAME_RE, name)
         )
@@ -942,6 +953,7 @@ class TypeManager:
                 location=parameter.location,
                 description=sanitize_rust_docstrings(parameter.description),
                 is_required=parameter.is_required,
+                is_flag=parameter.is_flag,
             )
             self.parameters[param.local_name] = param
 

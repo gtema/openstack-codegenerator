@@ -168,7 +168,12 @@ impl{{ type_manager.get_request_static_lifetimes(request) }} RestEndpoint for Re
 
      {%- for param in type_manager.parameters.values() %}
      {%- if param.location == "query" %}
-     {%- if not param.type_hint.startswith("BTreeSet") %}
+     {%- if param.data_type.__class__.__name__ == "Null" %}
+     params.push_opt_key_only(
+         "{{ param.remote_name }}",
+         self.{{ param.local_name }}.as_ref()
+     );
+     {%- elif not param.type_hint.startswith("BTreeSet") %}
      params.push_opt(
          "{{ param.remote_name }}",
          self.{{ param.local_name}}

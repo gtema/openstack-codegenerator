@@ -309,6 +309,7 @@ class OpenStackServerSourceBase:
                 controller=controller,
                 operation_name=action,
                 method=method,
+                path=path,
             )
         elif action != "action" and action in controller_actions:
             # Normal REST operation without version bounds and present in
@@ -336,6 +337,7 @@ class OpenStackServerSourceBase:
                 controller=controller,
                 operation_name=action,
                 method=method,
+                path=path,
             )
 
         elif (
@@ -433,6 +435,7 @@ class OpenStackServerSourceBase:
                     start_version=start_version,
                     end_version=end_version,
                     mode="action",
+                    path=path,
                 )
         elif framework == "pecan":
             if callable(controller):
@@ -456,6 +459,7 @@ class OpenStackServerSourceBase:
                 controller=controller,
                 operation_name=action,
                 method=method,
+                path=path,
             )
 
         else:
@@ -478,6 +482,7 @@ class OpenStackServerSourceBase:
         start_version=None,
         end_version=None,
         mode=None,
+        path: str | None = None,
     ):
         logging.info(
             "%s: %s [%s]",
@@ -765,9 +770,13 @@ class OpenStackServerSourceBase:
             if tag not in [x["name"] for x in openapi_spec.tags]:
                 openapi_spec.tags.append({"name": tag})
 
-        self._post_process_operation_hook(openapi_spec, operation_spec)
+        self._post_process_operation_hook(
+            openapi_spec, operation_spec, path=path
+        )
 
-    def _post_process_operation_hook(self, openapi_spec, operation_spec):
+    def _post_process_operation_hook(
+        self, openapi_spec, operation_spec, path: str | None = None
+    ):
         """Hook to allow service specific generator to modify details"""
         pass
 

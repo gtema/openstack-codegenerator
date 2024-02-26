@@ -18,7 +18,7 @@ from jinja2 import FileSystemLoader
 from jinja2 import select_autoescape
 from jinja2 import StrictUndefined
 
-
+from codegenerator import base
 from codegenerator import model
 from codegenerator import rust_sdk
 from codegenerator.common import rust as common_rust
@@ -150,6 +150,7 @@ class TestRustSdkModel(TestCase):
             autoescape=select_autoescape(),
             undefined=StrictUndefined,
         )
+        env.filters["wrap_markdown"] = base.wrap_markdown
 
         template = env.get_template("rust_sdk/subtypes.j2")
         content = template.render(type_manager=type_manager)
@@ -169,10 +170,12 @@ class TestRustSdkModel(TestCase):
 pub struct Request<'a> {
 
     /// A `server` object.
+    ///
     #[builder(setter(into))]
     pub(crate) server: Server<'a>,
 
     /// scheduler hints description
+    ///
     #[builder(default, setter(into))]
     pub(crate) os_scheduler_hints: Option<OsSchedulerHints<'a>>,
 
@@ -191,6 +194,7 @@ pub struct Request<'a> {
             autoescape=select_autoescape(),
             undefined=StrictUndefined,
         )
+        env.filters["wrap_markdown"] = base.wrap_markdown
 
         template = env.get_template("rust_sdk/request_struct.j2")
         content = template.render(
