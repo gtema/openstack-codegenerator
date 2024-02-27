@@ -481,18 +481,6 @@ class KeystoneGenerator(OpenStackServerSourceBase):
                 if ref not in [x.ref for x in operation_spec.parameters]:
                     operation_spec.parameters.append(ParameterSchema(ref=ref))
 
-        elif operationId == "endpoints:get":
-            for (
-                key,
-                val,
-            ) in endpoint.ENDPOINTS_LIST_PARAMETERS.items():
-                openapi_spec.components.parameters.setdefault(
-                    key, ParameterSchema(**val)
-                )
-                ref = f"#/components/parameters/{key}"
-                if ref not in [x.ref for x in operation_spec.parameters]:
-                    operation_spec.parameters.append(ParameterSchema(ref=ref))
-
         elif operationId == "regions:get":
             for (
                 key,
@@ -643,35 +631,6 @@ class KeystoneGenerator(OpenStackServerSourceBase):
             openapi_spec.components.schemas.setdefault(
                 name,
                 TypeSchema(**service.SERVICE_UPDATE_SCHEMA),
-            )
-            ref = f"#/components/schemas/{name}"
-        # ### Endpoints
-        elif name == "EndpointsGetResponse":
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**endpoint.ENDPOINTS_SCHEMA),
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name in [
-            "EndpointGetResponse",
-            "EndpointsPostResponse",
-            "EndpointPatchResponse",
-        ]:
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**endpoint.ENDPOINT_CONTAINER_SCHEMA),
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "EndpointsPostRequest":
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**endpoint.ENDPOINT_CREATE_SCHEMA),
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "EndpointsPostRequest":
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**endpoint.ENDPOINT_UPDATE_SCHEMA),
             )
             ref = f"#/components/schemas/{name}"
         # ### Regions
