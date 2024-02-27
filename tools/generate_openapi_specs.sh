@@ -7,3 +7,4 @@ openstack-codegenerator --work-dir wrk --target openapi-spec --service-type volu
 openstack-codegenerator --work-dir wrk --target openapi-spec --service-type image --api-ref-src ${API_REF_BUILD_ROOT}/glance/api-ref/build/html/v2/index.html
 openstack-codegenerator --work-dir wrk --target openapi-spec --service-type identity --api-ref-src ${API_REF_BUILD_ROOT}/keystone/api-ref/build/html/v3/index.html
 openstack-codegenerator --work-dir wrk --target openapi-spec --service-type load-balancing --api-ref-src ${API_REF_BUILD_ROOT}/octavia/api-ref/build/html/v2/index.html
+openstack-codegenerator --work-dir wrk --target openapi-spec --service-type placement --api-ref-src ${API_REF_BUILD_ROOT}/placement/api-ref/build/html/index.html
