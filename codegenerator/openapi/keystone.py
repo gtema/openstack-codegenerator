@@ -17,8 +17,6 @@ from pathlib import Path
 
 from ruamel.yaml.scalarstring import LiteralScalarString
 
-from keystone.identity import schema as identity_schema
-
 from codegenerator.common.schema import ParameterSchema
 from codegenerator.common.schema import PathSchema
 from codegenerator.common.schema import SpecSchema
@@ -477,39 +475,9 @@ class KeystoneGenerator(OpenStackServerSourceBase):
                 if matched:
                     return (ref, mime_type)
 
-        mime_type = "application/json"
-
-        # Groups
-        if name == "GroupPatchRequest":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**identity_schema.user_update)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "GroupsPostRequest":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**identity_schema.user_create)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "GroupPatchResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**group.GROUP_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "GroupsGetResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**group.GROUPS_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "GroupGetResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**group.GROUP_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-
         # Default
-        else:
-            (ref, mime_type) = super()._get_schema_ref(
-                openapi_spec, name, description, action_name=action_name
-            )
+        (ref, mime_type) = super()._get_schema_ref(
+            openapi_spec, name, description, action_name=action_name
+        )
 
         return (ref, mime_type)
