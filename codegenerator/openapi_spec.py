@@ -57,6 +57,11 @@ class OpenApiSchemaGenerator(BaseGenerator):
 
         NeutronGenerator().generate(target_dir, args)
 
+    def generate_placement(self, target_dir, args):
+        from codegenerator.openapi.placement import PlacementGenerator
+
+        PlacementGenerator().generate(target_dir, args)
+
     def generate(
         self, res, target_dir, openapi_spec=None, operation_id=None, args=None
     ):
@@ -77,6 +82,8 @@ class OpenApiSchemaGenerator(BaseGenerator):
             self.generate_octavia(target_dir, args)
         elif args.service_type == "network":
             self.generate_neutron(target_dir, args)
+        elif args.service_type == "placement":
+            self.generate_placement(target_dir, args)
         else:
             raise RuntimeError(
                 "Service type %s is not supported", args.service_type

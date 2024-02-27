@@ -13,6 +13,7 @@ mdformat # MIT
 wsgi_intercept[spec]
 oslotest[spec]
 nova[spec]
+openstack-placement[spec]
 glance[spec]
 neutron[spec]
 neutron-vpnaas[spec]

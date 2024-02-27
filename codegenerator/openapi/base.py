@@ -141,7 +141,11 @@ class OpenStackServerSourceBase:
     def _process_route(
         self, route, openapi_spec, ver_prefix=None, framework=None
     ):
-        if "controller" not in route.defaults:
+        # Placement exposes "action" as controller in route defaults, all others - "controller"
+        if not ("controller" in route.defaults or "action" in route.defaults):
+            return
+        if "action" in route.defaults and "_methods" in route.defaults:
+            # placement 405 handler
             return
         # Path can be "/servers/{id}", but can be
         # "/volumes/:volume_id/types/:(id)" - process
@@ -154,6 +158,10 @@ class OpenStackServerSourceBase:
             else:
                 path += part
 
+        if path == "":
+            # placement has "" path - see weird explanation in the placement source code
+            return
+
         # if "method" not in route.conditions:
         #    raise RuntimeError("Method not set for %s", route)
         method = (
@@ -162,8 +170,8 @@ class OpenStackServerSourceBase:
             else "GET"
         )
 
-        controller = route.defaults["controller"]
-        action = route.defaults["action"]
+        controller = route.defaults.get("controller")
+        action = route.defaults.get("action")
         logging.info(
             "Path: %s; method: %s; operation: %s", path, method, action
         )
@@ -189,6 +197,12 @@ class OpenStackServerSourceBase:
             # Pecan base app
             framework = "pecan"
             contr = controller
+        elif not controller and action and hasattr(action, "func"):
+            # Placement base app
+            framework = "placement"
+            controller = action
+            contr = action
+            action = None
         else:
             raise RuntimeError("Unsupported controller %s" % controller)
         # logging.debug("Actions: %s, Versioned methods: %s", actions, versioned_methods)
@@ -286,7 +300,7 @@ class OpenStackServerSourceBase:
                     start_version=start_version,
                     end_version=end_version,
                 )
-        elif hasattr(contr, action):
+        elif action and hasattr(contr, action):
             # Normal REST operation without version bounds
             func = getattr(contr, action)
 
@@ -458,6 +472,32 @@ class OpenStackServerSourceBase:
                 path_resource_names,
                 controller=controller,
                 operation_name=action,
+                method=method,
+                path=path,
+            )
+
+        elif framework == "placement":
+            if callable(controller.func):
+                func = controller.func
+            # Get the path/op spec only when we have
+            # something to fill in
+            path_spec = openapi_spec.paths.setdefault(
+                path, PathSchema(parameters=path_params)
+            )
+            operation_spec = getattr(path_spec, method.lower())
+            if not operation_spec.operationId:
+                operation_spec.operationId = operation_id
+            if operation_tags:
+                operation_spec.tags.extend(operation_tags)
+                operation_spec.tags = list(set(operation_spec.tags))
+
+            self.process_operation(
+                func,
+                openapi_spec,
+                operation_spec,
+                path_resource_names,
+                controller=controller,
+                operation_name=func.__name__,
                 method=method,
                 path=path,
             )
