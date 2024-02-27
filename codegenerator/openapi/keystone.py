@@ -800,57 +800,6 @@ class KeystoneGenerator(OpenStackServerSourceBase):
                 name, TypeSchema(**auth.AUTH_CATALOG_SCHEMA)
             )
             ref = f"#/components/schemas/{name}"
-        # ### Application Credentials
-        elif name == "UsersAccess_RuleGetResponse":
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(
-                    **application_credential.APPLICATION_CREDENTIAL_ACCESS_RULE_SCHEMA
-                ),
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "UsersAccess_RulesGetResponse":
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(
-                    **application_credential.APPLICATION_CREDENTIAL_ACCESS_RULES_SCHEMA
-                ),
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "UsersApplication_CredentialsGetResponse":
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(
-                    **application_credential.APPLICATION_CREDENTIALS_SCHEMA
-                ),
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name in [
-            "UsersApplication_CredentialGetResponse",
-        ]:
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(
-                    **application_credential.APPLICATION_CREDENTIAL_CONTAINER_SCHEMA
-                ),
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "UsersApplication_CredentialsPostRequest":
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(
-                    **application_credential.APPLICATION_CREDENTIAL_CREATE_SCHEMA
-                ),
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name in "UsersApplication_CredentialsPostResponse":
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(
-                    **application_credential.APPLICATION_CREDENTIAL_CREATE_RESPONSE_SCHEMA
-                ),
-            )
-            ref = f"#/components/schemas/{name}"
         # ### Services
         elif name == "ServicesGetResponse":
             openapi_spec.components.schemas.setdefault(
