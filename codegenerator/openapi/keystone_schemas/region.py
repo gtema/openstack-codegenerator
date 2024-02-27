@@ -12,6 +12,8 @@
 #
 from typing import Any
 
+from codegenerator.common.schema import TypeSchema
+from codegenerator.common.schema import ParameterSchema
 
 REGION_SCHEMA: dict[str, Any] = {
     "type": "object",
@@ -23,12 +25,12 @@ REGION_SCHEMA: dict[str, Any] = {
         "id": {
             "type": "string",
             "format": "uuid",
-            "description": "The ID for the region.",
+            "description": "The ID for the ",
         },
         "parent_id": {
             "type": "string",
             "format": "uuid",
-            "description": "To make this region a child of another region, set this parameter to the ID of the parent region.",
+            "description": "To make this region a child of another region, set this parameter to the ID of the parent ",
         },
     },
 }
@@ -51,3 +53,56 @@ REGIONS_LIST_PARAMETERS = {
         "schema": {"type": "string", "format": "uuid"},
     },
 }
+
+
+def _post_process_operation_hook(
+    openapi_spec, operation_spec, path: str | None = None
+):
+    """Hook to allow service specific generator to modify details"""
+    operationId = operation_spec.operationId
+    if operationId == "regions:get":
+        for (
+            key,
+            val,
+        ) in REGIONS_LIST_PARAMETERS.items():
+            openapi_spec.components.parameters.setdefault(
+                key, ParameterSchema(**val)
+            )
+            ref = f"#/components/parameters/{key}"
+            if ref not in [x.ref for x in operation_spec.parameters]:
+                operation_spec.parameters.append(ParameterSchema(ref=ref))
+
+
+def _get_schema_ref(
+    openapi_spec,
+    name,
+    description=None,
+    schema_def=None,
+    action_name=None,
+) -> tuple[str | None, str | None, bool]:
+    mime_type: str = "application/json"
+    ref: str
+    # ### Regions
+    if name == "RegionsGetResponse":
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**REGIONS_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name in [
+        "RegionGetResponse",
+        "RegionsPostRequest",
+        "RegionsPostResponse",
+        "RegionPatchRequest",
+        "RegionPatchResponse",
+    ]:
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**REGION_CONTAINER_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+
+    else:
+        return (None, None, False)
+
+    return (ref, mime_type, True)
