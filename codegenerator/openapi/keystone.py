@@ -469,18 +469,6 @@ class KeystoneGenerator(OpenStackServerSourceBase):
                 if ref not in [x.ref for x in operation_spec.parameters]:
                     operation_spec.parameters.append(ParameterSchema(ref=ref))
 
-        elif operationId == "services:get":
-            for (
-                key,
-                val,
-            ) in service.SERVICES_LIST_PARAMETERS.items():
-                openapi_spec.components.parameters.setdefault(
-                    key, ParameterSchema(**val)
-                )
-                ref = f"#/components/parameters/{key}"
-                if ref not in [x.ref for x in operation_spec.parameters]:
-                    operation_spec.parameters.append(ParameterSchema(ref=ref))
-
         elif operationId == "regions:get":
             for (
                 key,
@@ -604,35 +592,6 @@ class KeystoneGenerator(OpenStackServerSourceBase):
             )
             ref = f"#/components/schemas/{name}"
 
-        # ### Services
-        elif name == "ServicesGetResponse":
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**service.SERVICES_SCHEMA),
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name in [
-            "ServiceGetResponse",
-            "ServicesPostResponse",
-            "ServicePatchResponse",
-        ]:
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**service.SERVICE_CONTAINER_SCHEMA),
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "ServicesPostRequest":
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**service.SERVICE_CREATE_SCHEMA),
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "ServicePatchRequest":
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**service.SERVICE_UPDATE_SCHEMA),
-            )
-            ref = f"#/components/schemas/{name}"
         # ### Regions
         elif name == "RegionsGetResponse":
             openapi_spec.components.schemas.setdefault(
