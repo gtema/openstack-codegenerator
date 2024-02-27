@@ -469,29 +469,6 @@ class KeystoneGenerator(OpenStackServerSourceBase):
                 if ref not in [x.ref for x in operation_spec.parameters]:
                     operation_spec.parameters.append(ParameterSchema(ref=ref))
 
-        elif operationId == "users:get":
-            for key, val in user.USER_LIST_PARAMETERS.items():
-                openapi_spec.components.parameters.setdefault(
-                    key, ParameterSchema(**val)
-                )
-                ref = f"#/components/parameters/{key}"
-                if ref not in [x.ref for x in operation_spec.parameters]:
-                    operation_spec.parameters.append(ParameterSchema(ref=ref))
-
-        elif operationId == "users/user_id/application_credentials:get":
-            for (
-                key,
-                val,
-            ) in (
-                application_credential.APPLICATION_CREDENTIALS_LIST_PARAMETERS.items()
-            ):
-                openapi_spec.components.parameters.setdefault(
-                    key, ParameterSchema(**val)
-                )
-                ref = f"#/components/parameters/{key}"
-                if ref not in [x.ref for x in operation_spec.parameters]:
-                    operation_spec.parameters.append(ParameterSchema(ref=ref))
-
         elif operationId == "services:get":
             for (
                 key,
@@ -609,49 +586,6 @@ class KeystoneGenerator(OpenStackServerSourceBase):
         elif name == "ProjectsTagsPutResponse":
             openapi_spec.components.schemas.setdefault(
                 name, TypeSchema(**common.TAGS_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-
-        # Users
-        elif name == "UserPatchRequest":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**user.USER_PATCH_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "UsersPostRequest":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**user.USER_CREATE_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "UserPatchResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**user.USER_CONTAINER_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "UsersGetResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**user.USERS_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "UserGetResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**user.USER_CONTAINER_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "UsersPasswordPostRequest":
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**user.USER_PWD_CHANGE_SCHEMA),
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "UsersGroupsGetResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**user.USER_GROUPS_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "UsersProjectsGetResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**user.USER_PROJECTS_SCHEMA)
             )
             ref = f"#/components/schemas/{name}"
 
