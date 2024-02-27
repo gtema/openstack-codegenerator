@@ -17,7 +17,6 @@ from pathlib import Path
 
 from ruamel.yaml.scalarstring import LiteralScalarString
 
-from keystone.assignment import schema as assignment_schema
 from keystone.identity import schema as identity_schema
 from keystone.resource import schema as ks_schema
 
@@ -629,28 +628,6 @@ class KeystoneGenerator(OpenStackServerSourceBase):
             )
             ref = f"#/components/schemas/{name}"
 
-        # Project/Domain Roles
-        elif name == "ProjectsUsersRolesGetResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**role.ROLES_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "ProjectsGroupsRolesGetResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**role.ROLES_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "DomainsUsersRolesGetResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**role.ROLES_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "DomainsGroupsRolesGetResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**role.ROLES_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-
         # Domains
         elif name == "DomainsPostRequest":
             openapi_spec.components.schemas.setdefault(
@@ -750,56 +727,6 @@ class KeystoneGenerator(OpenStackServerSourceBase):
         elif name == "GroupGetResponse":
             openapi_spec.components.schemas.setdefault(
                 name, TypeSchema(**group.GROUP_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-
-        # Roles
-        elif name == "RolesGetResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**role.ROLES_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "RolesPostRequest":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**assignment_schema.role_create)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "RolesPostResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**role.ROLE_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "RoleGetResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**role.ROLE_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "RolePatchRequest":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**assignment_schema.role_update)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "RolePatchResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**role.ROLE_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-
-        # Role Implies
-        elif name == "RolesImpliesGetResponse":
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**role.ROLES_INFERENCE_SCHEMA),
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "RolesImplyGetResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**role.ROLE_INFERENCE_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "RolesImplyPutResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**role.ROLE_INFERENCE_SCHEMA)
             )
             ref = f"#/components/schemas/{name}"
 
