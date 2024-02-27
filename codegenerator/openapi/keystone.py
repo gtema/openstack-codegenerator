@@ -18,7 +18,6 @@ from pathlib import Path
 from ruamel.yaml.scalarstring import LiteralScalarString
 
 from keystone.identity import schema as identity_schema
-from keystone.resource import schema as ks_schema
 
 from codegenerator.common.schema import ParameterSchema
 from codegenerator.common.schema import PathSchema
@@ -455,32 +454,6 @@ class KeystoneGenerator(OpenStackServerSourceBase):
         self, openapi_spec, operation_spec, path: str | None = None
     ):
         """Hook to allow service specific generator to modify details"""
-        operationId = operation_spec.operationId
-
-        if operationId == "projects:get":
-            for (
-                key,
-                val,
-            ) in project.PROJECT_LIST_PARAMETERS.items():
-                openapi_spec.components.parameters.setdefault(
-                    key, ParameterSchema(**val)
-                )
-                ref = f"#/components/parameters/{key}"
-                if ref not in [x.ref for x in operation_spec.parameters]:
-                    operation_spec.parameters.append(ParameterSchema(ref=ref))
-
-        elif operationId == "regions:get":
-            for (
-                key,
-                val,
-            ) in region.REGIONS_LIST_PARAMETERS.items():
-                openapi_spec.components.parameters.setdefault(
-                    key, ParameterSchema(**val)
-                )
-                ref = f"#/components/parameters/{key}"
-                if ref not in [x.ref for x in operation_spec.parameters]:
-                    operation_spec.parameters.append(ParameterSchema(ref=ref))
-
         for resource_mod in self.RESOURCE_MODULES:
             hook = getattr(resource_mod, "_post_process_operation_hook", None)
             if hook:
@@ -506,67 +479,8 @@ class KeystoneGenerator(OpenStackServerSourceBase):
 
         mime_type = "application/json"
 
-        # Projects
-        if name == "ProjectsPostRequest":
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**project.PROJECT_CREATE_REQUEST_SCHEMA),
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "ProjectsPostResponse":
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**project.PROJECT_CONTAINER_SCHEMA),
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "ProjectPatchRequest":
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**project.PROJECT_UPDATE_REQUEST_SCHEMA),
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "ProjectPatchResponse":
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**project.PROJECT_CONTAINER_SCHEMA),
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "ProjectsGetResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**project.PROJECTS_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "ProjectGetResponse":
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**project.PROJECT_CONTAINER_SCHEMA),
-            )
-            ref = f"#/components/schemas/{name}"
-
-        # Project Tags
-        elif name == "ProjectsTagPutRequest":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**ks_schema.project_tag_create)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "ProjectsTagsPutRequest":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**ks_schema.project_tags_update)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "ProjectsTagsGetResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**common.TAGS_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "ProjectsTagsPutResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**common.TAGS_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-
         # Groups
-        elif name == "GroupPatchRequest":
+        if name == "GroupPatchRequest":
             openapi_spec.components.schemas.setdefault(
                 name, TypeSchema(**identity_schema.user_update)
             )
@@ -592,25 +506,6 @@ class KeystoneGenerator(OpenStackServerSourceBase):
             )
             ref = f"#/components/schemas/{name}"
 
-        # ### Regions
-        elif name == "RegionsGetResponse":
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**region.REGIONS_SCHEMA),
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name in [
-            "RegionGetResponse",
-            "RegionsPostRequest",
-            "RegionsPostResponse",
-            "RegionPatchRequest",
-            "RegionPatchResponse",
-        ]:
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**region.REGION_CONTAINER_SCHEMA),
-            )
-            ref = f"#/components/schemas/{name}"
         # Default
         else:
             (ref, mime_type) = super()._get_schema_ref(
