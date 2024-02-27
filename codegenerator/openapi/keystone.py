@@ -612,38 +612,6 @@ class KeystoneGenerator(OpenStackServerSourceBase):
             )
             ref = f"#/components/schemas/{name}"
 
-        # Domains
-        elif name == "DomainsPostRequest":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**ks_schema.domain_create)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "DomainsPostResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**domain.DOMAIN_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "DomainPatchRequest":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**ks_schema.domain_update)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "DomainPatchResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**domain.DOMAIN_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "DomainsGetResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**domain.DOMAINS_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name == "DomainGetResponse":
-            openapi_spec.components.schemas.setdefault(
-                name, TypeSchema(**domain.DOMAIN_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-
         # Users
         elif name == "UserPatchRequest":
             openapi_spec.components.schemas.setdefault(
@@ -711,34 +679,6 @@ class KeystoneGenerator(OpenStackServerSourceBase):
         elif name == "GroupGetResponse":
             openapi_spec.components.schemas.setdefault(
                 name, TypeSchema(**group.GROUP_SCHEMA)
-            )
-            ref = f"#/components/schemas/{name}"
-
-        # Domain Config
-        elif name in [
-            "DomainsConfigDefaultGetResponse",
-            "DomainsConfigPutRequest",
-            "DomainsConfigPutResponse",
-            "DomainsConfigPatchResponse",
-            "DomainsConfigPatchResponse",
-            "DomainsConfigDefaultGetResponse",
-        ]:
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**domain.DOMAIN_CONFIGS_SCHEMA),
-            )
-            ref = f"#/components/schemas/{name}"
-        elif name in [
-            "DomainsConfigGroupGetResponse",
-            "DomainsConfigGroupPatchRequest",
-            "DomainsConfigGroupPatchResponse",
-            "DomainsConfigGroupPatchResponse",
-            "DomainsConfigGroupPatchResponse",
-            "DomainsConfigDefaultGroupGetResponse",
-        ]:
-            openapi_spec.components.schemas.setdefault(
-                name,
-                TypeSchema(**domain.DOMAIN_CONFIG_SCHEMA),
             )
             ref = f"#/components/schemas/{name}"
 
