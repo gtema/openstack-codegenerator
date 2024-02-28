@@ -17,6 +17,10 @@ from jsonref import replace_refs
 from keystone.federation import schema as federation_schema
 from keystone.federation import utils as federation_mapping_schema
 
+from codegenerator.common.schema import ParameterSchema
+from codegenerator.common.schema import TypeSchema
+from codegenerator.openapi.keystone_schemas import auth
+
 
 IDENTITY_PROVIDER_SCHEMA: dict[str, Any] = {
     "type": "object",
@@ -221,3 +225,223 @@ FEDERATION_SERVICE_PROVIDER_UPDATE_SCHEMA: dict[str, Any] = {
         "service_provider": federation_schema.service_provider_update
     },
 }
+
+
+def _post_process_operation_hook(
+    openapi_spec, operation_spec, path: str | None = None
+):
+    """Hook to allow service specific generator to modify details"""
+    operationId = operation_spec.operationId
+    if operationId == "OS-FEDERATION/identity_providers:get":
+        for (
+            key,
+            val,
+        ) in IDENTITY_PROVIDERS_LIST_PARAMETERS.items():
+            openapi_spec.components.parameters.setdefault(
+                key, ParameterSchema(**val)
+            )
+            ref = f"#/components/parameters/{key}"
+            if ref not in [x.ref for x in operation_spec.parameters]:
+                operation_spec.parameters.append(ParameterSchema(ref=ref))
+    elif operationId in [
+        "OS-FEDERATION/projects:get",
+        "OS-FEDERATION/projects:head",
+        "OS-FEDERATION/domains:get",
+        "OS-FEDERATION/domains:head",
+        "endpoints/endpoint_id/OS-ENDPOINT-POLICY/policy:get",
+    ]:
+        operation_spec.deprecated = True
+
+
+def _get_schema_ref(
+    openapi_spec,
+    name,
+    description=None,
+    schema_def=None,
+    action_name=None,
+) -> tuple[str | None, str | None, bool]:
+    mime_type: str = "application/json"
+    ref: str | None
+    if name == "Os_FederationProjectsGetResponse":
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**auth.AUTH_PROJECTS_SCHEMA)
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name in [
+        "Os_FederationDomainsGetResponse",
+    ]:
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**auth.AUTH_DOMAINS_SCHEMA)
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name in [
+        "AuthOs_FederationSaml2PostRequest",
+        "AuthOs_FederationSaml2EcpPostRequest",
+    ]:
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**auth.AUTH_TOKEN_ISSUE_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name in [
+        "AuthOs_FederationSaml2PostResponse",
+        "AuthOs_FederationSaml2EcpPostResponse",
+    ]:
+        mime_type = "text/xml"
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(
+                type="string",
+                format="xml",
+                descripion="SAML assertion in XML format",
+            ),
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name in [
+        "AuthOs_FederationWebssoGetResponse",
+        "AuthOs_FederationWebssoPostResponse",
+        "AuthOs_FederationIdentity_ProvidersProtocolsWebssoGetResponse",
+        "AuthOs_FederationIdentity_ProvidersProtocolsWebssoPostResponse",
+        "Os_FederationIdentity_ProvidersProtocolsAuthGetResponse",
+        "Os_FederationIdentity_ProvidersProtocolsAuthPostResponse",
+    ]:
+        # Federation based auth returns unscoped token even it is not
+        # described explicitly in apiref
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**auth.AUTH_TOKEN_SCHEMA)
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name in [
+        "AuthOs_FederationWebssoPostRequest",
+        "AuthOs_FederationIdentity_ProvidersProtocolsWebssoPostRequest",
+    ]:
+        ref = None
+    # ### Identity provider
+    elif name == "Os_FederationIdentity_ProvidersGetResponse":
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**IDENTITY_PROVIDERS_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name in [
+        "Os_FederationIdentity_ProviderGetResponse",
+        "Os_FederationIdentity_ProviderPutResponse",
+        "Os_FederationIdentity_ProviderPatchResponse",
+    ]:
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**IDENTITY_PROVIDER_CONTAINER_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "Os_FederationIdentity_ProviderPutRequest":
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**IDENTITY_PROVIDER_CREATE_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "Os_FederationIdentity_ProviderPatchRequest":
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**IDENTITY_PROVIDER_UPDATE_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+    # ### Identity provider protocols
+    elif name == "Os_FederationIdentity_ProvidersProtocolsGetResponse":
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**IDENTITY_PROVIDER_PROTOCOLS_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name in [
+        "Os_FederationIdentity_ProvidersProtocolGetResponse",
+        "Os_FederationIdentity_ProvidersProtocolPutResponse",
+        "Os_FederationIdentity_ProvidersProtocolPatchResponse",
+    ]:
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**IDENTITY_PROVIDER_PROTOCOL_CONTAINER_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "Os_FederationIdentity_ProvidersProtocolPutRequest":
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**IDENTITY_PROVIDER_PROTOCOL_CREATE_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "Os_FederationIdentity_ProvidersProtocolPatchRequest":
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**IDENTITY_PROVIDER_PROTOCOL_UPDATE_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+    # ### Identity provider mapping
+    elif name == "Os_FederationMappingsGetResponse":
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**MAPPINGS_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name in [
+        "Os_FederationMappingGetResponse",
+        "Os_FederationMappingPutResponse",
+        "Os_FederationMappingPatchResponse",
+    ]:
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**MAPPING_CONTAINER_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name in [
+        "Os_FederationMappingPutRequest",
+        "Os_FederationMappingPatchRequest",
+    ]:
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**MAPPING_CREATE_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+    # ### Identity provider service provider
+    elif name == "Os_FederationService_ProvidersGetResponse":
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**FEDERATION_SERVICE_PROVIDERS_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name in [
+        "Os_FederationService_ProviderGetResponse",
+        "Os_FederationService_ProviderPutResponse",
+        "Os_FederationService_ProviderPatchResponse",
+    ]:
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**FEDERATION_SERVICE_PROVIDER_CONTAINER_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "Os_FederationService_ProviderPutRequest":
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**FEDERATION_SERVICE_PROVIDER_CREATE_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "Os_FederationService_ProviderPatchRequest":
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**FEDERATION_SERVICE_PROVIDER_UPDATE_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+    # SAML2 Metadata
+    elif name == "Os_FederationSaml2MetadataGetResponse":
+        mime_type = "text/xml"
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(
+                type="string",
+                format="xml",
+                descripion="Identity Provider metadata information in XML format",
+            ),
+        )
+        ref = f"#/components/schemas/{name}"
+    else:
+        return (None, None, False)
+
+    return (ref, mime_type, True)

@@ -16,8 +16,7 @@ from keystone.assignment import schema as assignment_schema
 
 from codegenerator.common.schema import ParameterSchema
 from codegenerator.common.schema import TypeSchema
-
-from . import auth
+from codegenerator.openapi.keystone_schemas import auth
 
 ROLE_SCHEMA: dict[str, Any] = {
     "type": "object",
@@ -270,17 +269,17 @@ def _get_schema_ref(
             name, TypeSchema(**ROLES_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
+    elif name == "RoleGetResponse":
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**ROLE_SCHEMA)
+        )
+        ref = f"#/components/schemas/{name}"
     elif name == "RolesPostRequest":
         openapi_spec.components.schemas.setdefault(
             name, TypeSchema(**assignment_schema.role_create)
         )
         ref = f"#/components/schemas/{name}"
     elif name == "RolesPostResponse":
-        openapi_spec.components.schemas.setdefault(
-            name, TypeSchema(**ROLE_SCHEMA)
-        )
-        ref = f"#/components/schemas/{name}"
-    elif name == "RoleGetResponse":
         openapi_spec.components.schemas.setdefault(
             name, TypeSchema(**ROLE_SCHEMA)
         )
@@ -313,11 +312,35 @@ def _get_schema_ref(
             name, TypeSchema(**ROLE_INFERENCE_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
+
     elif name == "Role_AssignmentsGetResponse":
         openapi_spec.components.schemas.setdefault(
             name, TypeSchema(**ROLE_ASSIGNMENTS_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
+
+    # Project/Domain Roles
+    elif name == "ProjectsUsersRolesGetResponse":
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**ROLES_SCHEMA)
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "ProjectsGroupsRolesGetResponse":
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**ROLES_SCHEMA)
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "DomainsUsersRolesGetResponse":
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**ROLES_SCHEMA)
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "DomainsGroupsRolesGetResponse":
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**ROLES_SCHEMA)
+        )
+        ref = f"#/components/schemas/{name}"
+
     else:
         return (None, None, False)
 

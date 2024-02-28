@@ -14,6 +14,9 @@ from typing import Any
 
 from keystone.identity import schema as identity_schema
 
+from codegenerator.common.schema import TypeSchema
+
+
 GROUP_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
@@ -26,3 +29,45 @@ GROUPS_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {"groups": {"type": "array", "items": GROUP_SCHEMA}},
 }
+
+
+def _get_schema_ref(
+    openapi_spec,
+    name,
+    description=None,
+    schema_def=None,
+    action_name=None,
+) -> tuple[str | None, str | None, bool]:
+    mime_type: str = "application/json"
+    ref: str
+    # Groups
+    if name == "GroupPatchRequest":
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**identity_schema.user_update)
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "GroupsPostRequest":
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**identity_schema.user_create)
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "GroupPatchResponse":
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**GROUP_SCHEMA)
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "GroupsGetResponse":
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**GROUPS_SCHEMA)
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "GroupGetResponse":
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**GROUP_SCHEMA)
+        )
+        ref = f"#/components/schemas/{name}"
+
+    else:
+        return (None, None, False)
+
+    return (ref, mime_type, True)

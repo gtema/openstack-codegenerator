@@ -18,7 +18,9 @@ from keystone.application_credential import (
     schema as application_credential_schema,
 )
 
-from . import common
+from codegenerator.common.schema import TypeSchema
+from codegenerator.common.schema import ParameterSchema
+from codegenerator.openapi.keystone_schemas import common
 
 # Application Credentials
 APPLICATION_CREDENTIAL_ACCESS_RULES_SCHEMA: dict[str, Any] = {
@@ -106,3 +108,76 @@ APPLICATION_CREDENTIALS_LIST_PARAMETERS = {
         "schema": {"type": "string"},
     },
 }
+
+
+def _post_process_operation_hook(
+    openapi_spec, operation_spec, path: str | None = None
+):
+    """Hook to allow service specific generator to modify details"""
+    operationId = operation_spec.operationId
+    if operationId == "users/user_id/application_credentials:get":
+        for (
+            key,
+            val,
+        ) in APPLICATION_CREDENTIALS_LIST_PARAMETERS.items():
+            openapi_spec.components.parameters.setdefault(
+                key, ParameterSchema(**val)
+            )
+            ref = f"#/components/parameters/{key}"
+            if ref not in [x.ref for x in operation_spec.parameters]:
+                operation_spec.parameters.append(ParameterSchema(ref=ref))
+
+
+def _get_schema_ref(
+    openapi_spec,
+    name,
+    description=None,
+    schema_def=None,
+    action_name=None,
+) -> tuple[str | None, str | None, bool]:
+    mime_type: str = "application/json"
+    ref: str
+    # ### Application Credentials
+    if name == "UsersAccess_RuleGetResponse":
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**APPLICATION_CREDENTIAL_ACCESS_RULE_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "UsersAccess_RulesGetResponse":
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**APPLICATION_CREDENTIAL_ACCESS_RULES_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "UsersApplication_CredentialsGetResponse":
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**APPLICATION_CREDENTIALS_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name in [
+        "UsersApplication_CredentialGetResponse",
+    ]:
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**APPLICATION_CREDENTIAL_CONTAINER_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "UsersApplication_CredentialsPostRequest":
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**APPLICATION_CREDENTIAL_CREATE_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name in "UsersApplication_CredentialsPostResponse":
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**APPLICATION_CREDENTIAL_CREATE_RESPONSE_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+
+    else:
+        return (None, None, False)
+
+    return (ref, mime_type, True)

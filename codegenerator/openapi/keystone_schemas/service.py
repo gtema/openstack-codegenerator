@@ -14,6 +14,10 @@ import copy
 
 from typing import Any
 
+from codegenerator.common.schema import TypeSchema
+from codegenerator.common.schema import ParameterSchema
+
+
 SERVICE_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
@@ -36,7 +40,7 @@ SERVICE_SCHEMA: dict[str, Any] = {
         },
         "type": {
             "type": "string",
-            "description": "The service type, which describes the API implemented by the service.",
+            "description": "The service type, which describes the API implemented by the ",
         },
     },
 }
@@ -66,3 +70,66 @@ SERVICES_LIST_PARAMETERS = {
         "schema": {"type": "string"},
     },
 }
+
+
+def _post_process_operation_hook(
+    openapi_spec, operation_spec, path: str | None = None
+):
+    """Hook to allow service specific generator to modify details"""
+    operationId = operation_spec.operationId
+    if operationId == "services:get":
+        for (
+            key,
+            val,
+        ) in SERVICES_LIST_PARAMETERS.items():
+            openapi_spec.components.parameters.setdefault(
+                key, ParameterSchema(**val)
+            )
+            ref = f"#/components/parameters/{key}"
+            if ref not in [x.ref for x in operation_spec.parameters]:
+                operation_spec.parameters.append(ParameterSchema(ref=ref))
+
+
+def _get_schema_ref(
+    openapi_spec,
+    name,
+    description=None,
+    schema_def=None,
+    action_name=None,
+) -> tuple[str | None, str | None, bool]:
+    mime_type: str = "application/json"
+    ref: str
+    # ### Services
+    if name == "ServicesGetResponse":
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**SERVICES_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name in [
+        "ServiceGetResponse",
+        "ServicesPostResponse",
+        "ServicePatchResponse",
+    ]:
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**SERVICE_CONTAINER_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "ServicesPostRequest":
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**SERVICE_CREATE_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "ServicePatchRequest":
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**SERVICE_UPDATE_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+
+    else:
+        return (None, None, False)
+
+    return (ref, mime_type, True)

@@ -14,7 +14,11 @@ from typing import Any
 
 from keystone.identity import schema as identity_schema
 
-USER_LIST_PARAMETERS = {
+from codegenerator.common.schema import ParameterSchema
+from codegenerator.common.schema import TypeSchema
+
+
+USER_LIST_PARAMETERS: dict[str, Any] = {
     "domain_id": {
         "in": "query",
         "name": "domain_id",
@@ -182,3 +186,77 @@ USER_PROJECTS_SCHEMA: dict[str, Any] = {
         }
     },
 }
+
+
+def _post_process_operation_hook(
+    openapi_spec, operation_spec, path: str | None = None
+):
+    """Hook to allow service specific generator to modify details"""
+    operationId = operation_spec.operationId
+
+    if operationId == "users:get":
+        for key, val in USER_LIST_PARAMETERS.items():
+            openapi_spec.components.parameters.setdefault(
+                key, ParameterSchema(**val)
+            )
+            ref = f"#/components/parameters/{key}"
+            if ref not in [x.ref for x in operation_spec.parameters]:
+                operation_spec.parameters.append(ParameterSchema(ref=ref))
+
+
+def _get_schema_ref(
+    openapi_spec,
+    name,
+    description=None,
+    schema_def=None,
+    action_name=None,
+) -> tuple[str | None, str | None, bool]:
+    mime_type: str = "application/json"
+    ref: str
+    # Users
+    if name == "UserPatchRequest":
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**USER_PATCH_SCHEMA)
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "UsersPostRequest":
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**USER_CREATE_SCHEMA)
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "UserPatchResponse":
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**USER_CONTAINER_SCHEMA)
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "UsersGetResponse":
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**USERS_SCHEMA)
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "UserGetResponse":
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**USER_CONTAINER_SCHEMA)
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "UsersPasswordPostRequest":
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**USER_PWD_CHANGE_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "UsersGroupsGetResponse":
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**USER_GROUPS_SCHEMA)
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "UsersProjectsGetResponse":
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**USER_PROJECTS_SCHEMA)
+        )
+        ref = f"#/components/schemas/{name}"
+
+    else:
+        return (None, None, False)
+
+    return (ref, mime_type, True)

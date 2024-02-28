@@ -14,7 +14,8 @@ import copy
 
 from typing import Any
 
-from . import common
+from codegenerator.common.schema import TypeSchema
+from codegenerator.openapi.keystone_schemas import common
 
 
 SCOPE_SCHEMA: dict[str, Any] = {
@@ -549,3 +550,85 @@ AUTH_RECEIPT_SCHEMA: dict[str, Any] = {
         },
     },
 }
+
+
+def _post_process_operation_hook(
+    openapi_spec, operation_spec, path: str | None = None
+):
+    """Hook to allow service specific generator to modify details"""
+    operationId = operation_spec.operationId
+
+    if operationId == "auth/tokens:post":
+        (receipt_schema_ref, receipt_mime_type, matched) = _get_schema_ref(
+            openapi_spec, "AuthReceiptSchema"
+        )
+        operation_spec.responses["401"] = {
+            "description": "Unauthorized",
+            "headers": {
+                "Openstack-Auth-Receipt": {
+                    "$ref": "#/components/headers/Openstack-Auth-Receipt"
+                }
+            },
+            "content": {
+                receipt_mime_type: {"schema": {"$ref": receipt_schema_ref}}
+            },
+        }
+
+
+def _get_schema_ref(
+    openapi_spec,
+    name,
+    description=None,
+    schema_def=None,
+    action_name=None,
+) -> tuple[str | None, str | None, bool]:
+    mime_type: str = "application/json"
+    ref: str
+
+    # Auth
+    if name == "AuthTokensPostRequest":
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**AUTH_TOKEN_ISSUE_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name in ["AuthTokensGetResponse", "AuthTokensPostResponse"]:
+        openapi_spec.components.schemas.setdefault(
+            name,
+            TypeSchema(**AUTH_SCOPED_TOKEN_SCHEMA),
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "AuthReceiptSchema":
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**AUTH_RECEIPT_SCHEMA)
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name in [
+        "AuthProjectsGetResponse",
+    ]:
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**AUTH_PROJECTS_SCHEMA)
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name in [
+        "AuthDomainsGetResponse",
+    ]:
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**AUTH_DOMAINS_SCHEMA)
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "AuthSystemGetResponse":
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**AUTH_SYSTEMS_SCHEMA)
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "AuthCatalogGetResponse":
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**AUTH_CATALOG_SCHEMA)
+        )
+        ref = f"#/components/schemas/{name}"
+
+    else:
+        return (None, None, False)
+
+    return (ref, mime_type, True)
