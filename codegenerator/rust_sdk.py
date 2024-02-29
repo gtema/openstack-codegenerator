@@ -234,9 +234,9 @@ class TypeManager(common_rust.TypeManager):
         model.CommaSeparatedList: CommaSeparatedList,
     }
 
-    request_parameter_class: Type[
-        common_rust.RequestParameter
-    ] = RequestParameter
+    request_parameter_class: Type[common_rust.RequestParameter] = (
+        RequestParameter
+    )
 
     def set_parameters(self, parameters: list[model.RequestParameter]) -> None:
         """Set OpenAPI operation parameters into typemanager for conversion"""

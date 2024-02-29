@@ -204,9 +204,9 @@ class EnumGroupStructInputField(StructInputField):
 class EnumGroupStruct(common_rust.Struct):
     """Container for complex Enum containing Array"""
 
-    field_type_class_: Type[
-        common_rust.StructField
-    ] = EnumGroupStructInputField
+    field_type_class_: Type[common_rust.StructField] = (
+        EnumGroupStructInputField
+    )
     base_type: str = "struct"
     sdk_enum_name: str
     is_group: bool = True
@@ -425,9 +425,9 @@ class RequestTypeManager(common_rust.TypeManager):
         model.Set: ArrayInput,
     }
 
-    request_parameter_class: Type[
-        common_rust.RequestParameter
-    ] = RequestParameter
+    request_parameter_class: Type[common_rust.RequestParameter] = (
+        RequestParameter
+    )
     string_enum_class = StringEnum
 
     def get_local_attribute_name(self, name: str) -> str:

@@ -22,10 +22,10 @@ repos:
     hooks:
       - id: doc8
   - repo: https://github.com/psf/black
-    rev: 23.3.0
+    rev: 24.2.0
     hooks:
       - id: black
-        args: ['-S', '-l', '79']
+        args: ['-l', '79']
         exclude: '^codegenerator/templates/.*$'
   - repo: local
     hooks:
