@@ -61,32 +61,32 @@ PROJECTS_SCHEMA: dict[str, Any] = {
 }
 
 PROJECT_LIST_PARAMETERS = {
-    "domain_id": {
+    "project_domain_id": {
         "in": "query",
         "name": "domain_id",
         "description": "Filters the response by a domain ID.",
         "schema": {"type": "string", "format": "uuid"},
     },
-    "enabled": {
+    "project_enabled": {
         "in": "query",
         "name": "enabled",
         "description": "If set to true, then only enabled projects will be returned. Any value other than 0 (including no value) will be interpreted as true.",
         "schema": {"type": "boolean"},
     },
-    "is_domain": {
+    "project_is_domain": {
         "in": "query",
         "name": "is_domain",
         "description": "If this is specified as true, then only projects acting as a domain are included. Otherwise, only projects that are not acting as a domain are included.",
         "schema": {"type": "boolean"},
         "x-openstack": {"min-ver": "3.6"},
     },
-    "name": {
+    "project_name": {
         "in": "query",
         "name": "name",
         "description": "Filters the response by a resource name.",
         "schema": {"type": "string"},
     },
-    "parent_id": {
+    "project_parent_id": {
         "in": "query",
         "name": "parent_id",
         "description": "Filters the response by a parent ID.",
