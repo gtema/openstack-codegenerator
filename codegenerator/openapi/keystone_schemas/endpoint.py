@@ -36,7 +36,7 @@ ENDPOINT_SCHEMA: dict[str, Any] = {
         },
         "region": {
             "type": "string",
-            "description": "The geographic location of the service ",
+            "description": "The geographic location of the service endpoint.",
             "x-openstack": {"max-ver": "3.2"},
         },
         "region_id": {
@@ -52,7 +52,7 @@ ENDPOINT_SCHEMA: dict[str, Any] = {
         },
         "url": {
             "type": "string",
-            "format": "url",
+            "format": "uri",
             "description": "The endpoint URL.",
         },
     },
