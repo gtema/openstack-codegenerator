@@ -2294,15 +2294,17 @@ resources:
         targets:
           rust-sdk:
             module_name: head
-      get:
+      list:
         operation_id: role_inferences:get
-        operation_type: get
+        operation_type: list
         targets:
           rust-sdk:
-            module_name: get
+            module_name: list
+            response_key: role_inferences
           rust-cli:
-            module_name: get
-            sdk_mod_name: get
+            module_name: list
+            sdk_mod_name: list
+            response_key: role_inferences
   identity.role:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -2387,9 +2389,11 @@ resources:
         targets:
           rust-sdk:
             module_name: list
+            response_key: role_inference
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            response_key: role_inference
       show:
         operation_id: roles/prior_role_id/implies/implied_role_id:get
         operation_type: show

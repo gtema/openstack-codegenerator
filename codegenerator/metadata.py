@@ -702,6 +702,14 @@ def post_process_compute_operation(
 def post_process_identity_operation(
     resource_name: str, operation_name: str, operation
 ):
+    if resource_name == "role/imply":
+        if operation_name == "list":
+            operation.targets["rust-cli"].response_key = "role_inference"
+            operation.targets["rust-sdk"].response_key = "role_inference"
+    if resource_name == "role_inference":
+        if operation_name == "list":
+            operation.targets["rust-cli"].response_key = "role_inferences"
+            operation.targets["rust-sdk"].response_key = "role_inferences"
     return operation
 
 

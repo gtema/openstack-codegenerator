@@ -363,7 +363,7 @@ AUTH_CATALOG_SCHEMA: dict[str, Any] = {
                                 },
                                 "url": {
                                     "type": "string",
-                                    "format": "url",
+                                    "format": "uri",
                                     "description": "The endpoint url",
                                 },
                             },

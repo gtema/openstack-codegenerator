@@ -39,7 +39,7 @@ DOMAIN_CONFIG_GROUP_LDAP = {
     "properties": {
         "url": {
             "type": "string",
-            "format": "url",
+            "format": "uri",
             "description": "The LDAP URL.",
         },
         "user_tree_dn": {

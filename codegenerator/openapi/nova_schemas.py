@@ -25,7 +25,7 @@ LINK_SCHEMA: dict[str, Any] = {
     "type": "object",
     "description": "Links to the resources in question. See [API Guide / Links and References](https://docs.openstack.org/api-guide/compute/links_and_references.html) for more info.",
     "properties": {
-        "href": {"type": "string", "format": "url"},
+        "href": {"type": "string", "format": "uri"},
         "rel": {"type": "string"},
     },
 }
@@ -477,7 +477,7 @@ REMOTE_CONSOLE_SCHEMA: dict[str, Any] = {
                 },
                 "url": {
                     "type": "string",
-                    "format": "url",
+                    "format": "uri",
                     "description": "The URL is used to connect the console.",
                 },
             },

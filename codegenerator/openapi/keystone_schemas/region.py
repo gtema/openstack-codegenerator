@@ -25,12 +25,12 @@ REGION_SCHEMA: dict[str, Any] = {
         "id": {
             "type": "string",
             "format": "uuid",
-            "description": "The ID for the ",
+            "description": "The ID for the region.",
         },
         "parent_id": {
             "type": "string",
             "format": "uuid",
-            "description": "To make this region a child of another region, set this parameter to the ID of the parent ",
+            "description": "To make this region a child of another region, set this parameter to the ID of the parent region.",
         },
     },
 }

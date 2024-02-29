@@ -24,7 +24,7 @@ ROLE_SCHEMA: dict[str, Any] = {
         "id": {
             "type": "string",
             "format": "uuid",
-            "description": "The role ID",
+            "description": "The role ID.",
         },
         "links": {"type": "object"},
         **assignment_schema._role_properties,
@@ -37,11 +37,25 @@ ROLE_INFO_SCHEMA: dict[str, Any] = {
         "id": {
             "type": "string",
             "format": "uuid",
-            "description": "The role ID",
+            "description": "The role ID.",
         },
         "name": {
             "type": "string",
-            "description": "The role name",
+            "description": "The role name.",
+        },
+        "description": {
+            "type": "string",
+            "description": "The role description.",
+        },
+        "links": {
+            "type": "object",
+            "properties": {
+                "self": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "The link to the resource in question.",
+                }
+            },
         },
     },
 }
@@ -55,15 +69,26 @@ ROLES_SCHEMA: dict[str, Any] = {
     },
 }
 
+# Role list specific query parameters
+ROLE_LIST_PARAMETERS: dict[str, Any] = {
+    "role_domain_id": {
+        "in": "query",
+        "name": "domain_id",
+        "description": "Filters the response by a domain ID.",
+        "schema": {"type": "string", "format": "uuid"},
+    },
+}
+
 
 ROLE_INFERENCE_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "role_inference": {
+            "type": "object",
             "properties": {
-                "prior_role": ROLE_SCHEMA,
-                "implies": ROLE_SCHEMA,
-            }
+                "prior_role": ROLE_INFO_SCHEMA,
+                "implies": ROLE_INFO_SCHEMA,
+            },
         }
     },
 }
@@ -72,13 +97,33 @@ ROLES_INFERENCE_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "role_inference": {
+            "type": "object",
             "properties": {
-                "prior_role": ROLE_SCHEMA,
+                "prior_role": ROLE_INFO_SCHEMA,
                 "implies": {
                     "type": "array",
-                    "items": ROLE_SCHEMA,
+                    "items": ROLE_INFO_SCHEMA,
                 },
-            }
+            },
+        }
+    },
+}
+
+ROLES_INFERENCES_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "role_inferences": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "prior_role": ROLE_INFO_SCHEMA,
+                    "implies": {
+                        "type": "array",
+                        "items": ROLE_INFO_SCHEMA,
+                    },
+                },
+            },
         }
     },
 }
@@ -130,12 +175,12 @@ ROLE_ASSIGNMENT_SCHEMA: dict[str, Any] = {
             "properties": {
                 "assignment": {
                     "type": "string",
-                    "format": "url",
+                    "format": "uri",
                     "description": "a link to the assignment that gave rise to this entity",
                 },
                 "membership": {
                     "type": "string",
-                    "format": "url",
+                    "format": "uri",
                 },
             },
         },
@@ -224,7 +269,19 @@ def _post_process_operation_hook(
     """Hook to allow service specific generator to modify details"""
     operationId = operation_spec.operationId
 
-    if operationId == "role_assignments:get":
+    if operationId == "roles:get":
+        for (
+            key,
+            val,
+        ) in ROLE_LIST_PARAMETERS.items():
+            openapi_spec.components.parameters.setdefault(
+                key, ParameterSchema(**val)
+            )
+            ref = f"#/components/parameters/{key}"
+
+            if ref not in [x.ref for x in operation_spec.parameters]:
+                operation_spec.parameters.append(ParameterSchema(ref=ref))
+    elif operationId == "role_assignments:get":
         for map in [
             ROLE_ASSIGNMENTS_QUERY_PARAMETERS,
             ROLE_ASSIGNMENT_LIST_PARAMETERS,
@@ -240,7 +297,7 @@ def _post_process_operation_hook(
 
                 if ref not in [x.ref for x in operation_spec.parameters]:
                     operation_spec.parameters.append(ParameterSchema(ref=ref))
-    if operationId == "role_assignments:head":
+    elif operationId == "role_assignments:head":
         for (
             key,
             val,
@@ -316,6 +373,12 @@ def _get_schema_ref(
     elif name == "Role_AssignmentsGetResponse":
         openapi_spec.components.schemas.setdefault(
             name, TypeSchema(**ROLE_ASSIGNMENTS_SCHEMA)
+        )
+        ref = f"#/components/schemas/{name}"
+    # Role Inferences
+    elif name == "Role_InferencesGetResponse":
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**ROLES_INFERENCES_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
 
