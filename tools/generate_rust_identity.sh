@@ -4,16 +4,17 @@ WRK_DIR=wrk
 METADATA=metadata
 DST=~/workspace/github/gtema/openstack
 NET_RESOURCES=(
-  "project"
   "auth"
-  "user"
+  "group"
   "os_federation"
-  "service"
   "endpoint"
   "region"
   "role_assignment"
   "role_inference"
   "role"
+  "service"
+  "project"
+  "user"
 )
 
 openstack-codegenerator --work-dir ${WRK_DIR} --target rust-sdk --metadata ${METADATA}/identity_metadata.yaml --service identity
