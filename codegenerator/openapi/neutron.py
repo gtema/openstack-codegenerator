@@ -539,9 +539,9 @@ class NeutronGenerator(OpenStackServerSourceBase):
                     )
                 # We can only assume the param type. For path it is logically a string only
                 path_param.type_schema = TypeSchema(type="string")
-                openapi_spec.components.parameters[
-                    global_param_name
-                ] = path_param
+                openapi_spec.components.parameters[global_param_name] = (
+                    path_param
+                )
             else:
                 path_resource_names.append(path_element.replace("-", "_"))
 

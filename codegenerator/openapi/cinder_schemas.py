@@ -518,9 +518,9 @@ VOLUME_TYPE_EXTRA_SPECS_SCHEMA: dict[str, Any] = {
     },
 }
 
-VOLUME_TYPE_EXTRA_SPEC_SCHEMA: dict[
-    str, Any
-] = parameter_types.extra_specs_with_no_spaces_key
+VOLUME_TYPE_EXTRA_SPEC_SCHEMA: dict[str, Any] = (
+    parameter_types.extra_specs_with_no_spaces_key
+)
 
 VOLUME_TYPE_ACCESS_SCHEMA: dict[str, Any] = {
     "type": "object",

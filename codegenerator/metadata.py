@@ -379,12 +379,12 @@ class MetadataGenerator(BaseGenerator):
                                     )
                                     op_model.operation_type = "action"
 
-                                    op_model.targets[
-                                        "rust-sdk"
-                                    ] = rust_sdk_params
-                                    op_model.targets[
-                                        "rust-cli"
-                                    ] = rust_cli_params
+                                    op_model.targets["rust-sdk"] = (
+                                        rust_sdk_params
+                                    )
+                                    op_model.targets["rust-cli"] = (
+                                        rust_cli_params
+                                    )
 
                                     op_model = post_process_operation(
                                         args.service_type,

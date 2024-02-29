@@ -574,9 +574,9 @@ class OpenStackServerSourceBase:
                 )
                 < (self._api_ver(start_version))
             ):
-                operation_spec.openstack[
-                    "min-ver"
-                ] = start_version.get_string()
+                operation_spec.openstack["min-ver"] = (
+                    start_version.get_string()
+                )
 
         if mode != "action" and end_version:
             if end_version.ver_major == 0:
@@ -599,9 +599,9 @@ class OpenStackServerSourceBase:
                     )
                     > self._api_ver(end_version)
                 ):
-                    operation_spec.openstack[
-                        "max-ver"
-                    ] = end_version.get_string()
+                    operation_spec.openstack["max-ver"] = (
+                        end_version.get_string()
+                    )
 
         action_name = getattr(func, "wsgi_action", None)
         if action_name:
@@ -982,9 +982,9 @@ class OpenStackServerSourceBase:
         elif schema_ref:
             js_content = op_body.setdefault(mime_type, {})
             body_schema = js_content.setdefault("schema", {})
-            operation_spec.requestBody["content"][mime_type][
-                "schema"
-            ] = TypeSchema(ref=schema_ref)
+            operation_spec.requestBody["content"][mime_type]["schema"] = (
+                TypeSchema(ref=schema_ref)
+            )
 
     def _sanitize_schema(
         self, schema, *, start_version=None, end_version=None
