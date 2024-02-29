@@ -14,21 +14,71 @@ from typing import Any
 
 from keystone.identity import schema as identity_schema
 
+from codegenerator.common.schema import ParameterSchema
 from codegenerator.common.schema import TypeSchema
+from codegenerator.openapi.keystone_schemas import user
 
 
 GROUP_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
-        "id": {"type": "string", "format": "uuid"},
+        "id": {"type": "string", "format": "uuid", "readOnly": True},
         **identity_schema._group_properties,
     },
+}
+
+GROUP_CONTAINER_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {"group": GROUP_SCHEMA},
 }
 
 GROUPS_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {"groups": {"type": "array", "items": GROUP_SCHEMA}},
 }
+
+GROUPS_LIST_PARAMETERS: dict[str, Any] = {
+    "group_domain_id": {
+        "in": "query",
+        "name": "domain_id",
+        "description": "Filters the response by a domain ID.",
+        "schema": {"type": "string", "format": "uuid"},
+    },
+}
+
+GROUP_USERS_LIST_PARAMETERS: dict[str, Any] = {
+    "group_user_password_expires_at": {
+        "in": "query",
+        "name": "password_expires_at",
+        "description": "Filter results based on which user passwords have expired. The query should include an operator and a timestamp with a colon (:) separating the two, for example: `password_expires_at={operator}:{timestamp}`.\nValid operators are: `lt`, `lte`, `gt`, `gte`, `eq`, and `neq`.\nValid timestamps are of the form: YYYY-MM-DDTHH:mm:ssZ.",
+        "schema": {"type": "string", "format": "date-time"},
+    },
+}
+
+
+def _post_process_operation_hook(
+    openapi_spec, operation_spec, path: str | None = None
+):
+    """Hook to allow service specific generator to modify details"""
+    operationId = operation_spec.operationId
+
+    if operationId == "groups:get":
+        for key, val in GROUPS_LIST_PARAMETERS.items():
+            openapi_spec.components.parameters.setdefault(
+                key, ParameterSchema(**val)
+            )
+            ref = f"#/components/parameters/{key}"
+            if ref not in [x.ref for x in operation_spec.parameters]:
+                operation_spec.parameters.append(ParameterSchema(ref=ref))
+
+    elif operationId == "groups/group_id/users:get":
+        for key, val in GROUP_USERS_LIST_PARAMETERS.items():
+            openapi_spec.components.parameters.setdefault(
+                key, ParameterSchema(**val)
+            )
+            ref = f"#/components/parameters/{key}"
+            if ref not in [x.ref for x in operation_spec.parameters]:
+                operation_spec.parameters.append(ParameterSchema(ref=ref))
 
 
 def _get_schema_ref(
@@ -41,32 +91,33 @@ def _get_schema_ref(
     mime_type: str = "application/json"
     ref: str
     # Groups
-    if name == "GroupPatchRequest":
-        openapi_spec.components.schemas.setdefault(
-            name, TypeSchema(**identity_schema.user_update)
-        )
-        ref = f"#/components/schemas/{name}"
-    elif name == "GroupsPostRequest":
-        openapi_spec.components.schemas.setdefault(
-            name, TypeSchema(**identity_schema.user_create)
-        )
-        ref = f"#/components/schemas/{name}"
-    elif name == "GroupPatchResponse":
-        openapi_spec.components.schemas.setdefault(
-            name, TypeSchema(**GROUP_SCHEMA)
-        )
-        ref = f"#/components/schemas/{name}"
-    elif name == "GroupsGetResponse":
+    if name == "GroupsGetResponse":
         openapi_spec.components.schemas.setdefault(
             name, TypeSchema(**GROUPS_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
-    elif name == "GroupGetResponse":
+    elif name in [
+        "GroupsPostRequest",
+        "GroupsPostResponse",
+        "GroupGetResponse",
+        "GroupPatchRequest",
+        "GroupPatchResponse",
+    ]:
         openapi_spec.components.schemas.setdefault(
-            name, TypeSchema(**GROUP_SCHEMA)
+            "Group", TypeSchema(**GROUP_CONTAINER_SCHEMA)
+        )
+        ref = "#/components/schemas/Group"
+    elif name == "GroupsUsersGetResponse":
+        openapi_spec.components.schemas.setdefault(
+            name, TypeSchema(**user.USERS_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
-
+    elif name in [
+        "GroupsUserGetResponse",
+        "GroupsUserPutRequest",
+        "GroupsUserPutResponse",
+    ]:
+        return (None, None, True)
     else:
         return (None, None, False)
 

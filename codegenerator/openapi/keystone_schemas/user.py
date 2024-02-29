@@ -67,7 +67,7 @@ USER_LIST_PARAMETERS: dict[str, Any] = {
 USER_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
-        "id": {"type": "string", "format": "uuid"},
+        "id": {"type": "string", "format": "uuid", "readOnly": True},
         **identity_schema._user_properties,
     },
 }
