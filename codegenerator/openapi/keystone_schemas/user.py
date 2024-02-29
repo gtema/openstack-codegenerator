@@ -224,17 +224,12 @@ def _get_schema_ref(
             name, TypeSchema(**USER_CREATE_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
-    elif name == "UserPatchResponse":
-        openapi_spec.components.schemas.setdefault(
-            name, TypeSchema(**USER_CONTAINER_SCHEMA)
-        )
-        ref = f"#/components/schemas/{name}"
     elif name == "UsersGetResponse":
         openapi_spec.components.schemas.setdefault(
             name, TypeSchema(**USERS_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
-    elif name == "UserGetResponse":
+    elif name in ["UserGetResponse", "UserPostResponse", "UserPatchResponse"]:
         openapi_spec.components.schemas.setdefault(
             name, TypeSchema(**USER_CONTAINER_SCHEMA)
         )

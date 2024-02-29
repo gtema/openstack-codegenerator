@@ -134,17 +134,19 @@ def _get_schema_ref(
     # Domain Config
     elif name in [
         "DomainsConfigDefaultGetResponse",
+        "DomainsConfigGetResponse",
         "DomainsConfigPutRequest",
         "DomainsConfigPutResponse",
         "DomainsConfigPatchResponse",
+        "DomainsConfigPatchRequest",
         "DomainsConfigPatchResponse",
         "DomainsConfigDefaultGetResponse",
     ]:
         openapi_spec.components.schemas.setdefault(
-            name,
+            "DomainConfig",
             TypeSchema(**DOMAIN_CONFIGS_SCHEMA),
         )
-        ref = f"#/components/schemas/{name}"
+        ref = "#/components/schemas/DomainConfig"
     elif name in [
         "DomainsConfigGroupGetResponse",
         "DomainsConfigGroupPatchRequest",
@@ -152,12 +154,15 @@ def _get_schema_ref(
         "DomainsConfigGroupPatchResponse",
         "DomainsConfigGroupPatchResponse",
         "DomainsConfigDefaultGroupGetResponse",
+        "DomainsConfigGroupOptionPatchResponse",
+        "DomainsConfigGroupOptionGetResponse",
+        "DomainsConfigGroupOptionPatchRequest",
     ]:
         openapi_spec.components.schemas.setdefault(
-            name,
+            "DomainConfigGroup",
             TypeSchema(**DOMAIN_CONFIG_SCHEMA),
         )
-        ref = f"#/components/schemas/{name}"
+        ref = "#/components/schemas/DomainConfigGroup"
 
     else:
         return (None, None, False)

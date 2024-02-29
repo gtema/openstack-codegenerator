@@ -26,7 +26,13 @@ ROLE_SCHEMA: dict[str, Any] = {
             "format": "uuid",
             "description": "The role ID.",
         },
-        "links": {"type": "object"},
+        "links": {
+            "type": "object",
+            "additionalProperties": {
+                "type": ["string", "null"],
+                "format": "uri",
+            },
+        },
         **assignment_schema._role_properties,
     },
 }
@@ -65,7 +71,29 @@ ROLES_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "roles": {"type": "array", "items": ROLE_SCHEMA},
-        "links": {"type": "object"},
+        "links": {
+            "type": "object",
+            "additionalProperties": {
+                "type": ["string", "null"],
+                "format": "uri",
+            },
+        },
+    },
+}
+
+# List of role info
+ROLES_INFO_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "description": "List of roles assigned to the resource",
+    "properties": {
+        "roles": {"type": "array", "items": ROLE_INFO_SCHEMA},
+        "links": {
+            "type": "object",
+            "additionalProperties": {
+                "type": ["string", "null"],
+                "format": "uri",
+            },
+        },
     },
 }
 
@@ -383,26 +411,31 @@ def _get_schema_ref(
         ref = f"#/components/schemas/{name}"
 
     # Project/Domain Roles
-    elif name == "ProjectsUsersRolesGetResponse":
+    elif name in [
+        "ProjectsUsersRolesGetResponse",
+        "DomainsGroupsRolesGetResponse",
+        "ProjectsGroupsRolesGetResponse",
+        "DomainsUsersRolesGetResponse",
+    ]:
         openapi_spec.components.schemas.setdefault(
-            name, TypeSchema(**ROLES_SCHEMA)
+            "RolesInfos", TypeSchema(**ROLES_INFO_SCHEMA)
         )
-        ref = f"#/components/schemas/{name}"
-    elif name == "ProjectsGroupsRolesGetResponse":
-        openapi_spec.components.schemas.setdefault(
-            name, TypeSchema(**ROLES_SCHEMA)
-        )
-        ref = f"#/components/schemas/{name}"
-    elif name == "DomainsUsersRolesGetResponse":
-        openapi_spec.components.schemas.setdefault(
-            name, TypeSchema(**ROLES_SCHEMA)
-        )
-        ref = f"#/components/schemas/{name}"
-    elif name == "DomainsGroupsRolesGetResponse":
-        openapi_spec.components.schemas.setdefault(
-            name, TypeSchema(**ROLES_SCHEMA)
-        )
-        ref = f"#/components/schemas/{name}"
+        ref = "#/components/schemas/RolesInfos"
+    elif name in [
+        "DomainsUsersRoleGetResponse",
+        "DomainsUsersRolePutRequest",
+        "DomainsUsersRolePutResponse",
+        "DomainsGroupsRoleGetResponse",
+        "DomainsGroupsRolePutRequest",
+        "DomainsGroupsRolePutResponse",
+        "ProjectsUsersRoleGetResponse",
+        "ProjectsUsersRolePutRequest",
+        "ProjectsUsersRolePutResponse",
+        "ProjectsGroupsRoleGetResponse",
+        "ProjectsGroupsRolePutRequest",
+        "ProjectsGroupsRolePutResponse",
+    ]:
+        return (None, None, True)
 
     else:
         return (None, None, False)
