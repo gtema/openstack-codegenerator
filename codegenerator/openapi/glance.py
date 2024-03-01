@@ -323,7 +323,9 @@ class GlanceGenerator(OpenStackServerSourceBase):
 
         return impl_path
 
-    def _post_process_operation_hook(self, openapi_spec, operation_spec):
+    def _post_process_operation_hook(
+        self, openapi_spec, operation_spec, path: str | None = None
+    ):
         """Hook to allow service specific generator to modify details"""
         operationId = operation_spec.operationId
 

@@ -89,8 +89,6 @@ class NovaGenerator(OpenStackServerSourceBase):
         for route in self.router.map.matchlist:
             if route.routepath.startswith("/{project"):
                 continue
-            # if not route.routepath.startswith("/flavors/{id}/action"):
-            #    continue
             self._process_route(route, openapi_spec, ver_prefix="/v2.1")
 
         self._sanitize_param_ver_info(openapi_spec, self.min_api_version)
@@ -112,7 +110,7 @@ class NovaGenerator(OpenStackServerSourceBase):
         proc.start()
         proc.join()
         if proc.exitcode != 0:
-            raise RuntimeError("Error generating Compute OpenAPI schma")
+            raise RuntimeError("Error generating Compute OpenAPI schema")
         return Path(target_dir, "openapi_specs", "compute", "v2.yaml")
 
     def _get_param_ref(
@@ -637,9 +635,13 @@ class NovaGenerator(OpenStackServerSourceBase):
                 schema.openstack = {}
             schema.openstack.setdefault("action-name", action_name)
 
+        if schema:
+            print(schema.model_dump())
         return (ref, mime_type)
 
-    def _post_process_operation_hook(self, openapi_spec, operation_spec):
+    def _post_process_operation_hook(
+        self, openapi_spec, operation_spec, path: str | None = None
+    ):
         """Hook to allow service specific generator to modify details"""
         if operation_spec.operationId == "servers/id/action:post":
             # Sereral server actions may return Location header

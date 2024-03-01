@@ -135,3 +135,18 @@ class TestFindResponseSchema(TestCase):
         }
         for singular, plural in map.items():
             self.assertEqual(plural, common.get_plural_form(singular))
+
+    def test_singular(self):
+        map = {
+            "policy": "policies",
+            "server": "servers",
+            "access": "accesses",
+            "bus": "buses",
+            "box": "boxes",
+            "buzz": "buzzes",
+            "wish": "wishes",
+            "clash": "clashes",
+            "potato": "potatoes",
+        }
+        for singular, plural in map.items():
+            self.assertEqual(singular, common.get_singular_form(plural))

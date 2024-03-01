@@ -98,6 +98,7 @@ class OpenStackServerSourceBase:
         if not path.exists():
             return
         yaml = YAML(typ="safe")
+        yaml.preserve_quotes = True
         with open(path, "r") as fp:
             spec = yaml.load(fp)
 
@@ -109,7 +110,6 @@ class OpenStackServerSourceBase:
             self.validate_spec(spec)
         yaml = YAML()
         yaml.preserve_quotes = True
-        yaml.default_flow_style = False
         yaml.indent(mapping=2, sequence=4, offset=2)
         with open(path, "w") as fp:
             yaml.dump(
@@ -252,6 +252,8 @@ class OpenStackServerSourceBase:
             rn = path_resource_names[-1]
             if rn.endswith("ies"):
                 rn = rn.replace("ies", "y")
+            if rn.endswith("sses"):
+                rn = rn[:-2]
             else:
                 rn = rn.rstrip("s")
             path_resource_names[-1] = rn

@@ -103,6 +103,30 @@ def get_plural_form(resource: str) -> str:
         return resource + "s"
 
 
+def get_singular_form(resource: str) -> str:
+    """Get singular for of the resource
+
+    Apply reverse rules from
+    https://www.fluentu.com/blog/english/plural-nouns/ to build a singular
+    plural form of the word keeping certain hacks
+    """
+    if resource[-3:] == "ves":
+        # impossible to reverse elf -> elves and knife -> knives
+        return resource[0:-3] + "fe"
+    elif resource[-3:] == "ies":
+        return resource[0:-3] + "y"
+    elif resource[-4:] == "sses":
+        return resource[0:-2]
+    elif resource[-2:] == "es":
+        if resource[-4:-2] in ["sh", "ch"] or resource[-3] in ["s", "x", "z"]:
+            return resource[0:-2]
+        else:
+            # it is impossible to reverse axis => axes
+            return resource[0:-2]
+    else:
+        return resource[:-1]
+
+
 def find_resource_schema(
     schema: dict, parent: str | None = None, resource_name: str | None = None
 ) -> tuple[dict | None, str | None]:
