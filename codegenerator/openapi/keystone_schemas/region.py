@@ -26,6 +26,7 @@ REGION_SCHEMA: dict[str, Any] = {
             "type": "string",
             "format": "uuid",
             "description": "The ID for the region.",
+            "readOnly": True,
         },
         "parent_id": {
             "type": "string",
@@ -97,10 +98,10 @@ def _get_schema_ref(
         "RegionPatchResponse",
     ]:
         openapi_spec.components.schemas.setdefault(
-            name,
+            "Region",
             TypeSchema(**REGION_CONTAINER_SCHEMA),
         )
-        ref = f"#/components/schemas/{name}"
+        ref = "#/components/schemas/Region"
 
     else:
         return (None, None, False)

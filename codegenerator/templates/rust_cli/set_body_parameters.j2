@@ -22,7 +22,7 @@
         }
       {%- elif v.data_type.format is defined and v.data_type.format == "password" %}
         if let Some(val) = &args.{{ v.local_name }} {
-            {{ macros.set_request_data_from_input(builder_name, v, "val") }}
+            {{ builder_name }}.{{ v.remote_name }}(val);
         } else {
             let secret = Password::new()
               {%- if v.description %}

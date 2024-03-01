@@ -10,8 +10,6 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 #
-import copy
-
 from typing import Any
 
 from codegenerator.common.schema import TypeSchema
@@ -33,6 +31,7 @@ SERVICE_SCHEMA: dict[str, Any] = {
             "type": "string",
             "format": "uuid",
             "description": "The UUID of the service to which the endpoint belongs.",
+            "readOnly": True,
         },
         "name": {
             "type": "string",
@@ -49,13 +48,6 @@ SERVICE_CONTAINER_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {"service": SERVICE_SCHEMA},
 }
-
-SERVICE_CREATE_SCHEMA: dict[str, Any] = copy.deepcopy(SERVICE_CONTAINER_SCHEMA)
-SERVICE_CREATE_SCHEMA["properties"]["service"]["properties"].pop("id")
-SERVICE_CREATE_SCHEMA["properties"]["service"]["required"] = ["type"]
-SERVICE_UPDATE_SCHEMA: dict[str, Any] = copy.deepcopy(SERVICE_CONTAINER_SCHEMA)
-SERVICE_UPDATE_SCHEMA["properties"]["service"]["properties"].pop("id")
-
 
 SERVICES_SCHEMA: dict[str, Any] = {
     "type": "object",
@@ -107,27 +99,17 @@ def _get_schema_ref(
         )
         ref = f"#/components/schemas/{name}"
     elif name in [
-        "ServiceGetResponse",
+        "ServicesPostRequest",
         "ServicesPostResponse",
+        "ServiceGetResponse",
+        "ServicePatchRequest",
         "ServicePatchResponse",
     ]:
         openapi_spec.components.schemas.setdefault(
-            name,
+            "Service",
             TypeSchema(**SERVICE_CONTAINER_SCHEMA),
         )
-        ref = f"#/components/schemas/{name}"
-    elif name == "ServicesPostRequest":
-        openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**SERVICE_CREATE_SCHEMA),
-        )
-        ref = f"#/components/schemas/{name}"
-    elif name == "ServicePatchRequest":
-        openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**SERVICE_UPDATE_SCHEMA),
-        )
-        ref = f"#/components/schemas/{name}"
+        ref = "#/components/schemas/Service"
 
     else:
         return (None, None, False)
