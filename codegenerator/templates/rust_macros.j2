@@ -191,8 +191,10 @@ Some({{ val }})
     {{ dst_var }}.{{ param.remote_name }}({{ val_var | replace("&", "") }}.clone());
   {%- elif is_nullable and param.is_optional %}
     {{ dst_var }}.{{ param.remote_name }}(Some({{ val_var }}.into()));
+  {%- elif (param.is_optional is defined and param.is_optional) or (param.is_required is defined and not param.is_required) %}
+    {{ dst_var }}.{{ param.remote_name }}({{ val_var }});
   {%- else %}
-    {{ dst_var }}.{{ param.remote_name }}({{ val_var | replace("&", "") }}.clone());
+    {{ dst_var }}.{{ param.remote_name }}(&{{ val_var | replace("&", "") }});
   {%- endif %}
 {%- elif param.data_type.__class__.__name__ == "Option" %}
   {%- if param.data_type.item_type.__class__.__name__ == "StructInput" %}
@@ -227,7 +229,7 @@ Some({{ val }})
     let {{ builder_name }}: Vec<{{ sdk_mod_path[-1] }}::{{ original_type.name }}> = {{ val_var }}
         .iter()
         .flat_map(|v|
-            serde_json::from_value::<{{ sdk_mod_path[-1] }}::{{ original_type.name }}>(v.clone()))
+            serde_json::from_value::<{{ sdk_mod_path[-1] }}::{{ original_type.name }}>(v.to_owned()))
         .collect();
     {{ dst_var }}.{{ param.remote_name }}(
         {{ sdk_mod_path[-1] }}::{{ field.remote_name }}({{ builder_name }})
@@ -235,7 +237,7 @@ Some({{ val }})
     {%- else %}
     {#- Normal array #}
     {{ dst_var }}.{{ param.remote_name }}(
-        {{ sdk_mod_path[-1] }}::{{ field.remote_name }}({{ val_var }}.iter().cloned())
+        {{ sdk_mod_path[-1] }}::{{ field.remote_name }}({{ val_var }}.into_iter())
     );
     {%- endif %}
 {%- endmacro %}
@@ -248,7 +250,7 @@ Some({{ val }})
     let {{ builder_name }}: Vec<{{ sdk_mod_path[-1] }}::{{ original_type.name }}> = {{ val_var }}
         .iter()
         .flat_map(|v|
-            serde_json::from_value::<{{ sdk_mod_path[-1] }}::{{ original_type.name }}>(v.clone()))
+            serde_json::from_value::<{{ sdk_mod_path[-1] }}::{{ original_type.name }}>(v.to_owned()))
         .collect::<Vec<{{ sdk_mod_path[-1] }}:: {{ original_type.name }}>>();
     {{ dst_var }}.{{ param.remote_name }}({{ builder_name }});
     {%- elif param.data_type.item_type.__class__.__name__ == "String" and original_item_type.__class__.__name__ == "StructInput" %}

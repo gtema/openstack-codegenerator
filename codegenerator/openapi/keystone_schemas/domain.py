@@ -21,7 +21,7 @@ from codegenerator.common.schema import TypeSchema
 DOMAIN_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
-        "id": {"type": "string", "format": "uuid"},
+        "id": {"type": "string", "format": "uuid", "readOnly": True},
         **ks_schema._domain_properties,
     },
     "additionalProperties": True,
@@ -101,14 +101,18 @@ def _get_schema_ref(
     mime_type: str = "application/json"
     ref: str
     # Domains
-    if name == "DomainsPostRequest":
+    if name in [
+        "DomainsPostResponse",
+        "DomainGetResponse",
+        "DomainPatchResponse",
+    ]:
+        openapi_spec.components.schemas.setdefault(
+            "Domain", TypeSchema(**DOMAIN_SCHEMA)
+        )
+        ref = "#/components/schemas/Domain"
+    elif name == "DomainsPostRequest":
         openapi_spec.components.schemas.setdefault(
             name, TypeSchema(**ks_schema.domain_create)
-        )
-        ref = f"#/components/schemas/{name}"
-    elif name == "DomainsPostResponse":
-        openapi_spec.components.schemas.setdefault(
-            name, TypeSchema(**DOMAIN_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
     elif name == "DomainPatchRequest":
@@ -116,21 +120,12 @@ def _get_schema_ref(
             name, TypeSchema(**ks_schema.domain_update)
         )
         ref = f"#/components/schemas/{name}"
-    elif name == "DomainPatchResponse":
-        openapi_spec.components.schemas.setdefault(
-            name, TypeSchema(**DOMAIN_SCHEMA)
-        )
-        ref = f"#/components/schemas/{name}"
     elif name == "DomainsGetResponse":
         openapi_spec.components.schemas.setdefault(
             name, TypeSchema(**DOMAINS_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
-    elif name == "DomainGetResponse":
-        openapi_spec.components.schemas.setdefault(
-            name, TypeSchema(**DOMAIN_SCHEMA)
-        )
-        ref = f"#/components/schemas/{name}"
+
     # Domain Config
     elif name in [
         "DomainsConfigDefaultGetResponse",

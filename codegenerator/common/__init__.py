@@ -146,9 +146,18 @@ def find_resource_schema(
     try:
         if "type" not in schema:
             # Response of server create is a server or reservation_id
-            if "oneOf" in schema:
+            # if "oneOf" in schema:
+            #    kinds = {}
+            #    for kind in schema["oneOf"]:
+            #        kinds.update(kind)
+            #    schema["type"] = kinds["type"]
+            if "allOf" in schema:
+                # {'allOf': [
+                #   {'type': 'integer', 'minimum': 0},
+                #   {'default': 0}]
+                # }
                 kinds = {}
-                for kind in schema["oneOf"]:
+                for kind in schema["allOf"]:
                     kinds.update(kind)
                 schema["type"] = kinds["type"]
             elif schema == {}:

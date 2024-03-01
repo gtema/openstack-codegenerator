@@ -28,6 +28,7 @@ ENDPOINT_SCHEMA: dict[str, Any] = {
             "type": "string",
             "format": "uuid",
             "description": "The UUID of the service to which the endpoint belongs.",
+            "readOnly": True,
         },
         "interface": {
             "type": "string",
@@ -98,10 +99,6 @@ ENDPOINT_CREATE_SCHEMA["properties"]["endpoint"]["required"] = [
     "service_id",
     "url",
 ]
-ENDPOINT_UPDATE_SCHEMA: dict[str, Any] = copy.deepcopy(
-    ENDPOINT_CONTAINER_SCHEMA
-)
-ENDPOINT_UPDATE_SCHEMA["properties"]["endpoint"]["properties"].pop("id")
 
 
 def _post_process_operation_hook(
@@ -140,24 +137,19 @@ def _get_schema_ref(
         ref = f"#/components/schemas/{name}"
     elif name in [
         "EndpointGetResponse",
+        "EndpointsPostRequest",
         "EndpointsPostResponse",
         "EndpointPatchResponse",
     ]:
         openapi_spec.components.schemas.setdefault(
-            name,
+            "Endpoint",
             TypeSchema(**ENDPOINT_CONTAINER_SCHEMA),
         )
-        ref = f"#/components/schemas/{name}"
+        ref = "#/components/schemas/Endpoint"
     elif name == "EndpointsPostRequest":
         openapi_spec.components.schemas.setdefault(
             name,
             TypeSchema(**ENDPOINT_CREATE_SCHEMA),
-        )
-        ref = f"#/components/schemas/{name}"
-    elif name == "EndpointsPostRequest":
-        openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**ENDPOINT_UPDATE_SCHEMA),
         )
         ref = f"#/components/schemas/{name}"
 

@@ -10,8 +10,6 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 #
-import copy
-
 from typing import Any
 
 from keystone.resource import schema as ks_schema
@@ -24,7 +22,7 @@ from codegenerator.openapi.keystone_schemas import common
 PROJECT_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
-        "id": {"type": "string", "format": "uuid"},
+        "id": {"type": "string", "format": "uuid", "readOnly": True},
         **ks_schema._project_properties,
     },
     "additionalProperties": True,
@@ -36,24 +34,13 @@ PROJECT_CONTAINER_SCHEMA: dict[str, Any] = {
         "project": {
             "type": "object",
             "properties": {
-                "id": {"type": "string", "format": "uuid"},
+                "id": {"type": "string", "format": "uuid", "readOnly": True},
                 **ks_schema._project_properties,
             },
             "additionalProperties": True,
         },
     },
 }
-
-PROJECT_CREATE_REQUEST_SCHEMA: dict[str, Any] = {
-    "type": "object",
-    "properties": {"project": copy.deepcopy(ks_schema.project_create)},
-}
-
-PROJECT_UPDATE_REQUEST_SCHEMA: dict[str, Any] = {
-    "type": "object",
-    "properties": {"project": copy.deepcopy(ks_schema.project_update)},
-}
-
 
 PROJECTS_SCHEMA: dict[str, Any] = {
     "type": "object",
@@ -124,39 +111,21 @@ def _get_schema_ref(
     mime_type: str = "application/json"
     ref: str
     # Projects
-    if name == "ProjectsPostRequest":
+    if name in [
+        "ProjectsPostRequest",
+        "ProjectsPostResponse",
+        "ProjectPatchRequest",
+        "ProjectPatchResponse",
+        "ProjectGetResponse",
+    ]:
         openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**PROJECT_CREATE_REQUEST_SCHEMA),
-        )
-        ref = f"#/components/schemas/{name}"
-    elif name == "ProjectsPostResponse":
-        openapi_spec.components.schemas.setdefault(
-            name,
+            "Project",
             TypeSchema(**PROJECT_CONTAINER_SCHEMA),
         )
-        ref = f"#/components/schemas/{name}"
-    elif name == "ProjectPatchRequest":
-        openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**PROJECT_UPDATE_REQUEST_SCHEMA),
-        )
-        ref = f"#/components/schemas/{name}"
-    elif name == "ProjectPatchResponse":
-        openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**PROJECT_CONTAINER_SCHEMA),
-        )
-        ref = f"#/components/schemas/{name}"
+        ref = "#/components/schemas/Project"
     elif name == "ProjectsGetResponse":
         openapi_spec.components.schemas.setdefault(
             name, TypeSchema(**PROJECTS_SCHEMA)
-        )
-        ref = f"#/components/schemas/{name}"
-    elif name == "ProjectGetResponse":
-        openapi_spec.components.schemas.setdefault(
-            name,
-            TypeSchema(**PROJECT_CONTAINER_SCHEMA),
         )
         ref = f"#/components/schemas/{name}"
 

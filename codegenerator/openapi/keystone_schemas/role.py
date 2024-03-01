@@ -20,11 +20,13 @@ from codegenerator.openapi.keystone_schemas import auth
 
 ROLE_SCHEMA: dict[str, Any] = {
     "type": "object",
+    "description": "A role object.",
     "properties": {
         "id": {
             "type": "string",
             "format": "uuid",
             "description": "The role ID.",
+            "readOnly": True,
         },
         "links": {
             "type": "object",
@@ -32,6 +34,7 @@ ROLE_SCHEMA: dict[str, Any] = {
                 "type": ["string", "null"],
                 "format": "uri",
             },
+            "readOnly": True,
         },
         **assignment_schema._role_properties,
     },
@@ -66,6 +69,10 @@ ROLE_INFO_SCHEMA: dict[str, Any] = {
     },
 }
 
+ROLE_CONTAINER_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {"role": ROLE_SCHEMA},
+}
 
 ROLES_SCHEMA: dict[str, Any] = {
     "type": "object",
@@ -354,31 +361,17 @@ def _get_schema_ref(
             name, TypeSchema(**ROLES_SCHEMA)
         )
         ref = f"#/components/schemas/{name}"
-    elif name == "RoleGetResponse":
+    elif name in [
+        "RolesPostRequest",
+        "RolesPostResponse",
+        "RoleGetResponse",
+        "RolePatchRequest",
+        "RolePatchResponse",
+    ]:
         openapi_spec.components.schemas.setdefault(
-            name, TypeSchema(**ROLE_SCHEMA)
+            "Role", TypeSchema(**ROLE_CONTAINER_SCHEMA)
         )
-        ref = f"#/components/schemas/{name}"
-    elif name == "RolesPostRequest":
-        openapi_spec.components.schemas.setdefault(
-            name, TypeSchema(**assignment_schema.role_create)
-        )
-        ref = f"#/components/schemas/{name}"
-    elif name == "RolesPostResponse":
-        openapi_spec.components.schemas.setdefault(
-            name, TypeSchema(**ROLE_SCHEMA)
-        )
-        ref = f"#/components/schemas/{name}"
-    elif name == "RolePatchRequest":
-        openapi_spec.components.schemas.setdefault(
-            name, TypeSchema(**assignment_schema.role_update)
-        )
-        ref = f"#/components/schemas/{name}"
-    elif name == "RolePatchResponse":
-        openapi_spec.components.schemas.setdefault(
-            name, TypeSchema(**ROLE_SCHEMA)
-        )
-        ref = f"#/components/schemas/{name}"
+        ref = "#/components/schemas/Role"
 
     # Role Implies
     elif name == "RolesImpliesGetResponse":
