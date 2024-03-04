@@ -13,12 +13,10 @@
       {%- if attr_name != "id" %}{# glance doesn't hide "ID" from change #}
         if let Some(val) = &self.{{ field.local_name }} {
           {%- if field.type_hint == "Option<Vec<String>>" %}
-            new.{{ field.local_name }} = Some(VecString(val.clone()));
+            new.{{ field.local_name }} = Some(serde_json::from_value(val.to_owned().into())?);
 
           {%- elif field.type_hint == "Option<Vec<Value>>" %}
-            new.{{ field.local_name }} = Some(serde_json::from_value(serde_json::Value::from(
-                val.clone(),
-            ))?);
+            new.{{ field.local_name }} = Some(serde_json::from_value(val.to_owned().into())?);
 
           {%- elif field.type_hint in ["Option<bool>", "Option<i32>", "Option<f32>", "Option<i64>", "Option<f64>", "bool", "i32", "u32", "f32", "i64", "f64"]%}
             new.{{ field.local_name }} = Some(*val);

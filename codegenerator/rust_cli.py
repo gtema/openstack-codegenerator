@@ -262,6 +262,8 @@ class StructFieldResponse(common_rust.StructField):
                 # there is at least "id" field existing in the struct OR the
                 # field is not in the first 10
                 macros.add("wide")
+        if isinstance(self.data_type, JsonValue):
+            macros.add("pretty")
         return f"#[structable({', '.join(sorted(macros))})]"
 
 
@@ -712,8 +714,8 @@ class ResponseTypeManager(common_rust.TypeManager):
 
     data_type_mapping = {
         model.Struct: StructResponse,
-        model.Array: ArrayResponse,
-        model.Dictionary: HashMapResponse,
+        model.Array: JsonValue,
+        model.Dictionary: JsonValue,
     }
 
     def get_model_name(self, model_ref: model.Reference | None) -> str:
@@ -819,6 +821,51 @@ class ResponseTypeManager(common_rust.TypeManager):
             kinds.append({"local": BoolString(), "class": BoolString})
         super()._simplify_oneof_combinations(type_model, kinds)
 
+    def _get_struct_type(self, type_model: model.Struct) -> common_rust.Struct:
+        """Convert model.Struct into Rust `Struct`"""
+        struct_class = self.data_type_mapping[model.Struct]
+        mod = struct_class(
+            name=self.get_model_name(type_model.reference),
+            description=common_rust.sanitize_rust_docstrings(
+                type_model.description
+            ),
+        )
+        field_class = mod.field_type_class_
+        for field_name, field in type_model.fields.items():
+            is_nullable: bool = False
+            field_data_type = self.convert_model(field.data_type)
+            if isinstance(field_data_type, self.option_type_class):
+                # Unwrap Option into "is_nullable" NOTE: but perhaps
+                # Option<Option> is better (not set vs set explicitly to None
+                # )
+                is_nullable = True
+                if isinstance(field_data_type.item_type, common_rust.Array):
+                    # Unwrap Option<Option<Vec...>>
+                    field_data_type = field_data_type.item_type
+            elif isinstance(field_data_type, struct_class):
+                field_data_type = JsonValue(**field_data_type.model_dump())
+            f = field_class(
+                local_name=self.get_local_attribute_name(field_name),
+                remote_name=self.get_remote_attribute_name(field_name),
+                description=common_rust.sanitize_rust_docstrings(
+                    field.description
+                ),
+                data_type=field_data_type,
+                is_optional=not field.is_required,
+                is_nullable=is_nullable,
+            )
+            mod.fields[field_name] = f
+        if type_model.additional_fields:
+            definition = type_model.additional_fields
+            # Structure allows additional fields
+            if isinstance(definition, bool):
+                mod.additional_fields_type = self.primitive_type_mapping[
+                    model.PrimitiveAny
+                ]
+            else:
+                mod.additional_fields_type = self.convert_model(definition)
+        return mod
+
     def get_subtypes(self):
         """Get all subtypes excluding TLA"""
         emited_data: set[str] = set()
@@ -841,6 +888,12 @@ class ResponseTypeManager(common_rust.TypeManager):
                 if key not in emited_data:
                     emited_data.add(key)
                     yield v
+
+    def get_imports(self):
+        """Get complete set of additional imports required by all models in scope"""
+        imports: set[str] = super().get_imports()
+        imports.discard("crate::common::parse_json")
+        return imports
 
 
 class RustCliGenerator(BaseGenerator):
@@ -1078,7 +1131,6 @@ class RustCliGenerator(BaseGenerator):
                                 additional_imports.update(
                                     [
                                         "json_patch::{Patch, diff}",
-                                        "serde_json::to_value",
                                         "serde_json::json",
                                     ]
                                 )
