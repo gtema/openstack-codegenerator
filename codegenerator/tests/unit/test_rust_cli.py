@@ -37,46 +37,9 @@ struct ResponseData {
     /// aoaos
     ///
     #[serde()]
-    #[structable()]
-    foo: VecVecString,
+    #[structable(pretty)]
+    foo: Option<Value>,
 }
-/// Vector of `String` response type
-#[derive(Default)]
-#[derive(Clone)]
-#[derive(Deserialize, Serialize)]
-struct VecString(Vec<String>);
-impl fmt::Display for VecString {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "[{}]",
-            self.0
-                .iter()
-                .map(|v| v.to_string() )
-                .collect::<Vec<String>>()
-                .join(",")
-        )
-    }
-}
-/// Vector of `VecString` response type
-#[derive(Default)]
-#[derive(Clone)]
-#[derive(Deserialize, Serialize)]
-struct VecVecString(Vec<VecString>);
-impl fmt::Display for VecVecString {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "[{}]",
-            self.0
-                .iter()
-                .map(|v| v.to_string() )
-                .collect::<Vec<String>>()
-                .join(",")
-        )
-    }
-}
-
         """
         schema = {
             "type": "object",

@@ -262,7 +262,12 @@ class StructFieldResponse(common_rust.StructField):
                 # there is at least "id" field existing in the struct OR the
                 # field is not in the first 10
                 macros.add("wide")
-        if isinstance(self.data_type, JsonValue):
+        if self.data_type.type_hint in [
+            "Value",
+            "Option<Value>",
+            "Vec<Value>",
+            "Option<Vec<Value>>",
+        ]:
             macros.add("pretty")
         return f"#[structable({', '.join(sorted(macros))})]"
 

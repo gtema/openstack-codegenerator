@@ -7,10 +7,12 @@
     #[derive(Clone, StructTable)]
     struct ResponseData {
       {%- for k, v in data_type.fields.items() %}
-        {{ macros.docstring(v.description, indent=4) }}
-        {{ v.serde_macros }}
-        {{ v.get_structable_macros(data_type, sdk_service_name, resource_name, operation_type) }}
-        {{ v.local_name }}: {{ v.type_hint }},
+        {% if not (operation_type == "list" and k in ["links"]) %}
+          {{ macros.docstring(v.description, indent=4) }}
+          {{ v.serde_macros }}
+          {{ v.get_structable_macros(data_type, sdk_service_name, resource_name, operation_type) }}
+          {{ v.local_name }}: {{ v.type_hint }},
+        {%- endif %}
       {%- endfor %}
 
     }
