@@ -1,5 +1,5 @@
 {%- import 'rust_macros.j2' as macros with context -%}
-      // Set query parameters
+        // Set query parameters
 {%- for (k, v) in type_manager.get_parameters("query") %}
 {%- if v.data_type.__class__.__name__ == "BooleanFlag" and v.data_type.original_data_type.__class__.__name__ == "Null" %}
   {%- if v.is_required %}
@@ -15,7 +15,7 @@
   {%- endif %}
 {%- elif not v.is_required %}
         if let Some(val) = &self.query.{{ v.local_name }} {
-        {{ macros.set_request_data_from_input("ep_builder", v, "val")}}
+            {{ macros.set_request_data_from_input("ep_builder", v, "val")}}
         }
 {%- else %}
         {{ macros.set_request_data_from_input("ep_builder", v, "&self.query." + v.local_name )}}
