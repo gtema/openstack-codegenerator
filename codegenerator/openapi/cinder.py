@@ -43,7 +43,6 @@ class CinderV3Generator(OpenStackServerSourceBase):
         proc.join()
         if proc.exitcode != 0:
             raise RuntimeError("Error generating Cinder OpenAPI schma")
-        return Path(target_dir, "openapi_specs", "block-storage", "v3.yaml")
 
     def _generate(self, target_dir, args, *pargs, **kwargs):
         from cinder import objects, rpc
@@ -73,7 +72,12 @@ class CinderV3Generator(OpenStackServerSourceBase):
         work_dir = Path(target_dir)
         work_dir.mkdir(parents=True, exist_ok=True)
 
-        impl_path = Path(work_dir, "openapi_specs", "block-storage", "v3.yaml")
+        impl_path = Path(
+            work_dir,
+            "openapi_specs",
+            "block-storage",
+            f"v{self.api_version}.yaml",
+        )
         impl_path.parent.mkdir(parents=True, exist_ok=True)
 
         openapi_spec = self.load_openapi(impl_path)
@@ -119,6 +123,10 @@ class CinderV3Generator(OpenStackServerSourceBase):
             merge_api_ref_doc(openapi_spec, args.api_ref_src)
 
         self.dump_openapi(openapi_spec, impl_path, args.validate)
+
+        lnk = Path(impl_path.parent, "v3.yaml")
+        lnk.unlink(missing_ok=True)
+        lnk.symlink_to(impl_path.name)
 
         return impl_path
 

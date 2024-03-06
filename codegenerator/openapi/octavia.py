@@ -149,7 +149,6 @@ class OctaviaGenerator(OpenStackServerSourceBase):
         proc.join()
         if proc.exitcode != 0:
             raise RuntimeError("Error generating Octavia OpenAPI schma")
-        return Path(target_dir, "openapi_specs", "load-balancing", "v2.yaml")
 
     def _generate(self, target_dir, args):
         from octavia.api import root_controller
@@ -171,7 +170,10 @@ class OctaviaGenerator(OpenStackServerSourceBase):
         work_dir.mkdir(parents=True, exist_ok=True)
 
         impl_path = Path(
-            work_dir, "openapi_specs", "load-balancing", "v2.yaml"
+            work_dir,
+            "openapi_specs",
+            "load-balancing",
+            f"v{self.api_version}.yaml",
         )
         impl_path.parent.mkdir(parents=True, exist_ok=True)
         openapi_spec = self.load_openapi(Path(impl_path))
@@ -388,5 +390,9 @@ class OctaviaGenerator(OpenStackServerSourceBase):
             )
 
         self.dump_openapi(openapi_spec, Path(impl_path), args.validate)
+
+        lnk = Path(impl_path.parent, "v2.yaml")
+        lnk.unlink(missing_ok=True)
+        lnk.symlink_to(impl_path.name)
 
         return impl_path

@@ -249,7 +249,13 @@ class NeutronGenerator(OpenStackServerSourceBase):
 
     def _read_spec(self, work_dir):
         """Read the spec from file or create an empty one"""
-        impl_path = Path(work_dir, "openapi_specs", "network", "v2.yaml")
+        from neutron import version as neutron_version
+
+        nv = neutron_version.version_info.semantic_version().version_tuple()
+        self.api_version = f"2.{nv[0]}"
+        impl_path = Path(
+            work_dir, "openapi_specs", "network", f"v{self.api_version}.yaml"
+        )
         impl_path.parent.mkdir(parents=True, exist_ok=True)
         openapi_spec = self.load_openapi(Path(impl_path))
         if not openapi_spec:
@@ -278,6 +284,10 @@ class NeutronGenerator(OpenStackServerSourceBase):
                     schemas={},
                 ),
             )
+        lnk = Path(impl_path.parent, "v2.yaml")
+        lnk.unlink(missing_ok=True)
+        lnk.symlink_to(impl_path.name)
+
         return (impl_path, openapi_spec)
 
     def generate(self, target_dir, args):

@@ -76,18 +76,21 @@ class KeystoneGenerator(OpenStackServerSourceBase):
         proc.join()
         if proc.exitcode != 0:
             raise RuntimeError("Error generating Keystone OpenAPI schema")
-        return Path(target_dir, "openapi_specs", "identity", "v3.yaml")
 
     def _generate(self, target_dir, args, *pargs, **kwargs):
         from keystone.server.flask import application
+        from keystone import version as keystone_version
 
         self.app = application.application_factory()
         self.router = self.app.url_map
+        self.api_version = keystone_version.release_string()[1:]
 
         work_dir = Path(target_dir)
         work_dir.mkdir(parents=True, exist_ok=True)
 
-        impl_path = Path(work_dir, "openapi_specs", "identity", "v3.yaml")
+        impl_path = Path(
+            work_dir, "openapi_specs", "identity", f"v{self.api_version}.yaml"
+        )
         impl_path.parent.mkdir(parents=True, exist_ok=True)
 
         openapi_spec = self.load_openapi(impl_path)
@@ -160,6 +163,10 @@ class KeystoneGenerator(OpenStackServerSourceBase):
             )
 
         self.dump_openapi(openapi_spec, impl_path, args.validate)
+
+        lnk = Path(impl_path.parent, "v3.yaml")
+        lnk.unlink(missing_ok=True)
+        lnk.symlink_to(impl_path.name)
 
         return impl_path
 
