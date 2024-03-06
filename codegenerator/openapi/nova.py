@@ -60,7 +60,9 @@ class NovaGenerator(OpenStackServerSourceBase):
         work_dir = Path(target_dir)
         work_dir.mkdir(parents=True, exist_ok=True)
 
-        impl_path = Path(work_dir, "openapi_specs", "compute", "v2.yaml")
+        impl_path = Path(
+            work_dir, "openapi_specs", "compute", f"v{self.api_version}.yaml"
+        )
         impl_path.parent.mkdir(parents=True, exist_ok=True)
 
         openapi_spec = self.load_openapi(impl_path)
@@ -103,6 +105,10 @@ class NovaGenerator(OpenStackServerSourceBase):
 
         self.dump_openapi(openapi_spec, impl_path, args.validate)
 
+        lnk = Path(impl_path.parent, "v2.yaml")
+        lnk.unlink(missing_ok=True)
+        lnk.symlink_to(impl_path.name)
+
         return impl_path
 
     def generate(self, target_dir, args):
@@ -111,7 +117,6 @@ class NovaGenerator(OpenStackServerSourceBase):
         proc.join()
         if proc.exitcode != 0:
             raise RuntimeError("Error generating Compute OpenAPI schema")
-        return Path(target_dir, "openapi_specs", "compute", "v2.yaml")
 
     def _get_param_ref(
         self,

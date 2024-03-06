@@ -57,7 +57,9 @@ class PlacementGenerator(OpenStackServerSourceBase):
         work_dir = Path(target_dir)
         work_dir.mkdir(parents=True, exist_ok=True)
 
-        impl_path = Path(work_dir, "openapi_specs", "placement", "v1.yaml")
+        impl_path = Path(
+            work_dir, "openapi_specs", "placement", f"v{self.api_version}.yaml"
+        )
         impl_path.parent.mkdir(parents=True, exist_ok=True)
 
         openapi_spec = self.load_openapi(impl_path)
@@ -97,6 +99,10 @@ class PlacementGenerator(OpenStackServerSourceBase):
 
         self.dump_openapi(openapi_spec, impl_path, args.validate)
 
+        lnk = Path(impl_path.parent, "v1.yaml")
+        lnk.unlink(missing_ok=True)
+        lnk.symlink_to(impl_path.name)
+
         return impl_path
 
     def generate(self, target_dir, args):
@@ -105,4 +111,3 @@ class PlacementGenerator(OpenStackServerSourceBase):
         proc.join()
         if proc.exitcode != 0:
             raise RuntimeError("Error generating Placement OpenAPI schema")
-        return Path(target_dir, "openapi_specs", "placement", "v2.yaml")

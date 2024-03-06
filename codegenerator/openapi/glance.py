@@ -275,7 +275,9 @@ class GlanceGenerator(OpenStackServerSourceBase):
         work_dir = Path(target_dir)
         work_dir.mkdir(parents=True, exist_ok=True)
 
-        impl_path = Path(work_dir, "openapi_specs", "image", "v2.yaml")
+        impl_path = Path(
+            work_dir, "openapi_specs", "image", f"v{self.api_version}.yaml"
+        )
         impl_path.parent.mkdir(parents=True, exist_ok=True)
 
         openapi_spec = self.load_openapi(impl_path)
@@ -320,6 +322,10 @@ class GlanceGenerator(OpenStackServerSourceBase):
             merge_api_ref_doc(openapi_spec, args.api_ref_src)
 
         self.dump_openapi(openapi_spec, impl_path, args.validate)
+
+        lnk = Path(impl_path.parent, "v2.yaml")
+        lnk.unlink(missing_ok=True)
+        lnk.symlink_to(impl_path.name)
 
         return impl_path
 
