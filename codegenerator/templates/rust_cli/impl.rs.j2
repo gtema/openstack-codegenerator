@@ -99,7 +99,7 @@ struct {{ type.name }} {
     {{ field.local_name }}: {{ field.type_hint }},
   {%- endfor %}
  {%- else %}
-  {%- for field in type.fields.values() %}
+  {%- for _, field in type.fields | dictsort %}
     {{ macros.docstring(field.description, indent=4) }}
     {{ field.clap_macros_ext(is_group=type.is_group) }}
     {{ field.local_name }}: {{ field.type_hint }},

@@ -13,7 +13,7 @@
 pub {{ subtype.base_type }} {{ subtype.name }}{{ ("<" + ",".join(subtype.lifetimes) + ">") if subtype.lifetimes else ""}} {
   {%- if subtype["fields"] is defined %}
   {#- Struct fields #}
-  {%- for field in subtype.fields.values() %}
+  {%- for name, field in subtype.fields | dictsort %}
     {{ macros.docstring(field.description, indent=4) }}
     {{ field.serde_macros }}
     {{ field.builder_macros }}
@@ -44,7 +44,7 @@ pub {{ subtype.base_type }} {{ subtype.name }}{{ ("<" + ",".join(subtype.lifetim
 {% if type_manager.subtype_requires_private_builders(subtype) %}
 impl{{ ("<" + ",".join(subtype.lifetimes) + ">") if subtype.lifetimes else ""}} {{ subtype.name }}Builder{{ ("<" + ",".join(subtype.lifetimes) + ">") if subtype.lifetimes else ""}} {
 
-  {%- for field in subtype.fields.values() %}
+  {%- for name, field in subtype.fields | dictsort %}
     {%- if "private" in field.builder_macros %}
       {{ macros.sdk_builder_setter(field)}}
     {%- endif %}

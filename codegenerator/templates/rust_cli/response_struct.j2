@@ -6,7 +6,7 @@
     #[derive(Deserialize, Serialize)]
     #[derive(Clone, StructTable)]
     struct ResponseData {
-      {%- for k, v in data_type.fields.items() %}
+      {%- for k, v in data_type.fields | dictsort %}
         {% if not (operation_type == "list" and k in ["links"]) %}
           {{ macros.docstring(v.description, indent=4) }}
           {{ v.serde_macros }}
@@ -92,7 +92,7 @@
 #[derive(Clone)]
 #[derive(Deserialize, Serialize)]
 {{ subtype.base_type }} {{ subtype.name }} {
-  {%- for k, v in subtype.fields.items() %}
+  {%- for k, v in subtype.fields | dictsort %}
     {{ v.local_name }}: {{ v.type_hint }},
   {%- endfor %}
 }
@@ -100,7 +100,7 @@
 impl fmt::Display for {{ subtype.name }} {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let data = Vec::from([
-         {%- for k, v in subtype.fields.items() %}
+         {%- for k, v in subtype.fields | dictsort %}
             format!(
                 "{{v.local_name}}={}",
                 self

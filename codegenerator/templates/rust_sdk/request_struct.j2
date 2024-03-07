@@ -6,7 +6,7 @@
 #[derive(Builder, Debug, Clone)]
 #[builder(setter(strip_option))]
 pub struct {{ data_type.name  }}{{ type_manager.get_request_static_lifetimes(data_type) }} {
-  {%- for field in data_type.fields.values() %}
+  {%- for name, field in data_type.fields | dictsort %}
     {%- if field.data_type.__class__.__name__ != "Null" %}
     {{ macros.docstring(field.description, indent=4) }}
     {{ field.builder_macros }}
@@ -14,7 +14,7 @@ pub struct {{ data_type.name  }}{{ type_manager.get_request_static_lifetimes(dat
     {%- endif %}
   {%- endfor %}
 
-{%- for k, param in type_manager.parameters.items() %}
+{%- for name, param in type_manager.parameters | dictsort %}
     {{ macros.docstring(param.description, indent=4) }}
     {{ param.builder_macros }}
     {{ param.local_name }}: {{ param.type_hint }},
@@ -39,7 +39,7 @@ pub struct {{ data_type.name  }}{{ type_manager.get_request_static_lifetimes(dat
 #[derive(Builder, Debug, Clone)]
 #[builder(setter(strip_option))]
 pub struct Request{{ type_manager.get_request_static_lifetimes(data_type) }} {
-{%- for k, param in type_manager.parameters.items() %}
+{%- for k, param in type_manager.parameters | dictsort %}
     {{ macros.docstring(param.description, indent=4) }}
     {{ param.builder_macros }}
     {{ param.local_name }}: {{ param.type_hint }},
