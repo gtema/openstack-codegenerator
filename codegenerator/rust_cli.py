@@ -1006,7 +1006,7 @@ class RustCliGenerator(BaseGenerator):
                 operation_params.append(param_)
 
         # List of operation variants (based on the body)
-        operation_variants = common_rust.get_operation_variants(
+        operation_variants = common.get_operation_variants(
             spec, args.operation_name
         )
 

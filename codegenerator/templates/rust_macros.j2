@@ -215,7 +215,7 @@ Some({{ val }})
     }
 
   {%- else %}
-    {{ dst_var }}.{{ param.remote_name }}({{ val_var }}.clone().map(|v| v.into()));
+    {{ dst_var }}.{{ param.remote_name }}(*{{ val_var }});
   {%- endif %}
 {%- else %}
     {{ dst_var }}.{{ param.remote_name }}({{ val_var }});

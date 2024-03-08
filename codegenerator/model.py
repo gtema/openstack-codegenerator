@@ -194,15 +194,7 @@ class JsonSchemaParser:
         ignore_read_only: bool | None = False,
     ) -> PrimitiveType | ADT:
         type_ = schema.get("type")
-        if "oneOf" in schema:
-            return self.parse_oneOf(
-                schema,
-                results,
-                name=name,
-                parent_name=parent_name,
-                ignore_read_only=ignore_read_only,
-            )
-        elif "enum" in schema:
+        if "enum" in schema:
             return self.parse_enum(
                 schema,
                 results,
@@ -210,15 +202,7 @@ class JsonSchemaParser:
                 parent_name=parent_name,
                 ignore_read_only=ignore_read_only,
             )
-        elif "allOf" in schema:
-            return self.parse_allOf(
-                schema,
-                results,
-                name=name,
-                parent_name=parent_name,
-                ignore_read_only=ignore_read_only,
-            )
-        elif isinstance(type_, list):
+        if isinstance(type_, list):
             return self.parse_typelist(
                 schema,
                 results,
@@ -226,7 +210,7 @@ class JsonSchemaParser:
                 parent_name=parent_name,
                 ignore_read_only=ignore_read_only,
             )
-        elif isinstance(type_, str):
+        if isinstance(type_, str):
             if type_ == "object":
                 return self.parse_object(
                     schema,
@@ -237,7 +221,7 @@ class JsonSchemaParser:
                     max_ver=max_ver,
                     ignore_read_only=ignore_read_only,
                 )
-            elif type_ == "array":
+            if type_ == "array":
                 return self.parse_array(
                     schema,
                     results,
@@ -245,26 +229,42 @@ class JsonSchemaParser:
                     parent_name=parent_name,
                     ignore_read_only=ignore_read_only,
                 )
-            elif type_ == "string":
+            if type_ == "string":
                 obj = ConstraintString(**schema)
                 # todo: set obj props
                 return obj
-            elif type_ == "integer":
+            if type_ == "integer":
                 obj = ConstraintInteger(**schema)
                 # todo: set obj props
                 return obj
-            elif type_ == "number":
+            if type_ == "number":
                 obj = ConstraintNumber(**schema)
                 # todo: set obj props
                 return obj
-            elif type_ == "boolean":
+            if type_ == "boolean":
                 obj = PrimitiveBoolean()
                 # todo: set obj props
                 return obj
-            elif type_ == "null":
+            if type_ == "null":
                 obj = PrimitiveNull()
                 return obj
-        elif not type_ and "properties" in schema:
+        if "oneOf" in schema:
+            return self.parse_oneOf(
+                schema,
+                results,
+                name=name,
+                parent_name=parent_name,
+                ignore_read_only=ignore_read_only,
+            )
+        if "allOf" in schema:
+            return self.parse_allOf(
+                schema,
+                results,
+                name=name,
+                parent_name=parent_name,
+                ignore_read_only=ignore_read_only,
+            )
+        if not type_ and "properties" in schema:
             # Sometimes services forget to set "type=object"
             return self.parse_object(
                 schema,
@@ -275,9 +275,9 @@ class JsonSchemaParser:
                 max_ver=max_ver,
                 ignore_read_only=ignore_read_only,
             )
-        elif schema == {}:
+        if schema == {}:
             return PrimitiveNull()
-        elif not type_ and "format" in schema:
+        if not type_ and "format" in schema:
             return ConstraintString(**schema)
         raise RuntimeError("Cannot determine type for %s", schema)
 
@@ -291,6 +291,22 @@ class JsonSchemaParser:
         max_ver: str | None = None,
         ignore_read_only: bool | None = False,
     ):
+        """Parse `object` schema
+
+        Do basic parsing of the jsonschema that has `"type": "object"` in the
+        root. In real life there might be `oneOf`,  `anyOf`, `not`,
+        `dependentRequired`, `dependendSchemas`, `if-then-else` underneath. For
+        now oneOf are supported by building an Enum ouf of this object
+        when none of `properties`, `additional_properties`,
+        `pattern_properties` are present. `anyOf` elemenst are merged into a
+        single schema that is then parsed.
+
+        The more complex validation rules (`"properties": ..., "oneOf":
+        [{"required": []}, "required": []]`) are ignored.
+
+        `if-then-else` are ignored since their main purpose is data validation
+        and not the schema definition.
+        """
         obj: ADT | None = None
         properties = schema.get("properties")
         additional_properties = schema.get("additionalProperties")
@@ -302,6 +318,7 @@ class JsonSchemaParser:
         min_ver = os_ext.get("min-ver", min_ver)
         max_ver = os_ext.get("max-ver", max_ver)
         if properties:
+            # `"type": "object", "properties": {...}}`
             obj = Struct()
             for k, v in properties.items():
                 if k == "additionalProperties" and isinstance(v, bool):
@@ -334,7 +351,9 @@ class JsonSchemaParser:
                 if max_ver:
                     field.max_ver = max_ver
                 obj.fields[k] = field
+
         if additional_properties:
+            # `"type": "object", "additional_properties": {...}}`
             if (
                 isinstance(additional_properties, dict)
                 and "type" in additional_properties
@@ -351,6 +370,7 @@ class JsonSchemaParser:
                 additional_properties_type = PrimitiveAny()
 
         if pattern_properties:
+            # `"type": "object", "pattern_properties": {...}}`
             for key_pattern, value_type in pattern_properties.items():
                 type_kind: PrimitiveType | ADT = self.parse_schema(
                     value_type,
@@ -364,11 +384,14 @@ class JsonSchemaParser:
 
         if obj:
             if additional_properties_type:
+                # `"type": "object", "properties": {...}, "additional_properties": ...`
                 obj.additional_fields = additional_properties_type
             if pattern_props:
+                # `"type": "object", "properties": {...}, "pattern_properties": ...}`
                 obj.pattern_properties = copy.deepcopy(pattern_props)
         else:
             if pattern_props and not additional_properties_type:
+                # `"type": "object", "pattern_properties": ...`
                 if len(list(pattern_props.values())) == 1:
                     obj = Dictionary(
                         value_type=list(pattern_props.values())[0]
@@ -376,8 +399,29 @@ class JsonSchemaParser:
                 else:
                     obj = Struct(pattern_properties=pattern_props)
             elif not pattern_props and additional_properties_type:
+                # `"type": "object", "additional_properties": ...`
                 obj = Dictionary(value_type=additional_properties_type)
             else:
+                if "oneOf" in schema:
+                    # `"type": "object", "oneOf": []`
+                    return self.parse_oneOf(
+                        schema,
+                        results,
+                        name=name,
+                        parent_name=parent_name,
+                        ignore_read_only=ignore_read_only,
+                    )
+                elif "allOf" in schema:
+                    # `"type": "object", "anyOf": []`
+                    return self.parse_allOf(
+                        schema,
+                        results,
+                        name=name,
+                        parent_name=parent_name,
+                        ignore_read_only=ignore_read_only,
+                    )
+
+                # `{"type": "object"}`
                 obj = Dictionary(value_type=PrimitiveAny())
         if not obj:
             raise RuntimeError("Object %s is not supported", schema)

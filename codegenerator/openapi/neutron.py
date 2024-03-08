@@ -760,6 +760,12 @@ class NeutronGenerator(OpenStackServerSourceBase):
         resource_key=None,
         operation=None,
     ):
+        (ref, mime_type, matched) = neutron_schemas._get_schema_ref(
+            openapi_spec, name, description, schema_def
+        )
+        if matched:
+            return ref
+
         schema = openapi_spec.components.schemas.setdefault(
             name,
             TypeSchema(
@@ -767,7 +773,6 @@ class NeutronGenerator(OpenStackServerSourceBase):
                 description=LiteralScalarString(description),
             ),
         )
-
         # Here come schemas that are not present in Neutron
         if name == "ExtensionsIndexResponse":
             schema.properties = {
@@ -826,10 +831,6 @@ class NeutronGenerator(OpenStackServerSourceBase):
         # ...
         elif name in [
             # Routers
-            "RoutersAdd_Router_InterfaceAdd_Router_InterfaceRequest",
-            "RoutersAdd_Router_InterfaceAdd_Router_InterfaceResponse",
-            "RoutersRemove_Router_InterfaceRemove_Router_InterfaceRequest",
-            "RoutersRemove_Router_InterfaceRemove_Router_InterfaceResponse",
             "RoutersAdd_ExtraroutesAdd_ExtraroutesRequest",
             "RoutersAdd_ExtraroutesAdd_ExtraroutesResponse",
             "RoutersRemove_ExtraroutesRemove_ExtraroutesRequest",
