@@ -63,7 +63,7 @@ class NeutronGenerator(OpenStackServerSourceBase):
         "/agents/{agent_id}/dhcp-networks": "dhcp-agent-scheduler",
         "/agents": "networking-agents",
         "/ports/{port_id}/bindings": "port-bindings",
-        "/routers/{router_id}/conntrack_helpers/": "routers-conntrack-helper",
+        "/routers/{router_id}/conntrack_helpers": "routers-conntrack-helper",
         "/floatingips/{floatingip_id}/port_forwardings/": "floatingips-port-forwardings",
     }
 
