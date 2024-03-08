@@ -224,6 +224,85 @@ ROUTER_INTERFACE_RESPONSE_SCHEMA: dict[str, Any] = {
     },
 }
 
+ROUTER_UPDATE_EXTRAROUTES_REQUEST_SCHEMA: dict[str, Any] = {
+    "description": "Request body",
+    "type": "object",
+    "properties": {
+        "router": {
+            "type": "object",
+            "properties": {
+                "routes": {
+                    "type": "array",
+                    "description": "The extra routes configuration for L3 router. A list of dictionaries with destination and nexthop parameters. It is available when extraroute extension is enabled.",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "destination": {
+                                "type": "string",
+                            },
+                            "nexthop": {
+                                "type": "string",
+                                "oneOf": [
+                                    {
+                                        "format": "ipv4",
+                                    },
+                                    {
+                                        "format": "ipv6",
+                                    },
+                                ],
+                            },
+                        },
+                    },
+                },
+            },
+        }
+    },
+}
+
+ROUTER_EXTRAROUTES_RESPONSE_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "router": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "The ID of the router.",
+                },
+                "name": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "The name of the router.",
+                },
+                "routes": {
+                    "type": "array",
+                    "description": "The extra routes configuration for L3 router. A list of dictionaries with destination and nexthop parameters. It is available when extraroute extension is enabled.",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "destination": {
+                                "type": "string",
+                            },
+                            "nexthop": {
+                                "type": "string",
+                                "oneOf": [
+                                    {
+                                        "format": "ipv4",
+                                    },
+                                    {
+                                        "format": "ipv6",
+                                    },
+                                ],
+                            },
+                        },
+                    },
+                },
+            },
+        }
+    },
+}
+
 
 def _get_schema_ref(
     openapi_spec,
@@ -247,6 +326,22 @@ def _get_schema_ref(
     ]:
         openapi_spec.components.schemas[name] = TypeSchema(
             **ROUTER_INTERFACE_RESPONSE_SCHEMA
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name in [
+        "RoutersAdd_ExtraroutesAdd_ExtraroutesRequest",
+        "RoutersRemove_ExtraroutesRemove_ExtraroutesRequest",
+    ]:
+        openapi_spec.components.schemas[name] = TypeSchema(
+            **ROUTER_UPDATE_EXTRAROUTES_REQUEST_SCHEMA
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name in [
+        "RoutersAdd_ExtraroutesAdd_ExtraroutesResponse",
+        "RoutersRemove_ExtraroutesRemove_ExtraroutesResponse",
+    ]:
+        openapi_spec.components.schemas[name] = TypeSchema(
+            **ROUTER_EXTRAROUTES_RESPONSE_SCHEMA
         )
         ref = f"#/components/schemas/{name}"
     else:

@@ -831,10 +831,6 @@ class NeutronGenerator(OpenStackServerSourceBase):
         # ...
         elif name in [
             # Routers
-            "RoutersAdd_ExtraroutesAdd_ExtraroutesRequest",
-            "RoutersAdd_ExtraroutesAdd_ExtraroutesResponse",
-            "RoutersRemove_ExtraroutesRemove_ExtraroutesRequest",
-            "RoutersRemove_ExtraroutesRemove_ExtraroutesResponse",
             "RoutersAdd_External_GatewaysAdd_External_GatewaysRequest",
             "RoutersAdd_External_GatewaysAdd_External_GatewaysResponse",
             "RoutersUpdate_External_GatewaysUpdate_External_GatewaysRequest",
