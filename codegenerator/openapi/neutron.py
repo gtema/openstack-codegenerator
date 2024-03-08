@@ -830,13 +830,6 @@ class NeutronGenerator(OpenStackServerSourceBase):
 
         # ...
         elif name in [
-            # Routers
-            "RoutersAdd_External_GatewaysAdd_External_GatewaysRequest",
-            "RoutersAdd_External_GatewaysAdd_External_GatewaysResponse",
-            "RoutersUpdate_External_GatewaysUpdate_External_GatewaysRequest",
-            "RoutersUpdate_External_GatewaysUpdate_External_GatewaysResponse",
-            "RoutersRemove_External_GatewaysRemove_External_GatewaysRequest",
-            "RoutersRemove_External_GatewaysRemove_External_GatewaysResponse",
             # L3 routers
             "RoutersL3_AgentsIndexResponse",
             "RoutersL3_AgentsCreateRequest",
