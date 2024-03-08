@@ -522,14 +522,31 @@ class NeutronGenerator(OpenStackServerSourceBase):
         # Build path parameters (/foo/{foo_id}/bar/{id} => $foo_id, $foo_bar_id)
         # Since for same path we are here multiple times check presence of
         # parameter before adding new params
+        collection = getattr(controller, "_collection", None)
+        resource = getattr(controller, "_resource", None)
+        # Some backup locations for non extension like controller
+        if not collection:
+            collection = getattr(controller, "collection", None)
+        if not resource:
+            resource = getattr(controller, "resource", None)
+        global_param_name_prefix: str
+        if collection and resource:
+            global_param_name_prefix = f"{collection}_{resource}"
+        else:
+            global_param_name_prefix = "_".join(
+                filter(lambda el: not el.startswith("{"), path_elements)
+            )
         path_params: list[ParameterSchema] = []
         path_resource_names: list[str] = []
         for path_element in path_elements:
             if "{" in path_element:
                 param_name = path_element.strip("{}")
                 global_param_name = (
-                    "_".join(path_resource_names) + f"_{param_name}"
+                    f"{global_param_name_prefix}_{param_name}".replace(
+                        ":", "_"
+                    )
                 )
+
                 if global_param_name == "_project_id":
                     global_param_name = "project_id"
                 param_ref_name = f"#/components/parameters/{global_param_name}"
