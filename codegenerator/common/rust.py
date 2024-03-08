@@ -1020,6 +1020,22 @@ class TypeManager:
                 logging.debug(f"Purging {ref} from models")
                 self.refs.pop(ref, None)
 
+    def is_operation_supporting_params(self) -> bool:
+        """Determine whether operation supports any sort of parameters"""
+        if self.parameters:
+            return True
+        root = self.get_root_data_type()
+        if (
+            root
+            and isinstance(root, Struct)
+            and not root.fields
+            and not root.additional_fields_type
+        ):
+            return False
+        elif root:
+            return True
+        return False
+
 
 def sanitize_rust_docstrings(doc: str | None) -> str | None:
     """Sanitize the string to be a valid rust docstring"""
