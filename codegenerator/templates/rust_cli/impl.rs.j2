@@ -99,7 +99,7 @@ struct {{ type.name }} {
     {{ field.local_name }}: {{ field.type_hint }},
   {%- endfor %}
  {%- else %}
-  {%- for field in type.fields.values() %}
+  {%- for _, field in type.fields | dictsort %}
     {{ macros.docstring(field.description, indent=4) }}
     {{ field.clap_macros_ext(is_group=type.is_group) }}
     {{ field.local_name }}: {{ field.type_hint }},
@@ -141,7 +141,8 @@ impl {{ target_class_name }}Command {
     {%- endif %}
 
     {%- if not is_json_patch and (operation_type != "show" or not find_present) %}
-        let mut ep_builder = {{ sdk_mod_path[-1] }}::Request::builder();
+      {% set builder_mutable = type_manager.is_operation_supporting_params() %}
+        let {{ "mut" if builder_mutable }} ep_builder = {{ sdk_mod_path[-1] }}::Request::builder();
       {%- if microversion %}
         ep_builder.header("OpenStack-API-Version", "{{ "volume" if service_type == "block-storage" else service_type }} {{ microversion }}");
       {%- endif %}

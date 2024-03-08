@@ -2,7 +2,7 @@
 /// Query parameters
 #[derive(Args)]
 struct QueryParameters {
-{%- for param in type_manager.parameters.values() %}
+{%- for name, param in type_manager.parameters | dictsort %}
 {%- if param.location == "query" %}
     {{ macros.docstring(param.description, indent=4) }}
     {{ param.clap_macros }}

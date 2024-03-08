@@ -1020,6 +1020,22 @@ class TypeManager:
                 logging.debug(f"Purging {ref} from models")
                 self.refs.pop(ref, None)
 
+    def is_operation_supporting_params(self) -> bool:
+        """Determine whether operation supports any sort of parameters"""
+        if self.parameters:
+            return True
+        root = self.get_root_data_type()
+        if (
+            root
+            and isinstance(root, Struct)
+            and not root.fields
+            and not root.additional_fields_type
+        ):
+            return False
+        elif root:
+            return True
+        return False
+
 
 def sanitize_rust_docstrings(doc: str | None) -> str | None:
     """Sanitize the string to be a valid rust docstring"""
@@ -1038,98 +1054,3 @@ def sanitize_rust_docstrings(doc: str | None) -> str | None:
                 code_block_open = False
         lines.append(line)
     return "\n".join(lines)
-
-
-def get_operation_variants(spec: dict, operation_name: str):
-    request_body = spec.get("requestBody")
-    # List of operation variants (based on the body)
-    operation_variants = []
-
-    if request_body:
-        content = request_body.get("content", {})
-        json_body_schema = content.get("application/json", {}).get("schema")
-        if json_body_schema:
-            mime_type = "application/json"
-            # response_def = json_body_schema
-            if "oneOf" in json_body_schema:
-                # There is a choice of bodies. It can be because of
-                # microversion or an action (or both)
-                # For action we should come here with operation_type="action" and operation_name must be the action name
-                # For microversions we build body as enum
-                # So now try to figure out what the discriminator is
-                discriminator = json_body_schema.get("x-openstack", {}).get(
-                    "discriminator"
-                )
-                if discriminator == "microversion":
-                    logging.debug("Microversion discriminator for bodies")
-                    for variant in json_body_schema["oneOf"]:
-                        variant_spec = variant.get("x-openstack", {})
-                        operation_variants.append(
-                            {"body": variant, "mime_type": mime_type}
-                        )
-                    # operation_variants.extend([{"body": x} for x in json_body_schema(["oneOf"])])
-                elif discriminator == "action":
-                    # We are in the action. Need to find matching body
-                    for variant in json_body_schema["oneOf"]:
-                        variant_spec = variant.get("x-openstack", {})
-                        if variant_spec.get("action-name") == operation_name:
-                            discriminator = variant_spec.get("discriminator")
-                            if (
-                                "oneOf" in variant
-                                and discriminator == "microversion"
-                            ):
-                                logging.debug(
-                                    "Microversion discriminator for action bodies"
-                                )
-                                for subvariant in variant["oneOf"]:
-                                    subvariant_spec = subvariant.get(
-                                        "x-openstack", {}
-                                    )
-                                    operation_variants.append(
-                                        {
-                                            "body": subvariant,
-                                            "mode": "action",
-                                            "min-ver": subvariant_spec.get(
-                                                "min-ver"
-                                            ),
-                                            "mime_type": mime_type,
-                                        }
-                                    )
-                            else:
-                                logging.debug(
-                                    "Action %s with %s", variant, discriminator
-                                )
-                                operation_variants.append(
-                                    {
-                                        "body": variant,
-                                        "mode": "action",
-                                        "min-ver": variant_spec.get("min-ver"),
-                                        "mime_type": mime_type,
-                                    }
-                                )
-                            break
-                    if not operation_variants:
-                        raise RuntimeError(
-                            "Cannot find body specification for action %s"
-                            % operation_name
-                        )
-            else:
-                operation_variants.append(
-                    {"body": json_body_schema, "mime_type": mime_type}
-                )
-        elif "application/octet-stream" in content:
-            mime_type = "application/octet-stream"
-            operation_variants.append({"mime_type": mime_type})
-        elif "application/openstack-images-v2.1-json-patch" in content:
-            mime_type = "application/openstack-images-v2.1-json-patch"
-            operation_variants.append({"mime_type": mime_type})
-        elif "application/json-patch+json" in content:
-            mime_type = "application/json-patch+json"
-            operation_variants.append({"mime_type": mime_type})
-        elif content == {}:
-            operation_variants.append({"body": None})
-    else:
-        # Explicitly register variant without body
-        operation_variants.append({"body": None})
-
-    return operation_variants

@@ -215,7 +215,7 @@ Some({{ val }})
     }
 
   {%- else %}
-    {{ dst_var }}.{{ param.remote_name }}({{ val_var }}.clone().map(|v| v.into()));
+    {{ dst_var }}.{{ param.remote_name }}(*{{ val_var }});
   {%- endif %}
 {%- else %}
     {{ dst_var }}.{{ param.remote_name }}({{ val_var }});
@@ -286,8 +286,8 @@ Some({{ val }})
             .map( |v| {
                 v.as_object()
                     .expect("Is a valid Json object")
-                    .iter()
-                    .map(|(k, v)| (k.clone().into(), v.clone().into()))
+                    .into_iter()
+                    .map(|(k, v)| (k.into(), v.clone().into()))
                     .collect::<BTreeMap<_,Value>>()
             })
             .collect::<Vec<_>>()

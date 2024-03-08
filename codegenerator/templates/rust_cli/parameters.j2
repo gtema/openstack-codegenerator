@@ -1,9 +1,10 @@
 {%- with type = type_manager.get_root_data_type() %}
 {%- if type["fields"] is defined %}
 {#- Structure #}
-  {%- for field in type.fields.values() %}
+  {%- for name, field in type.fields | dictsort %}
    {%- if operation_type == "set" and field.local_name == "id" %}
    {%- else %}
+    {{ macros.docstring(field.description, indent=4) }}
     {{ field.clap_macros }}
     {{ field.local_name }}: {{ field.type_hint }},
    {%- endif %}

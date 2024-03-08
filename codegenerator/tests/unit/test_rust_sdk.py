@@ -168,19 +168,18 @@ class TestRustSdkModel(TestCase):
 #[derive(Builder, Debug, Clone)]
 #[builder(setter(strip_option))]
 pub struct Request<'a> {
-
-    /// A `server` object.
-    ///
-    #[builder(setter(into))]
-    pub(crate) server: Server<'a>,
+    #[builder(default, setter(into))]
+    pub(crate) os_sch_hnt_scheduler_hints: Option<OsSchHntSchedulerHints<'a>>,
 
     /// scheduler hints description
     ///
     #[builder(default, setter(into))]
     pub(crate) os_scheduler_hints: Option<OsSchedulerHints<'a>>,
 
-    #[builder(default, setter(into))]
-    pub(crate) os_sch_hnt_scheduler_hints: Option<OsSchHntSchedulerHints<'a>>,
+    /// A `server` object.
+    ///
+    #[builder(setter(into))]
+    pub(crate) server: Server<'a>,
 
     #[builder(setter(name = "_headers"), default, private)]
     _headers: Option<HeaderMap>,
