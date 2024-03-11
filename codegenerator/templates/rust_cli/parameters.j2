@@ -12,6 +12,7 @@
   {%- if type.additional_fields_type %}
     /// Additional properties to be sent with the request
     #[arg(long="property", value_name="key=value", value_parser=parse_key_val::<String, {{ type.additional_fields_type.type_hint }}>)]
+    #[arg(help_heading = "Body parameters")]
     properties: Option<Vec<(String, {{ type.additional_fields_type.type_hint }})>>,
   {%- endif %}
 
@@ -21,6 +22,7 @@
   {%- else %}
     #[arg(long="property", value_name="key=value", value_parser=parse_key_val_opt::<String, {{ type.value_type.item_type.type_hint }}>)]
   {%- endif %}
+    #[arg(help_heading = "Body parameters")]
     properties: Option<Vec<(String, {{ type.value_type.type_hint }})>>,
 
 {%- endif %}
