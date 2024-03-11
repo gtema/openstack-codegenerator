@@ -157,6 +157,8 @@ class StructInputField(common_rust.StructField):
             macros.update(self.additional_clap_macros)
         except Exception as ex:
             logging.exception("Error getting clap_macros for %s: %s", self, ex)
+
+        macros.add('help_heading = "Body parameters"')
         return f"#[arg({', '.join(sorted(macros))})]"
 
     def clap_macros_ext(self, is_group: bool | None = None):
@@ -174,6 +176,7 @@ class StructInputField(common_rust.StructField):
             macros.update(self.additional_clap_macros)
         except Exception as ex:
             logging.exception("Error getting clap_macros for %s: %s", self, ex)
+        macros.add('help_heading = "Body parameters"')
         return f"#[arg({', '.join(sorted(macros))})]"
 
 
@@ -403,8 +406,10 @@ class RequestParameter(common_rust.RequestParameter):
             # the value_name is turned back to the expected value
             macros.add(f'id = "path_param_{self.local_name}"')
             macros.add(f'value_name = "{self.local_name.upper()}"')
+            macros.add('help_heading = "Path parameters"')
         elif self.location == "query":
             macros.update(self.data_type.clap_macros)
+            macros.add('help_heading = "Query parameters"')
         if hasattr(self.data_type, "enum") and self.data_type.enum:
             values = ",".join(f'"{x}"' for x in sorted(self.data_type.enum))
             macros.add(f"value_parser = [{values}]")
