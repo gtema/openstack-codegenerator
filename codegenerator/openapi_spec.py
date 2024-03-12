@@ -24,6 +24,7 @@ class OpenApiSchemaGenerator(BaseGenerator):
         parser.add_argument(
             "--api-ref-src",
             help="Path to the rendered api-ref html to extract descriptions",
+            action="append",
         )
         return parser
 
