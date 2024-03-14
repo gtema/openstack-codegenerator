@@ -18,6 +18,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 OPERATION_TYPE = Literal[
     "list",
+    "list_from_struct",
     "show",
     "get",
     "create",

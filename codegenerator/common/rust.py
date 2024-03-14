@@ -485,7 +485,7 @@ class TypeManager:
         attr_name = "_".join(
             x.lower() for x in re.split(common.SPLIT_NAME_RE, name)
         )
-        if attr_name in ["type", "self", "enum", "ref"]:
+        if attr_name in ["type", "self", "enum", "ref", "default"]:
             attr_name = f"_{attr_name}"
         return attr_name
 
@@ -812,19 +812,24 @@ class TypeManager:
         self.models = models
         self.refs = {}
         self.ignored_models = []
-        unique_model_names: set[str] = set()
+        # A dictionary of model names to references to assign unique names
+        unique_models: dict[str, model.Reference] = {}
         for model_ in models:
             model_data_type = self.convert_model(model_)
             if not isinstance(model_data_type, BaseCompoundType):
                 continue
             name = getattr(model_data_type, "name", None)
-            if name and name in unique_model_names:
+            if (
+                name
+                and name in unique_models
+                and unique_models[name] != model_.reference
+            ):
                 # There is already a model with this name. Try adding suffix from datatype name
                 new_name = name + model_data_type.__class__.__name__
-                if new_name not in unique_model_names:
+                if new_name not in unique_models:
                     # New name is still unused
                     model_data_type.name = new_name
-                    unique_model_names.add(new_name)
+                    unique_models[new_name] = model_.reference
                 elif isinstance(model_data_type, Struct):
                     # This is already an exceptional case (identity.mapping
                     # with remote being oneOf with multiple structs)
@@ -833,7 +838,7 @@ class TypeManager:
                     new_new_name = name + "".join(
                         x.title() for x in props
                     ).replace("_", "")
-                    if new_new_name not in unique_model_names:
+                    if new_new_name not in unique_models:
                         for other_ref, other_model in self.refs.items():
                             other_name = getattr(other_model, "name", None)
                             if not other_name:
@@ -848,20 +853,22 @@ class TypeManager:
                                     x.title() for x in props
                                 ).replace("_", "")
                                 other_model.name = new_other_name
-                                unique_model_names.add(new_other_name)
+                                unique_models[new_other_name] = (
+                                    model_.reference
+                                )
 
                         model_data_type.name = new_new_name
-                        unique_model_names.add(new_new_name)
+                        unique_models[new_new_name] = model_.reference
                     else:
                         raise RuntimeError(
-                            "Model name %s is already present" % new_name
+                            "Model name %s is already present" % new_new_name
                         )
                 else:
                     raise RuntimeError(
                         "Model name %s is already present" % new_name
                     )
             elif name:
-                unique_model_names.add(name)
+                unique_models[name] = model_.reference
 
         for ignore_model in self.ignored_models:
             self.discard_model(ignore_model)

@@ -276,7 +276,8 @@ class JsonSchemaParser:
                 ignore_read_only=ignore_read_only,
             )
         if schema == {}:
-            return PrimitiveNull()
+            # `{}` is `Any` according to jsonschema
+            return PrimitiveAny()
         if not type_ and "format" in schema:
             return ConstraintString(**schema)
         raise RuntimeError("Cannot determine type for %s", schema)
@@ -442,17 +443,26 @@ class JsonSchemaParser:
                     if x.reference
                 ]
             ):
-                # Structure with the same name is already present. Prefix the
-                # new one with the parent name
-                if parent_name and name:
-                    new_name = parent_name + "_" + name
+                if obj.reference in [
+                    x.reference for x in results if x.reference
+                ]:
+                    # This is already same object - we have luck and can
+                    # de-duplicate structures. It is at the moment the case in
+                    # `image.metadef.namespace` with absolutely same `items`
+                    # object present few times
+                    pass
+                else:
+                    # Structure with the same name is already present. Prefix the
+                    # new one with the parent name
+                    if parent_name and name:
+                        new_name = parent_name + "_" + name
 
-                    if Reference(name=new_name, type=obj.reference.type) in [
-                        x.reference for x in results
-                    ]:
-                        raise NotImplementedError
-                    else:
-                        obj.reference.name = new_name
+                        if Reference(
+                            name=new_name, type=obj.reference.type
+                        ) in [x.reference for x in results]:
+                            raise NotImplementedError
+                        else:
+                            obj.reference.name = new_name
             results.append(obj)
         return obj
 

@@ -405,32 +405,36 @@ class RustSdkGenerator(BaseGenerator):
                 args.alternative_module_path or path,
             )
 
-            response_def = None
-            response_key = None
-            # Get basic information about response
-            if method.upper() != "HEAD":
-                for code, rspec in spec["responses"].items():
-                    if not code.startswith("2"):
-                        continue
-                    content = rspec.get("content", {})
-                    if "application/json" in content:
-                        response_spec = content["application/json"]
-                        try:
-                            (
-                                response_def,
-                                response_key,
-                            ) = common.find_resource_schema(
-                                response_spec["schema"],
-                                None,
-                                resource_name=res_name.lower(),
-                            )
-                        except Exception:
-                            # Most likely we have response which is oneOf.
-                            # For the SDK it does not really harm to ignore
-                            # this.
-                            pass
-                            # response_def = (None,)
-                            response_key = None
+            response_key: str | None = None
+            if args.response_key:
+                response_key = (
+                    args.response_key if args.response_key != "null" else None
+                )
+            else:
+                # Get basic information about response
+                if method.upper() != "HEAD":
+                    for code, rspec in spec["responses"].items():
+                        if not code.startswith("2"):
+                            continue
+                        content = rspec.get("content", {})
+                        if "application/json" in content:
+                            response_spec = content["application/json"]
+                            try:
+                                (
+                                    _,
+                                    response_key,
+                                ) = common.find_resource_schema(
+                                    response_spec["schema"],
+                                    None,
+                                    res_name.lower(),
+                                )
+                            except Exception:
+                                # Most likely we have response which is oneOf.
+                                # For the SDK it does not really harm to ignore
+                                # this.
+                                pass
+                                # response_def = (None,)
+                                response_key = None
 
             context = dict(
                 operation_id=operation_id,
@@ -447,7 +451,7 @@ class RustSdkGenerator(BaseGenerator):
                 url=path[1:] if path.startswith("/") else path,
                 method=method,
                 type_manager=type_manager,
-                response_key=args.response_key or response_key,
+                response_key=response_key,
                 response_list_item_key=args.response_list_item_key,
                 mime_type=mime_type,
                 is_json_patch=is_json_patch,

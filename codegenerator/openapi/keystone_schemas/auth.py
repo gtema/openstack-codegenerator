@@ -12,6 +12,8 @@
 #
 import copy
 
+from jsonref import replace_refs
+
 from typing import Any
 
 from codegenerator.common.schema import TypeSchema
@@ -42,7 +44,7 @@ SCOPE_SCHEMA: dict[str, Any] = {
                         },
                         "name": {
                             "type": "string",
-                            "description": "Project domain name",
+                            "description": "Project domain Name",
                         },
                     },
                 },
@@ -79,180 +81,172 @@ SCOPE_SCHEMA: dict[str, Any] = {
 }
 
 
-AUTH_TOKEN_ISSUE_SCHEMA: dict[str, Any] = {
-    "type": "object",
-    "properties": {
-        "auth": {
-            "type": "object",
-            "description": "An auth object.",
-            "properties": {
-                "identity": {
-                    "type": "object",
-                    "description": "An identity object.",
-                    "properties": {
-                        "methods": {
-                            "type": "array",
-                            "description": "The authentication method.",
-                            "items": {
-                                "type": "string",
-                                "enum": [
-                                    "password",
-                                    "token",
-                                    "totp",
-                                    "application_credential",
+AUTH_TOKEN_ISSUE_SCHEMA: dict[str, Any] = replace_refs(
+    {
+        "type": "object",
+        "properties": {
+            "auth": {
+                "type": "object",
+                "description": "An auth object.",
+                "properties": {
+                    "identity": {
+                        "type": "object",
+                        "description": "An identity object.",
+                        "properties": {
+                            "methods": {
+                                "type": "array",
+                                "description": "The authentication method.",
+                                "items": {
+                                    "type": "string",
+                                    "enum": [
+                                        "password",
+                                        "token",
+                                        "totp",
+                                        "application_credential",
+                                    ],
+                                },
+                            },
+                            "password": {
+                                "type": "object",
+                                "description": "The password object, contains the authentication information.",
+                                "properties": {
+                                    "user": {
+                                        "type": "object",
+                                        "description": "A `user` object",
+                                        "properties": {
+                                            "id": {
+                                                "type": "string",
+                                                "description": "User ID",
+                                            },
+                                            "name": {
+                                                "type": "string",
+                                                "description": "User Name",
+                                            },
+                                            "password": {
+                                                "type": "string",
+                                                "format": "password",
+                                                "description": "User Password",
+                                            },
+                                            "domain": {
+                                                "$ref": "#/definitions/user_domain"
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            "token": {
+                                "type": "object",
+                                "description": "A `token` object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "description": "Authorization Token value",
+                                    },
+                                },
+                                "required": [
+                                    "id",
                                 ],
                             },
-                        },
-                        "password": {
-                            "type": "object",
-                            "description": "The password object, contains the authentication information.",
-                            "properties": {
-                                "user": {
-                                    "type": "object",
-                                    "description": "A `user` object",
-                                    "properties": {
-                                        "id": {
-                                            "type": "string",
-                                            "description": "User ID",
+                            "totp": {
+                                "type": "object",
+                                "description": "Multi Factor Authentication information",
+                                "properties": {
+                                    "user": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": {
+                                                "type": "string",
+                                                "description": "The user ID",
+                                            },
+                                            "name": {
+                                                "type": "string",
+                                                "description": "The user name",
+                                            },
+                                            "domain": {
+                                                "$ref": "#/definitions/user_domain"
+                                            },
+                                            "passcode": {
+                                                "type": "string",
+                                                "format": "password",
+                                                "description": "MFA passcode",
+                                            },
                                         },
-                                        "name": {
-                                            "type": "string",
-                                            "description": "User Name",
-                                        },
-                                        "password": {
-                                            "type": "string",
-                                            "format": "password",
-                                            "description": "User Password",
-                                        },
-                                        "domain": {
-                                            "type": "object",
-                                            "description": "User Domain object",
-                                            "properties": {
-                                                "id": {
-                                                    "type": "string",
-                                                    "description": "User Domain ID",
-                                                },
-                                                "name": {
-                                                    "type": "string",
-                                                    "description": "User Domain Name",
-                                                },
+                                        "required": ["passcode"],
+                                    },
+                                },
+                                "required": [
+                                    "user",
+                                ],
+                            },
+                            "application_credential": {
+                                "type": "object",
+                                "description": "An application credential object.",
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "descripion": "The ID of the application credential used for authentication. If not provided, the application credential must be identified by its name and its owning user.",
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "descripion": "The name of the application credential used for authentication. If provided, must be accompanied by a user object.",
+                                    },
+                                    "secret": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "description": "The secret for authenticating the application credential.",
+                                    },
+                                    "user": {
+                                        "type": "object",
+                                        "description": "A user object, required if an application credential is identified by name and not ID.",
+                                        "properties": {
+                                            "id": {
+                                                "type": "string",
+                                                "description": "The user ID",
+                                            },
+                                            "name": {
+                                                "type": "string",
+                                                "description": "The user name",
+                                            },
+                                            "domain": {
+                                                "$ref": "#/definitions/user_domain"
                                             },
                                         },
                                     },
                                 },
+                                "required": ["secret"],
                             },
                         },
-                        "token": {
-                            "type": "object",
-                            "description": "A `token` object",
-                            "properties": {
-                                "id": {
-                                    "type": "string",
-                                    "format": "password",
-                                    "description": "Authorization Token value",
-                                },
-                            },
-                            "required": [
-                                "id",
-                            ],
-                        },
-                        "totp": {
-                            "type": "object",
-                            "description": "Multi Factor Authentication information",
-                            "properties": {
-                                "user": {
-                                    "type": "object",
-                                    "properties": {
-                                        "id": {
-                                            "type": "string",
-                                            "description": "The user ID",
-                                        },
-                                        "name": {
-                                            "type": "string",
-                                            "description": "The user name",
-                                        },
-                                        "domain": {
-                                            "type": "object",
-                                            "properties": {
-                                                "id": {
-                                                    "type": "string",
-                                                },
-                                                "name": {
-                                                    "type": "string",
-                                                },
-                                            },
-                                        },
-                                        "passcode": {
-                                            "type": "string",
-                                            "format": "password",
-                                            "description": "MFA passcode",
-                                        },
-                                    },
-                                    "required": ["passcode"],
-                                },
-                            },
-                            "required": [
-                                "user",
-                            ],
-                        },
-                        "application_credential": {
-                            "type": "object",
-                            "description": "An application credential object.",
-                            "properties": {
-                                "id": {
-                                    "type": "string",
-                                    "descripion": "The ID of the application credential used for authentication. If not provided, the application credential must be identified by its name and its owning user.",
-                                },
-                                "name": {
-                                    "type": "string",
-                                    "descripion": "The name of the application credential used for authentication. If provided, must be accompanied by a user object.",
-                                },
-                                "secret": {
-                                    "type": "string",
-                                    "format": "password",
-                                    "description": "The secret for authenticating the application credential.",
-                                },
-                                "user": {
-                                    "type": "object",
-                                    "description": "A user object, required if an application credential is identified by name and not ID.",
-                                    "properties": {
-                                        "id": {
-                                            "type": "string",
-                                            "description": "The user ID",
-                                        },
-                                        "name": {
-                                            "type": "string",
-                                            "description": "The user name",
-                                        },
-                                        "domain": {
-                                            "type": "object",
-                                            "properties": {
-                                                "id": {
-                                                    "type": "string",
-                                                },
-                                                "name": {
-                                                    "type": "string",
-                                                },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                            "required": ["secret"],
-                        },
+                        "required": [
+                            "methods",
+                        ],
                     },
-                    "required": [
-                        "methods",
-                    ],
+                    "scope": SCOPE_SCHEMA,
                 },
-                "scope": SCOPE_SCHEMA,
+                "required": [
+                    "identity",
+                ],
             },
-            "required": [
-                "identity",
-            ],
+        },
+        "definitions": {
+            "user_domain": {
+                "type": "object",
+                "description": "User Domain object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "User Domain ID",
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "User Domain Name",
+                    },
+                },
+            },
         },
     },
-}
+    proxies=False,
+)
 
 AUTH_PROJECTS_SCHEMA: dict[str, Any] = {
     "type": "object",

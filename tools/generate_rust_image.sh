@@ -6,6 +6,7 @@ DST=~/workspace/github/gtema/openstack
 NET_RESOURCES=(
   "image"
   "schema"
+  "metadef"
 )
 
 openstack-codegenerator --work-dir ${WRK_DIR} --target rust-sdk --metadata ${METADATA}/image_metadata.yaml --service image
