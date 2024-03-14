@@ -719,6 +719,23 @@ def post_process_image_operation(
     if resource_name.startswith("schema"):
         # Image schemas are a JSON operation
         operation.targets["rust-cli"].operation_type = "json"
+    elif resource_name == "metadef/namespace" and operation_name != "list":
+        operation.targets["rust-sdk"].response_key = "null"
+        operation.targets["rust-cli"].response_key = "null"
+    elif (
+        resource_name == "metadef/namespace/property"
+        and operation_name == "list"
+    ):
+        operation.targets["rust-cli"].operation_type = "list_from_struct"
+        operation.targets["rust-cli"].response_key = "properties"
+        operation.targets["rust-sdk"].response_key = "properties"
+    elif resource_name == "metadef/namespace/resource_type":
+        operation.targets["rust-cli"].response_key = (
+            "resource_type_associations"
+        )
+        operation.targets["rust-sdk"].response_key = (
+            "resource_type_associations"
+        )
 
     return operation
 

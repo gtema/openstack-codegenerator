@@ -319,7 +319,7 @@ def find_response_schema(
     if not action_name:
         # Could not find anything with the given response_key. If there is any
         # 200/204 response - return it
-        for code in ["200", "204"]:
+        for code in ["200", "201", "202", "204"]:
             if code in responses:
                 schema = (
                     responses[code]

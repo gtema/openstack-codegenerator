@@ -213,7 +213,7 @@ impl{{ type_manager.get_request_static_lifetimes(request) }} RestEndpoint for Re
 
   {%- if request.additional_fields_type %}
         for (key, val) in &self._properties {
-            params.push(key.clone(), serde_json::Value::from(val.clone()));
+            params.push(key.clone(), val.clone());
         }
   {%- endif %}
 

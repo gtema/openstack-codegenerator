@@ -114,6 +114,39 @@ class TestParserObject(TestCase):
         )
         self.assertEqual(1, len(all))
 
+    def test_parse_additional_props_object(self):
+        schema = {
+            "type": "object",
+            "description": "foo schema",
+            "additionalProperties": {
+                "type": "object",
+                "properties": {
+                    "foo": {"type": "string", "description": "foo field"},
+                    "bar": {"type": "number", "description": "bar field"},
+                },
+            },
+        }
+        (res, all) = self.parser.parse(schema)
+        self.assertEqual(
+            model.Dictionary(
+                description="foo schema",
+                value_type=model.Struct(
+                    fields={
+                        "foo": model.StructField(
+                            data_type=model.ConstraintString(),
+                            description="foo field",
+                        ),
+                        "bar": model.StructField(
+                            data_type=model.ConstraintNumber(),
+                            description="bar field",
+                        ),
+                    }
+                ),
+            ),
+            res,
+        )
+        self.assertEqual(2, len(all))
+
     def test_parse_props_required(self):
         schema = {
             "type": "object",

@@ -238,6 +238,12 @@ IMAGE_HEADERS = {
 class GlanceGenerator(OpenStackServerSourceBase):
     URL_TAG_MAP = {
         "/versions": "version",
+        "/metadefs/resource_types": "metadata-definition-resource-types",
+        "/metadefs/namespaces/{namespace_name}/resource_types": "metadata-definition-resource-types",
+        "/metadefs/namespaces/{namespace_name}/properties": "metadata-definition-properties",
+        "/metadefs/namespaces/{namespace_name}/objects": "metadata-definition-objects",
+        "/metadefs/namespaces/{namespace_name}/tags": "metadata-definition-tags",
+        "/metadefs/namespaces": "metadata-definition-namespaces",
     }
 
     def __init__(self):
@@ -314,6 +320,13 @@ class GlanceGenerator(OpenStackServerSourceBase):
         for route in self.router.map.matchlist:
             if not route.conditions:
                 continue
+            # Hack the image metadef namespace url to have namespace_name param
+            # instead of namespace due to the presence of "namespace" parameter
+            # also in the body
+            if route.routepath.startswith("/metadefs/namespaces/"):
+                for part in route.routelist:
+                    if isinstance(part, dict) and part["name"] == "namespace":
+                        part["name"] = "namespace_name"
             self._process_route(route, openapi_spec, ver_prefix="/v2")
 
         self._sanitize_param_ver_info(openapi_spec, self.min_api_version)
@@ -616,6 +629,46 @@ class GlanceGenerator(OpenStackServerSourceBase):
         ]:
             openapi_spec.components.schemas.setdefault(
                 name,
+                TypeSchema(
+                    **{
+                        "type": "object",
+                        "description": "A list of abbreviated resource type JSON objects, where each object contains the name of the resource type and its created_at and updated_at timestamps in ISO 8601 Format.",
+                        "properties": {
+                            "resource_types": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "description": "Resource type",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string",
+                                            "description": "Resource type name",
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "description": "Resource type creation date",
+                                            "readOnly": True,
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "description": "Resource type update date",
+                                            "readOnly": True,
+                                        },
+                                    },
+                                },
+                            }
+                        },
+                    }
+                ),
+            )
+            ref = f"#/components/schemas/{name}"
+        elif name in [
+            "MetadefsNamespacesResource_TypesShowResponse",
+        ]:
+            openapi_spec.components.schemas.setdefault(
+                name,
                 self._get_glance_schema(
                     metadef_resource_types.get_collection_schema(), name
                 ),
@@ -689,14 +742,19 @@ class GlanceGenerator(OpenStackServerSourceBase):
         # List of image props that are by default integer, but in real life
         # are surely going i64 side
         i32_fixes = ["size", "virtual_size"]
-        if name and name == "ImagesListResponse":
-            for field in i32_fixes:
-                res["properties"]["images"]["items"]["properties"][field][
-                    "format"
-                ] = "int64"
-        if name and name == "ImageShowResponse":
-            for field in i32_fixes:
-                res["properties"][field]["format"] = "int64"
+        if name:
+            if name == "ImagesListResponse":
+                for field in i32_fixes:
+                    res["properties"]["images"]["items"]["properties"][field][
+                        "format"
+                    ] = "int64"
+            elif name == "ImageShowResponse":
+                for field in i32_fixes:
+                    res["properties"][field]["format"] = "int64"
+            elif name == "MetadefsNamespacesPropertiesListResponse":
+                res["properties"]["properties"]["additionalProperties"][
+                    "type"
+                ] = "object"
         return TypeSchema(**res)
 
     @classmethod

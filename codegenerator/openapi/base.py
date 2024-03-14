@@ -220,7 +220,10 @@ class OpenStackServerSourceBase:
         # Since for same path we are here multiple times check presence of
         # parameter before adding new params
         path_params: list[ParameterSchema] = []
-        path_resource_names: list[str] = []
+        path_resource_names: list[str] = [
+            x.replace("-", "_")
+            for x in filter(lambda x: not x.startswith("{"), path_elements)
+        ]
         for path_element in path_elements:
             if "{" in path_element:
                 param_name = path_element.strip("{}")
@@ -240,8 +243,6 @@ class OpenStackServerSourceBase:
                     k.ref for k in [p for p in path_params]
                 ]:
                     path_params.append(ParameterSchema(ref=param_ref_name))
-            else:
-                path_resource_names.append(path_element.replace("-", "_"))
         # Cleanup path_resource_names
         # if len(path_resource_names) > 0 and VERSION_RE.match(path_resource_names[0]):
         #    # We should not have version prefix in the path_resource_names

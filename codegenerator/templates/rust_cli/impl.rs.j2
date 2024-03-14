@@ -87,7 +87,7 @@ enum {{ type.name }} {
 
 {%- elif type["base_type"] == "struct" %}
 /// {{ type.name }} Body data
-#[derive(Args)]
+#[derive(Args, Clone)]
 {%- if type["is_group"] is defined and type.is_group %}
 #[group(required={{ type.is_required | lower }}, multiple={{ "true" if type.__class__.__name__ != "EnumGroupStruct" else "false" }})]
 {%- endif %}
@@ -163,12 +163,13 @@ impl {{ target_class_name }}Command {
     {# Response #}
     {%- with data_type = response_type_manager.get_root_data_type() %}
 
-
     {%- if (data_type.__class__.__name__ == "StructResponse" and data_type.fields) or data_type.__class__.__name__ == "TupleStruct" or data_type.__class__.__name__ == "HashMapResponse" %}
     {#- there is result structure meand we can render response #}
 
       {%- if operation_type == "list" %}
         {% include 'rust_cli/invoke_list.j2' %}
+      {%- elif operation_type == "list_from_struct" %}
+        {% include 'rust_cli/invoke_list_from_struct.j2' %}
 
       {%- elif operation_type in ["show"] %}
        {#- Show/get implementation #}

@@ -1,0 +1,19 @@
+{#- List operation #}
+{%- if data_type.__class__.__name__ in ["StructResponse", "TupleStruct"] %}
+        let data: serde_json::Value = ep.query_async(client).await?;
+        let split: Vec<Value> = data
+            .as_object()
+            .expect("API response is not an object")
+            .iter()
+            .map(|(k, v)| {
+                let mut new = v.clone();
+                new.as_object_mut()
+                    .expect("Object item is an object")
+                    .entry("name".to_string())
+                    .or_insert(serde_json::json!(k));
+                new
+            })
+            .collect();
+
+        op.output_list::<ResponseData>(split)?;
+{%- endif %}

@@ -227,21 +227,8 @@ resources:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
     operations:
-      get:
-        operation_id: metadefs/resource_types:get
-        operation_type: get
-        targets:
-          rust-sdk:
-            module_name: get
-          rust-cli:
-            module_name: get
-            sdk_mod_name: get
-  image.metadef/namespace/resource_type:
-    spec_file: wrk/openapi_specs/image/v2.yaml
-    api_version: v2
-    operations:
       list:
-        operation_id: metadefs/namespaces/namespace/resource_types:get
+        operation_id: metadefs/resource_types:get
         operation_type: list
         targets:
           rust-sdk:
@@ -249,24 +236,43 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+  image.metadef/namespace/resource_type:
+    spec_file: wrk/openapi_specs/image/v2.yaml
+    api_version: v2
+    operations:
+      list:
+        operation_id: metadefs/namespaces/namespace_name/resource_types:get
+        operation_type: list
+        targets:
+          rust-sdk:
+            module_name: list
+            response_key: resource_type_associations
+          rust-cli:
+            module_name: list
+            sdk_mod_name: list
+            response_key: resource_type_associations
       create:
-        operation_id: metadefs/namespaces/namespace/resource_types:post
+        operation_id: metadefs/namespaces/namespace_name/resource_types:post
         operation_type: create
         targets:
           rust-sdk:
             module_name: create
+            response_key: resource_type_associations
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            response_key: resource_type_associations
       delete:
-        operation_id: metadefs/namespaces/namespace/resource_types/resource_type:delete
+        operation_id: metadefs/namespaces/namespace_name/resource_types/resource_type:delete
         operation_type: delete
         targets:
           rust-sdk:
             module_name: delete
+            response_key: resource_type_associations
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            response_key: resource_type_associations
   image.metadef/namespace:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -286,51 +292,62 @@ resources:
         targets:
           rust-sdk:
             module_name: create
+            response_key: 'null'
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            response_key: 'null'
       show:
-        operation_id: metadefs/namespaces/namespace:get
+        operation_id: metadefs/namespaces/namespace_name:get
         operation_type: show
         targets:
           rust-sdk:
             module_name: get
+            response_key: 'null'
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            response_key: 'null'
       update:
-        operation_id: metadefs/namespaces/namespace:put
+        operation_id: metadefs/namespaces/namespace_name:put
         operation_type: set
         targets:
           rust-sdk:
             module_name: set
+            response_key: 'null'
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            response_key: 'null'
       delete:
-        operation_id: metadefs/namespaces/namespace:delete
+        operation_id: metadefs/namespaces/namespace_name:delete
         operation_type: delete
         targets:
           rust-sdk:
             module_name: delete
+            response_key: 'null'
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            response_key: 'null'
   image.metadef/namespace/property:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
     operations:
       list:
-        operation_id: metadefs/namespaces/namespace/properties:get
+        operation_id: metadefs/namespaces/namespace_name/properties:get
         operation_type: list
         targets:
           rust-sdk:
             module_name: list
+            response_key: properties
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            operation_type: list_from_struct
+            response_key: properties
       create:
-        operation_id: metadefs/namespaces/namespace/properties:post
+        operation_id: metadefs/namespaces/namespace_name/properties:post
         operation_type: create
         targets:
           rust-sdk:
@@ -339,7 +356,7 @@ resources:
             module_name: create
             sdk_mod_name: create
       delete_all:
-        operation_id: metadefs/namespaces/namespace/properties:delete
+        operation_id: metadefs/namespaces/namespace_name/properties:delete
         operation_type: delete
         targets:
           rust-sdk:
@@ -348,7 +365,7 @@ resources:
             module_name: delete_all
             sdk_mod_name: delete_all
       show:
-        operation_id: metadefs/namespaces/namespace/properties/property_name:get
+        operation_id: metadefs/namespaces/namespace_name/properties/property_name:get
         operation_type: show
         targets:
           rust-sdk:
@@ -357,7 +374,7 @@ resources:
             module_name: show
             sdk_mod_name: get
       update:
-        operation_id: metadefs/namespaces/namespace/properties/property_name:put
+        operation_id: metadefs/namespaces/namespace_name/properties/property_name:put
         operation_type: set
         targets:
           rust-sdk:
@@ -366,7 +383,7 @@ resources:
             module_name: set
             sdk_mod_name: set
       delete:
-        operation_id: metadefs/namespaces/namespace/properties/property_name:delete
+        operation_id: metadefs/namespaces/namespace_name/properties/property_name:delete
         operation_type: delete
         targets:
           rust-sdk:
@@ -379,7 +396,7 @@ resources:
     api_version: v2
     operations:
       list:
-        operation_id: metadefs/namespaces/namespace/objects:get
+        operation_id: metadefs/namespaces/namespace_name/objects:get
         operation_type: list
         targets:
           rust-sdk:
@@ -388,7 +405,7 @@ resources:
             module_name: list
             sdk_mod_name: list
       create:
-        operation_id: metadefs/namespaces/namespace/objects:post
+        operation_id: metadefs/namespaces/namespace_name/objects:post
         operation_type: create
         targets:
           rust-sdk:
@@ -397,7 +414,7 @@ resources:
             module_name: create
             sdk_mod_name: create
       delete_all:
-        operation_id: metadefs/namespaces/namespace/objects:delete
+        operation_id: metadefs/namespaces/namespace_name/objects:delete
         operation_type: delete
         targets:
           rust-sdk:
@@ -406,7 +423,7 @@ resources:
             module_name: delete_all
             sdk_mod_name: delete_all
       show:
-        operation_id: metadefs/namespaces/namespace/objects/object_name:get
+        operation_id: metadefs/namespaces/namespace_name/objects/object_name:get
         operation_type: show
         targets:
           rust-sdk:
@@ -415,7 +432,7 @@ resources:
             module_name: show
             sdk_mod_name: get
       update:
-        operation_id: metadefs/namespaces/namespace/objects/object_name:put
+        operation_id: metadefs/namespaces/namespace_name/objects/object_name:put
         operation_type: set
         targets:
           rust-sdk:
@@ -424,7 +441,7 @@ resources:
             module_name: set
             sdk_mod_name: set
       delete:
-        operation_id: metadefs/namespaces/namespace/objects/object_name:delete
+        operation_id: metadefs/namespaces/namespace_name/objects/object_name:delete
         operation_type: delete
         targets:
           rust-sdk:
@@ -437,7 +454,7 @@ resources:
     api_version: v2
     operations:
       list:
-        operation_id: metadefs/namespaces/namespace/tags:get
+        operation_id: metadefs/namespaces/namespace_name/tags:get
         operation_type: list
         targets:
           rust-sdk:
@@ -446,7 +463,7 @@ resources:
             module_name: list
             sdk_mod_name: list
       create:
-        operation_id: metadefs/namespaces/namespace/tags/tag_name:post
+        operation_id: metadefs/namespaces/namespace_name/tags/tag_name:post
         operation_type: create
         targets:
           rust-sdk:
@@ -455,7 +472,7 @@ resources:
             module_name: create
             sdk_mod_name: create
       delete_all:
-        operation_id: metadefs/namespaces/namespace/tags:delete
+        operation_id: metadefs/namespaces/namespace_name/tags:delete
         operation_type: delete
         targets:
           rust-sdk:
@@ -464,7 +481,7 @@ resources:
             module_name: delete_all
             sdk_mod_name: delete_all
       show:
-        operation_id: metadefs/namespaces/namespace/tags/tag_name:get
+        operation_id: metadefs/namespaces/namespace_name/tags/tag_name:get
         operation_type: show
         targets:
           rust-sdk:
@@ -473,7 +490,7 @@ resources:
             module_name: show
             sdk_mod_name: get
       update:
-        operation_id: metadefs/namespaces/namespace/tags/tag_name:put
+        operation_id: metadefs/namespaces/namespace_name/tags/tag_name:put
         operation_type: set
         targets:
           rust-sdk:
@@ -482,7 +499,7 @@ resources:
             module_name: set
             sdk_mod_name: set
       delete:
-        operation_id: metadefs/namespaces/namespace/tags/tag_name:delete
+        operation_id: metadefs/namespaces/namespace_name/tags/tag_name:delete
         operation_type: delete
         targets:
           rust-sdk:

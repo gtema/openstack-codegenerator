@@ -22,7 +22,10 @@ from ruamel.yaml.scalarstring import LiteralScalarString
 
 
 def merge_api_ref_doc(
-    openapi_spec, api_ref_src, allow_strip_version=True, doc_url_prefix=""
+    openapi_spec,
+    api_ref_src: list[str],
+    allow_strip_version=True,
+    doc_url_prefix="",
 ):
     """Merge infomation from rendered API-REF html into the spec
 
@@ -34,255 +37,199 @@ def merge_api_ref_doc(
     """
     # Set of processed operationIds.
     processed_operations: set[str] = set()
-    with open(api_ref_src, "r") as fp:
-        html_doc = fp.read()
+    # Iterate over api-ref docs
+    for api_ref_doc in api_ref_src:
+        with open(api_ref_doc, "r") as fp:
+            html_doc = fp.read()
 
-    # openapi_spec = jsonref.replace_refs(openapi_spec)
+        # openapi_spec = jsonref.replace_refs(openapi_spec)
 
-    soup = BeautifulSoup(html_doc, "html.parser")
-    docs_title = soup.find("div", class_="docs-title")
-    title = None
-    if docs_title:
-        title = docs_title.find("h1").string
-    main_body = soup.find("div", class_="docs-body")
-    for section in main_body.children:
-        if section.name != "section":
-            continue
-        section_id = section["id"]
-        section_title = section.find("h1")
-
-        if section_title.string:
-            sec_title = section_title.string
-        else:
-            sec_title = list(section_title.strings)[0]
-        sec_descr = get_sanitized_description(str(section.p))
-        if sec_title == title:
-            openapi_spec.info["description"] = sec_descr
-        else:
-            for tag in openapi_spec.tags:
-                if tag["name"] == section_id:
-                    tag["description"] = sec_descr
-                    # TODO(gtema): notes are aside of main "p" and not
-                    # underneath
-        # Iterate over URLs
-        operation_url_containers = section.find_all(
-            "div", class_="operation-grp"
-        )
-        for op in operation_url_containers:
-            ep = op.find("div", class_="endpoint-container")
-            ep_divs = ep.find_all("div")
-            url = doc_url_prefix + "".join(ep_divs[0].strings)
-            summary = "".join(ep_divs[1].strings)
-            method_span = op.find("div", class_="operation").find(
-                "span", class_="label"
-            )
-            method = method_span.string
-
-            # Find operation
-            path_spec = openapi_spec.paths.get(url)
-            if (
-                url not in openapi_spec.paths
-                and url.startswith("/v")
-                and allow_strip_version
-            ):
-                # There is no direct URL match, but doc URL starts with /vXX - try searching without version prefix
-                m = re.search(r"^\/v[0-9.]*(\/.*)", url)
-                if m and m.groups():
-                    url = m.group(1)
-                    path_spec = openapi_spec.paths.get(url)
-
-            doc_source_param_mapping = {}
-            if not path_spec:
-                if "{" in url:
-                    # The url contain parameters. It can be the case that
-                    # parameter names are just different between source and
-                    # docs
-                    for existing_path in openapi_spec.paths.keys():
-                        existing_path_parts = existing_path.split("/")
-                        doc_url_parts = url.split("/")
-                        if len(existing_path_parts) != len(doc_url_parts):
-                            # Paths have different length. Skip
-                            continue
-                        is_search_aborted = False
-                        for source, doc in zip(
-                            existing_path_parts, doc_url_parts
-                        ):
-                            source_ = source.strip("{}")
-                            doc_ = doc.strip("{}")
-                            if (
-                                source != doc
-                                and source.startswith("{")
-                                and doc.startswith("{")
-                                and source_ != doc_
-                            ):
-                                # Path parameter on both sides. Consider renamed parameter
-                                doc_source_param_mapping[doc_] = source_
-                            elif source != doc:
-                                # Path differs. No point in looking further
-                                is_search_aborted = True
-                                break
-                        if is_search_aborted:
-                            continue
-                        # Assume we found something similar. Try to
-                        # construct url with renames and compare it again.
-                        # It should not be necessary, but it states: "safe is safe"
-                        modified_url_parts = []
-                        for part in url.split("/"):
-                            if part.startswith("{"):
-                                doc_param_name = part.strip("{}")
-                                modified_url_parts.append(
-                                    "{"
-                                    + doc_source_param_mapping.get(
-                                        doc_param_name, doc_param_name
-                                    )
-                                    + "}"
-                                )
-                            else:
-                                modified_url_parts.append(part)
-                        if "/".join(modified_url_parts) == existing_path:
-                            # Is a definitive match
-                            path_spec = openapi_spec.paths[existing_path]
-                            break
-
-            if not path_spec:
-                logging.info("Cannot find path %s in the spec" % url)
+        soup = BeautifulSoup(html_doc, "html.parser")
+        docs_title = soup.find("div", class_="docs-title")
+        title = None
+        if docs_title:
+            title = docs_title.find("h1").string
+        main_body = soup.find("div", class_="docs-body")
+        for section in main_body.children:
+            if section.name != "section":
                 continue
+            section_id = section["id"]
+            section_title = section.find("h1")
 
-            op_spec = getattr(path_spec, method.lower(), None)
-            if not op_spec:
-                logging.warn(
-                    "Cannot find %s operation for %s in the spec"
-                    % (method, url)
-                )
-                continue
-
-            if (
-                op_spec.operationId in processed_operations
-                and not url.endswith("/action")
-            ):
-                # Do not update operation we have already processed
-                continue
+            if section_title.string:
+                sec_title = section_title.string
             else:
-                processed_operations.add(op_spec.operationId)
+                sec_title = list(section_title.strings)[0]
+            sec_descr = get_sanitized_description(str(section.p))
+            if sec_title == title:
+                openapi_spec.info["description"] = sec_descr
+            else:
+                for tag in openapi_spec.tags:
+                    if tag["name"] == section_id:
+                        tag["description"] = sec_descr
+                        # TODO(gtema): notes are aside of main "p" and not
+                        # underneath
+            # Iterate over URLs
+            operation_url_containers = section.find_all(
+                "div", class_="operation-grp"
+            )
+            for op in operation_url_containers:
+                ep = op.find("div", class_="endpoint-container")
+                ep_divs = ep.find_all("div")
+                url = doc_url_prefix + "".join(ep_divs[0].strings)
+                summary = "".join(ep_divs[1].strings)
+                method_span = op.find("div", class_="operation").find(
+                    "span", class_="label"
+                )
+                method = method_span.string
 
-            # Find the button in the operaion container to get ID of the
-            # details section
-            details_button = op.find("button")
-            details_section_id = details_button["data-target"].strip("#")
-            details_section = section.find("section", id=details_section_id)
-            description = []
-            action_name = None
-            # Gather description section paragraphs to construct operation description
-            for details_child in details_section.children:
-                if details_child.name == "p":
-                    description.append(str(details_child))
+                # Find operation
+                path_spec = openapi_spec.paths.get(url)
+                if (
+                    url not in openapi_spec.paths
+                    and url.startswith("/v")
+                    and allow_strip_version
+                ):
+                    # There is no direct URL match, but doc URL starts with /vXX - try searching without version prefix
+                    m = re.search(r"^\/v[0-9.]*(\/.*)", url)
+                    if m and m.groups():
+                        url = m.group(1)
+                        path_spec = openapi_spec.paths.get(url)
 
-                elif details_child.name == "section":
-                    if (
-                        details_child.h3
-                        and "Request" in details_child.h3.strings
-                    ) or (
-                        details_child.h4
-                        and "Request" in details_child.h4.strings
-                    ):
-                        # Found request details
-                        if not details_child.table:
-                            logging.warn(
-                                "No Parameters description table found for %s:%s in html",
-                                url,
-                                method,
-                            )
+                doc_source_param_mapping = {}
+                if not path_spec:
+                    if "{" in url:
+                        # The url contain parameters. It can be the case that
+                        # parameter names are just different between source and
+                        # docs
+                        for existing_path in openapi_spec.paths.keys():
+                            existing_path_parts = existing_path.split("/")
+                            doc_url_parts = url.split("/")
+                            if len(existing_path_parts) != len(doc_url_parts):
+                                # Paths have different length. Skip
+                                continue
+                            is_search_aborted = False
+                            for source, doc in zip(
+                                existing_path_parts, doc_url_parts
+                            ):
+                                source_ = source.strip("{}")
+                                doc_ = doc.strip("{}")
+                                if (
+                                    source != doc
+                                    and source.startswith("{")
+                                    and doc.startswith("{")
+                                    and source_ != doc_
+                                ):
+                                    # Path parameter on both sides. Consider renamed parameter
+                                    doc_source_param_mapping[doc_] = source_
+                                elif source != doc:
+                                    # Path differs. No point in looking further
+                                    is_search_aborted = True
+                                    break
+                            if is_search_aborted:
+                                continue
+                            # Assume we found something similar. Try to
+                            # construct url with renames and compare it again.
+                            # It should not be necessary, but it states: "safe is safe"
+                            modified_url_parts = []
+                            for part in url.split("/"):
+                                if part.startswith("{"):
+                                    doc_param_name = part.strip("{}")
+                                    modified_url_parts.append(
+                                        "{"
+                                        + doc_source_param_mapping.get(
+                                            doc_param_name, doc_param_name
+                                        )
+                                        + "}"
+                                    )
+                                else:
+                                    modified_url_parts.append(part)
+                            if "/".join(modified_url_parts) == existing_path:
+                                # Is a definitive match
+                                path_spec = openapi_spec.paths[existing_path]
+                                break
 
-                            continue
-                        logging.debug(
-                            "Processing Request parameters for %s:%s",
-                            url,
-                            method,
-                        )
+                if not path_spec:
+                    logging.info("Cannot find path %s in the spec" % url)
+                    continue
 
-                        spec_body = (
-                            op_spec.requestBody.get("content", {})
-                            .get("application/json", {})
-                            .get("schema")
-                        )
-                        if not spec_body:
-                            logging.debug(
-                                "No request body present in the spec for %s:%s",
-                                url,
-                                method,
-                            )
-                            continue
-                        (schema_specs, action_name) = _get_schema_candidates(
-                            openapi_spec,
-                            url,
-                            spec_body,
-                            action_name,
-                            summary,
-                            description,
-                        )
+                op_spec = getattr(path_spec, method.lower(), None)
+                if not op_spec:
+                    logging.warn(
+                        "Cannot find %s operation for %s in the spec"
+                        % (method, url)
+                    )
+                    continue
 
-                        _doc_process_operation_table(
-                            details_child.table.tbody,
-                            openapi_spec,
-                            op_spec,
-                            schema_specs,
-                            doc_source_param_mapping,
-                        )
+                if (
+                    op_spec.operationId in processed_operations
+                    and not url.endswith("/action")
+                ):
+                    # Do not update operation we have already processed
+                    continue
+                else:
+                    processed_operations.add(op_spec.operationId)
 
-                        if url.endswith("/action"):
-                            for sch in schema_specs:
-                                sch.summary = summary
-                    # Neutron sometimes has h4 instead of h3 and "Response Parameters" instead of "Response"
-                    elif (
-                        details_child.h3
-                        and (
-                            "Response" in details_child.h3.strings
-                            or "Response Parameters"
-                            in details_child.h3.strings
-                        )
-                    ) or (
-                        details_child.h4
-                        and (
-                            "Response" in details_child.h4.strings
-                            or "Response Parameters"
-                            in details_child.h4.strings
-                        )
-                    ):
-                        # Found response details
-                        if not details_child.table:
-                            logging.warn(
-                                "No Response Parameters description table found for %s:%s in html",
-                                url,
-                                method,
-                            )
+                # Find the button in the operaion container to get ID of the
+                # details section
+                details_button = op.find("button")
+                details_section_id = details_button["data-target"].strip("#")
+                details_section = section.find(
+                    "section", id=details_section_id
+                )
+                description = []
+                action_name = None
+                # Gather description section paragraphs to construct operation description
+                for details_child in details_section.children:
+                    if details_child.name == "p":
+                        description.append(str(details_child))
 
-                            continue
-                        logging.debug(
-                            "Processing Response parameters for %s:%s",
-                            url,
-                            method,
-                        )
-
-                        spec_body = None
-                        for rc in op_spec.responses:
-                            # TODO(gtema): what if we have multiple positive RCs?
-                            if rc.startswith("20"):
-                                spec_body = (
-                                    op_spec.responses[rc]
-                                    .get("content", {})
-                                    .get("application/json", {})
-                                    .get("schema")
+                    elif details_child.name == "section":
+                        if (
+                            details_child.h3
+                            and "Request" in details_child.h3.strings
+                        ) or (
+                            details_child.h4
+                            and "Request" in details_child.h4.strings
+                        ):
+                            # Found request details
+                            if not details_child.table:
+                                logging.warn(
+                                    "No Parameters description table found for %s:%s in html",
+                                    url,
+                                    method,
                                 )
-                        if not spec_body:
-                            logging.info(
-                                "Operation %s has no response body according to the spec",
-                                op_spec.operationId,
+
+                                continue
+                            logging.debug(
+                                "Processing Request parameters for %s:%s",
+                                url,
+                                method,
                             )
-                            continue
-                        (schema_specs, action_name) = _get_schema_candidates(
-                            openapi_spec, url, spec_body, action_name
-                        )
-                        try:
+
+                            spec_body = (
+                                op_spec.requestBody.get("content", {})
+                                .get("application/json", {})
+                                .get("schema")
+                            )
+                            if not spec_body:
+                                logging.debug(
+                                    "No request body present in the spec for %s:%s",
+                                    url,
+                                    method,
+                                )
+                                continue
+                            (schema_specs, action_name) = (
+                                _get_schema_candidates(
+                                    openapi_spec,
+                                    url,
+                                    spec_body,
+                                    action_name,
+                                    summary,
+                                    description,
+                                )
+                            )
+
                             _doc_process_operation_table(
                                 details_child.table.tbody,
                                 openapi_spec,
@@ -290,18 +237,82 @@ def merge_api_ref_doc(
                                 schema_specs,
                                 doc_source_param_mapping,
                             )
-                        except Exception:
-                            # No luck processing it as parameters table
-                            pass
 
-            if not url.endswith("/action"):
-                pass
-                # This is not an "action" which combines various
-                # operations, so no summary/description info
-                op_spec.summary = summary
-                op_spec.description = get_sanitized_description(
-                    "".join(description)
-                )
+                            if url.endswith("/action"):
+                                for sch in schema_specs:
+                                    sch.summary = summary
+                        # Neutron sometimes has h4 instead of h3 and "Response Parameters" instead of "Response"
+                        elif (
+                            details_child.h3
+                            and (
+                                "Response" in details_child.h3.strings
+                                or "Response Parameters"
+                                in details_child.h3.strings
+                            )
+                        ) or (
+                            details_child.h4
+                            and (
+                                "Response" in details_child.h4.strings
+                                or "Response Parameters"
+                                in details_child.h4.strings
+                            )
+                        ):
+                            # Found response details
+                            if not details_child.table:
+                                logging.warn(
+                                    "No Response Parameters description table found for %s:%s in html",
+                                    url,
+                                    method,
+                                )
+
+                                continue
+                            logging.debug(
+                                "Processing Response parameters for %s:%s",
+                                url,
+                                method,
+                            )
+
+                            spec_body = None
+                            for rc in op_spec.responses:
+                                # TODO(gtema): what if we have multiple positive RCs?
+                                if rc.startswith("20"):
+                                    spec_body = (
+                                        op_spec.responses[rc]
+                                        .get("content", {})
+                                        .get("application/json", {})
+                                        .get("schema")
+                                    )
+                            if not spec_body:
+                                logging.info(
+                                    "Operation %s has no response body according to the spec",
+                                    op_spec.operationId,
+                                )
+                                continue
+                            (schema_specs, action_name) = (
+                                _get_schema_candidates(
+                                    openapi_spec, url, spec_body, action_name
+                                )
+                            )
+                            try:
+                                _doc_process_operation_table(
+                                    details_child.table.tbody,
+                                    openapi_spec,
+                                    op_spec,
+                                    schema_specs,
+                                    doc_source_param_mapping,
+                                )
+                            except Exception:
+                                # No luck processing it as parameters table
+                                pass
+
+                if not url.endswith("/action"):
+                    pass
+                    # This is not an "action" which combines various
+                    # operations, so no summary/description info
+                    op_spec.summary = summary
+                    op_spec.description = get_sanitized_description(
+                        "".join(description)
+                    )
 
 
 def _doc_process_operation_table(

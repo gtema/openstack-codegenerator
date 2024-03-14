@@ -3,15 +3,17 @@
       // Set body parameters
 {%- with root = type_manager.get_root_data_type() %}
 {%- if root.__class__.__name__ == "StructInput" %}
+
  {%- for root_attr, root_field in root.fields | dictsort %}
   // Set Request.{{ root_field.remote_name }} data
-  {%- if root_field.is_optional %}
-    if let Some(args) = &self.{{ root_field.local_name }} {
-  {%- else %}
-    let args = &self.{{ root_field.local_name }};
-  {%- endif %}
 
   {%- if root_field.data_type.__class__.__name__ == "StructInput" %}
+    {%- if root_field.is_optional %}
+      if let Some(args) = &self.{{ root_field.local_name }} {
+    {%- else %}
+      let args = &self.{{ root_field.local_name }};
+    {%- endif %}
+
     {%- set builder_name = root_field.local_name + "_builder" %}
     let mut {{ builder_name }} = {{ sdk_mod_path[-1] }}::{{ root_field.data_type.name }}Builder::default();
 
@@ -40,14 +42,23 @@
 
     {% endfor %}
     ep_builder.{{ root_field.remote_name }}({{ builder_name }}.build().unwrap());
+    {% if root_field.is_optional %}
+      }
+    {%- endif %}
 
   {%- else %}
-    {{ macros.set_request_data_from_input("ep_builder", root_field, "args") }}
+
+    {%- if root_field.is_optional %}
+      if let Some(arg) = &self.{{ root_field.local_name }} {
+        {{ macros.set_request_data_from_input("ep_builder", root_field, "arg") }}
+      }
+
+    {%- else -%}
+      {{ macros.set_request_data_from_input("ep_builder", root_field, "&self." + root_field.local_name) }}
+    {%- endif %}
+
   {%- endif %}
 
-  {% if root_field.is_optional %}
-    }
-  {%- endif %}
  {% endfor %}
   {%- if root.additional_fields_type %}
     if let Some(properties) = &self.properties {
