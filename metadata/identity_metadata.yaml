@@ -18,6 +18,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: version get
   identity.auth/project:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -37,6 +38,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: auth project list
   identity.OS_FEDERATION/project:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -56,6 +58,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: federation project list
   identity.auth/domain:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -75,6 +78,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: auth domain list
   identity.OS_FEDERATION/domain:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -94,6 +98,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: federation domain list
   identity.auth/system:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -113,6 +118,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: auth system list
   identity.auth/catalog:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -132,6 +138,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: catalog list
   identity.auth/token/OS_PKI/revoked:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -151,6 +158,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: auth token OS-PKI revoked get
   identity.auth/token:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -170,6 +178,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: auth token get
       create:
         operation_id: auth/tokens:post
         operation_type: create
@@ -179,6 +188,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: auth token create
       delete:
         operation_id: auth/tokens:delete
         operation_type: delete
@@ -188,6 +198,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: auth token delete
   identity.auth/OS_FEDERATION/saml2:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -207,6 +218,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: auth federation saml2 get
       create:
         operation_id: auth/OS-FEDERATION/saml2:post
         operation_type: create
@@ -216,6 +228,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: auth federation saml2 create
   identity.auth/OS_FEDERATION/saml2/ecp:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -235,6 +248,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: auth federation saml2 ecp get
       create:
         operation_id: auth/OS-FEDERATION/saml2/ecp:post
         operation_type: create
@@ -244,6 +258,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: auth federation saml2 ecp create
   identity.auth/OS_FEDERATION/websso:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -263,6 +278,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: auth federation websso show
       create:
         operation_id: auth/OS-FEDERATION/websso/protocol_id:post
         operation_type: create
@@ -272,6 +288,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: auth federation websso create
   identity.auth/OS_FEDERATION/identity_provider/protocol/websso:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -291,6 +308,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: auth federation identity-provider protocol websso get
       create:
         operation_id: auth/OS-FEDERATION/identity_providers/idp_id/protocols/protocol_id/websso:post
         operation_type: create
@@ -300,6 +318,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: auth federation identity-provider protocol websso create
   identity.credential:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -319,6 +338,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: credential show
       delete:
         operation_id: credentials/credential_id:delete
         operation_type: delete
@@ -328,6 +348,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: credential delete
       update:
         operation_id: credentials/credential_id:patch
         operation_type: set
@@ -337,6 +358,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: credential set
       list:
         operation_id: credentials:get
         operation_type: list
@@ -346,6 +368,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: credential list
       create:
         operation_id: credentials:post
         operation_type: create
@@ -355,6 +378,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: credential create
   identity.domain:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -375,6 +399,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: domain show
       delete:
         operation_id: domains/domain_id:delete
         operation_type: delete
@@ -385,6 +410,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: domain delete
       update:
         operation_id: domains/domain_id:patch
         operation_type: set
@@ -395,6 +421,7 @@ resources:
             module_name: set
             sdk_mod_name: set
             find_implemented_by_sdk: true
+            cli_full_command: domain set
       list:
         operation_id: domains:get
         operation_type: list
@@ -404,6 +431,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: domain list
       create:
         operation_id: domains:post
         operation_type: create
@@ -413,6 +441,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: domain create
       find:
         operation_id: domains:get
         operation_type: find
@@ -442,6 +471,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: domain config list
       replace:
         operation_id: domains/domain_id/config:put
         operation_type: set
@@ -451,6 +481,7 @@ resources:
           rust-cli:
             module_name: replace
             sdk_mod_name: replace
+            cli_full_command: domain config replace
       delete_all:
         operation_id: domains/domain_id/config:delete
         operation_type: delete
@@ -460,6 +491,7 @@ resources:
           rust-cli:
             module_name: delete_all
             sdk_mod_name: delete_all
+            cli_full_command: domain config purge
       update:
         operation_id: domains/domain_id/config/group/option:patch
         operation_type: set
@@ -469,6 +501,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: domain config set
       show:
         operation_id: domains/domain_id/config/group/option:get
         operation_type: show
@@ -478,6 +511,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: domain config show
       delete:
         operation_id: domains/domain_id/config/group/option:delete
         operation_type: delete
@@ -487,6 +521,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: domain config delete
   identity.domain/config/default:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -506,6 +541,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: domain config default get
   identity.domain/user/role:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -525,6 +561,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: domain user role list
       show:
         operation_id: domains/domain_id/users/user_id/roles/role_id:get
         operation_type: show
@@ -534,6 +571,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: domain user role show
       update:
         operation_id: domains/domain_id/users/user_id/roles/role_id:put
         operation_type: set
@@ -543,6 +581,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: domain user role set
       delete:
         operation_id: domains/domain_id/users/user_id/roles/role_id:delete
         operation_type: delete
@@ -552,6 +591,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: domain user role delete
   identity.domain/group/role:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -571,6 +611,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: domain group role list
       show:
         operation_id: domains/domain_id/groups/group_id/roles/role_id:get
         operation_type: show
@@ -580,6 +621,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: domain group role show
       update:
         operation_id: domains/domain_id/groups/group_id/roles/role_id:put
         operation_type: set
@@ -589,6 +631,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: domain group role set
       delete:
         operation_id: domains/domain_id/groups/group_id/roles/role_id:delete
         operation_type: delete
@@ -598,6 +641,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: domain group role delete
   identity.ec2token:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -617,6 +661,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: ec2token get
       create:
         operation_id: ec2tokens:post
         operation_type: create
@@ -626,6 +671,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: ec2token create
   identity.endpoint:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -645,6 +691,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: endpoint show
       delete:
         operation_id: endpoints/endpoint_id:delete
         operation_type: delete
@@ -654,6 +701,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: endpoint delete
       update:
         operation_id: endpoints/endpoint_id:patch
         operation_type: set
@@ -663,6 +711,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: endpoint set
       list:
         operation_id: endpoints:get
         operation_type: list
@@ -672,6 +721,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: endpoint list
       create:
         operation_id: endpoints:post
         operation_type: create
@@ -681,6 +731,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: endpoint create
   identity.endpoint/OS_ENDPOINT_POLICY/policy:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -700,6 +751,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: endpoint OS-ENDPOINT-POLICY policy get
   identity.group:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -720,6 +772,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: group show
       delete:
         operation_id: groups/group_id:delete
         operation_type: delete
@@ -730,6 +783,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: group delete
       update:
         operation_id: groups/group_id:patch
         operation_type: set
@@ -740,6 +794,7 @@ resources:
             module_name: set
             sdk_mod_name: set
             find_implemented_by_sdk: true
+            cli_full_command: group set
       list:
         operation_id: groups:get
         operation_type: list
@@ -749,6 +804,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: group list
       create:
         operation_id: groups:post
         operation_type: create
@@ -758,6 +814,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: group create
       find:
         operation_id: groups:get
         operation_type: find
@@ -787,6 +844,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: group user list
       show:
         operation_id: groups/group_id/users/user_id:get
         operation_type: show
@@ -796,6 +854,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: group user show
       update:
         operation_id: groups/group_id/users/user_id:put
         operation_type: set
@@ -805,6 +864,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: group user set
       delete:
         operation_id: groups/group_id/users/user_id:delete
         operation_type: delete
@@ -814,6 +874,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: group user delete
   identity.limit:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -833,6 +894,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: limit show
       delete:
         operation_id: limits/limit_id:delete
         operation_type: delete
@@ -842,6 +904,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: limit delete
       update:
         operation_id: limits/limit_id:patch
         operation_type: set
@@ -851,6 +914,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: limit set
       list:
         operation_id: limits:get
         operation_type: list
@@ -860,6 +924,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: limit list
       create:
         operation_id: limits:post
         operation_type: create
@@ -869,6 +934,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: limit create
   identity.limit/model:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -888,6 +954,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: limit model get
   identity.OS_EP_FILTER/endpoint_group:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -907,6 +974,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: OS-EP-FILTER endpoint-group show
       delete:
         operation_id: OS-EP-FILTER/endpoint_groups/endpoint_group_id:delete
         operation_type: delete
@@ -916,6 +984,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: OS-EP-FILTER endpoint-group delete
       update:
         operation_id: OS-EP-FILTER/endpoint_groups/endpoint_group_id:patch
         operation_type: set
@@ -925,6 +994,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: OS-EP-FILTER endpoint-group set
       list:
         operation_id: OS-EP-FILTER/endpoint_groups:get
         operation_type: list
@@ -934,6 +1004,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: OS-EP-FILTER endpoint-group list
       create:
         operation_id: OS-EP-FILTER/endpoint_groups:post
         operation_type: create
@@ -943,6 +1014,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: OS-EP-FILTER endpoint-group create
   identity.OS_EP_FILTER/endpoint/project:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -962,6 +1034,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: OS-EP-FILTER endpoint project get
   identity.OS_EP_FILTER/project/endpoint:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -981,6 +1054,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: OS-EP-FILTER project endpoint show
       update:
         operation_id: OS-EP-FILTER/projects/project_id/endpoints/endpoint_id:put
         operation_type: set
@@ -990,6 +1064,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: OS-EP-FILTER project endpoint set
       delete:
         operation_id: OS-EP-FILTER/projects/project_id/endpoints/endpoint_id:delete
         operation_type: delete
@@ -999,6 +1074,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: OS-EP-FILTER project endpoint delete
       list:
         operation_id: OS-EP-FILTER/projects/project_id/endpoints:get
         operation_type: list
@@ -1008,6 +1084,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: OS-EP-FILTER project endpoint list
   identity.OS_EP_FILTER/project/endpoint_group:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -1027,6 +1104,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: OS-EP-FILTER project endpoint-group get
   identity.OS_EP_FILTER/endpoint_group/endpoint:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -1046,6 +1124,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: OS-EP-FILTER endpoint-group endpoint get
   identity.OS_EP_FILTER/endpoint_group/project:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -1065,6 +1144,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: OS-EP-FILTER endpoint-group project list
       show:
         operation_id: OS-EP-FILTER/endpoint_groups/endpoint_group_id/projects/project_id:get
         operation_type: show
@@ -1074,6 +1154,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: OS-EP-FILTER endpoint-group project show
       update:
         operation_id: OS-EP-FILTER/endpoint_groups/endpoint_group_id/projects/project_id:put
         operation_type: set
@@ -1083,6 +1164,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: OS-EP-FILTER endpoint-group project set
       delete:
         operation_id: OS-EP-FILTER/endpoint_groups/endpoint_group_id/projects/project_id:delete
         operation_type: delete
@@ -1092,6 +1174,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: OS-EP-FILTER endpoint-group project delete
   identity.OS_FEDERATION/saml2/metadata:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -1111,6 +1194,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: federation saml2 metadata get
   identity.OS_FEDERATION/identity_provider/protocol/auth:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -1130,6 +1214,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: federation identity-provider protocol auth get
       create:
         operation_id: OS-FEDERATION/identity_providers/idp_id/protocols/protocol_id/auth:post
         operation_type: create
@@ -1139,6 +1224,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: federation identity-provider protocol auth create
   identity.OS_FEDERATION/identity_provider:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -1158,6 +1244,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: federation identity-provider show
       create:
         operation_id: OS-FEDERATION/identity_providers/idp_id:put
         operation_type: create
@@ -1167,6 +1254,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: federation identity-provider create
       delete:
         operation_id: OS-FEDERATION/identity_providers/idp_id:delete
         operation_type: delete
@@ -1176,6 +1264,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: federation identity-provider delete
       update:
         operation_id: OS-FEDERATION/identity_providers/idp_id:patch
         operation_type: set
@@ -1185,6 +1274,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: federation identity-provider set
       list:
         operation_id: OS-FEDERATION/identity_providers:get
         operation_type: list
@@ -1194,6 +1284,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: federation identity-provider list
   identity.OS_FEDERATION/identity_provider/protocol:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -1213,6 +1304,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: federation identity-provider protocol show
       create:
         operation_id: OS-FEDERATION/identity_providers/idp_id/protocols/protocol_id:put
         operation_type: create
@@ -1222,6 +1314,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: federation identity-provider protocol create
       delete:
         operation_id: OS-FEDERATION/identity_providers/idp_id/protocols/protocol_id:delete
         operation_type: delete
@@ -1231,6 +1324,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: federation identity-provider protocol delete
       update:
         operation_id: OS-FEDERATION/identity_providers/idp_id/protocols/protocol_id:patch
         operation_type: set
@@ -1240,6 +1334,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: federation identity-provider protocol set
       list:
         operation_id: OS-FEDERATION/identity_providers/idp_id/protocols:get
         operation_type: list
@@ -1249,6 +1344,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: federation identity-provider protocol list
   identity.OS_FEDERATION/mapping:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -1268,6 +1364,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: federation mapping show
       create:
         operation_id: OS-FEDERATION/mappings/mapping_id:put
         operation_type: create
@@ -1277,6 +1374,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: federation mapping create
       delete:
         operation_id: OS-FEDERATION/mappings/mapping_id:delete
         operation_type: delete
@@ -1286,6 +1384,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: federation mapping delete
       update:
         operation_id: OS-FEDERATION/mappings/mapping_id:patch
         operation_type: set
@@ -1295,6 +1394,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: federation mapping set
       list:
         operation_id: OS-FEDERATION/mappings:get
         operation_type: list
@@ -1304,6 +1404,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: federation mapping list
   identity.OS_FEDERATION/service_provider:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -1323,6 +1424,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: federation service-provider show
       create:
         operation_id: OS-FEDERATION/service_providers/sp_id:put
         operation_type: create
@@ -1332,6 +1434,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: federation service-provider create
       delete:
         operation_id: OS-FEDERATION/service_providers/sp_id:delete
         operation_type: delete
@@ -1341,6 +1444,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: federation service-provider delete
       update:
         operation_id: OS-FEDERATION/service_providers/sp_id:patch
         operation_type: set
@@ -1350,6 +1454,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: federation service-provider set
       list:
         operation_id: OS-FEDERATION/service_providers:get
         operation_type: list
@@ -1359,6 +1464,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: federation service-provider list
   identity.OS_INHERIT/domain/group/role/inherited_to_project:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -1378,6 +1484,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: OS-INHERIT domain group role inherited-to-project get
       inherited_to_projects:
         operation_id:
           OS-INHERIT/domains/domain_id/groups/group_id/roles/role_id/inherited_to_projects:put
@@ -1388,6 +1495,7 @@ resources:
           rust-cli:
             module_name: inherited_to_projects
             sdk_mod_name: inherited_to_projects
+            cli_full_command: OS-INHERIT domain group role inherited-to-project inherited-to-projects
       delete:
         operation_id:
           OS-INHERIT/domains/domain_id/groups/group_id/roles/role_id/inherited_to_projects:delete
@@ -1398,6 +1506,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: OS-INHERIT domain group role inherited-to-project delete
   identity.OS_INHERIT/domain/user/role/inherited_to_project:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -1417,6 +1526,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: OS-INHERIT domain user role inherited-to-project get
       inherited_to_projects:
         operation_id:
           OS-INHERIT/domains/domain_id/users/user_id/roles/role_id/inherited_to_projects:put
@@ -1427,6 +1537,7 @@ resources:
           rust-cli:
             module_name: inherited_to_projects
             sdk_mod_name: inherited_to_projects
+            cli_full_command: OS-INHERIT domain user role inherited-to-project inherited-to-projects
       delete:
         operation_id:
           OS-INHERIT/domains/domain_id/users/user_id/roles/role_id/inherited_to_projects:delete
@@ -1437,6 +1548,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: OS-INHERIT domain user role inherited-to-project delete
   identity.OS_INHERIT/project/user/role/inherited_to_project:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -1458,6 +1570,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: OS-INHERIT project user role inherited-to-project get
       inherited_to_projects:
         operation_id:
           OS-INHERIT/projects/project_id/users/user_id/roles/role_id/inherited_to_projects:put
@@ -1468,6 +1581,7 @@ resources:
           rust-cli:
             module_name: inherited_to_projects
             sdk_mod_name: inherited_to_projects
+            cli_full_command: OS-INHERIT project user role inherited-to-project inherited-to-projects
       delete:
         operation_id:
           OS-INHERIT/projects/project_id/users/user_id/roles/role_id/inherited_to_projects:delete
@@ -1478,6 +1592,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: OS-INHERIT project user role inherited-to-project delete
   identity.OS_INHERIT/project/group/role/inherited_to_project:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -1499,6 +1614,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: OS-INHERIT project group role inherited-to-project get
       inherited_to_projects:
         operation_id:
           OS-INHERIT/projects/project_id/groups/group_id/roles/role_id/inherited_to_projects:put
@@ -1509,6 +1625,7 @@ resources:
           rust-cli:
             module_name: inherited_to_projects
             sdk_mod_name: inherited_to_projects
+            cli_full_command: OS-INHERIT project group role inherited-to-project inherited-to-projects
       delete:
         operation_id:
           OS-INHERIT/projects/project_id/groups/group_id/roles/role_id/inherited_to_projects:delete
@@ -1519,6 +1636,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: OS-INHERIT project group role inherited-to-project delete
   identity.OS_OAUTH1/consumer:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -1538,6 +1656,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: OS-OAUTH1 consumer show
       delete:
         operation_id: OS-OAUTH1/consumers/consumer_id:delete
         operation_type: delete
@@ -1547,6 +1666,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: OS-OAUTH1 consumer delete
       update:
         operation_id: OS-OAUTH1/consumers/consumer_id:patch
         operation_type: set
@@ -1556,6 +1676,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: OS-OAUTH1 consumer set
       list:
         operation_id: OS-OAUTH1/consumers:get
         operation_type: list
@@ -1565,6 +1686,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: OS-OAUTH1 consumer list
       create:
         operation_id: OS-OAUTH1/consumers:post
         operation_type: create
@@ -1574,6 +1696,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: OS-OAUTH1 consumer create
   identity.OS_OAUTH1/request_token:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -1593,6 +1716,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: OS-OAUTH1 request-token get
       create:
         operation_id: OS-OAUTH1/request_token:post
         operation_type: create
@@ -1602,6 +1726,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: OS-OAUTH1 request-token create
   identity.OS_OAUTH1/access_token:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -1621,6 +1746,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: OS-OAUTH1 access-token get
       create:
         operation_id: OS-OAUTH1/access_token:post
         operation_type: create
@@ -1630,6 +1756,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: OS-OAUTH1 access-token create
   identity.OS_OAUTH1/authorize:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -1643,6 +1770,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: OS-OAUTH1 authorize set
   identity.OS_OAUTH2/token:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -1662,6 +1790,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: OS-OAUTH2 token get
       token:
         operation_id: OS-OAUTH2/token:put
         operation_type: action
@@ -1671,6 +1800,7 @@ resources:
           rust-cli:
             module_name: token
             sdk_mod_name: token
+            cli_full_command: OS-OAUTH2 token token
       create:
         operation_id: OS-OAUTH2/token:post
         operation_type: create
@@ -1680,6 +1810,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: OS-OAUTH2 token create
       delete:
         operation_id: OS-OAUTH2/token:delete
         operation_type: delete
@@ -1689,6 +1820,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: OS-OAUTH2 token delete
       update:
         operation_id: OS-OAUTH2/token:patch
         operation_type: set
@@ -1698,6 +1830,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: OS-OAUTH2 token set
   identity.OS_REVOKE/event:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -1717,6 +1850,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: OS-REVOKE event get
   identity.OS_SIMPLE_CERT/ca:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -1736,6 +1870,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: OS-SIMPLE-CERT ca get
   identity.OS_SIMPLE_CERT/certificate:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -1755,6 +1890,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: OS-SIMPLE-CERT certificate get
   identity.policy:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -1774,6 +1910,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: policy show
       delete:
         operation_id: policies/policy_id:delete
         operation_type: delete
@@ -1783,6 +1920,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: policy delete
       update:
         operation_id: policies/policy_id:patch
         operation_type: set
@@ -1792,6 +1930,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: policy set
       list:
         operation_id: policies:get
         operation_type: list
@@ -1801,6 +1940,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: policy list
       create:
         operation_id: policies:post
         operation_type: create
@@ -1810,6 +1950,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: policy create
   identity.policy/OS_ENDPOINT_POLICY/endpoint:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -1829,6 +1970,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: policy OS-ENDPOINT-POLICY endpoint list
       show:
         operation_id: policies/policy_id/OS-ENDPOINT-POLICY/endpoints/endpoint_id:get
         operation_type: show
@@ -1838,6 +1980,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: policy OS-ENDPOINT-POLICY endpoint show
       update:
         operation_id: policies/policy_id/OS-ENDPOINT-POLICY/endpoints/endpoint_id:put
         operation_type: set
@@ -1847,6 +1990,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: policy OS-ENDPOINT-POLICY endpoint set
       delete:
         operation_id: policies/policy_id/OS-ENDPOINT-POLICY/endpoints/endpoint_id:delete
         operation_type: delete
@@ -1856,6 +2000,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: policy OS-ENDPOINT-POLICY endpoint delete
   identity.policy/OS_ENDPOINT_POLICY/service:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -1875,6 +2020,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: policy OS-ENDPOINT-POLICY service show
       update:
         operation_id: policies/policy_id/OS-ENDPOINT-POLICY/services/service_id:put
         operation_type: set
@@ -1884,6 +2030,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: policy OS-ENDPOINT-POLICY service set
       delete:
         operation_id: policies/policy_id/OS-ENDPOINT-POLICY/services/service_id:delete
         operation_type: delete
@@ -1893,6 +2040,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: policy OS-ENDPOINT-POLICY service delete
   identity.policy/OS_ENDPOINT_POLICY/service/region:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -1912,6 +2060,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: policy OS-ENDPOINT-POLICY service region show
       update:
         operation_id: policies/policy_id/OS-ENDPOINT-POLICY/services/service_id/regions/region_id:put
         operation_type: set
@@ -1921,6 +2070,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: policy OS-ENDPOINT-POLICY service region set
       delete:
         operation_id:
           policies/policy_id/OS-ENDPOINT-POLICY/services/service_id/regions/region_id:delete
@@ -1931,6 +2081,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: policy OS-ENDPOINT-POLICY service region delete
   identity.project:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -1951,6 +2102,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: project show
       delete:
         operation_id: projects/project_id:delete
         operation_type: delete
@@ -1961,6 +2113,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: project delete
       update:
         operation_id: projects/project_id:patch
         operation_type: set
@@ -1971,6 +2124,7 @@ resources:
             module_name: set
             sdk_mod_name: set
             find_implemented_by_sdk: true
+            cli_full_command: project set
       list:
         operation_id: projects:get
         operation_type: list
@@ -1980,6 +2134,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: project list
       create:
         operation_id: projects:post
         operation_type: create
@@ -1989,6 +2144,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: project create
       find:
         operation_id: projects:get
         operation_type: find
@@ -2018,6 +2174,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: project tag list
       replace:
         operation_id: projects/project_id/tags:put
         operation_type: set
@@ -2027,6 +2184,7 @@ resources:
           rust-cli:
             module_name: replace
             sdk_mod_name: replace
+            cli_full_command: project tag replace
       delete_all:
         operation_id: projects/project_id/tags:delete
         operation_type: delete
@@ -2036,6 +2194,7 @@ resources:
           rust-cli:
             module_name: delete_all
             sdk_mod_name: delete_all
+            cli_full_command: project tag purge
       show:
         operation_id: projects/project_id/tags/value:get
         operation_type: show
@@ -2045,6 +2204,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: project tag check
       update:
         operation_id: projects/project_id/tags/value:put
         operation_type: set
@@ -2054,6 +2214,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: project tag add
       delete:
         operation_id: projects/project_id/tags/value:delete
         operation_type: delete
@@ -2063,6 +2224,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: project tag delete
   identity.project/user/role:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -2082,6 +2244,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: project user role show
       update:
         operation_id: projects/project_id/users/user_id/roles/role_id:put
         operation_type: set
@@ -2091,6 +2254,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: project user role set
       delete:
         operation_id: projects/project_id/users/user_id/roles/role_id:delete
         operation_type: delete
@@ -2100,6 +2264,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: project user role delete
       list:
         operation_id: projects/project_id/users/user_id/roles:get
         operation_type: list
@@ -2109,6 +2274,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: project user role list
   identity.project/group/role:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -2128,6 +2294,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: project group role show
       update:
         operation_id: projects/project_id/groups/group_id/roles/role_id:put
         operation_type: set
@@ -2137,6 +2304,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: project group role set
       delete:
         operation_id: projects/project_id/groups/group_id/roles/role_id:delete
         operation_type: delete
@@ -2146,6 +2314,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: project group role delete
       list:
         operation_id: projects/project_id/groups/group_id/roles:get
         operation_type: list
@@ -2155,6 +2324,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: project group role list
   identity.region:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -2174,6 +2344,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: region show
       update:
         operation_id: regions/region_id:patch
         operation_type: set
@@ -2183,6 +2354,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: region set
       delete:
         operation_id: regions/region_id:delete
         operation_type: delete
@@ -2192,6 +2364,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: region delete
       list:
         operation_id: regions:get
         operation_type: list
@@ -2201,6 +2374,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: region list
       create:
         operation_id: regions:post
         operation_type: create
@@ -2210,6 +2384,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: region create
   identity.registered_limit:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -2229,6 +2404,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: registered-limit show
       delete:
         operation_id: registered_limits/registered_limit_id:delete
         operation_type: delete
@@ -2238,6 +2414,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: registered-limit delete
       update:
         operation_id: registered_limits/registered_limit_id:patch
         operation_type: set
@@ -2247,6 +2424,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: registered-limit set
       list:
         operation_id: registered_limits:get
         operation_type: list
@@ -2256,6 +2434,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: registered-limit list
       create:
         operation_id: registered_limits:post
         operation_type: create
@@ -2265,6 +2444,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: registered-limit create
   identity.role_assignment:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -2284,6 +2464,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: role-assignment list
   identity.role_inference:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -2305,6 +2486,7 @@ resources:
             module_name: list
             sdk_mod_name: list
             response_key: role_inferences
+            cli_full_command: role-inference list
   identity.role:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -2325,6 +2507,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: role show
       delete:
         operation_id: roles/role_id:delete
         operation_type: delete
@@ -2335,6 +2518,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: role delete
       update:
         operation_id: roles/role_id:patch
         operation_type: set
@@ -2345,6 +2529,7 @@ resources:
             module_name: set
             sdk_mod_name: set
             find_implemented_by_sdk: true
+            cli_full_command: role set
       list:
         operation_id: roles:get
         operation_type: list
@@ -2354,6 +2539,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: role list
       create:
         operation_id: roles:post
         operation_type: create
@@ -2363,6 +2549,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: role create
       find:
         operation_id: roles:get
         operation_type: find
@@ -2394,6 +2581,7 @@ resources:
             module_name: list
             sdk_mod_name: list
             response_key: role_inference
+            cli_full_command: role imply list
       show:
         operation_id: roles/prior_role_id/implies/implied_role_id:get
         operation_type: show
@@ -2403,6 +2591,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: role imply show
       update:
         operation_id: roles/prior_role_id/implies/implied_role_id:put
         operation_type: set
@@ -2412,6 +2601,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: role imply set
       delete:
         operation_id: roles/prior_role_id/implies/implied_role_id:delete
         operation_type: delete
@@ -2421,6 +2611,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: role imply delete
   identity.s3token:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -2440,6 +2631,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: s3token get
       create:
         operation_id: s3tokens:post
         operation_type: create
@@ -2449,6 +2641,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: s3token create
   identity.service:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -2469,6 +2662,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: service show
       delete:
         operation_id: services/service_id:delete
         operation_type: delete
@@ -2479,6 +2673,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: service delete
       update:
         operation_id: services/service_id:patch
         operation_type: set
@@ -2489,6 +2684,7 @@ resources:
             module_name: set
             sdk_mod_name: set
             find_implemented_by_sdk: true
+            cli_full_command: service set
       list:
         operation_id: services:get
         operation_type: list
@@ -2498,6 +2694,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: service list
       create:
         operation_id: services:post
         operation_type: create
@@ -2507,6 +2704,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: service create
       find:
         operation_id: services:get
         operation_type: find
@@ -2536,6 +2734,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: system user role list
       show:
         operation_id: system/users/user_id/roles/role_id:get
         operation_type: show
@@ -2545,6 +2744,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: system user role show
       update:
         operation_id: system/users/user_id/roles/role_id:put
         operation_type: set
@@ -2554,6 +2754,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: system user role set
       delete:
         operation_id: system/users/user_id/roles/role_id:delete
         operation_type: delete
@@ -2563,6 +2764,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: system user role delete
   identity.system/group/role:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -2582,6 +2784,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: system group role list
       show:
         operation_id: system/groups/group_id/roles/role_id:get
         operation_type: show
@@ -2591,6 +2794,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: system group role show
       update:
         operation_id: system/groups/group_id/roles/role_id:put
         operation_type: set
@@ -2600,6 +2804,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: system group role set
       delete:
         operation_id: system/groups/group_id/roles/role_id:delete
         operation_type: delete
@@ -2609,6 +2814,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: system group role delete
   identity.OS_TRUST/trust:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -2628,6 +2834,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: OS-TRUST trust show
       delete:
         operation_id: OS-TRUST/trusts/trust_id:delete
         operation_type: delete
@@ -2637,6 +2844,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: OS-TRUST trust delete
       list:
         operation_id: OS-TRUST/trusts:get
         operation_type: list
@@ -2646,6 +2854,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: OS-TRUST trust list
       create:
         operation_id: OS-TRUST/trusts:post
         operation_type: create
@@ -2655,6 +2864,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: OS-TRUST trust create
   identity.OS_TRUST/trust/role:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -2674,6 +2884,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: OS-TRUST trust role list
       show:
         operation_id: OS-TRUST/trusts/trust_id/roles/role_id:get
         operation_type: show
@@ -2683,6 +2894,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: OS-TRUST trust role show
   identity.user:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -2703,6 +2915,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: user show
       delete:
         operation_id: users/user_id:delete
         operation_type: delete
@@ -2713,6 +2926,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: user delete
       update:
         operation_id: users/user_id:patch
         operation_type: set
@@ -2723,6 +2937,7 @@ resources:
             module_name: set
             sdk_mod_name: set
             find_implemented_by_sdk: true
+            cli_full_command: user set
       list:
         operation_id: users:get
         operation_type: list
@@ -2732,6 +2947,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: user list
       create:
         operation_id: users:post
         operation_type: create
@@ -2741,6 +2957,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: user create
       find:
         operation_id: users:get
         operation_type: find
@@ -2764,6 +2981,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: user password set
   identity.user/group:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -2783,6 +3001,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: user groups
   identity.user/project:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -2802,6 +3021,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: user projects
   identity.user/OS_OAUTH1/access_token:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -2821,6 +3041,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: user OS-OAUTH1 access-token list
       show:
         operation_id: users/user_id/OS-OAUTH1/access_tokens/access_token_id:get
         operation_type: show
@@ -2830,6 +3051,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: user OS-OAUTH1 access-token show
       delete:
         operation_id: users/user_id/OS-OAUTH1/access_tokens/access_token_id:delete
         operation_type: delete
@@ -2839,6 +3061,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: user OS-OAUTH1 access-token delete
   identity.user/OS_OAUTH1/access_token/role:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -2858,6 +3081,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: user OS-OAUTH1 access-token role list
       show:
         operation_id: users/user_id/OS-OAUTH1/access_tokens/access_token_id/roles/role_id:get
         operation_type: show
@@ -2867,6 +3091,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: user OS-OAUTH1 access-token role show
   identity.user/application_credential:
     spec_file: wrk/openapi_specs/identity/v3.yaml
     api_version: v3
@@ -2886,6 +3111,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: application-credential list
       create:
         operation_id: users/user_id/application_credentials:post
         operation_type: create
@@ -2895,6 +3121,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: application-credential create
       show:
         operation_id: users/user_id/application_credentials/application_credential_id:get
         operation_type: show
@@ -2905,6 +3132,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: application-credential show
       delete:
         operation_id: users/user_id/application_credentials/application_credential_id:delete
         operation_type: delete
@@ -2915,6 +3143,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: application-credential delete
       find:
         operation_id: users/user_id/application_credentials:get
         operation_type: find
@@ -2944,6 +3173,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: access-rule list
       show:
         operation_id: users/user_id/access_rules/access_rule_id:get
         operation_type: show
@@ -2953,6 +3183,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: access-rule show
       delete:
         operation_id: users/user_id/access_rules/access_rule_id:delete
         operation_type: delete
@@ -2962,3 +3193,4 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: access-rule delete

@@ -12,6 +12,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: version get
   block-storage.volume:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -26,6 +27,7 @@ resources:
             module_name: list
             sdk_mod_name: list_detailed
             find_implemented_by_sdk: true
+            cli_full_command: volume list
       list:
         operation_id: volumes:get
         operation_type: list
@@ -41,6 +43,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: volume create
       revert:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -53,6 +56,7 @@ resources:
             sdk_mod_name: revert
             operation_name: revert
             find_implemented_by_sdk: true
+            cli_full_command: volume revert
       os-reset-status:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -65,6 +69,7 @@ resources:
             sdk_mod_name: os_reset_status
             operation_name: os-reset_status
             find_implemented_by_sdk: true
+            cli_full_command: volume reset-status
       os-force-delete:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -77,6 +82,7 @@ resources:
             sdk_mod_name: os_force_delete
             operation_name: os-force_delete
             find_implemented_by_sdk: true
+            cli_full_command: volume force-delete
       os-force-detach:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -89,6 +95,7 @@ resources:
             sdk_mod_name: os_force_detach
             operation_name: os-force_detach
             find_implemented_by_sdk: true
+            cli_full_command: volume force-detach
       os-migrate-volume:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -101,6 +108,7 @@ resources:
             sdk_mod_name: os_migrate_volume
             operation_name: os-migrate_volume
             find_implemented_by_sdk: true
+            cli_full_command: volume migrate-volume
       os-migrate-volume-completion:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -113,6 +121,7 @@ resources:
             sdk_mod_name: os_migrate_volume_completion
             operation_name: os-migrate_volume_completion
             find_implemented_by_sdk: true
+            cli_full_command: volume migrate-volume-completion
       os-attach:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -125,6 +134,7 @@ resources:
             sdk_mod_name: os_attach
             operation_name: os-attach
             find_implemented_by_sdk: true
+            cli_full_command: volume attach
       os-detach:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -137,6 +147,7 @@ resources:
             sdk_mod_name: os_detach
             operation_name: os-detach
             find_implemented_by_sdk: true
+            cli_full_command: volume detach
       os-reserve:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -149,6 +160,7 @@ resources:
             sdk_mod_name: os_reserve
             operation_name: os-reserve
             find_implemented_by_sdk: true
+            cli_full_command: volume reserve
       os-unreserve:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -161,6 +173,7 @@ resources:
             sdk_mod_name: os_unreserve
             operation_name: os-unreserve
             find_implemented_by_sdk: true
+            cli_full_command: volume unreserve
       os-begin-detaching:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -173,6 +186,7 @@ resources:
             sdk_mod_name: os_begin_detaching
             operation_name: os-begin_detaching
             find_implemented_by_sdk: true
+            cli_full_command: volume begin-detaching
       os-roll-detaching:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -185,6 +199,7 @@ resources:
             sdk_mod_name: os_roll_detaching
             operation_name: os-roll_detaching
             find_implemented_by_sdk: true
+            cli_full_command: volume roll-detaching
       os-initialize-connection:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -197,6 +212,7 @@ resources:
             sdk_mod_name: os_initialize_connection
             operation_name: os-initialize_connection
             find_implemented_by_sdk: true
+            cli_full_command: volume initialize-connection
       os-terminate-connection:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -209,6 +225,7 @@ resources:
             sdk_mod_name: os_terminate_connection
             operation_name: os-terminate_connection
             find_implemented_by_sdk: true
+            cli_full_command: volume terminate-connection
       os-volume-upload-image:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -221,6 +238,7 @@ resources:
             sdk_mod_name: os_volume_upload_image
             operation_name: os-volume_upload_image
             find_implemented_by_sdk: true
+            cli_full_command: volume volume-upload-image
       os-extend:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -233,6 +251,7 @@ resources:
             sdk_mod_name: os_extend
             operation_name: os-extend
             find_implemented_by_sdk: true
+            cli_full_command: volume extend
       os-update-readonly-flag:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -245,6 +264,7 @@ resources:
             sdk_mod_name: os_update_readonly_flag
             operation_name: os-update_readonly_flag
             find_implemented_by_sdk: true
+            cli_full_command: volume update-readonly-flag
       os-retype:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -257,6 +277,7 @@ resources:
             sdk_mod_name: os_retype
             operation_name: os-retype
             find_implemented_by_sdk: true
+            cli_full_command: volume retype
       os-set-bootable:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -269,6 +290,7 @@ resources:
             sdk_mod_name: os_set_bootable
             operation_name: os-set_bootable
             find_implemented_by_sdk: true
+            cli_full_command: volume set-bootable
       os-reimage:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -281,6 +303,7 @@ resources:
             sdk_mod_name: os_reimage
             operation_name: os-reimage
             find_implemented_by_sdk: true
+            cli_full_command: volume reimage
       os-set-image-metadata:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -293,6 +316,7 @@ resources:
             sdk_mod_name: os_set_image_metadata
             operation_name: os-set_image_metadata
             find_implemented_by_sdk: true
+            cli_full_command: volume set-image-metadata
       os-show-image-metadata:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -305,6 +329,7 @@ resources:
             sdk_mod_name: os_show_image_metadata
             operation_name: os-show_image_metadata
             find_implemented_by_sdk: true
+            cli_full_command: volume show-image-metadata
       os-unset-image-metadata:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -317,6 +342,7 @@ resources:
             sdk_mod_name: os_unset_image_metadata
             operation_name: os-unset_image_metadata
             find_implemented_by_sdk: true
+            cli_full_command: volume unset-image-metadata
       os-unmanage:
         operation_id: volumes/id/action:post
         operation_type: action
@@ -329,6 +355,7 @@ resources:
             sdk_mod_name: os_unmanage
             operation_name: os-unmanage
             find_implemented_by_sdk: true
+            cli_full_command: volume unmanage
       show:
         operation_id: volumes/id:get
         operation_type: show
@@ -339,6 +366,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: volume show
       update:
         operation_id: volumes/id:put
         operation_type: set
@@ -349,6 +377,7 @@ resources:
             module_name: set
             sdk_mod_name: set
             find_implemented_by_sdk: true
+            cli_full_command: volume set
       delete:
         operation_id: volumes/id:delete
         operation_type: delete
@@ -359,6 +388,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: volume delete
       find:
         operation_id: volumes/detail:get
         operation_type: find
@@ -382,6 +412,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: volume summary get
   block-storage.message:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -395,6 +426,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: message list
       show:
         operation_id: messages/id:get
         operation_type: show
@@ -404,6 +436,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: message show
       delete:
         operation_id: messages/id:delete
         operation_type: delete
@@ -413,6 +446,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: message delete
   block-storage.cluster:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -426,6 +460,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list_detailed
+            cli_full_command: cluster list
       list:
         operation_id: clusters:get
         operation_type: list
@@ -441,6 +476,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: cluster show
       update:
         operation_id: clusters/id:put
         operation_type: set
@@ -450,6 +486,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: cluster set
   block-storage.type:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -465,6 +502,7 @@ resources:
             module_name: list
             sdk_mod_name: list
             response_key: volume_types
+            cli_full_command: type list
       create:
         operation_id: types/id/action:post
         operation_type: action
@@ -478,6 +516,7 @@ resources:
             sdk_mod_name: create
             operation_name: create
             response_key: volume_type
+            cli_full_command: type create
       update:
         operation_id: types/id:put
         operation_type: set
@@ -490,6 +529,7 @@ resources:
             sdk_mod_name: set
             response_key: volume_type
             find_implemented_by_sdk: true
+            cli_full_command: type set
       delete:
         operation_id: types/id:delete
         operation_type: delete
@@ -500,6 +540,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: type delete
       add-project-access:
         operation_id: types/id/action:post
         operation_type: action
@@ -512,6 +553,7 @@ resources:
             sdk_mod_name: add_project_access
             operation_name: addProjectAccess
             find_implemented_by_sdk: true
+            cli_full_command: type add-project-access
       remove-project-access:
         operation_id: types/id/action:post
         operation_type: action
@@ -524,6 +566,7 @@ resources:
             sdk_mod_name: remove_project_access
             operation_name: removeProjectAccess
             find_implemented_by_sdk: true
+            cli_full_command: type remove-project-access
       show:
         operation_id: types/id:get
         operation_type: show
@@ -536,6 +579,7 @@ resources:
             sdk_mod_name: get
             response_key: volume_type
             find_implemented_by_sdk: true
+            cli_full_command: type show
       find:
         operation_id: types:get
         operation_type: find
@@ -559,6 +603,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: group-type list
       create:
         operation_id: group_types:post
         operation_type: create
@@ -568,6 +613,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: group-type create
       show:
         operation_id: group_types/id:get
         operation_type: show
@@ -577,6 +623,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: group-type show
       update:
         operation_id: group_types/id:put
         operation_type: set
@@ -586,6 +633,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: group-type set
       delete:
         operation_id: group_types/id:delete
         operation_type: delete
@@ -595,6 +643,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: group-type delete
   block-storage.group_type/group_spec:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -608,6 +657,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: group-type group-spec list
       create:
         operation_id: group_types/group_type_id/group_specs:post
         operation_type: create
@@ -617,6 +667,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: group-type group-spec create
       show:
         operation_id: group_types/group_type_id/group_specs/id:get
         operation_type: show
@@ -626,6 +677,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: group-type group-spec show
       update:
         operation_id: group_types/group_type_id/group_specs/id:put
         operation_type: set
@@ -635,6 +687,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: group-type group-spec set
       delete:
         operation_id: group_types/group_type_id/group_specs/id:delete
         operation_type: delete
@@ -644,6 +697,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: group-type group-spec delete
   block-storage.group:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -657,6 +711,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list_detailed
+            cli_full_command: group list
       list:
         operation_id: groups:get
         operation_type: list
@@ -672,6 +727,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: group create
       reset-status:
         operation_id: groups/action:post
         operation_type: action
@@ -683,6 +739,7 @@ resources:
             module_name: reset_status
             sdk_mod_name: reset_status
             operation_name: reset_status
+            cli_full_command: group reset-status
       delete:
         operation_id: groups/action:post
         operation_type: action
@@ -694,6 +751,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             operation_name: delete
+            cli_full_command: group delete
       create-from-src:
         operation_id: groups/action:post
         operation_type: action
@@ -705,6 +763,7 @@ resources:
             module_name: create_from_src
             sdk_mod_name: create_from_src
             operation_name: create-from-src
+            cli_full_command: group create-from-src
       enable-replication:
         operation_id: groups/action:post
         operation_type: action
@@ -716,6 +775,7 @@ resources:
             module_name: enable_replication
             sdk_mod_name: enable_replication
             operation_name: enable_replication
+            cli_full_command: group enable-replication
       disable-replication:
         operation_id: groups/action:post
         operation_type: action
@@ -727,6 +787,7 @@ resources:
             module_name: disable_replication
             sdk_mod_name: disable_replication
             operation_name: disable_replication
+            cli_full_command: group disable-replication
       failover-replication:
         operation_id: groups/action:post
         operation_type: action
@@ -738,6 +799,7 @@ resources:
             module_name: failover_replication
             sdk_mod_name: failover_replication
             operation_name: failover_replication
+            cli_full_command: group failover-replication
       list-replication-targets:
         operation_id: groups/action:post
         operation_type: action
@@ -749,6 +811,7 @@ resources:
             module_name: list_replication_targets
             sdk_mod_name: list_replication_targets
             operation_name: list_replication_targets
+            cli_full_command: group list-replication-targets
       show:
         operation_id: groups/id:get
         operation_type: show
@@ -758,6 +821,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: group show
       update:
         operation_id: groups/id:put
         operation_type: set
@@ -767,6 +831,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: group set
   block-storage.group_snapshot:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -780,6 +845,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list_detailed
+            cli_full_command: group-snapshot list
       list:
         operation_id: group_snapshots:get
         operation_type: list
@@ -795,6 +861,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: group-snapshot create
       reset-status:
         operation_id: group_snapshots/id/action:post
         operation_type: action
@@ -806,6 +873,7 @@ resources:
             module_name: reset_status
             sdk_mod_name: reset_status
             operation_name: reset_status
+            cli_full_command: group-snapshot reset-status
       show:
         operation_id: group_snapshots/id:get
         operation_type: show
@@ -815,6 +883,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: group-snapshot show
       delete:
         operation_id: group_snapshots/id:delete
         operation_type: delete
@@ -824,6 +893,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: group-snapshot delete
   block-storage.snapshot:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -837,6 +907,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list_detailed
+            cli_full_command: snapshot list
       list:
         operation_id: snapshots:get
         operation_type: list
@@ -852,6 +923,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: snapshot create
       os-reset-status:
         operation_id: snapshots/id/action:post
         operation_type: action
@@ -863,6 +935,7 @@ resources:
             module_name: os_reset_status
             sdk_mod_name: os_reset_status
             operation_name: os-reset_status
+            cli_full_command: snapshot reset-status
       os-force-delete:
         operation_id: snapshots/id/action:post
         operation_type: action
@@ -874,6 +947,7 @@ resources:
             module_name: os_force_delete
             sdk_mod_name: os_force_delete
             operation_name: os-force_delete
+            cli_full_command: snapshot force-delete
       os-update-snapshot-status:
         operation_id: snapshots/id/action:post
         operation_type: action
@@ -885,6 +959,7 @@ resources:
             module_name: os_update_snapshot_status
             sdk_mod_name: os_update_snapshot_status
             operation_name: os-update_snapshot_status
+            cli_full_command: snapshot update-snapshot-status
       os-unmanage:
         operation_id: snapshots/id/action:post
         operation_type: action
@@ -896,6 +971,7 @@ resources:
             module_name: os_unmanage
             sdk_mod_name: os_unmanage
             operation_name: os-unmanage
+            cli_full_command: snapshot unmanage
       show:
         operation_id: snapshots/id:get
         operation_type: show
@@ -905,6 +981,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: snapshot show
       update:
         operation_id: snapshots/id:put
         operation_type: set
@@ -914,6 +991,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: snapshot set
       delete:
         operation_id: snapshots/id:delete
         operation_type: delete
@@ -923,6 +1001,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: snapshot delete
   block-storage.limit:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -936,6 +1015,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: limit get
   block-storage.snapshot/metadata:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -949,6 +1029,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: snapshot metadata list
       replace:
         operation_id: snapshots/snapshot_id/metadata:put
         operation_type: set
@@ -958,6 +1039,7 @@ resources:
           rust-cli:
             module_name: replace
             sdk_mod_name: replace
+            cli_full_command: snapshot metadata replace
       create:
         operation_id: snapshots/snapshot_id/metadata:post
         operation_type: create
@@ -967,6 +1049,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: snapshot metadata create
       show:
         operation_id: snapshots/snapshot_id/metadata/id:get
         operation_type: show
@@ -976,6 +1059,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: snapshot metadata show
       update:
         operation_id: snapshots/snapshot_id/metadata/id:put
         operation_type: set
@@ -985,6 +1069,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: snapshot metadata set
       delete:
         operation_id: snapshots/snapshot_id/metadata/id:delete
         operation_type: delete
@@ -994,6 +1079,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: snapshot metadata delete
   block-storage.volume/metadata:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1007,6 +1093,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: volume metadata list
       replace:
         operation_id: volumes/volume_id/metadata:put
         operation_type: set
@@ -1016,6 +1103,7 @@ resources:
           rust-cli:
             module_name: replace
             sdk_mod_name: replace
+            cli_full_command: volume metadata replace
       create:
         operation_id: volumes/volume_id/metadata:post
         operation_type: create
@@ -1025,6 +1113,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: volume metadata create
       show:
         operation_id: volumes/volume_id/metadata/id:get
         operation_type: show
@@ -1034,6 +1123,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: volume metadata show
       update:
         operation_id: volumes/volume_id/metadata/id:put
         operation_type: set
@@ -1043,6 +1133,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: volume metadata set
       delete:
         operation_id: volumes/volume_id/metadata/id:delete
         operation_type: delete
@@ -1052,6 +1143,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: volume metadata delete
   block-storage.consistencygroup:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1065,6 +1157,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list_detailed
+            cli_full_command: consistencygroup list
       list:
         operation_id: consistencygroups:get
         operation_type: list
@@ -1080,6 +1173,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: consistencygroup create
       show:
         operation_id: consistencygroups/id:get
         operation_type: show
@@ -1089,6 +1183,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: consistencygroup show
       update:
         operation_id: consistencygroups/id/update:put
         operation_type: set
@@ -1098,6 +1193,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: consistencygroup set
       delete:
         operation_id: consistencygroups/id:delete
         operation_type: delete
@@ -1107,6 +1203,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: consistencygroup delete
   block-storage.manageable_volume:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1120,6 +1217,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list_detailed
+            cli_full_command: manageable-volume list
       get:
         operation_id: manageable_volumes:get
         operation_type: get
@@ -1129,6 +1227,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: manageable-volume get
       create:
         operation_id: manageable_volumes:post
         operation_type: create
@@ -1138,6 +1237,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: manageable-volume create
   block-storage.manageable_snapshot:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1151,6 +1251,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list_detailed
+            cli_full_command: manageable-snapshot list
       get:
         operation_id: manageable_snapshots:get
         operation_type: get
@@ -1160,6 +1261,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: manageable-snapshot get
       create:
         operation_id: manageable_snapshots:post
         operation_type: create
@@ -1169,6 +1271,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: manageable-snapshot create
   block-storage.backup:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1182,6 +1285,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list_detailed
+            cli_full_command: backup list
       list:
         operation_id: backups:get
         operation_type: list
@@ -1197,6 +1301,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: backup create
       show:
         operation_id: backups/id:get
         operation_type: show
@@ -1206,6 +1311,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: backup show
       update:
         operation_id: backups/id:put
         operation_type: set
@@ -1215,6 +1321,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: backup set
       delete:
         operation_id: backups/id:delete
         operation_type: delete
@@ -1224,6 +1331,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: backup delete
       os-reset-status:
         operation_id: backups/id/action:post
         operation_type: action
@@ -1235,6 +1343,7 @@ resources:
             module_name: os_reset_status
             sdk_mod_name: os_reset_status
             operation_name: os-reset_status
+            cli_full_command: backup reset-status
       os-force-delete:
         operation_id: backups/id/action:post
         operation_type: action
@@ -1246,6 +1355,7 @@ resources:
             module_name: os_force_delete
             sdk_mod_name: os_force_delete
             operation_name: os-force_delete
+            cli_full_command: backup force-delete
   block-storage.attachment:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1259,6 +1369,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list_detailed
+            cli_full_command: attachment list
       list:
         operation_id: attachments:get
         operation_type: list
@@ -1274,6 +1385,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: attachment create
       os-complete:
         operation_id: attachments/id/action:post
         operation_type: action
@@ -1285,6 +1397,7 @@ resources:
             module_name: os_complete
             sdk_mod_name: os_complete
             operation_name: os-complete
+            cli_full_command: attachment complete
       show:
         operation_id: attachments/id:get
         operation_type: show
@@ -1294,6 +1407,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: attachment show
       update:
         operation_id: attachments/id:put
         operation_type: set
@@ -1303,6 +1417,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: attachment set
       delete:
         operation_id: attachments/id:delete
         operation_type: delete
@@ -1312,6 +1427,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: attachment delete
   block-storage.worker/cleanup:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1325,6 +1441,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: worker cleanup create
   block-storage.resource_filter:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1338,6 +1455,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: resource-filter get
   block-storage.volume_transfer:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1351,6 +1469,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list_detailed
+            cli_full_command: volume-transfer list
       list:
         operation_id: os-volume-transfer:get
         operation_type: list
@@ -1366,6 +1485,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: volume-transfer create
       accept:
         operation_id: volume-transfers/id/accept:post
         operation_type: action
@@ -1375,6 +1495,7 @@ resources:
           rust-cli:
             module_name: accept
             sdk_mod_name: accept
+            cli_full_command: volume-transfer accept
       show:
         operation_id: os-volume-transfer/id:get
         operation_type: show
@@ -1384,6 +1505,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: volume-transfer show
       delete:
         operation_id: os-volume-transfer/id:delete
         operation_type: delete
@@ -1393,6 +1515,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: volume-transfer delete
   block-storage.default_type:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1406,6 +1529,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: default-type show
       update:
         operation_id: default-types/id:put
         operation_type: set
@@ -1415,6 +1539,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: default-type set
       delete:
         operation_id: default-types/id:delete
         operation_type: delete
@@ -1424,6 +1549,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: default-type delete
       list:
         operation_id: default-types:get
         operation_type: list
@@ -1433,6 +1559,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: default-type list
   block-storage.extension:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1446,6 +1573,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: extension list
       create:
         operation_id: extensions:post
         operation_type: create
@@ -1455,6 +1583,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: extension create
       show:
         operation_id: extensions/id:get
         operation_type: show
@@ -1464,6 +1593,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: extension show
       delete:
         operation_id: extensions/id:delete
         operation_type: delete
@@ -1473,6 +1603,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: extension delete
   block-storage.availability_zone:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1486,6 +1617,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: availability-zone get
   block-storage.backup/import_record:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1499,6 +1631,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: backup import-record create
   block-storage.backup/restore:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1512,6 +1645,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: backup restore create
   block-storage.backup/export_record:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1525,6 +1659,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: backup export-record get
   block-storage.capability:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1538,6 +1673,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: capability show
   block-storage.cgsnapshot:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1551,6 +1687,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list_detailed
+            cli_full_command: cgsnapshot list
       list:
         operation_id: cgsnapshots:get
         operation_type: list
@@ -1566,6 +1703,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: cgsnapshot create
       show:
         operation_id: cgsnapshots/id:get
         operation_type: show
@@ -1575,6 +1713,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: cgsnapshot show
       delete:
         operation_id: cgsnapshots/id:delete
         operation_type: delete
@@ -1584,6 +1723,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: cgsnapshot delete
   block-storage.consistencygroup/create_from_src:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1597,6 +1737,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: consistencygroup create-from-src create
   block-storage.consistencygroup/delete:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1610,6 +1751,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: consistencygroup delete create
   block-storage.host:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1623,6 +1765,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: host list
       replace:
         operation_id: os-hosts:put
         operation_type: set
@@ -1632,6 +1775,7 @@ resources:
           rust-cli:
             module_name: replace
             sdk_mod_name: replace
+            cli_full_command: host replace
       show:
         operation_id: os-hosts/id:get
         operation_type: show
@@ -1641,6 +1785,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: host show
       update:
         operation_id: os-hosts/id:put
         operation_type: set
@@ -1650,6 +1795,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: host set
   block-storage.qos_spec:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1663,6 +1809,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: qos-spec list
       create:
         operation_id: qos-specs:post
         operation_type: create
@@ -1672,6 +1819,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: qos-spec create
       show:
         operation_id: qos-specs/id:get
         operation_type: show
@@ -1681,6 +1829,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: qos-spec show
       update:
         operation_id: qos-specs/id:put
         operation_type: set
@@ -1690,6 +1839,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: qos-spec set
       delete:
         operation_id: qos-specs/id:delete
         operation_type: delete
@@ -1699,6 +1849,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: qos-spec delete
   block-storage.qos_spec/association:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1712,6 +1863,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: qos-spec association get
   block-storage.qos_spec/associate:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1725,6 +1877,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: qos-spec associate get
   block-storage.qos_spec/disassociate:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1738,6 +1891,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: qos-spec disassociate get
   block-storage.qos_spec/disassociate_all:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1751,6 +1905,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: qos-spec disassociate-all get
   block-storage.qos_spec/delete_key:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1764,6 +1919,7 @@ resources:
           rust-cli:
             module_name: delete_keys
             sdk_mod_name: delete_keys
+            cli_full_command: qos-spec delete-key delete-keys
   block-storage.quota_class_set:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1777,6 +1933,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: quota-class-set show
       update:
         operation_id: os-quota-class-sets/id:put
         operation_type: set
@@ -1786,6 +1943,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: quota-class-set set
   block-storage.quota_set/default:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1799,6 +1957,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: quota-set default get
   block-storage.quota_set:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1812,6 +1971,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: quota-set show
       update:
         operation_id: os-quota-sets/id:put
         operation_type: set
@@ -1821,6 +1981,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: quota-set set
       delete:
         operation_id: os-quota-sets/id:delete
         operation_type: delete
@@ -1830,6 +1991,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: quota-set delete
   block-storage.scheduler_stat/get_pool:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1843,6 +2005,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: scheduler-stat get-pool get
   block-storage.service:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1856,6 +2019,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: service list
       update:
         operation_id: os-services/id:put
         operation_type: set
@@ -1865,6 +2029,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: service set
   block-storage.snapshot_manage:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1878,6 +2043,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list_detailed
+            cli_full_command: snapshot-manage list
       get:
         operation_id: os-snapshot-manage:get
         operation_type: get
@@ -1887,6 +2053,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: snapshot-manage get
       create:
         operation_id: os-snapshot-manage:post
         operation_type: create
@@ -1896,6 +2063,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: snapshot-manage create
   block-storage.type/extra_spec:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1909,6 +2077,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: type extra-spec list
       create:
         operation_id: types/type_id/extra_specs:post
         operation_type: create
@@ -1918,6 +2087,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: type extra-spec create
       show:
         operation_id: types/type_id/extra_specs/id:get
         operation_type: show
@@ -1927,6 +2097,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: type extra-spec show
       update:
         operation_id: types/type_id/extra_specs/id:put
         operation_type: set
@@ -1936,6 +2107,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: type extra-spec set
       delete:
         operation_id: types/type_id/extra_specs/id:delete
         operation_type: delete
@@ -1945,6 +2117,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: type extra-spec delete
   block-storage.volume/encryption:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1958,6 +2131,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: volume encryption list
       show:
         operation_id: volumes/volume_id/encryption/id:get
         operation_type: show
@@ -1967,6 +2141,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: volume encryption show
   block-storage.volume_manage:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -1980,6 +2155,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list_detailed
+            cli_full_command: volume-manage list
       get:
         operation_id: os-volume-manage:get
         operation_type: get
@@ -1989,6 +2165,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: volume-manage get
       create:
         operation_id: os-volume-manage:post
         operation_type: create
@@ -1998,6 +2175,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: volume-manage create
   block-storage.type/volume_type_access:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -2013,6 +2191,7 @@ resources:
             module_name: get
             sdk_mod_name: get
             response_key: volume_type_access
+            cli_full_command: type volume-type-access get
   block-storage.type/encryption:
     spec_file: wrk/openapi_specs/block-storage/v3.yaml
     api_version: v3
@@ -2026,6 +2205,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: type encryption list
       create:
         operation_id: types/type_id/encryption:post
         operation_type: create
@@ -2035,6 +2215,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: type encryption create
       show:
         operation_id: types/type_id/encryption/id:get
         operation_type: show
@@ -2044,6 +2225,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: type encryption show
       update:
         operation_id: types/type_id/encryption/id:put
         operation_type: set
@@ -2053,6 +2235,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: type encryption set
       delete:
         operation_id: types/type_id/encryption/id:delete
         operation_type: delete
@@ -2062,3 +2245,4 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: type encryption delete

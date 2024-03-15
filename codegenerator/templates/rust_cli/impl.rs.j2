@@ -124,7 +124,7 @@ impl {{ target_class_name }}Command {
         op.validate_args(parsed_args)?;
 
   {%- if operation_type == "download" and is_image_download %}
-      {%- include 'rust_cli/impl_image_download.j2' %}
+        {%- include 'rust_cli/impl_image_download.j2' %}
   {%- else %}
 
     {% if find_present and operation_type in ["show", "set", "download"] %}
@@ -146,9 +146,9 @@ impl {{ target_class_name }}Command {
       {%- if microversion %}
         ep_builder.header("OpenStack-API-Version", "{{ "volume" if service_type == "block-storage" else service_type }} {{ microversion }}");
       {%- endif %}
-      {{ macros.set_cli_path_parameters(type_manager, "ep_builder") }}
-      {% include 'rust_cli/set_query_parameters.j2' %}
-      {% include 'rust_cli/set_body_parameters.j2' %}
+        {{ macros.set_cli_path_parameters(type_manager, "ep_builder") }}
+        {% include 'rust_cli/set_query_parameters.j2' %}
+        {% include 'rust_cli/set_body_parameters.j2' %}
 
       {%- if operation_type == "upload" and body_types|length == 1 and body_types[0] != "*/*" %}
         // The only supported media type
@@ -188,11 +188,11 @@ impl {{ target_class_name }}Command {
         {% include 'rust_cli/invoke_patch.j2' %}
       {%- else %}
          {%- if result_is_list %}
-          let data: Vec<serde_json::Value> = ep.query_async(client).await?;
-          op.output_list::<ResponseData>(data)?;
+        let data: Vec<serde_json::Value> = ep.query_async(client).await?;
+        op.output_list::<ResponseData>(data)?;
          {%- else %}
-          let data = ep.query_async(client).await?;
-          op.output_single::<ResponseData>(data)?;
+        let data = ep.query_async(client).await?;
+        op.output_single::<ResponseData>(data)?;
          {%- endif %}
       {%- endif %}
     {%- elif operation_type not in ["delete", "download", "upload", "json"] %}

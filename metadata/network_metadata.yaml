@@ -12,6 +12,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: extension list
       show:
         operation_id: extensions/id:get
         operation_type: show
@@ -21,6 +22,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: extension show
   network.address_group:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -34,6 +36,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: address-group list
       create:
         operation_id: address-groups:post
         operation_type: create
@@ -43,6 +46,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: address-group create
       add_addresses:
         operation_id: address-groups/id/add_addresses:put
         operation_type: action
@@ -53,6 +57,7 @@ resources:
             module_name: add_addresses
             sdk_mod_name: add_addresses
             find_implemented_by_sdk: true
+            cli_full_command: address-group add-addresses
       remove_addresses:
         operation_id: address-groups/id/remove_addresses:put
         operation_type: action
@@ -63,6 +68,7 @@ resources:
             module_name: remove_addresses
             sdk_mod_name: remove_addresses
             find_implemented_by_sdk: true
+            cli_full_command: address-group remove-addresses
       show:
         operation_id: address-groups/id:get
         operation_type: show
@@ -73,6 +79,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: address-group show
       update:
         operation_id: address-groups/id:put
         operation_type: set
@@ -83,6 +90,7 @@ resources:
             module_name: set
             sdk_mod_name: set
             find_implemented_by_sdk: true
+            cli_full_command: address-group set
       delete:
         operation_id: address-groups/id:delete
         operation_type: delete
@@ -93,6 +101,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: address-group delete
       find:
         operation_id: address-groups:get
         operation_type: find
@@ -116,6 +125,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: address-scope list
       create:
         operation_id: address-scopes:post
         operation_type: create
@@ -125,6 +135,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: address-scope create
       show:
         operation_id: address-scopes/id:get
         operation_type: show
@@ -135,6 +146,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: address-scope show
       update:
         operation_id: address-scopes/id:put
         operation_type: set
@@ -145,6 +157,7 @@ resources:
             module_name: set
             sdk_mod_name: set
             find_implemented_by_sdk: true
+            cli_full_command: address-scope set
       delete:
         operation_id: address-scopes/id:delete
         operation_type: delete
@@ -155,6 +168,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: address-scope delete
       find:
         operation_id: address-scopes:get
         operation_type: find
@@ -178,6 +192,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: agent list
       create:
         operation_id: agents:post
         operation_type: create
@@ -187,6 +202,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: agent create
       show:
         operation_id: agents/id:get
         operation_type: show
@@ -196,6 +212,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: agent show
       update:
         operation_id: agents/id:put
         operation_type: set
@@ -205,6 +222,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: agent set
       delete:
         operation_id: agents/id:delete
         operation_type: delete
@@ -214,6 +232,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: agent delete
   network.auto_allocated_topology:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -227,6 +246,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: auto-allocated-topology list
       create:
         operation_id: auto-allocated-topology:post
         operation_type: create
@@ -236,6 +256,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: auto-allocated-topology create
       show:
         operation_id: auto-allocated-topology/id:get
         operation_type: show
@@ -245,6 +266,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: auto-allocated-topology show
       update:
         operation_id: auto-allocated-topology/id:put
         operation_type: set
@@ -254,6 +276,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: auto-allocated-topology set
       delete:
         operation_id: auto-allocated-topology/id:delete
         operation_type: delete
@@ -263,6 +286,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: auto-allocated-topology delete
   network.availability_zone:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -276,6 +300,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: availability-zone list
   network.agent/dhcp_network:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -289,6 +314,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: agent dhcp-network list
       create:
         operation_id: agents/agent_id/dhcp-networks:post
         operation_type: create
@@ -298,6 +324,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: agent dhcp-network create
       show:
         operation_id: agents/agent_id/dhcp-networks/id:get
         operation_type: show
@@ -307,6 +334,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: agent dhcp-network show
       update:
         operation_id: agents/agent_id/dhcp-networks/id:put
         operation_type: set
@@ -316,6 +344,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: agent dhcp-network set
       delete:
         operation_id: agents/agent_id/dhcp-networks/id:delete
         operation_type: delete
@@ -325,6 +354,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: agent dhcp-network delete
   network.network/dhcp_agent:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -338,6 +368,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: network dhcp-agent list
       create:
         operation_id: networks/network_id/dhcp-agents:post
         operation_type: create
@@ -347,6 +378,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: network dhcp-agent create
       show:
         operation_id: networks/network_id/dhcp-agents/id:get
         operation_type: show
@@ -356,6 +388,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: network dhcp-agent show
       update:
         operation_id: networks/network_id/dhcp-agents/id:put
         operation_type: set
@@ -365,6 +398,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: network dhcp-agent set
       delete:
         operation_id: networks/network_id/dhcp-agents/id:delete
         operation_type: delete
@@ -374,6 +408,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: network dhcp-agent delete
   network.router:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -387,6 +422,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: router list
       create:
         operation_id: routers:post
         operation_type: create
@@ -396,6 +432,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: router create
       add_router_interface:
         operation_id: routers/id/add_router_interface:put
         operation_type: action
@@ -406,6 +443,7 @@ resources:
             module_name: add_router_interface
             sdk_mod_name: add_router_interface
             find_implemented_by_sdk: true
+            cli_full_command: router add-router-interface
       remove_router_interface:
         operation_id: routers/id/remove_router_interface:put
         operation_type: action
@@ -416,6 +454,7 @@ resources:
             module_name: remove_router_interface
             sdk_mod_name: remove_router_interface
             find_implemented_by_sdk: true
+            cli_full_command: router remove-router-interface
       add_extraroutes:
         operation_id: routers/id/add_extraroutes:put
         operation_type: action
@@ -426,6 +465,7 @@ resources:
             module_name: add_extraroutes
             sdk_mod_name: add_extraroutes
             find_implemented_by_sdk: true
+            cli_full_command: router add-extraroute
       remove_extraroutes:
         operation_id: routers/id/remove_extraroutes:put
         operation_type: action
@@ -436,6 +476,7 @@ resources:
             module_name: remove_extraroutes
             sdk_mod_name: remove_extraroutes
             find_implemented_by_sdk: true
+            cli_full_command: router remove-extraroute
       add_external_gateways:
         operation_id: routers/id/add_external_gateways:put
         operation_type: action
@@ -446,6 +487,7 @@ resources:
             module_name: add_external_gateways
             sdk_mod_name: add_external_gateways
             find_implemented_by_sdk: true
+            cli_full_command: router add-external-gateway
       update_external_gateways:
         operation_id: routers/id/update_external_gateways:put
         operation_type: action
@@ -456,6 +498,7 @@ resources:
             module_name: update_external_gateways
             sdk_mod_name: update_external_gateways
             find_implemented_by_sdk: true
+            cli_full_command: router update-external-gateway
       remove_external_gateways:
         operation_id: routers/id/remove_external_gateways:put
         operation_type: action
@@ -466,6 +509,7 @@ resources:
             module_name: remove_external_gateways
             sdk_mod_name: remove_external_gateways
             find_implemented_by_sdk: true
+            cli_full_command: router remove-external-gateway
       show:
         operation_id: routers/id:get
         operation_type: show
@@ -476,6 +520,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: router show
       update:
         operation_id: routers/id:put
         operation_type: set
@@ -486,6 +531,7 @@ resources:
             module_name: set
             sdk_mod_name: set
             find_implemented_by_sdk: true
+            cli_full_command: router set
       delete:
         operation_id: routers/id:delete
         operation_type: delete
@@ -496,6 +542,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: router delete
       find:
         operation_id: routers:get
         operation_type: find
@@ -519,6 +566,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: flavor list
       create:
         operation_id: flavors:post
         operation_type: create
@@ -528,6 +576,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: flavor create
       show:
         operation_id: flavors/id:get
         operation_type: show
@@ -538,6 +587,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: flavor show
       update:
         operation_id: flavors/id:put
         operation_type: set
@@ -548,6 +598,7 @@ resources:
             module_name: set
             sdk_mod_name: set
             find_implemented_by_sdk: true
+            cli_full_command: flavor set
       delete:
         operation_id: flavors/id:delete
         operation_type: delete
@@ -558,6 +609,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: flavor delete
       find:
         operation_id: flavors:get
         operation_type: find
@@ -581,6 +633,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: service-profile list
       create:
         operation_id: service_profiles:post
         operation_type: create
@@ -590,6 +643,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: service-profile create
       show:
         operation_id: service_profiles/id:get
         operation_type: show
@@ -599,6 +653,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: service-profile show
       update:
         operation_id: service_profiles/id:put
         operation_type: set
@@ -608,6 +663,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: service-profile set
       delete:
         operation_id: service_profiles/id:delete
         operation_type: delete
@@ -617,6 +673,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: service-profile delete
   network.flavor/next_provider:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -630,6 +687,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: flavor next-provider list
       create:
         operation_id: flavors/flavor_id/next_providers:post
         operation_type: create
@@ -639,6 +697,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: flavor next-provider create
       show:
         operation_id: flavors/flavor_id/next_providers/id:get
         operation_type: show
@@ -648,6 +707,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: flavor next-provider show
       update:
         operation_id: flavors/flavor_id/next_providers/id:put
         operation_type: set
@@ -657,6 +717,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: flavor next-provider set
       delete:
         operation_id: flavors/flavor_id/next_providers/id:delete
         operation_type: delete
@@ -666,6 +727,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: flavor next-provider delete
   network.flavor/service_profile:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -679,6 +741,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: flavor service-profile list
       create:
         operation_id: flavors/flavor_id/service_profiles:post
         operation_type: create
@@ -688,6 +751,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: flavor service-profile create
       show:
         operation_id: flavors/flavor_id/service_profiles/id:get
         operation_type: show
@@ -697,6 +761,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: flavor service-profile show
       update:
         operation_id: flavors/flavor_id/service_profiles/id:put
         operation_type: set
@@ -706,6 +771,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: flavor service-profile set
       delete:
         operation_id: flavors/flavor_id/service_profiles/id:delete
         operation_type: delete
@@ -715,6 +781,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: flavor service-profile delete
   network.floatingip/port_forwarding:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -728,6 +795,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: floating-ip port-forwarding list
       create:
         operation_id: floatingips/floatingip_id/port_forwardings:post
         operation_type: create
@@ -737,6 +805,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: floating-ip port-forwarding create
       show:
         operation_id: floatingips/floatingip_id/port_forwardings/id:get
         operation_type: show
@@ -746,6 +815,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: floating-ip port-forwarding show
       update:
         operation_id: floatingips/floatingip_id/port_forwardings/id:put
         operation_type: set
@@ -755,6 +825,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: floating-ip port-forwarding set
       delete:
         operation_id: floatingips/floatingip_id/port_forwardings/id:delete
         operation_type: delete
@@ -764,6 +835,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: floating-ip port-forwarding delete
   network.floatingip_pool:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -777,6 +849,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: floating-ip-pool list
       create:
         operation_id: floatingip-pools:post
         operation_type: create
@@ -786,6 +859,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: floating-ip-pool create
       show:
         operation_id: floatingip-pools/id:get
         operation_type: show
@@ -795,6 +869,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: floating-ip-pool show
       update:
         operation_id: floatingip-pools/id:put
         operation_type: set
@@ -804,6 +879,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: floating-ip-pool set
       delete:
         operation_id: floatingip-pools/id:delete
         operation_type: delete
@@ -813,6 +889,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: floating-ip-pool delete
   network.floatingip:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -826,6 +903,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: floating-ip list
       create:
         operation_id: floatingips:post
         operation_type: create
@@ -835,6 +913,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: floating-ip create
       show:
         operation_id: floatingips/id:get
         operation_type: show
@@ -844,6 +923,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: floating-ip show
       update:
         operation_id: floatingips/id:put
         operation_type: set
@@ -853,6 +933,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: floating-ip set
       delete:
         operation_id: floatingips/id:delete
         operation_type: delete
@@ -862,6 +943,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: floating-ip delete
   network.router/conntrack_helper:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -875,6 +957,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: router conntrack-helper list
       create:
         operation_id: routers/router_id/conntrack_helpers:post
         operation_type: create
@@ -884,6 +967,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: router conntrack-helper create
       show:
         operation_id: routers/router_id/conntrack_helpers/id:get
         operation_type: show
@@ -893,6 +977,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: router conntrack-helper show
       update:
         operation_id: routers/router_id/conntrack_helpers/id:put
         operation_type: set
@@ -902,6 +987,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: router conntrack-helper set
       delete:
         operation_id: routers/router_id/conntrack_helpers/id:delete
         operation_type: delete
@@ -911,6 +997,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: router conntrack-helper delete
   network.ndp_proxy:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -924,6 +1011,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: ndp-proxy list
       create:
         operation_id: ndp-proxies:post
         operation_type: create
@@ -933,6 +1021,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: ndp-proxy create
       show:
         operation_id: ndp-proxies/id:get
         operation_type: show
@@ -943,6 +1032,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: ndp-proxy show
       update:
         operation_id: ndp-proxies/id:put
         operation_type: set
@@ -953,6 +1043,7 @@ resources:
             module_name: set
             sdk_mod_name: set
             find_implemented_by_sdk: true
+            cli_full_command: ndp-proxy set
       delete:
         operation_id: ndp-proxies/id:delete
         operation_type: delete
@@ -963,6 +1054,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: ndp-proxy delete
       find:
         operation_id: ndp-proxies:get
         operation_type: find
@@ -986,6 +1078,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: agent l3-router list
       create:
         operation_id: agents/agent_id/l3-routers:post
         operation_type: create
@@ -995,6 +1088,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: agent l3-router create
       show:
         operation_id: agents/agent_id/l3-routers/id:get
         operation_type: show
@@ -1004,6 +1098,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: agent l3-router show
       update:
         operation_id: agents/agent_id/l3-routers/id:put
         operation_type: set
@@ -1013,6 +1108,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: agent l3-router set
       delete:
         operation_id: agents/agent_id/l3-routers/id:delete
         operation_type: delete
@@ -1022,6 +1118,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: agent l3-router delete
   network.router/l3_agent:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -1035,6 +1132,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: router l3-agent list
       create:
         operation_id: routers/router_id/l3-agents:post
         operation_type: create
@@ -1044,6 +1142,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: router l3-agent create
       show:
         operation_id: routers/router_id/l3-agents/id:get
         operation_type: show
@@ -1053,6 +1152,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: router l3-agent show
       update:
         operation_id: routers/router_id/l3-agents/id:put
         operation_type: set
@@ -1062,6 +1162,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: router l3-agent set
       delete:
         operation_id: routers/router_id/l3-agents/id:delete
         operation_type: delete
@@ -1071,6 +1172,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: router l3-agent delete
   network.local_ip:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -1084,6 +1186,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: local-ip list
       create:
         operation_id: local-ips:post
         operation_type: create
@@ -1093,6 +1196,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: local-ip create
       show:
         operation_id: local-ips/id:get
         operation_type: show
@@ -1103,6 +1207,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: local-ip show
       update:
         operation_id: local-ips/id:put
         operation_type: set
@@ -1113,6 +1218,7 @@ resources:
             module_name: set
             sdk_mod_name: set
             find_implemented_by_sdk: true
+            cli_full_command: local-ip set
       delete:
         operation_id: local-ips/id:delete
         operation_type: delete
@@ -1123,6 +1229,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: local-ip delete
       find:
         operation_id: local-ips:get
         operation_type: find
@@ -1146,6 +1253,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: local-ip port-association list
       create:
         operation_id: local_ips/local_ip_id/port_associations:post
         operation_type: create
@@ -1155,6 +1263,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: local-ip port-association create
       show:
         operation_id: local_ips/local_ip_id/port_associations/id:get
         operation_type: show
@@ -1164,6 +1273,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: local-ip port-association show
       update:
         operation_id: local_ips/local_ip_id/port_associations/id:put
         operation_type: set
@@ -1173,6 +1283,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: local-ip port-association set
       delete:
         operation_id: local_ips/local_ip_id/port_associations/id:delete
         operation_type: delete
@@ -1182,6 +1293,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: local-ip port-association delete
   network.log/log:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -1195,6 +1307,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: log log list
       create:
         operation_id: log/logs:post
         operation_type: create
@@ -1204,6 +1317,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: log log create
       show:
         operation_id: log/logs/id:get
         operation_type: show
@@ -1214,6 +1328,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: log log show
       update:
         operation_id: log/logs/id:put
         operation_type: set
@@ -1224,6 +1339,7 @@ resources:
             module_name: set
             sdk_mod_name: set
             find_implemented_by_sdk: true
+            cli_full_command: log log set
       delete:
         operation_id: log/logs/id:delete
         operation_type: delete
@@ -1234,6 +1350,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: log log delete
       find:
         operation_id: log/logs:get
         operation_type: find
@@ -1257,6 +1374,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: log loggable-resource list
       create:
         operation_id: log/loggable-resources:post
         operation_type: create
@@ -1266,6 +1384,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: log loggable-resource create
       show:
         operation_id: log/loggable-resources/id:get
         operation_type: show
@@ -1275,6 +1394,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: log loggable-resource show
       update:
         operation_id: log/loggable-resources/id:put
         operation_type: set
@@ -1284,6 +1404,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: log loggable-resource set
       delete:
         operation_id: log/loggable-resources/id:delete
         operation_type: delete
@@ -1293,6 +1414,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: log loggable-resource delete
   network.metering/metering_label:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -1306,6 +1428,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: metering metering-label list
       create:
         operation_id: metering/metering-labels:post
         operation_type: create
@@ -1315,6 +1438,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: metering metering-label create
       show:
         operation_id: metering/metering-labels/id:get
         operation_type: show
@@ -1325,6 +1449,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: metering metering-label show
       update:
         operation_id: metering/metering-labels/id:put
         operation_type: set
@@ -1335,6 +1460,7 @@ resources:
             module_name: set
             sdk_mod_name: set
             find_implemented_by_sdk: true
+            cli_full_command: metering metering-label set
       delete:
         operation_id: metering/metering-labels/id:delete
         operation_type: delete
@@ -1345,6 +1471,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: metering metering-label delete
       find:
         operation_id: metering/metering-labels:get
         operation_type: find
@@ -1368,6 +1495,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: metering metering-label-rule list
       create:
         operation_id: metering/metering-label-rules:post
         operation_type: create
@@ -1377,6 +1505,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: metering metering-label-rule create
       show:
         operation_id: metering/metering-label-rules/id:get
         operation_type: show
@@ -1386,6 +1515,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: metering metering-label-rule show
       update:
         operation_id: metering/metering-label-rules/id:put
         operation_type: set
@@ -1395,6 +1525,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: metering metering-label-rule set
       delete:
         operation_id: metering/metering-label-rules/id:delete
         operation_type: delete
@@ -1404,6 +1535,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: metering metering-label-rule delete
   network.network_ip_availability:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -1417,6 +1549,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: network-ip-availability list
       create:
         operation_id: network-ip-availabilities:post
         operation_type: create
@@ -1426,6 +1559,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: network-ip-availability create
       show:
         operation_id: network-ip-availabilities/id:get
         operation_type: show
@@ -1435,6 +1569,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: network-ip-availability show
       update:
         operation_id: network-ip-availabilities/id:put
         operation_type: set
@@ -1444,6 +1579,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: network-ip-availability set
       delete:
         operation_id: network-ip-availabilities/id:delete
         operation_type: delete
@@ -1453,6 +1589,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: network-ip-availability delete
   network.network_segment_range:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -1466,6 +1603,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: network-segment-range list
       create:
         operation_id: network-segment-ranges:post
         operation_type: create
@@ -1475,6 +1613,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: network-segment-range create
       show:
         operation_id: network-segment-ranges/id:get
         operation_type: show
@@ -1485,6 +1624,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: network-segment-range show
       update:
         operation_id: network-segment-ranges/id:put
         operation_type: set
@@ -1495,6 +1635,7 @@ resources:
             module_name: set
             sdk_mod_name: set
             find_implemented_by_sdk: true
+            cli_full_command: network-segment-range set
       delete:
         operation_id: network-segment-ranges/id:delete
         operation_type: delete
@@ -1505,6 +1646,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: network-segment-range delete
       find:
         operation_id: network-segment-ranges:get
         operation_type: find
@@ -1528,6 +1670,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: port binding list
       create:
         operation_id: ports/port_id/bindings:post
         operation_type: create
@@ -1537,37 +1680,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
-      show:
-        operation_id: ports/port_id/bindings/id:get
-        operation_type: show
-        targets:
-          rust-sdk:
-            module_name: get
-          rust-cli:
-            module_name: show
-            sdk_mod_name: get
-      update:
-        operation_id: ports/port_id/bindings/id:put
-        operation_type: set
-        targets:
-          rust-sdk:
-            module_name: set
-          rust-cli:
-            module_name: set
-            sdk_mod_name: set
-      delete:
-        operation_id: ports/port_id/bindings/id:delete
-        operation_type: delete
-        targets:
-          rust-sdk:
-            module_name: delete
-          rust-cli:
-            module_name: delete
-            sdk_mod_name: delete
-  network.port/binding/activate:
-    spec_file: wrk/openapi_specs/network/v2.yaml
-    api_version: v2
-    operations:
+            cli_full_command: port binding create
       activate:
         operation_id: ports/port_id/bindings/id/activate:put
         operation_type: action
@@ -1577,6 +1690,37 @@ resources:
           rust-cli:
             module_name: activate
             sdk_mod_name: activate
+            cli_full_command: port binding activate
+      show:
+        operation_id: ports/port_id/bindings/id:get
+        operation_type: show
+        targets:
+          rust-sdk:
+            module_name: get
+          rust-cli:
+            module_name: show
+            sdk_mod_name: get
+            cli_full_command: port binding show
+      update:
+        operation_id: ports/port_id/bindings/id:put
+        operation_type: set
+        targets:
+          rust-sdk:
+            module_name: set
+          rust-cli:
+            module_name: set
+            sdk_mod_name: set
+            cli_full_command: port binding set
+      delete:
+        operation_id: ports/port_id/bindings/id:delete
+        operation_type: delete
+        targets:
+          rust-sdk:
+            module_name: delete
+          rust-cli:
+            module_name: delete
+            sdk_mod_name: delete
+            cli_full_command: port binding delete
   network.qos/policy:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -1590,6 +1734,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: qos policy list
       create:
         operation_id: qos/policies:post
         operation_type: create
@@ -1599,6 +1744,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: qos policy create
       show:
         operation_id: qos/policies/id:get
         operation_type: show
@@ -1609,6 +1755,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: qos policy show
       update:
         operation_id: qos/policies/id:put
         operation_type: set
@@ -1619,6 +1766,7 @@ resources:
             module_name: set
             sdk_mod_name: set
             find_implemented_by_sdk: true
+            cli_full_command: qos policy set
       delete:
         operation_id: qos/policies/id:delete
         operation_type: delete
@@ -1629,6 +1777,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: qos policy delete
       find:
         operation_id: qos/policies:get
         operation_type: find
@@ -1652,6 +1801,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: qos rule-type list
       create:
         operation_id: qos/rule-types:post
         operation_type: create
@@ -1661,6 +1811,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: qos rule-type create
       show:
         operation_id: qos/rule-types/id:get
         operation_type: show
@@ -1670,6 +1821,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: qos rule-type show
       update:
         operation_id: qos/rule-types/id:put
         operation_type: set
@@ -1679,6 +1831,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: qos rule-type set
       delete:
         operation_id: qos/rule-types/id:delete
         operation_type: delete
@@ -1688,6 +1841,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: qos rule-type delete
   network.qos/policy/bandwidth_limit_rule:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -1701,6 +1855,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: qos policy bandwidth-limit-rule list
       create:
         operation_id: qos/policies/policy_id/bandwidth_limit_rules:post
         operation_type: create
@@ -1710,6 +1865,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: qos policy bandwidth-limit-rule create
       show:
         operation_id: qos/policies/policy_id/bandwidth_limit_rules/id:get
         operation_type: show
@@ -1719,6 +1875,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: qos policy bandwidth-limit-rule show
       update:
         operation_id: qos/policies/policy_id/bandwidth_limit_rules/id:put
         operation_type: set
@@ -1728,6 +1885,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: qos policy bandwidth-limit-rule set
       delete:
         operation_id: qos/policies/policy_id/bandwidth_limit_rules/id:delete
         operation_type: delete
@@ -1737,6 +1895,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: qos policy bandwidth-limit-rule delete
   network.qos/policy/dscp_marking_rule:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -1750,6 +1909,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: qos policy dscp-marking-rule list
       create:
         operation_id: qos/policies/policy_id/dscp_marking_rules:post
         operation_type: create
@@ -1759,6 +1919,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: qos policy dscp-marking-rule create
       show:
         operation_id: qos/policies/policy_id/dscp_marking_rules/id:get
         operation_type: show
@@ -1768,6 +1929,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: qos policy dscp-marking-rule show
       update:
         operation_id: qos/policies/policy_id/dscp_marking_rules/id:put
         operation_type: set
@@ -1777,6 +1939,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: qos policy dscp-marking-rule set
       delete:
         operation_id: qos/policies/policy_id/dscp_marking_rules/id:delete
         operation_type: delete
@@ -1786,6 +1949,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: qos policy dscp-marking-rule delete
   network.qos/policy/minimum_bandwidth_rule:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -1799,6 +1963,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: qos policy minimum-bandwidth-rule list
       create:
         operation_id: qos/policies/policy_id/minimum_bandwidth_rules:post
         operation_type: create
@@ -1808,6 +1973,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: qos policy minimum-bandwidth-rule create
       show:
         operation_id: qos/policies/policy_id/minimum_bandwidth_rules/id:get
         operation_type: show
@@ -1817,6 +1983,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: qos policy minimum-bandwidth-rule show
       update:
         operation_id: qos/policies/policy_id/minimum_bandwidth_rules/id:put
         operation_type: set
@@ -1826,6 +1993,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: qos policy minimum-bandwidth-rule set
       delete:
         operation_id: qos/policies/policy_id/minimum_bandwidth_rules/id:delete
         operation_type: delete
@@ -1835,6 +2003,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: qos policy minimum-bandwidth-rule delete
   network.qos/policy/minimum_packet_rate_rule:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -1848,6 +2017,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: qos policy minimum-packet-rate-rule list
       create:
         operation_id: qos/policies/policy_id/minimum-packet-rate-rules:post
         operation_type: create
@@ -1857,6 +2027,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: qos policy minimum-packet-rate-rule create
       show:
         operation_id: qos/policies/policy_id/minimum-packet-rate-rules/id:get
         operation_type: show
@@ -1866,6 +2037,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: qos policy minimum-packet-rate-rule show
       update:
         operation_id: qos/policies/policy_id/minimum-packet-rate-rules/id:put
         operation_type: set
@@ -1875,6 +2047,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: qos policy minimum-packet-rate-rule set
       delete:
         operation_id: qos/policies/policy_id/minimum-packet-rate-rules/id:delete
         operation_type: delete
@@ -1884,6 +2057,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: qos policy minimum-packet-rate-rule delete
   network.qos/alias_minimum_packet_rate_rule:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -1897,6 +2071,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: qos alias-minimum-packet-rate-rule list
       create:
         operation_id: qos/alias-minimum-packet-rate-rules:post
         operation_type: create
@@ -1906,6 +2081,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: qos alias-minimum-packet-rate-rule create
       show:
         operation_id: qos/alias-minimum-packet-rate-rules/id:get
         operation_type: show
@@ -1915,6 +2091,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: qos alias-minimum-packet-rate-rule show
       update:
         operation_id: qos/alias-minimum-packet-rate-rules/id:put
         operation_type: set
@@ -1924,6 +2101,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: qos alias-minimum-packet-rate-rule set
       delete:
         operation_id: qos/alias-minimum-packet-rate-rules/id:delete
         operation_type: delete
@@ -1933,6 +2111,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: qos alias-minimum-packet-rate-rule delete
   network.policy/packet_rate_limit_rule:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -1946,6 +2125,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: policy packet-rate-limit-rule list
       create:
         operation_id: policies/policy_id/packet_rate_limit_rules:post
         operation_type: create
@@ -1955,6 +2135,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: policy packet-rate-limit-rule create
       show:
         operation_id: policies/policy_id/packet_rate_limit_rules/id:get
         operation_type: show
@@ -1964,6 +2145,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: policy packet-rate-limit-rule show
       update:
         operation_id: policies/policy_id/packet_rate_limit_rules/id:put
         operation_type: set
@@ -1973,6 +2155,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: policy packet-rate-limit-rule set
       delete:
         operation_id: policies/policy_id/packet_rate_limit_rules/id:delete
         operation_type: delete
@@ -1982,6 +2165,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: policy packet-rate-limit-rule delete
   network.qos/alias_bandwidth_limit_rule:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -1995,6 +2179,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: qos alias-bandwidth-limit-rule list
       create:
         operation_id: qos/alias-bandwidth-limit-rules:post
         operation_type: create
@@ -2004,6 +2189,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: qos alias-bandwidth-limit-rule create
       show:
         operation_id: qos/alias-bandwidth-limit-rules/id:get
         operation_type: show
@@ -2013,6 +2199,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: qos alias-bandwidth-limit-rule show
       update:
         operation_id: qos/alias-bandwidth-limit-rules/id:put
         operation_type: set
@@ -2022,6 +2209,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: qos alias-bandwidth-limit-rule set
       delete:
         operation_id: qos/alias-bandwidth-limit-rules/id:delete
         operation_type: delete
@@ -2031,6 +2219,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: qos alias-bandwidth-limit-rule delete
   network.qos/alias_dscp_marking_rule:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -2044,6 +2233,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: qos alias-dscp-marking-rule list
       create:
         operation_id: qos/alias-dscp-marking-rules:post
         operation_type: create
@@ -2053,6 +2243,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: qos alias-dscp-marking-rule create
       show:
         operation_id: qos/alias-dscp-marking-rules/id:get
         operation_type: show
@@ -2062,6 +2253,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: qos alias-dscp-marking-rule show
       update:
         operation_id: qos/alias-dscp-marking-rules/id:put
         operation_type: set
@@ -2071,6 +2263,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: qos alias-dscp-marking-rule set
       delete:
         operation_id: qos/alias-dscp-marking-rules/id:delete
         operation_type: delete
@@ -2080,6 +2273,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: qos alias-dscp-marking-rule delete
   network.qos/alias_minimum_bandwidth_rule:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -2093,6 +2287,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: qos alias-minimum-bandwidth-rule list
       create:
         operation_id: qos/alias-minimum-bandwidth-rules:post
         operation_type: create
@@ -2102,6 +2297,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: qos alias-minimum-bandwidth-rule create
       show:
         operation_id: qos/alias-minimum-bandwidth-rules/id:get
         operation_type: show
@@ -2111,6 +2307,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: qos alias-minimum-bandwidth-rule show
       update:
         operation_id: qos/alias-minimum-bandwidth-rules/id:put
         operation_type: set
@@ -2120,6 +2317,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: qos alias-minimum-bandwidth-rule set
       delete:
         operation_id: qos/alias-minimum-bandwidth-rules/id:delete
         operation_type: delete
@@ -2129,6 +2327,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: qos alias-minimum-bandwidth-rule delete
   network.quota:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -2142,6 +2341,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: quota list
       show:
         operation_id: quotas/id:get
         operation_type: show
@@ -2151,6 +2351,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: quota show
       update:
         operation_id: quotas/id:put
         operation_type: set
@@ -2160,6 +2361,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: quota set
       delete:
         operation_id: quotas/id:delete
         operation_type: delete
@@ -2169,6 +2371,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: quota delete
   network.quota/default:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -2182,6 +2385,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: quota default get
   network.quota/details:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -2195,6 +2399,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: quota details get
   network.rbac_policy:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -2208,6 +2413,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: rbac-policy list
       create:
         operation_id: rbac-policies:post
         operation_type: create
@@ -2217,6 +2423,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: rbac-policy create
       show:
         operation_id: rbac-policies/id:get
         operation_type: show
@@ -2226,6 +2433,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: rbac-policy show
       update:
         operation_id: rbac-policies/id:put
         operation_type: set
@@ -2235,6 +2443,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: rbac-policy set
       delete:
         operation_id: rbac-policies/id:delete
         operation_type: delete
@@ -2244,6 +2453,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: rbac-policy delete
   network.default_security_group_rule:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -2257,6 +2467,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: default-security-group-rule list
       create:
         operation_id: default-security-group-rules:post
         operation_type: create
@@ -2266,6 +2477,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: default-security-group-rule create
       show:
         operation_id: default-security-group-rules/id:get
         operation_type: show
@@ -2275,6 +2487,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: default-security-group-rule show
       update:
         operation_id: default-security-group-rules/id:put
         operation_type: set
@@ -2284,6 +2497,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: default-security-group-rule set
       delete:
         operation_id: default-security-group-rules/id:delete
         operation_type: delete
@@ -2293,6 +2507,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: default-security-group-rule delete
   network.security_group:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -2306,6 +2521,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: security-group list
       create:
         operation_id: security-groups:post
         operation_type: create
@@ -2315,6 +2531,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: security-group create
       show:
         operation_id: security-groups/id:get
         operation_type: show
@@ -2325,6 +2542,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: security-group show
       update:
         operation_id: security-groups/id:put
         operation_type: set
@@ -2335,6 +2553,7 @@ resources:
             module_name: set
             sdk_mod_name: set
             find_implemented_by_sdk: true
+            cli_full_command: security-group set
       delete:
         operation_id: security-groups/id:delete
         operation_type: delete
@@ -2345,6 +2564,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: security-group delete
       find:
         operation_id: security-groups:get
         operation_type: find
@@ -2368,6 +2588,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: security-group-rule list
       create:
         operation_id: security-group-rules:post
         operation_type: create
@@ -2377,6 +2598,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: security-group-rule create
       show:
         operation_id: security-group-rules/id:get
         operation_type: show
@@ -2386,6 +2608,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: security-group-rule show
       update:
         operation_id: security-group-rules/id:put
         operation_type: set
@@ -2395,6 +2618,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: security-group-rule set
       delete:
         operation_id: security-group-rules/id:delete
         operation_type: delete
@@ -2404,6 +2628,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: security-group-rule delete
   network.segment:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -2417,6 +2642,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: segment list
       create:
         operation_id: segments:post
         operation_type: create
@@ -2426,6 +2652,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: segment create
       show:
         operation_id: segments/id:get
         operation_type: show
@@ -2436,6 +2663,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: segment show
       update:
         operation_id: segments/id:put
         operation_type: set
@@ -2446,6 +2674,7 @@ resources:
             module_name: set
             sdk_mod_name: set
             find_implemented_by_sdk: true
+            cli_full_command: segment set
       delete:
         operation_id: segments/id:delete
         operation_type: delete
@@ -2456,6 +2685,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: segment delete
       find:
         operation_id: segments:get
         operation_type: find
@@ -2479,6 +2709,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: service-provider list
       create:
         operation_id: service-providers:post
         operation_type: create
@@ -2488,6 +2719,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: service-provider create
       show:
         operation_id: service-providers/id:get
         operation_type: show
@@ -2497,6 +2729,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: service-provider show
       update:
         operation_id: service-providers/id:put
         operation_type: set
@@ -2506,6 +2739,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: service-provider set
       delete:
         operation_id: service-providers/id:delete
         operation_type: delete
@@ -2515,6 +2749,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: service-provider delete
   network.subnetpool:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -2528,6 +2763,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: subnetpool list
       create:
         operation_id: subnetpools:post
         operation_type: create
@@ -2537,6 +2773,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: subnetpool create
       show:
         operation_id: subnetpools/id:get
         operation_type: show
@@ -2547,6 +2784,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: subnetpool show
       update:
         operation_id: subnetpools/id:put
         operation_type: set
@@ -2557,6 +2795,7 @@ resources:
             module_name: set
             sdk_mod_name: set
             find_implemented_by_sdk: true
+            cli_full_command: subnetpool set
       delete:
         operation_id: subnetpools/id:delete
         operation_type: delete
@@ -2567,6 +2806,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: subnetpool delete
       add_prefixes:
         operation_id: subnetpools/id/add_prefixes:put
         operation_type: action
@@ -2577,6 +2817,7 @@ resources:
             module_name: add_prefixes
             sdk_mod_name: add_prefixes
             find_implemented_by_sdk: true
+            cli_full_command: subnetpool add-prefixes
       remove_prefixes:
         operation_id: subnetpools/id/remove_prefixes:put
         operation_type: action
@@ -2587,6 +2828,7 @@ resources:
             module_name: remove_prefixes
             sdk_mod_name: remove_prefixes
             find_implemented_by_sdk: true
+            cli_full_command: subnetpool remove-prefixes
       find:
         operation_id: subnetpools:get
         operation_type: find
@@ -2610,6 +2852,7 @@ resources:
           rust-cli:
             module_name: onboard_network_subnets
             sdk_mod_name: onboard_network_subnets
+            cli_full_command: subnetpool onboard-network-subnet onboard-network-subnets
   network.port/tag:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -2623,6 +2866,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: port tag list
       replace:
         operation_id: ports/port_id/tags:put
         operation_type: set
@@ -2632,6 +2876,7 @@ resources:
           rust-cli:
             module_name: replace
             sdk_mod_name: replace
+            cli_full_command: port tag replace
       delete_all:
         operation_id: ports/port_id/tags:delete
         operation_type: delete
@@ -2641,6 +2886,7 @@ resources:
           rust-cli:
             module_name: delete_all
             sdk_mod_name: delete_all
+            cli_full_command: port tag purge
       show:
         operation_id: ports/port_id/tags/id:get
         operation_type: show
@@ -2650,6 +2896,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: port tag check
       update:
         operation_id: ports/port_id/tags/id:put
         operation_type: set
@@ -2659,6 +2906,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: port tag add
       delete:
         operation_id: ports/port_id/tags/id:delete
         operation_type: delete
@@ -2668,6 +2916,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: port tag delete
   network.subnet/tag:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -2681,6 +2930,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: subnet tag list
       replace:
         operation_id: subnets/subnet_id/tags:put
         operation_type: set
@@ -2690,6 +2940,7 @@ resources:
           rust-cli:
             module_name: replace
             sdk_mod_name: replace
+            cli_full_command: subnet tag replace
       delete_all:
         operation_id: subnets/subnet_id/tags:delete
         operation_type: delete
@@ -2699,6 +2950,7 @@ resources:
           rust-cli:
             module_name: delete_all
             sdk_mod_name: delete_all
+            cli_full_command: subnet tag purge
       show:
         operation_id: subnets/subnet_id/tags/id:get
         operation_type: show
@@ -2708,6 +2960,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: subnet tag check
       update:
         operation_id: subnets/subnet_id/tags/id:put
         operation_type: set
@@ -2717,6 +2970,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: subnet tag add
       delete:
         operation_id: subnets/subnet_id/tags/id:delete
         operation_type: delete
@@ -2726,6 +2980,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: subnet tag delete
   network.subnetpool/tag:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -2739,6 +2994,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: subnetpool tag list
       replace:
         operation_id: subnetpools/subnetpool_id/tags:put
         operation_type: set
@@ -2748,6 +3004,7 @@ resources:
           rust-cli:
             module_name: replace
             sdk_mod_name: replace
+            cli_full_command: subnetpool tag replace
       delete_all:
         operation_id: subnetpools/subnetpool_id/tags:delete
         operation_type: delete
@@ -2757,6 +3014,7 @@ resources:
           rust-cli:
             module_name: delete_all
             sdk_mod_name: delete_all
+            cli_full_command: subnetpool tag purge
       show:
         operation_id: subnetpools/subnetpool_id/tags/id:get
         operation_type: show
@@ -2766,6 +3024,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: subnetpool tag check
       update:
         operation_id: subnetpools/subnetpool_id/tags/id:put
         operation_type: set
@@ -2775,6 +3034,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: subnetpool tag add
       delete:
         operation_id: subnetpools/subnetpool_id/tags/id:delete
         operation_type: delete
@@ -2784,6 +3044,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: subnetpool tag delete
   network.network/tag:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -2797,6 +3058,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: network tag list
       replace:
         operation_id: networks/network_id/tags:put
         operation_type: set
@@ -2806,6 +3068,7 @@ resources:
           rust-cli:
             module_name: replace
             sdk_mod_name: replace
+            cli_full_command: network tag replace
       delete_all:
         operation_id: networks/network_id/tags:delete
         operation_type: delete
@@ -2815,6 +3078,7 @@ resources:
           rust-cli:
             module_name: delete_all
             sdk_mod_name: delete_all
+            cli_full_command: network tag purge
       show:
         operation_id: networks/network_id/tags/id:get
         operation_type: show
@@ -2824,6 +3088,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: network tag check
       update:
         operation_id: networks/network_id/tags/id:put
         operation_type: set
@@ -2833,6 +3098,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: network tag add
       delete:
         operation_id: networks/network_id/tags/id:delete
         operation_type: delete
@@ -2842,6 +3108,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: network tag delete
   network.router/tag:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -2855,6 +3122,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: router tag list
       replace:
         operation_id: routers/router_id/tags:put
         operation_type: set
@@ -2864,6 +3132,7 @@ resources:
           rust-cli:
             module_name: replace
             sdk_mod_name: replace
+            cli_full_command: router tag replace
       delete_all:
         operation_id: routers/router_id/tags:delete
         operation_type: delete
@@ -2873,6 +3142,7 @@ resources:
           rust-cli:
             module_name: delete_all
             sdk_mod_name: delete_all
+            cli_full_command: router tag purge
       show:
         operation_id: routers/router_id/tags/id:get
         operation_type: show
@@ -2882,6 +3152,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: router tag check
       update:
         operation_id: routers/router_id/tags/id:put
         operation_type: set
@@ -2891,6 +3162,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: router tag add
       delete:
         operation_id: routers/router_id/tags/id:delete
         operation_type: delete
@@ -2900,6 +3172,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: router tag delete
   network.floatingip/tag:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -2913,6 +3186,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: floating-ip tag list
       replace:
         operation_id: floatingips/floatingip_id/tags:put
         operation_type: set
@@ -2922,6 +3196,7 @@ resources:
           rust-cli:
             module_name: replace
             sdk_mod_name: replace
+            cli_full_command: floating-ip tag replace
       delete_all:
         operation_id: floatingips/floatingip_id/tags:delete
         operation_type: delete
@@ -2931,6 +3206,7 @@ resources:
           rust-cli:
             module_name: delete_all
             sdk_mod_name: delete_all
+            cli_full_command: floating-ip tag purge
       show:
         operation_id: floatingips/floatingip_id/tags/id:get
         operation_type: show
@@ -2940,6 +3216,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: floating-ip tag check
       update:
         operation_id: floatingips/floatingip_id/tags/id:put
         operation_type: set
@@ -2949,6 +3226,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: floating-ip tag add
       delete:
         operation_id: floatingips/floatingip_id/tags/id:delete
         operation_type: delete
@@ -2958,6 +3236,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: floating-ip tag delete
   network.policy/tag:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -2971,6 +3250,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: policy tag list
       replace:
         operation_id: policies/policy_id/tags:put
         operation_type: set
@@ -2980,6 +3260,7 @@ resources:
           rust-cli:
             module_name: replace
             sdk_mod_name: replace
+            cli_full_command: policy tag replace
       delete_all:
         operation_id: policies/policy_id/tags:delete
         operation_type: delete
@@ -2989,6 +3270,7 @@ resources:
           rust-cli:
             module_name: delete_all
             sdk_mod_name: delete_all
+            cli_full_command: policy tag purge
       show:
         operation_id: policies/policy_id/tags/id:get
         operation_type: show
@@ -2998,6 +3280,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: policy tag check
       update:
         operation_id: policies/policy_id/tags/id:put
         operation_type: set
@@ -3007,6 +3290,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: policy tag add
       delete:
         operation_id: policies/policy_id/tags/id:delete
         operation_type: delete
@@ -3016,6 +3300,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: policy tag delete
   network.security_group/tag:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -3029,6 +3314,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: security-group tag list
       replace:
         operation_id: security-groups/security_group_id/tags:put
         operation_type: set
@@ -3038,6 +3324,7 @@ resources:
           rust-cli:
             module_name: replace
             sdk_mod_name: replace
+            cli_full_command: security-group tag replace
       delete_all:
         operation_id: security-groups/security_group_id/tags:delete
         operation_type: delete
@@ -3047,6 +3334,7 @@ resources:
           rust-cli:
             module_name: delete_all
             sdk_mod_name: delete_all
+            cli_full_command: security-group tag purge
       show:
         operation_id: security-groups/security_group_id/tags/id:get
         operation_type: show
@@ -3056,6 +3344,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: security-group tag check
       update:
         operation_id: security-groups/security_group_id/tags/id:put
         operation_type: set
@@ -3065,6 +3354,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: security-group tag add
       delete:
         operation_id: security-groups/security_group_id/tags/id:delete
         operation_type: delete
@@ -3074,6 +3364,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: security-group tag delete
   network.trunk/tag:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -3087,6 +3378,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: trunk tag list
       replace:
         operation_id: trunks/trunk_id/tags:put
         operation_type: set
@@ -3096,6 +3388,7 @@ resources:
           rust-cli:
             module_name: replace
             sdk_mod_name: replace
+            cli_full_command: trunk tag replace
       delete_all:
         operation_id: trunks/trunk_id/tags:delete
         operation_type: delete
@@ -3105,6 +3398,7 @@ resources:
           rust-cli:
             module_name: delete_all
             sdk_mod_name: delete_all
+            cli_full_command: trunk tag purge
       show:
         operation_id: trunks/trunk_id/tags/id:get
         operation_type: show
@@ -3114,6 +3408,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: trunk tag check
       update:
         operation_id: trunks/trunk_id/tags/id:put
         operation_type: set
@@ -3123,6 +3418,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: trunk tag add
       delete:
         operation_id: trunks/trunk_id/tags/id:delete
         operation_type: delete
@@ -3132,6 +3428,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: trunk tag delete
   network.network_segment_range/tag:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -3145,6 +3442,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: network-segment-range tag list
       replace:
         operation_id: network_segment_ranges/network_segment_range_id/tags:put
         operation_type: set
@@ -3154,6 +3452,7 @@ resources:
           rust-cli:
             module_name: replace
             sdk_mod_name: replace
+            cli_full_command: network-segment-range tag replace
       delete_all:
         operation_id: network_segment_ranges/network_segment_range_id/tags:delete
         operation_type: delete
@@ -3163,6 +3462,7 @@ resources:
           rust-cli:
             module_name: delete_all
             sdk_mod_name: delete_all
+            cli_full_command: network-segment-range tag purge
       show:
         operation_id: network_segment_ranges/network_segment_range_id/tags/id:get
         operation_type: show
@@ -3172,6 +3472,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: network-segment-range tag check
       update:
         operation_id: network_segment_ranges/network_segment_range_id/tags/id:put
         operation_type: set
@@ -3181,6 +3482,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: network-segment-range tag add
       delete:
         operation_id: network_segment_ranges/network_segment_range_id/tags/id:delete
         operation_type: delete
@@ -3190,6 +3492,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: network-segment-range tag delete
   network.network:
     spec_file: wrk/openapi_specs/network/v2.yaml
     api_version: v2
@@ -3203,6 +3506,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: network list
       create:
         operation_id: networks:post
         operation_type: create
@@ -3212,6 +3516,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: network create
       show:
         operation_id: networks/network_id:get
         operation_type: show
@@ -3222,6 +3527,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: network show
       update:
         operation_id: networks/network_id:put
         operation_type: set
@@ -3232,6 +3538,7 @@ resources:
             module_name: set
             sdk_mod_name: set
             find_implemented_by_sdk: true
+            cli_full_command: network set
       delete:
         operation_id: networks/network_id:delete
         operation_type: delete
@@ -3242,6 +3549,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: network delete
       find:
         operation_id: networks:get
         operation_type: find
@@ -3265,6 +3573,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: subnet list
       create:
         operation_id: subnets:post
         operation_type: create
@@ -3274,6 +3583,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: subnet create
       show:
         operation_id: subnets/subnet_id:get
         operation_type: show
@@ -3284,6 +3594,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: subnet show
       update:
         operation_id: subnets/subnet_id:put
         operation_type: set
@@ -3294,6 +3605,7 @@ resources:
             module_name: set
             sdk_mod_name: set
             find_implemented_by_sdk: true
+            cli_full_command: subnet set
       delete:
         operation_id: subnets/subnet_id:delete
         operation_type: delete
@@ -3304,6 +3616,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: subnet delete
       find:
         operation_id: subnets:get
         operation_type: find
@@ -3327,6 +3640,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: port list
       create:
         operation_id: ports:post
         operation_type: create
@@ -3336,6 +3650,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: port create
       show:
         operation_id: ports/port_id:get
         operation_type: show
@@ -3346,6 +3661,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: port show
       update:
         operation_id: ports/port_id:put
         operation_type: set
@@ -3356,6 +3672,7 @@ resources:
             module_name: set
             sdk_mod_name: set
             find_implemented_by_sdk: true
+            cli_full_command: port set
       delete:
         operation_id: ports/port_id:delete
         operation_type: delete
@@ -3366,6 +3683,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: port delete
       add_allowed_address_pairs:
         operation_id: ports/port_id/add_allowed_address_pairs:put
         operation_type: action
@@ -3376,6 +3694,7 @@ resources:
             module_name: add_allowed_address_pairs
             sdk_mod_name: add_allowed_address_pairs
             find_implemented_by_sdk: true
+            cli_full_command: port add-allowed-address-pairs
       find:
         operation_id: ports:get
         operation_type: find
@@ -3399,6 +3718,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: vpn endpoint-group list
       create:
         operation_id: vpn/endpoint-groups:post
         operation_type: create
@@ -3408,6 +3728,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: vpn endpoint-group create
       show:
         operation_id: vpn/endpoint-groups/id:get
         operation_type: show
@@ -3418,6 +3739,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: vpn endpoint-group show
       update:
         operation_id: vpn/endpoint-groups/id:put
         operation_type: set
@@ -3428,6 +3750,7 @@ resources:
             module_name: set
             sdk_mod_name: set
             find_implemented_by_sdk: true
+            cli_full_command: vpn endpoint-group set
       delete:
         operation_id: vpn/endpoint-groups/id:delete
         operation_type: delete
@@ -3438,6 +3761,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: vpn endpoint-group delete
       find:
         operation_id: vpn/endpoint-groups:get
         operation_type: find
@@ -3461,6 +3785,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: vpn vpnservice list
       create:
         operation_id: vpn/vpnservices:post
         operation_type: create
@@ -3470,6 +3795,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: vpn vpnservice create
       show:
         operation_id: vpn/vpnservices/id:get
         operation_type: show
@@ -3480,6 +3806,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: vpn vpnservice show
       update:
         operation_id: vpn/vpnservices/id:put
         operation_type: set
@@ -3490,6 +3817,7 @@ resources:
             module_name: set
             sdk_mod_name: set
             find_implemented_by_sdk: true
+            cli_full_command: vpn vpnservice set
       delete:
         operation_id: vpn/vpnservices/id:delete
         operation_type: delete
@@ -3500,6 +3828,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: vpn vpnservice delete
       find:
         operation_id: vpn/vpnservices:get
         operation_type: find
@@ -3523,6 +3852,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: vpn ipsec-site-connection list
       create:
         operation_id: vpn/ipsec-site-connections:post
         operation_type: create
@@ -3532,6 +3862,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: vpn ipsec-site-connection create
       show:
         operation_id: vpn/ipsec-site-connections/id:get
         operation_type: show
@@ -3542,6 +3873,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: vpn ipsec-site-connection show
       update:
         operation_id: vpn/ipsec-site-connections/id:put
         operation_type: set
@@ -3552,6 +3884,7 @@ resources:
             module_name: set
             sdk_mod_name: set
             find_implemented_by_sdk: true
+            cli_full_command: vpn ipsec-site-connection set
       delete:
         operation_id: vpn/ipsec-site-connections/id:delete
         operation_type: delete
@@ -3562,6 +3895,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: vpn ipsec-site-connection delete
       find:
         operation_id: vpn/ipsec-site-connections:get
         operation_type: find
@@ -3585,6 +3919,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: vpn ipsecpolicy list
       create:
         operation_id: vpn/ipsecpolicies:post
         operation_type: create
@@ -3594,6 +3929,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: vpn ipsecpolicy create
       show:
         operation_id: vpn/ipsecpolicies/id:get
         operation_type: show
@@ -3604,6 +3940,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: vpn ipsecpolicy show
       update:
         operation_id: vpn/ipsecpolicies/id:put
         operation_type: set
@@ -3614,6 +3951,7 @@ resources:
             module_name: set
             sdk_mod_name: set
             find_implemented_by_sdk: true
+            cli_full_command: vpn ipsecpolicy set
       delete:
         operation_id: vpn/ipsecpolicies/id:delete
         operation_type: delete
@@ -3624,6 +3962,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: vpn ipsecpolicy delete
       find:
         operation_id: vpn/ipsecpolicies:get
         operation_type: find
@@ -3647,6 +3986,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: vpn ikepolicy list
       create:
         operation_id: vpn/ikepolicies:post
         operation_type: create
@@ -3656,6 +3996,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: vpn ikepolicy create
       show:
         operation_id: vpn/ikepolicies/id:get
         operation_type: show
@@ -3666,6 +4007,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: vpn ikepolicy show
       update:
         operation_id: vpn/ikepolicies/id:put
         operation_type: set
@@ -3676,6 +4018,7 @@ resources:
             module_name: set
             sdk_mod_name: set
             find_implemented_by_sdk: true
+            cli_full_command: vpn ikepolicy set
       delete:
         operation_id: vpn/ikepolicies/id:delete
         operation_type: delete
@@ -3686,6 +4029,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: vpn ikepolicy delete
       find:
         operation_id: vpn/ikepolicies:get
         operation_type: find
