@@ -370,6 +370,7 @@ class MetadataGenerator(BaseGenerator):
                                             module_name=get_module_name(
                                                 action_name
                                             ),
+                                            resource_name=resource_name,
                                         )
                                     )
 
@@ -413,7 +414,7 @@ class MetadataGenerator(BaseGenerator):
                                 operation_key
                             )
                             rust_cli_params = get_rust_cli_operation_args(
-                                operation_key
+                                operation_key, resource_name=resource_name
                             )
 
                             op_model.targets["rust-sdk"] = rust_sdk_params
@@ -431,7 +432,6 @@ class MetadataGenerator(BaseGenerator):
                             )
 
                             resource_model.operations[operation_key] = op_model
-                    pass
         for res_name, res_data in metadata.resources.items():
             # Sanitize produced metadata
             list_op = res_data.operations.get("list")
@@ -602,6 +602,7 @@ def get_rust_cli_operation_args(
     operation_key: str,
     operation_name: str | None = None,
     module_name: str | None = None,
+    resource_name: str | None = None,
 ):
     """Construct proper Rust CLI parameters for operation by type"""
     # Get SDK params to connect things with each other
@@ -613,6 +614,17 @@ def get_rust_cli_operation_args(
     cli_params.sdk_mod_name = sdk_params.module_name
     cli_params.module_name = module_name or get_module_name(operation_key)
     cli_params.operation_name = operation_name
+    if resource_name:
+        op_name = cli_params.module_name
+        if op_name.startswith("os_") or op_name.startswith("os-"):
+            op_name = op_name[3:]
+        op_name = op_name.replace("_", "-")
+
+        cli_params.cli_full_command = (
+            " ".join(x for x in resource_name.split("/")).replace("_", "-")
+            + " "
+            + op_name
+        )
 
     return cli_params
 
@@ -660,6 +672,10 @@ def post_process_operation(
         operation = post_process_block_storage_operation(
             resource_name, operation_name, operation
         )
+    elif service_type == "network":
+        operation = post_process_network_operation(
+            resource_name, operation_name, operation
+        )
     return operation
 
 
@@ -671,12 +687,41 @@ def post_process_compute_operation(
             operation.targets["rust-sdk"].response_key = "aggregate"
             operation.targets["rust-cli"].response_key = "aggregate"
     elif resource_name == "availability_zone":
-        if operation_name in ["get", "list_detailed"]:
+        if operation_name == "get":
+            operation.operation_type = "list"
+            operation.targets["rust-sdk"].operation_name = "list"
             operation.targets["rust-sdk"].response_key = "availabilityZoneInfo"
+            operation.targets["rust-sdk"].module_name = "list"
             operation.targets["rust-cli"].response_key = "availabilityZoneInfo"
+            operation.targets["rust-cli"].module_name = "list"
+            operation.targets["rust-cli"].sdk_mod_name = "list"
+            operation.targets["rust-cli"].operation_name = "list"
+            operation.targets["rust-sdk"].response_key = "availabilityZoneInfo"
+            operation.targets["rust-cli"].cli_full_command = (
+                "availability-zone list"
+            )
+        elif operation_name == "list_detailed":
+            operation.operation_type = "list"
+            operation.targets["rust-sdk"].operation_name = "list_detail"
+            operation.targets["rust-sdk"].response_key = "availabilityZoneInfo"
+            operation.targets["rust-sdk"].module_name = "list_detail"
+            operation.targets["rust-cli"].response_key = "availabilityZoneInfo"
+            operation.targets["rust-cli"].operation_name = "list"
+            operation.targets["rust-cli"].module_name = "list_detail"
+            operation.targets["rust-cli"].sdk_mod_name = "list_detail"
+            operation.targets["rust-cli"].cli_full_command = (
+                "availability-zone list-detail"
+            )
+
     elif resource_name == "keypair":
         if operation_name == "list":
             operation.targets["rust-sdk"].response_list_item_key = "keypair"
+
+    elif resource_name == "server":
+        if "migrate-live" in operation_name:
+            operation.targets["rust-cli"].cli_full_command = operation.targets[
+                "rust-cli"
+            ].cli_full_command.replace("migrate-live", "live-migrate")
     elif resource_name == "server/instance_action":
         if operation_name == "list":
             operation.targets["rust-sdk"].response_key = "instanceActions"
@@ -695,6 +740,50 @@ def post_process_compute_operation(
         elif operation_name in ["create", "show", "update"]:
             operation.targets["rust-sdk"].response_key = "volumeAttachment"
             operation.targets["rust-cli"].response_key = "volumeAttachment"
+    elif resource_name == "server/server_password":
+        operation.targets["rust-cli"].cli_full_command = operation.targets[
+            "rust-cli"
+        ].cli_full_command.replace("server-password", "password")
+        operation.targets["rust-cli"].cli_full_command = operation.targets[
+            "rust-cli"
+        ].cli_full_command.replace("get", "show")
+    elif resource_name == "server/security_group":
+        operation.targets["rust-cli"].cli_full_command = operation.targets[
+            "rust-cli"
+        ].cli_full_command.replace("security-group list", "security-groups")
+        if operation_name == "get":
+            operation.targets["rust-cli"].cli_full_command = operation.targets[
+                "rust-cli"
+            ].cli_full_command.replace("get", "show")
+
+    elif resource_name == "flavor":
+        if operation_name == "add-tenant-access":
+            operation.targets["rust-cli"].cli_full_command = operation.targets[
+                "rust-cli"
+            ].cli_full_command.replace("add-tenant-access", "access add")
+        elif operation_name == "list-tenant-access":
+            operation.targets["rust-cli"].cli_full_command = operation.targets[
+                "rust-cli"
+            ].cli_full_command.replace("list-tenant-access", "access list")
+        elif operation_name == "remove-tenant-access":
+            operation.targets["rust-cli"].cli_full_command = operation.targets[
+                "rust-cli"
+            ].cli_full_command.replace("remove-tenant-access", "access remove")
+
+    if "/tag" in resource_name:
+        if operation_name == "update":
+            operation.targets["rust-cli"].cli_full_command = operation.targets[
+                "rust-cli"
+            ].cli_full_command.replace("set", "add")
+        elif operation_name == "show":
+            operation.targets["rust-cli"].cli_full_command = operation.targets[
+                "rust-cli"
+            ].cli_full_command.replace("show", "check")
+
+    if operation_name == "delete_all":
+        operation.targets["rust-cli"].cli_full_command = operation.targets[
+            "rust-cli"
+        ].cli_full_command.replace("delete-all", "purge")
 
     return operation
 
@@ -710,6 +799,46 @@ def post_process_identity_operation(
         if operation_name == "list":
             operation.targets["rust-cli"].response_key = "role_inferences"
             operation.targets["rust-sdk"].response_key = "role_inferences"
+
+    if "rust-cli" in operation.targets:
+        if "auth/catalog" == resource_name:
+            operation.targets["rust-cli"].cli_full_command = operation.targets[
+                "rust-cli"
+            ].cli_full_command.replace("auth ", "")
+        elif "OS_FEDERATION" in resource_name:
+            operation.targets["rust-cli"].cli_full_command = operation.targets[
+                "rust-cli"
+            ].cli_full_command.replace("OS-FEDERATION", "federation")
+        elif resource_name == "user/project":
+            operation.targets["rust-cli"].cli_full_command = "user projects"
+        elif resource_name == "user/group":
+            operation.targets["rust-cli"].cli_full_command = "user groups"
+        elif resource_name == "user/access_rule":
+            operation.targets["rust-cli"].cli_full_command = operation.targets[
+                "rust-cli"
+            ].cli_full_command.replace("user access-rule", "access-rule")
+        elif resource_name == "user/application_credential":
+            operation.targets["rust-cli"].cli_full_command = operation.targets[
+                "rust-cli"
+            ].cli_full_command.replace(
+                "user application-credential", "application-credential"
+            )
+
+    if "/tag" in resource_name:
+        if operation_name == "update":
+            operation.targets["rust-cli"].cli_full_command = operation.targets[
+                "rust-cli"
+            ].cli_full_command.replace("set", "add")
+        elif operation_name == "show":
+            operation.targets["rust-cli"].cli_full_command = operation.targets[
+                "rust-cli"
+            ].cli_full_command.replace("show", "check")
+
+    if operation_name == "delete_all":
+        operation.targets["rust-cli"].cli_full_command = operation.targets[
+            "rust-cli"
+        ].cli_full_command.replace("delete-all", "purge")
+
     return operation
 
 
@@ -719,6 +848,9 @@ def post_process_image_operation(
     if resource_name.startswith("schema"):
         # Image schemas are a JSON operation
         operation.targets["rust-cli"].operation_type = "json"
+        operation.targets["rust-cli"].cli_full_command = operation.targets[
+            "rust-cli"
+        ].cli_full_command.replace("get", "show")
     elif resource_name == "metadef/namespace" and operation_name != "list":
         operation.targets["rust-sdk"].response_key = "null"
         operation.targets["rust-cli"].response_key = "null"
@@ -736,6 +868,35 @@ def post_process_image_operation(
         operation.targets["rust-sdk"].response_key = (
             "resource_type_associations"
         )
+        operation.targets["rust-cli"].cli_full_command = operation.targets[
+            "rust-cli"
+        ].cli_full_command.replace(
+            "resource-type", "resource-type-association"
+        )
+    elif resource_name == "image":
+        if operation_name == "patch":
+            operation.targets["rust-cli"].cli_full_command = operation.targets[
+                "rust-cli"
+            ].cli_full_command.replace("patch", "set")
+    elif resource_name == "image/file":
+        operation.targets["rust-cli"].cli_full_command = operation.targets[
+            "rust-cli"
+        ].cli_full_command.replace("file ", "")
+
+    if "/tag" in resource_name:
+        if operation_name == "update":
+            operation.targets["rust-cli"].cli_full_command = operation.targets[
+                "rust-cli"
+            ].cli_full_command.replace("set", "add")
+        elif operation_name == "show":
+            operation.targets["rust-cli"].cli_full_command = operation.targets[
+                "rust-cli"
+            ].cli_full_command.replace("show", "check")
+
+    if operation_name == "delete_all":
+        operation.targets["rust-cli"].cli_full_command = operation.targets[
+            "rust-cli"
+        ].cli_full_command.replace("delete-all", "purge")
 
     return operation
 
@@ -753,5 +914,56 @@ def post_process_block_storage_operation(
     elif resource_name == "type/volume_type_access":
         operation.targets["rust-cli"].response_key = "volume_type_access"
         operation.targets["rust-sdk"].response_key = "volume_type_access"
+
+    if "/tag" in resource_name:
+        if operation_name == "update":
+            operation.targets["rust-cli"].cli_full_command = operation.targets[
+                "rust-cli"
+            ].cli_full_command.replace("set", "add")
+        elif operation_name == "show":
+            operation.targets["rust-cli"].cli_full_command = operation.targets[
+                "rust-cli"
+            ].cli_full_command.replace("show", "check")
+
+    if operation_name == "delete_all":
+        operation.targets["rust-cli"].cli_full_command = operation.targets[
+            "rust-cli"
+        ].cli_full_command.replace("delete-all", "purge")
+
+    return operation
+
+
+def post_process_network_operation(
+    resource_name: str, operation_name: str, operation
+):
+    if resource_name.startswith("floatingip"):
+        operation.targets["rust-cli"].cli_full_command = operation.targets[
+            "rust-cli"
+        ].cli_full_command.replace("floatingip", "floating-ip")
+
+    if resource_name == "router":
+        if "external_gateways" in operation_name:
+            operation.targets["rust-cli"].cli_full_command = operation.targets[
+                "rust-cli"
+            ].cli_full_command.replace("external-gateways", "external-gateway")
+        elif "extraroutes" in operation_name:
+            operation.targets["rust-cli"].cli_full_command = operation.targets[
+                "rust-cli"
+            ].cli_full_command.replace("extraroutes", "extraroute")
+
+    if "/tag" in resource_name:
+        if operation_name == "update":
+            operation.targets["rust-cli"].cli_full_command = operation.targets[
+                "rust-cli"
+            ].cli_full_command.replace("set", "add")
+        elif operation_name == "show":
+            operation.targets["rust-cli"].cli_full_command = operation.targets[
+                "rust-cli"
+            ].cli_full_command.replace("show", "check")
+
+    if operation_name == "delete_all":
+        operation.targets["rust-cli"].cli_full_command = operation.targets[
+            "rust-cli"
+        ].cli_full_command.replace("delete-all", "purge")
 
     return operation

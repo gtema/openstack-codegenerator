@@ -480,6 +480,8 @@ def get_resource_names_from_url(path: str):
         path_resource_names = ["image"]
     if path_resource_names == ["volume_transfer", "accept"]:
         path_resource_names = ["volume_transfer"]
+    if path == "/v2.0/ports/{port_id}/bindings/{id}/activate":
+        path_resource_names = ["port", "binding"]
 
     return path_resource_names
 

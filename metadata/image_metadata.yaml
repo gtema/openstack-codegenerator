@@ -13,6 +13,7 @@ resources:
             module_name: get
             sdk_mod_name: get
             operation_type: json
+            cli_full_command: schema image show
   image.schema/images:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -27,6 +28,7 @@ resources:
             module_name: get
             sdk_mod_name: get
             operation_type: json
+            cli_full_command: schema images show
   image.schema/member:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -41,6 +43,7 @@ resources:
             module_name: get
             sdk_mod_name: get
             operation_type: json
+            cli_full_command: schema member show
   image.schema/members:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -55,6 +58,7 @@ resources:
             module_name: get
             sdk_mod_name: get
             operation_type: json
+            cli_full_command: schema members show
   image.schema/task:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -69,6 +73,7 @@ resources:
             module_name: get
             sdk_mod_name: get
             operation_type: json
+            cli_full_command: schema task show
   image.schema/tasks:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -83,6 +88,7 @@ resources:
             module_name: get
             sdk_mod_name: get
             operation_type: json
+            cli_full_command: schema tasks show
   image.schema/metadef/namespace:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -97,6 +103,7 @@ resources:
             module_name: get
             sdk_mod_name: get
             operation_type: json
+            cli_full_command: schema metadef namespace show
   image.schema/metadef/namespaces:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -111,6 +118,7 @@ resources:
             module_name: get
             sdk_mod_name: get
             operation_type: json
+            cli_full_command: schema metadef namespaces show
   image.schema/metadef/resource_type:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -125,6 +133,7 @@ resources:
             module_name: get
             sdk_mod_name: get
             operation_type: json
+            cli_full_command: schema metadef resource-type show
   image.schema/metadef/resource_types:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -139,6 +148,7 @@ resources:
             module_name: get
             sdk_mod_name: get
             operation_type: json
+            cli_full_command: schema metadef resource-types show
   image.schema/metadef/property:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -153,6 +163,7 @@ resources:
             module_name: get
             sdk_mod_name: get
             operation_type: json
+            cli_full_command: schema metadef property show
   image.schema/metadef/properties:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -167,6 +178,7 @@ resources:
             module_name: get
             sdk_mod_name: get
             operation_type: json
+            cli_full_command: schema metadef properties show
   image.schema/metadef/object:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -181,6 +193,7 @@ resources:
             module_name: get
             sdk_mod_name: get
             operation_type: json
+            cli_full_command: schema metadef object show
   image.schema/metadef/objects:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -195,6 +208,7 @@ resources:
             module_name: get
             sdk_mod_name: get
             operation_type: json
+            cli_full_command: schema metadef objects show
   image.schema/metadef/tag:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -209,6 +223,7 @@ resources:
             module_name: get
             sdk_mod_name: get
             operation_type: json
+            cli_full_command: schema metadef tag show
   image.schema/metadef/tags:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -223,6 +238,7 @@ resources:
             module_name: get
             sdk_mod_name: get
             operation_type: json
+            cli_full_command: schema metadef tags show
   image.metadef/resource_type:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -236,6 +252,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: metadef resource-type list
   image.metadef/namespace/resource_type:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -251,6 +268,7 @@ resources:
             module_name: list
             sdk_mod_name: list
             response_key: resource_type_associations
+            cli_full_command: metadef namespace resource-type-association list
       create:
         operation_id: metadefs/namespaces/namespace_name/resource_types:post
         operation_type: create
@@ -262,6 +280,7 @@ resources:
             module_name: create
             sdk_mod_name: create
             response_key: resource_type_associations
+            cli_full_command: metadef namespace resource-type-association create
       delete:
         operation_id: metadefs/namespaces/namespace_name/resource_types/resource_type:delete
         operation_type: delete
@@ -273,6 +292,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             response_key: resource_type_associations
+            cli_full_command: metadef namespace resource-type-association delete
   image.metadef/namespace:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -286,6 +306,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: metadef namespace list
       create:
         operation_id: metadefs/namespaces:post
         operation_type: create
@@ -297,6 +318,7 @@ resources:
             module_name: create
             sdk_mod_name: create
             response_key: 'null'
+            cli_full_command: metadef namespace create
       show:
         operation_id: metadefs/namespaces/namespace_name:get
         operation_type: show
@@ -308,6 +330,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             response_key: 'null'
+            cli_full_command: metadef namespace show
       update:
         operation_id: metadefs/namespaces/namespace_name:put
         operation_type: set
@@ -319,6 +342,7 @@ resources:
             module_name: set
             sdk_mod_name: set
             response_key: 'null'
+            cli_full_command: metadef namespace set
       delete:
         operation_id: metadefs/namespaces/namespace_name:delete
         operation_type: delete
@@ -330,6 +354,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             response_key: 'null'
+            cli_full_command: metadef namespace delete
   image.metadef/namespace/property:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -346,6 +371,7 @@ resources:
             sdk_mod_name: list
             operation_type: list_from_struct
             response_key: properties
+            cli_full_command: metadef namespace property list
       create:
         operation_id: metadefs/namespaces/namespace_name/properties:post
         operation_type: create
@@ -355,6 +381,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: metadef namespace property create
       delete_all:
         operation_id: metadefs/namespaces/namespace_name/properties:delete
         operation_type: delete
@@ -364,6 +391,7 @@ resources:
           rust-cli:
             module_name: delete_all
             sdk_mod_name: delete_all
+            cli_full_command: metadef namespace property purge
       show:
         operation_id: metadefs/namespaces/namespace_name/properties/property_name:get
         operation_type: show
@@ -373,6 +401,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: metadef namespace property show
       update:
         operation_id: metadefs/namespaces/namespace_name/properties/property_name:put
         operation_type: set
@@ -382,6 +411,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: metadef namespace property set
       delete:
         operation_id: metadefs/namespaces/namespace_name/properties/property_name:delete
         operation_type: delete
@@ -391,6 +421,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: metadef namespace property delete
   image.metadef/namespace/object:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -404,6 +435,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: metadef namespace object list
       create:
         operation_id: metadefs/namespaces/namespace_name/objects:post
         operation_type: create
@@ -413,6 +445,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: metadef namespace object create
       delete_all:
         operation_id: metadefs/namespaces/namespace_name/objects:delete
         operation_type: delete
@@ -422,6 +455,7 @@ resources:
           rust-cli:
             module_name: delete_all
             sdk_mod_name: delete_all
+            cli_full_command: metadef namespace object purge
       show:
         operation_id: metadefs/namespaces/namespace_name/objects/object_name:get
         operation_type: show
@@ -431,6 +465,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: metadef namespace object show
       update:
         operation_id: metadefs/namespaces/namespace_name/objects/object_name:put
         operation_type: set
@@ -440,6 +475,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: metadef namespace object set
       delete:
         operation_id: metadefs/namespaces/namespace_name/objects/object_name:delete
         operation_type: delete
@@ -449,6 +485,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: metadef namespace object delete
   image.metadef/namespace/tag:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -462,6 +499,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: metadef namespace tag list
       create:
         operation_id: metadefs/namespaces/namespace_name/tags/tag_name:post
         operation_type: create
@@ -471,6 +509,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: metadef namespace tag create
       delete_all:
         operation_id: metadefs/namespaces/namespace_name/tags:delete
         operation_type: delete
@@ -480,6 +519,7 @@ resources:
           rust-cli:
             module_name: delete_all
             sdk_mod_name: delete_all
+            cli_full_command: metadef namespace tag purge
       show:
         operation_id: metadefs/namespaces/namespace_name/tags/tag_name:get
         operation_type: show
@@ -489,6 +529,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: metadef namespace tag check
       update:
         operation_id: metadefs/namespaces/namespace_name/tags/tag_name:put
         operation_type: set
@@ -498,6 +539,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: metadef namespace tag add
       delete:
         operation_id: metadefs/namespaces/namespace_name/tags/tag_name:delete
         operation_type: delete
@@ -507,6 +549,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: metadef namespace tag delete
   image.image:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -520,6 +563,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: image list
       create:
         operation_id: images:post
         operation_type: create
@@ -529,6 +573,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: image create
       show:
         operation_id: images/image_id:get
         operation_type: show
@@ -539,6 +584,7 @@ resources:
             module_name: show
             sdk_mod_name: get
             find_implemented_by_sdk: true
+            cli_full_command: image show
       delete:
         operation_id: images/image_id:delete
         operation_type: delete
@@ -549,6 +595,7 @@ resources:
             module_name: delete
             sdk_mod_name: delete
             find_implemented_by_sdk: true
+            cli_full_command: image delete
       patch:
         operation_id: images/image_id:patch
         operation_type: set
@@ -559,6 +606,7 @@ resources:
             module_name: patch
             sdk_mod_name: patch
             find_implemented_by_sdk: true
+            cli_full_command: image set
       deactivate:
         operation_id: images/image_id/actions/deactivate:post
         operation_type: action
@@ -569,6 +617,7 @@ resources:
             module_name: deactivate
             sdk_mod_name: deactivate
             find_implemented_by_sdk: true
+            cli_full_command: image deactivate
       reactivate:
         operation_id: images/image_id/actions/reactivate:post
         operation_type: action
@@ -579,6 +628,7 @@ resources:
             module_name: reactivate
             sdk_mod_name: reactivate
             find_implemented_by_sdk: true
+            cli_full_command: image reactivate
       find:
         operation_id: images:get
         operation_type: find
@@ -602,6 +652,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: image task list
   image.image/import:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -615,6 +666,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: image import create
   image.store:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -628,6 +680,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: store delete
   image.image/file:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -641,6 +694,7 @@ resources:
           rust-cli:
             module_name: download
             sdk_mod_name: download
+            cli_full_command: image download
       upload:
         operation_id: images/image_id/file:put
         operation_type: upload
@@ -650,6 +704,7 @@ resources:
           rust-cli:
             module_name: upload
             sdk_mod_name: upload
+            cli_full_command: image upload
   image.image/stage:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -663,6 +718,7 @@ resources:
           rust-cli:
             module_name: stage
             sdk_mod_name: stage
+            cli_full_command: image stage stage
   image.image/tag:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -676,6 +732,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: image tag add
       delete:
         operation_id: images/image_id/tags/tag_value:delete
         operation_type: delete
@@ -685,6 +742,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: image tag delete
   image.image/member:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -698,6 +756,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: image member list
       create:
         operation_id: images/image_id/members:post
         operation_type: create
@@ -707,6 +766,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: image member create
       show:
         operation_id: images/image_id/members/member_id:get
         operation_type: show
@@ -716,6 +776,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: image member show
       update:
         operation_id: images/image_id/members/member_id:put
         operation_type: set
@@ -725,6 +786,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: image member set
       delete:
         operation_id: images/image_id/members/member_id:delete
         operation_type: delete
@@ -734,6 +796,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: image member delete
   image.task:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -747,6 +810,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: task list
       create:
         operation_id: tasks:post
         operation_type: create
@@ -756,6 +820,7 @@ resources:
           rust-cli:
             module_name: create
             sdk_mod_name: create
+            cli_full_command: task create
       show:
         operation_id: tasks/task_id:get
         operation_type: show
@@ -765,6 +830,7 @@ resources:
           rust-cli:
             module_name: show
             sdk_mod_name: get
+            cli_full_command: task show
       delete:
         operation_id: tasks/task_id:delete
         operation_type: delete
@@ -774,6 +840,7 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: task delete
   image.info/import:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -787,6 +854,7 @@ resources:
           rust-cli:
             module_name: get
             sdk_mod_name: get
+            cli_full_command: info import get
   image.info/store:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -806,6 +874,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list_detailed
+            cli_full_command: info store list
   image.info/usage:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -819,6 +888,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: info usage list
   image.cache:
     spec_file: wrk/openapi_specs/image/v2.yaml
     api_version: v2
@@ -832,6 +902,7 @@ resources:
           rust-cli:
             module_name: list
             sdk_mod_name: list
+            cli_full_command: cache list
       delete_all:
         operation_id: cache:delete
         operation_type: delete
@@ -841,6 +912,7 @@ resources:
           rust-cli:
             module_name: delete_all
             sdk_mod_name: delete_all
+            cli_full_command: cache purge
       update:
         operation_id: cache/image_id:put
         operation_type: set
@@ -850,6 +922,7 @@ resources:
           rust-cli:
             module_name: set
             sdk_mod_name: set
+            cli_full_command: cache set
       delete:
         operation_id: cache/image_id:delete
         operation_type: delete
@@ -859,3 +932,4 @@ resources:
           rust-cli:
             module_name: delete
             sdk_mod_name: delete
+            cli_full_command: cache delete

@@ -129,7 +129,7 @@ Some({{ val }})
 {%- macro set_request_data_from_input(dst_var, param, val_var) %}
 {%- set is_nullable = param.is_nullable if param.is_nullable is defined else False %}
 
-{%- if param.type_hint in ["Option<Option<bool>>", "Option<Option<i32>>", "Opeion<Option<i64>>"] %}
+{%- if param.type_hint in ["Option<Option<bool>>", "Option<Option<i32>>", "Option<Option<i64>>"] %}
     {{ dst_var }}.{{ param.remote_name }}({{ "*" + val_var }});
 
 {%- elif param.type_hint in ["Option<i32>", "Option<i64>", "Option<f32>", "Option<f64>", "Option<bool>"] %}
@@ -340,7 +340,6 @@ Some({{ val }})
   {%- endif %}
 {%- endmacro %}
 
-
 {%- macro get_data_for_sdk(data, data_var) %}
 {%- if data.__class__.__name__ == "ArrayInput" -%}
     {{ data_var }}.iter().cloned()
@@ -350,13 +349,13 @@ Some({{ val }})
 {%- macro set_cli_path_parameters(type_manager, builder, find_mode=False) %}
 {%- if not find_mode %}
 
-    // Set path parameters
+        // Set path parameters
 {%- endif %}
 {%- for (k, v) in type_manager.get_parameters("path") %}
 {%- if not v.is_required %}
   {%- if k != "project_id" %}
         if let Some(val) = &self.path.{{ v.local_name }} {
-          {{ builder }}.{{ v.local_name }}(val);
+            {{ builder }}.{{ v.local_name }}(val);
         }
   {%- else %}
         if let Some(val) = &self.path.{{ v.local_name }} {
@@ -366,13 +365,13 @@ Some({{ val }})
         }
   {%- endif %}
 {%- elif not find_mode and find_present and operation_type in ["show", "set", "download"] %}
-    let resource_id = find_data["id"]
-        .as_str()
-        .expect("Resource ID is a string")
-        .to_string();
-    {{ builder }}.{{ v.local_name }}(resource_id.clone());
+        let resource_id = find_data["id"]
+            .as_str()
+            .expect("Resource ID is a string")
+            .to_string();
+        {{ builder }}.{{ v.local_name }}(resource_id.clone());
 {%- else %}
-    {{ builder }}.{{ v.local_name }}(&self.path.{{ v.local_name }});
+        {{ builder }}.{{ v.local_name }}(&self.path.{{ v.local_name }});
 {%- endif %}
 {%- endfor %}
 {%- endmacro %}

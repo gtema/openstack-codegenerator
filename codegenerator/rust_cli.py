@@ -979,6 +979,12 @@ class RustCliGenerator(BaseGenerator):
             help="Mod path (dot separated) of the corresponding SDK command (when non standard)",
         )
 
+        parser.add_argument(
+            "--tests",
+            action="store_true",
+            help="Generate tests",
+        )
+
         return parser
 
     def _render_command(
@@ -1412,6 +1418,31 @@ class RustCliGenerator(BaseGenerator):
                     "rust_cli/impl.rs.j2",
                     impl_path,
                 )
+                self._format_code(impl_path)
+
+                if args.cli_full_command and True:  # args.tests:
+                    impl_path = Path(
+                        work_dir.parent,
+                        "tests",
+                        "/".join(cli_mod_path),
+                        f"{mod_name}_autogen.rs",
+                    )
+                    cmd = args.cli_full_command
+                    if microversion:
+                        cmd = args.cli_full_command + microversion.replace(
+                            ".", ""
+                        )
+
+                    test_context = {
+                        "service_type": args.service_type,
+                        "command": cmd.split(" "),
+                    }
+
+                    self._render_command(
+                        test_context,
+                        "rust_cli/functional_test_impl.rs.j2",
+                        impl_path,
+                    )
 
                 self._format_code(impl_path)
 
