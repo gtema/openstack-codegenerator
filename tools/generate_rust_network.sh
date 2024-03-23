@@ -4,6 +4,8 @@ WRK_DIR=wrk
 METADATA=metadata
 DST=~/workspace/github/gtema/openstack
 NET_RESOURCES=(
+  "address_group"
+  "address_scope"
   "availability_zone"
   "extension"
   "floatingip"

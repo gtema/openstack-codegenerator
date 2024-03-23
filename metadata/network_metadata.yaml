@@ -57,7 +57,7 @@ resources:
             module_name: add_addresses
             sdk_mod_name: add_addresses
             find_implemented_by_sdk: true
-            cli_full_command: address-group add-addresses
+            cli_full_command: address-group add-address
       remove_addresses:
         operation_id: address-groups/id/remove_addresses:put
         operation_type: action
@@ -68,7 +68,7 @@ resources:
             module_name: remove_addresses
             sdk_mod_name: remove_addresses
             find_implemented_by_sdk: true
-            cli_full_command: address-group remove-addresses
+            cli_full_command: address-group remove-address
       show:
         operation_id: address-groups/id:get
         operation_type: show

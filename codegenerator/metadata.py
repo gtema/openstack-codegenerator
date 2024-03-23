@@ -951,6 +951,12 @@ def post_process_network_operation(
                 "rust-cli"
             ].cli_full_command.replace("extraroutes", "extraroute")
 
+    if resource_name == "address_group":
+        if "addresses" in operation_name:
+            operation.targets["rust-cli"].cli_full_command = operation.targets[
+                "rust-cli"
+            ].cli_full_command.replace("addresses", "address")
+
     if "/tag" in resource_name:
         if operation_name == "update":
             operation.targets["rust-cli"].cli_full_command = operation.targets[

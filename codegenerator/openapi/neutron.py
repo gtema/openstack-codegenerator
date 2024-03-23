@@ -60,6 +60,7 @@ paste.app_factory = neutron.api.v2.router:APIRouter.factory
 
 class NeutronGenerator(OpenStackServerSourceBase):
     URL_TAG_MAP = {
+        "/agents/{agent_id}/l3-routers": "l3-agent-scheduler",
         "/agents/{agent_id}/dhcp-networks": "dhcp-agent-scheduler",
         "/agents": "networking-agents",
         "/ports/{port_id}/bindings": "port-bindings",
@@ -845,12 +846,22 @@ class NeutronGenerator(OpenStackServerSourceBase):
             # PUT tag does not have request body
             return None
 
+        elif name in [
+            # L3 routers
+            "AgentsL3_RouterShowResponse",
+            "AgentsL3_RouterUpdateRequest",
+            "AgentsL3_RouterUpdateResponse",
+            "RoutersL3_AgentShowResponse",
+            "RoutersL3_AgentUpdateRequest",
+            "RoutersL3_AgentUpdateResponse"
+            "RoutersL3_AgentsCreateRequest",
+            "RoutersL3_AgentsCreateResponse",
+        ]:
+            return None
         # ...
         elif name in [
             # L3 routers
             "RoutersL3_AgentsIndexResponse",
-            "RoutersL3_AgentsCreateRequest",
-            "RoutersL3_AgentsCreateResponse",
             "RoutersL3_AgentShowResponse",
             "RoutersL3_AgentUpdateRequest",
             "RoutersL3_AgentUpdateResponse"
@@ -1094,7 +1105,6 @@ def get_schema(param_data):
                 "type": "array",
                 "items": {
                     "type": "string",
-                    "format": "uuid",
                 },
             }
         elif "type:service_plugin_type" in validate:
