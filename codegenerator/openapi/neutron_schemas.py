@@ -303,6 +303,35 @@ ROUTER_EXTRAROUTES_RESPONSE_SCHEMA: dict[str, Any] = {
     },
 }
 
+EXTERNAL_GATEWAY_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "enable_snat": {
+            "type": "boolean",
+        },
+        "external_fixed_ips": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "ip_address": {
+                        "type": "string",
+                        "oneOf": [
+                            {"format": "ipv4"},
+                            {"format": "ipv6"},
+                        ],
+                    },
+                    "subnet_id": {
+                        "type": "string",
+                        "format": "uuid",
+                    },
+                },
+            },
+        },
+        "network_id": {"type": "string", "format": "uuid"},
+    },
+}
+
 ROUTER_ADD_EXTERNAL_GATEWAYS_REQUEST_SCHEMA: dict[str, Any] = {
     "description": "Request body",
     "type": "object",
@@ -313,34 +342,7 @@ ROUTER_ADD_EXTERNAL_GATEWAYS_REQUEST_SCHEMA: dict[str, Any] = {
                 "external_gateways": {
                     "type": "array",
                     "description": "The list of external gateways of the router.",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "enable_snat": {
-                                "type": "boolean",
-                            },
-                            "external_fixed_ips": {
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "properties": {
-                                        "ip_address": {
-                                            "type": "string",
-                                            "oneOf": [
-                                                {"format": "ipv4"},
-                                                {"format": "ipv6"},
-                                            ],
-                                        },
-                                        "subnet_id": {
-                                            "type": "string",
-                                            "format": "uuid",
-                                        },
-                                    },
-                                },
-                            },
-                            "network_id": {"type": "string", "format": "uuid"},
-                        },
-                    },
+                    "items": EXTERNAL_GATEWAY_SCHEMA
                 },
             },
         }
@@ -359,6 +361,123 @@ ROUTER_REMOVE_EXTERNAL_GATEWAYS_REQUEST_SCHEMA: dict[str, Any] = copy.deepcopy(
 ROUTER_REMOVE_EXTERNAL_GATEWAYS_REQUEST_SCHEMA["properties"]["router"][
     "properties"
 ]["external_gateways"]["items"]["properties"].pop("enable_snat")
+
+ADDRESS_GROUP_ADDRESS_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "address_group": {
+            "type": "object",
+            "properties": {
+                "addresses": {
+                    "type": "array",
+                    "description": "A list of IP addresses.",
+                    "items": {
+                        "type": "string",
+                    },
+                }
+            },
+        }
+    },
+}
+
+L3_ROUTER_AGENT_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "admin_state_up": {
+            "type": "boolean",
+            "description": "The administrative state of the resource, which is up (true) or down (false)."
+        },
+        "availability_zone_hints": {
+            "type": "array",
+            "description": "The availability zone candidates for the router. It is available when router_availability_zone extension is enabled.",
+            "items": {"type": "string"}
+        },
+        "availability_zones": {
+            "type": "array",
+            "description": "The availability zone(s) for the router. It is available when router_availability_zone extension is enabled.",
+            "items": {"type": "string"}
+        },
+        "description": {
+            "type": "string",
+            "description": "A human-readable description for the resource."
+        },
+        "distributed": {
+            "type": "boolean",
+            "description": "true indicates a distributed router. It is available when dvr extension is enabled."
+        },
+        "external_gateway_info": {
+            "description": "The external gateway information of the router. If the router has an external gateway, this would be a dict with network_id, enable_snat, external_fixed_ips, qos_policy_id, enable_default_route_ecmp and enable_default_route_bfd. Otherwise, this would be null.",
+            **EXTERNAL_GATEWAY_SCHEMA
+        },
+        "flavor_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The ID of the flavor associated with the router."
+        },
+        "ha": {
+            "type": "boolean",
+            "description": "true indicates a highly-available router. It is available when l3-ha extension is enabled."
+        },
+        "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The ID of the router."
+        },
+        "name": {
+            "type": "string",
+            "description": "Human-readable name of the resource."
+        },
+        "revision_number": {
+            "type": "integer",
+            "description": "The revision number of the resource."
+        },
+        "routes": {
+            "type": "array",
+            "description": "The extra routes configuration for L3 router. A list of dictionaries with destination and nexthop parameters. It is available when extraroute extension is enabled.",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "destination": {
+                        "type": "string"
+                    },
+                    "next_hop": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "status": {
+            "type": "string",
+            "description": "The router status."
+        },
+        "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The ID of the project."
+        },
+        "tenant_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The ID of the project."
+        },
+        "service_type_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The ID of the service type associated with the router."
+        },
+    }
+}
+
+L3_ROUTER_AGENTS_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "routers": {
+            "type": "array",
+            "description": "A list of router objects.",
+            "items": L3_ROUTER_AGENT_SCHEMA
+        }
+    }
+}
 
 
 def _get_schema_ref(
@@ -431,6 +550,60 @@ def _get_schema_ref(
             **ROUTER_UPDATE_EXTRAROUTES_REQUEST_SCHEMA
         )
         ref = "#/components/schemas/RouterShowResponse"
+    elif name in [
+        "Address_GroupsAdd_AddressesAdd_AddressesRequest",
+        "Address_GroupsRemove_AddressesRemove_AddressesRequest",
+    ]:
+        openapi_spec.components.schemas[name] = TypeSchema(
+            **ADDRESS_GROUP_ADDRESS_SCHEMA
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name in [
+        "Address_GroupsAdd_AddressesAdd_AddressesResponse",
+        "Address_GroupsRemove_AddressesRemove_AddressesResponse",
+    ]:
+        ref = "#/components/schemas/Address_GroupShowResponse"
+
+    elif name == "AgentsL3_RoutersIndexResponse":
+        openapi_spec.components.schemas[name] = TypeSchema(
+            **L3_ROUTER_AGENTS_SCHEMA
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "AgentsL3_RoutersIndexResponse":
+        openapi_spec.components.schemas[name] = TypeSchema(
+            **L3_ROUTER_AGENTS_SCHEMA
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "AgentsL3_RoutersCreateRequest":
+        openapi_spec.components.schemas[name] = TypeSchema(
+            **{
+                "type": "object",
+                "properties": {
+                    "router_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "The ID of the router."
+                    }
+                }
+            }
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "PortsBindingsActivateActivateRequest":
+        openapi_spec.components.schemas[name] = TypeSchema(
+            **{
+                "type": "object",
+                "properties": {
+                    "host": {
+                        "type": "string",
+                        "description": "The hostname of the system the agent is running on."
+                    }
+                }
+            }
+        )
+        ref = f"#/components/schemas/{name}"
+    elif name == "PortsBindingsActivateActivateResponse":
+        ref = "#/components/schemas/PortsBindingShowResponse"
+
     else:
         return (None, None, False)
 
