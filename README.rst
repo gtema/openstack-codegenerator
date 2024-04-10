@@ -2,6 +2,9 @@
 OpenStack CodeGenerator
 =======================
 
+The project has been moved to https://opendev.org/openstack/codegenerator/
+==========================================================================
+
 Primary goal of the project is to simplify maintainers life by generating
 complete or at least parts of the code.
 
